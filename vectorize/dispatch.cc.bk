@@ -1,0 +1,35 @@
+namespace {
+inline
+float _sum0(float const * __restrict__ x, 
+           float const * __restrict__ y, float const * __restrict__ z) {
+  float sum=0;
+  for (int i=0; i!=1024; ++i)
+    sum += z[i]+x[i]*y[i];
+  return sum;
+}
+}
+
+
+float  __attribute__ ((__target__ ("arch=haswell")))
+sum1(float const * __restrict__ x,
+     float const * __restrict__ y, float const * __restrict__ z) {
+  return _sum0(x,y,z);
+}
+
+float  __attribute__ ((__target__ ("arch=nehalem")))
+sum1(float const * __restrict__ x,
+     float const * __restrict__ y, float const * __restrict__ z) {
+  return _sum0(x,y,z);
+}
+
+
+float 
+__attribute__ ((target("arch=nehalem"), target("arch=haswell")))
+sum0(float const * __restrict__ x, 
+      float const * __restrict__ y, float const * __restrict__ z) {
+ float sum=0;
+ for (int i=0; i!=1024; ++i)
+   sum += z[i]+x[i]*y[i];
+ return sum;
+}
+

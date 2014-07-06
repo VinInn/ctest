@@ -1,0 +1,29 @@
+
+   // degree =  2   => absolute accuracy is  7 bits
+#if ( DEGREE == 2 )
+   float p =  0x4.p-4 + y * (0xa.cf6cap-4 + y * (-0x2.8e17ep-4)) ;
+#endif
+   // degree =  3   => absolute accuracy is  11 bits
+#if ( DEGREE == 3 )
+   float p =  -0x8.p-8 + y * (0x1.41ba24p0 + y * (-0x8.c3992p-4 + y * 0x1.5887d8p-4)) ;
+#endif
+   // degree =  4   => absolute accuracy is  14 bits
+#if ( DEGREE == 4 )
+   float p =  -0x2.p-4 + y * (0x1.840d28p0 + y * (-0xc.f8a0ap-4 + y * (0x3.34fc6p-4 + y * (-0x4.da39fp-8)))) ;
+#endif
+   // degree =  5   => absolute accuracy is  16 bits
+#if ( DEGREE == 5 )
+   float p =  -0x2.p-4 + y * (0x1.815bc8p0 + y * (-0xc.7f96ep-4 + y * (0x2.b806c8p-4 + y * (-0x1.5666f8p-8 + y * (-0x9.5222cp-12))))) ;
+#endif
+   // degree =  6   => absolute accuracy is  20 bits
+#if ( DEGREE == 6 )
+   float p =  -0x8.p-8 + y * (0x1.1e32cp0 + y * (-0x1.f75b1p-4 + y * (-0x6.b52c5p-4 + y * (0x4.9ae47p-4 + y * (-0x1.440e4cp-4 + y * 0x2.20289p-8))))) ;
+#endif
+   // degree =  7   => absolute accuracy is  24 bits
+#if ( DEGREE == 7 )
+   float p =  0x4.p-8 + y * (0xe.168a8p-4 + y * (0x6.31ed2p-4 + y * (-0x1.057f18p0 + y * (0xb.5bd26p-4 + y * (-0x4.137b8p-4 + y * (0xc.699dcp-8 + y * (-0xf.f984cp-12))))))) ;
+#endif
+   // degree =  8   => absolute accuracy is  27 bits
+#if ( DEGREE == 8 )
+   float p =  0x8.p-8 + y * (0xc.a9696p-4 + y * (0x9.b9776p-4 + y * (-0x1.54aa1p0 + y * (0xf.a837ap-4 + y * (-0x6.721c7p-4 + y * (0x1.95df98p-4 + y * (-0x3.81cb48p-8 + y * 0x3.5f883p-12))))))) ;
+#endif

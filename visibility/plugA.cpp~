@@ -1,0 +1,43 @@
+#include<memory>
+
+class Base {
+public:  
+  virtual ~Base(){}
+
+  virtual void hi()=0;
+
+};
+
+
+template<typename Base>
+class Factory {
+public:
+  typedef std::shared_ptr<B> pointer;
+
+  template<typename T, typename... Args>
+  pointer operator()(Args&&... args) {
+    return pointer(new T(std::forward<Args>(args)...);}
+  }
+
+};
+
+#pragma visibility push(hidden) 
+namespace {
+
+  class A : public B {
+  public:
+    A(float a, float b) {}
+    
+    void hi() {
+      std::cout << "A" << std::endl;
+    }
+
+  };
+}
+#pragma visibity pop
+
+
+extern "C" void factoryA() __attribute__((vinPlug)) {
+  
+
+}

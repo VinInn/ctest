@@ -1,0 +1,7 @@
+export VFLAGS="-fvisibility-inlines-hidden  -flto"
+setenv  VFLAGS "-fvisibility-inlines-hidden -flto"
+g++ -Ofast -std=gnu++0x  Base.cc -fPIC -pthread -shared -o libBase.so  $VFLAGS  -Wl,-rpath ./
+g++ -Ofast -std=gnu++0x  plugA.cpp -fPIC -pthread -shared -o plugA.so  $VFLAGS -L./ -lBase -Wl,-rpath ./
+g++ -Ofast -std=gnu++0x  Derived.cc helloD.cc plugD.cpp -fPIC -pthread -shared -o plugD.so  $VFLAGS -L./ -lBase -Wl,-rpath ./ $1
+g++ -Ofast -std=gnu++0x  exFactory.cpp -fPIC -pthread -o exFactory  $VFLAGS -L./ -lBase -ldl -Wl,-rpath ./
+

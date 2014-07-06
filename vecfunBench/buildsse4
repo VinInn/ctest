@@ -1,0 +1,4 @@
+c++ -msse4.2 -std=gnu++0x -Ofast testCephes.cpp -DREF_FREQ_MHZ=$1 -flto -o testCephes_fast -fvisibility-inlines-hidden --param vect-max-version-for-alias-checks=30  -funsafe-loop-optimizations -ftree-loop-if-convert-stores --param max-completely-peel-times=1
+c++ -msse4.2 -std=gnu++0x -Ofast sse_mathfun_test.c -DREF_FREQ_MHZ=$1 -flto -o sse_mathfun_test_fast -fvisibility-inlines-hidden --param vect-max-version-for-alias-checks=30  -funsafe-loop-optimizations -ftree-loop-if-convert-stores --param max-completely-peel-times=1
+c++ -msse4.2 -std=gnu++0x -O2 testCephes.cpp -DREF_FREQ_MHZ=$1 -flto -o testCephes_O2 -fvisibility-inlines-hidden
+c++ -msse4.2  -std=gnu++0x -O2 sse_mathfun_test.c -DREF_FREQ_MHZ=$1 -flto -o sse_mathfun_test_O2 -fvisibility-inlines-hidden

@@ -1,0 +1,1732 @@
+
+Analyzing loop at ured_omp4.cpp:38
+ured_omp4.cpp:38:3: note: ===== analyze_loop_nest =====
+ured_omp4.cpp:38:3: note: === vect_analyze_loop_form ===
+ured_omp4.cpp:38:3: note: === get_loop_niters ===
+ured_omp4.cpp:38:3: note: ==> get_loop_niters:(unsigned int) NN_4(D)
+ured_omp4.cpp:38:3: note: Symbolic number of iterations is (unsigned int) NN_4(D)
+ured_omp4.cpp:38:3: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:38:3: note: got vectype for stmt: _9 = *_8;
+const vector(4) float
+ured_omp4.cpp:38:3: note: === vect_analyze_data_ref_accesses ===
+ured_omp4.cpp:38:3: note: === vect_analyze_scalar_cycles ===
+ured_omp4.cpp:38:3: note: Analyze phi: i_24 = PHI <i_11(6), 0(3)>
+
+ured_omp4.cpp:38:3: note: Access function of PHI: {0, +, 1}_1
+ured_omp4.cpp:38:3: note: step: 1,  init: 0
+ured_omp4.cpp:38:3: note: Detected induction.
+ured_omp4.cpp:38:3: note: Analyze phi: s$b_27 = PHI <s$b_15(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: Access function of PHI: {0.0, +, -_9}_1
+ured_omp4.cpp:38:3: note: step: -_9,  init: 0.0
+ured_omp4.cpp:38:3: note: step unknown.
+ured_omp4.cpp:38:3: note: Analyze phi: s$a_28 = PHI <s$a_14(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: Access function of PHI: {0.0, +, _9}_1
+ured_omp4.cpp:38:3: note: step: _9,  init: 0.0
+ured_omp4.cpp:38:3: note: step unknown.
+ured_omp4.cpp:38:3: note: Analyze phi: s$a_28 = PHI <s$a_14(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: detected reduction: need to swap operands: s$a_14 = s$a_28 + _9;
+
+ured_omp4.cpp:38:3: note: Detected reduction.
+ured_omp4.cpp:38:3: note: Analyze phi: s$b_27 = PHI <s$b_15(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: detected reduction: need to swap operands: s$b_15 = s$b_27 + _31;
+
+ured_omp4.cpp:38:3: note: Detected reduction.
+ured_omp4.cpp:38:3: note: === vect_pattern_recog ===
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _5
+ured_omp4.cpp:38:3: note: def_stmt: _5 = (long unsigned int) i_24;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand i_24
+ured_omp4.cpp:38:3: note: def_stmt: i_24 = PHI <i_11(6), 0(3)>
+
+ured_omp4.cpp:38:3: note: type of def: 4.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand 4
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _9
+ured_omp4.cpp:38:3: note: def_stmt: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _9
+ured_omp4.cpp:38:3: note: def_stmt: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _31
+ured_omp4.cpp:38:3: note: def_stmt: _31 = -_9;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _31
+ured_omp4.cpp:38:3: note: def_stmt: _31 = -_9;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: === vect_mark_stmts_to_be_vectorized ===
+ured_omp4.cpp:38:3: note: init: phi relevant? i_24 = PHI <i_11(6), 0(3)>
+
+ured_omp4.cpp:38:3: note: init: phi relevant? s$b_27 = PHI <s$b_15(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: init: phi relevant? s$a_28 = PHI <s$a_14(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? _5 = (long unsigned int) i_24;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? _6 = _5 * 4;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? _8 = q_7(D) + _6;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? _9 = *_8;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? s$a_14 = _9 + s$a_28;
+
+ured_omp4.cpp:38:3: note: vec_stmt_relevant_p: used out of loop.
+ured_omp4.cpp:38:3: note: mark relevant 0, live 1.
+ured_omp4.cpp:38:3: note: init: stmt relevant? _31 = -_9;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? s$b_15 = _31 + s$b_27;
+
+ured_omp4.cpp:38:3: note: vec_stmt_relevant_p: used out of loop.
+ured_omp4.cpp:38:3: note: mark relevant 0, live 1.
+ured_omp4.cpp:38:3: note: init: stmt relevant? i_11 = i_24 + 1;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? if (NN_4(D) > i_11)
+
+ured_omp4.cpp:38:3: note: worklist: examine stmt: s$b_15 = _31 + s$b_27;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$b_27
+ured_omp4.cpp:38:3: note: def_stmt: s$b_27 = PHI <s$b_15(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: mark relevant 3, live 0.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _31
+ured_omp4.cpp:38:3: note: def_stmt: _31 = -_9;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: mark relevant 3, live 0.
+ured_omp4.cpp:38:3: note: worklist: examine stmt: _31 = -_9;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _9
+ured_omp4.cpp:38:3: note: def_stmt: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: mark relevant 3, live 0.
+ured_omp4.cpp:38:3: note: worklist: examine stmt: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: worklist: examine stmt: s$b_27 = PHI <s$b_15(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$b_15
+ured_omp4.cpp:38:3: note: def_stmt: s$b_15 = _31 + s$b_27;
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: reduc-stmt defining reduc-phi in the same nest.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand 0.0
+ured_omp4.cpp:38:3: note: worklist: examine stmt: s$a_14 = _9 + s$a_28;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$a_28
+ured_omp4.cpp:38:3: note: def_stmt: s$a_28 = PHI <s$a_14(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: mark relevant 3, live 0.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _9
+ured_omp4.cpp:38:3: note: def_stmt: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: mark relevant 3, live 0.
+ured_omp4.cpp:38:3: note: already marked relevant/live.
+ured_omp4.cpp:38:3: note: worklist: examine stmt: s$a_28 = PHI <s$a_14(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$a_14
+ured_omp4.cpp:38:3: note: def_stmt: s$a_14 = _9 + s$a_28;
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: reduc-stmt defining reduc-phi in the same nest.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand 0.0
+ured_omp4.cpp:38:3: note: === vect_analyze_data_ref_dependences ===
+ured_omp4.cpp:38:3: note: === vect_determine_vectorization_factor ===
+ured_omp4.cpp:38:3: note: ==> examining phi: i_24 = PHI <i_11(6), 0(3)>
+
+ured_omp4.cpp:38:3: note: ==> examining phi: s$b_27 = PHI <s$b_15(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: nunits = 4
+ured_omp4.cpp:38:3: note: ==> examining phi: s$a_28 = PHI <s$a_14(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: nunits = 4
+ured_omp4.cpp:38:3: note: ==> examining statement: _5 = (long unsigned int) i_24;
+
+ured_omp4.cpp:38:3: note: skip.
+ured_omp4.cpp:38:3: note: ==> examining statement: _6 = _5 * 4;
+
+ured_omp4.cpp:38:3: note: skip.
+ured_omp4.cpp:38:3: note: ==> examining statement: _8 = q_7(D) + _6;
+
+ured_omp4.cpp:38:3: note: skip.
+ured_omp4.cpp:38:3: note: ==> examining statement: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: nunits = 4
+ured_omp4.cpp:38:3: note: ==> examining statement: s$a_14 = _9 + s$a_28;
+
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: nunits = 4
+ured_omp4.cpp:38:3: note: ==> examining statement: _31 = -_9;
+
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: nunits = 4
+ured_omp4.cpp:38:3: note: ==> examining statement: s$b_15 = _31 + s$b_27;
+
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: nunits = 4
+ured_omp4.cpp:38:3: note: ==> examining statement: i_11 = i_24 + 1;
+
+ured_omp4.cpp:38:3: note: skip.
+ured_omp4.cpp:38:3: note: ==> examining statement: if (NN_4(D) > i_11)
+
+ured_omp4.cpp:38:3: note: skip.
+ured_omp4.cpp:38:3: note: vectorization factor = 4
+ured_omp4.cpp:38:3: note: === vect_analyze_data_refs_alignment ===
+ured_omp4.cpp:38:3: note: vect_compute_data_ref_alignment:
+ured_omp4.cpp:38:3: note: can't force alignment of ref: *_8
+ured_omp4.cpp:38:3: note: === vect_prune_runtime_alias_test_list ===
+ured_omp4.cpp:38:3: note: === vect_enhance_data_refs_alignment ===
+ured_omp4.cpp:38:3: note: Unknown misalignment, is_packed = 0
+ured_omp4.cpp:38:3: note: vect_can_advance_ivs_p:
+ured_omp4.cpp:38:3: note: Analyze phi: i_24 = PHI <i_11(6), 0(3)>
+
+ured_omp4.cpp:38:3: note: Analyze phi: s$b_27 = PHI <s$b_15(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: reduc phi. skip.
+ured_omp4.cpp:38:3: note: Analyze phi: s$a_28 = PHI <s$a_14(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: reduc phi. skip.
+ured_omp4.cpp:38:3: note: Alignment of access forced using peeling.
+ured_omp4.cpp:38:3: note: Peeling for alignment will be applied.
+ured_omp4.cpp:38:3: note: === vect_analyze_slp ===
+ured_omp4.cpp:38:3: note: Build SLP for s$a_14 = _9 + s$a_28;
+
+ured_omp4.cpp:38:3: note: Build SLP for s$b_15 = _31 + s$b_27;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _9
+ured_omp4.cpp:38:3: note: def_stmt: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$a_28
+ured_omp4.cpp:38:3: note: def_stmt: s$a_28 = PHI <s$a_14(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _31
+ured_omp4.cpp:38:3: note: def_stmt: _31 = -_9;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$b_27
+ured_omp4.cpp:38:3: note: def_stmt: s$b_27 = PHI <s$b_15(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: Build SLP for _9 = *_8;
+
+ured_omp4.cpp:38:3: note: Build SLP failed: not grouped load _9 = *_8;
+
+ured_omp4.cpp:38:3: note: === vect_make_slp_decision ===
+ured_omp4.cpp:38:3: note: === vect_detect_hybrid_slp ===
+ured_omp4.cpp:38:3: note: === vect_analyze_loop_operations ===
+ured_omp4.cpp:38:3: note: examining phi: i_24 = PHI <i_11(6), 0(3)>
+
+ured_omp4.cpp:38:3: note: examining phi: s$b_27 = PHI <s$b_15(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: examining phi: s$a_28 = PHI <s$a_14(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: ==> examining statement: _5 = (long unsigned int) i_24;
+
+ured_omp4.cpp:38:3: note: irrelevant.
+ured_omp4.cpp:38:3: note: ==> examining statement: _6 = _5 * 4;
+
+ured_omp4.cpp:38:3: note: irrelevant.
+ured_omp4.cpp:38:3: note: ==> examining statement: _8 = q_7(D) + _6;
+
+ured_omp4.cpp:38:3: note: irrelevant.
+ured_omp4.cpp:38:3: note: ==> examining statement: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand *_8
+ured_omp4.cpp:38:3: note: not ssa-name.
+ured_omp4.cpp:38:3: note: use not simple.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand *_8
+ured_omp4.cpp:38:3: note: not ssa-name.
+ured_omp4.cpp:38:3: note: use not simple.
+ured_omp4.cpp:38:3: note: vect_model_load_cost: aligned.
+ured_omp4.cpp:38:3: note: vect_model_load_cost: inside_cost = 1, prologue_cost = 0 .
+ured_omp4.cpp:38:3: note: ==> examining statement: s$a_14 = _9 + s$a_28;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _9
+ured_omp4.cpp:38:3: note: def_stmt: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$a_28
+ured_omp4.cpp:38:3: note: def_stmt: s$a_28 = PHI <s$a_14(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: detected reduction: s$a_14 = _9 + s$a_28;
+
+vect_model_reduction_cost: inside_cost = 1, prologue_cost = 1, epilogue_cost = 2 .
+ured_omp4.cpp:38:3: note: ==> examining statement: _31 = -_9;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _9
+ured_omp4.cpp:38:3: note: def_stmt: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: === vectorizable_operation ===
+ured_omp4.cpp:38:3: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+ured_omp4.cpp:38:3: note: ==> examining statement: s$b_15 = _31 + s$b_27;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _31
+ured_omp4.cpp:38:3: note: def_stmt: _31 = -_9;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$b_27
+ured_omp4.cpp:38:3: note: def_stmt: s$b_27 = PHI <s$b_15(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: detected reduction: s$b_15 = _31 + s$b_27;
+
+vect_model_reduction_cost: inside_cost = 1, prologue_cost = 1, epilogue_cost = 2 .
+ured_omp4.cpp:38:3: note: ==> examining statement: i_11 = i_24 + 1;
+
+ured_omp4.cpp:38:3: note: irrelevant.
+ured_omp4.cpp:38:3: note: ==> examining statement: if (NN_4(D) > i_11)
+
+ured_omp4.cpp:38:3: note: irrelevant.
+ured_omp4.cpp:38:3: note: === vect_update_slp_costs_according_to_vf ===
+cost model: prologue peel iters set to vf/2.
+cost model: epilogue peel iters set to vf/2 because peeling for alignment is unknown.
+ured_omp4.cpp:38:3: note: Cost model analysis: 
+  Vector inside of loop cost: 4
+  Vector prologue cost: 18
+  Vector epilogue cost: 12
+  Scalar iteration cost: 4
+  Scalar outside cost: 7
+  Vector outside cost: 30
+  prologue iterations: 2
+  epilogue iterations: 2
+  Calculated minimum iters for profitability: 7
+
+ured_omp4.cpp:38:3: note:   Runtime profitability threshold = 6
+ured_omp4.cpp:38:3: note:   Static estimate profitability threshold = 6
+ured_omp4.cpp:38:3: note: epilog loop required.
+ured_omp4.cpp:38:3: note: vect_can_advance_ivs_p:
+ured_omp4.cpp:38:3: note: Analyze phi: i_24 = PHI <i_11(6), 0(3)>
+
+ured_omp4.cpp:38:3: note: Analyze phi: s$b_27 = PHI <s$b_15(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: reduc phi. skip.
+ured_omp4.cpp:38:3: note: Analyze phi: s$a_28 = PHI <s$a_14(6), 0.0(3)>
+
+ured_omp4.cpp:38:3: note: reduc phi. skip.
+ured_omp4.cpp:38:3: note: loop vectorized
+ured_omp4.cpp:38:3: note: === vec_transform_loop ===
+ured_omp4.cpp:38:3: note: Profitability threshold is 6 loop iterations.
+ured_omp4.cpp:38:3: note: loop peeled for vectorization to enhance alignment
+ured_omp4.cpp:38:3: note: created vectp_q.55_29
+ured_omp4.cpp:38:3: note: niters for prolog loop: MIN_EXPR <(unsigned int) -(((unsigned long) vectp_q.55_29 & 15) >> 2) & 3, niters.54_30>
+
+loop at ured_omp4.cpp:39: if (ivtmp_56 < prologue_after_cost_adjust.57_44)
+
+Setting upper bound of nb iterations for prologue loop to 5
+ured_omp4.cpp:38:3: note: === vect_update_inits_of_dr ===
+ured_omp4.cpp:38:3: note: === vect_do_peeling_for_loop_bound ===
+ured_omp4.cpp:38:3: note: vect_update_ivs_after_vectorizer: phi: i_24 = PHI <i_11(6), i_45(22)>
+
+ured_omp4.cpp:38:3: note: vect_update_ivs_after_vectorizer: phi: s$b_27 = PHI <s$b_15(6), s$b_47(22)>
+
+ured_omp4.cpp:38:3: note: reduc phi. skip.
+ured_omp4.cpp:38:3: note: vect_update_ivs_after_vectorizer: phi: s$a_28 = PHI <s$a_14(6), s$a_49(22)>
+
+ured_omp4.cpp:38:3: note: reduc phi. skip.
+Setting upper bound of nb iterations for epilogue loop to 2
+ured_omp4.cpp:38:3: note: ------>vectorizing phi: i_24 = PHI <i_11(6), i_45(26)>
+
+ured_omp4.cpp:38:3: note: ------>vectorizing phi: s$b_27 = PHI <s$b_15(6), s$b_47(26)>
+
+ured_omp4.cpp:38:3: note: ------>vectorizing phi: s$a_28 = PHI <s$a_14(6), s$a_49(26)>
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: _5 = (long unsigned int) i_24;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: _6 = _5 * 4;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: _8 = q_7(D) + _6;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: transform statement.
+ured_omp4.cpp:38:3: note: transform load. ncopies = 1
+ured_omp4.cpp:38:3: note: create vector_type-pointer variable to type: const vector(4) float  vectorizing a pointer ref: *q_7(D)
+ured_omp4.cpp:38:3: note: created vectp_q.64_85
+ured_omp4.cpp:38:3: note: add new stmt: vect__9.65_89 = MEM[(const float *)vectp_q.63_87];
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: s$a_14 = _9 + s$a_28;
+
+ured_omp4.cpp:38:3: note: transform statement.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _9
+ured_omp4.cpp:38:3: note: def_stmt: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$a_28
+ured_omp4.cpp:38:3: note: def_stmt: s$a_28 = PHI <s$a_14(6), s$a_49(26)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: detected reduction: s$a_14 = _9 + s$a_28;
+
+ured_omp4.cpp:38:3: note: transform reduction.
+ured_omp4.cpp:38:3: note: vect_get_vec_def_for_operand: _9
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _9
+ured_omp4.cpp:38:3: note: def_stmt: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: def =  _9
+  def_stmt =  _9 = *_8;
+
+ured_omp4.cpp:38:3: note: add new stmt: vect_s$a_14.66_91 = vect__9.65_89 + vect_s$a_14.66_90;
+
+ured_omp4.cpp:38:3: note: vect_get_vec_def_for_operand: s$a_28
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$a_28
+ured_omp4.cpp:38:3: note: def_stmt: s$a_28 = PHI <s$a_14(6), s$a_49(26)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: def =  s$a_28
+  def_stmt =  s$a_28 = PHI <s$a_14(6), s$a_49(26)>
+
+ured_omp4.cpp:38:3: note: transform reduction: created def-use cycle: vect_s$a_14.66_90 = PHI <vect_s$a_14.66_91(6), { 0.0, 0.0, 0.0, 0.0 }(26)>
+
+vect_s$a_14.66_91 = vect__9.65_89 + vect_s$a_14.66_90;
+
+ured_omp4.cpp:38:3: note: Reduce using direct vector reduction.
+ured_omp4.cpp:38:3: note: extract scalar result
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: _31 = -_9;
+
+ured_omp4.cpp:38:3: note: transform statement.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _9
+ured_omp4.cpp:38:3: note: def_stmt: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: transform binary/unary operation.
+ured_omp4.cpp:38:3: note: vect_get_vec_def_for_operand: _9
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _9
+ured_omp4.cpp:38:3: note: def_stmt: _9 = *_8;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: def =  _9
+  def_stmt =  _9 = *_8;
+
+ured_omp4.cpp:38:3: note: add new stmt: vect__31.70_96 = -vect__9.65_89;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: s$b_15 = _31 + s$b_27;
+
+ured_omp4.cpp:38:3: note: transform statement.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _31
+ured_omp4.cpp:38:3: note: def_stmt: _31 = -_9;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$b_27
+ured_omp4.cpp:38:3: note: def_stmt: s$b_27 = PHI <s$b_15(6), s$b_47(26)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: detected reduction: s$b_15 = _31 + s$b_27;
+
+ured_omp4.cpp:38:3: note: transform reduction.
+ured_omp4.cpp:38:3: note: vect_get_vec_def_for_operand: _31
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _31
+ured_omp4.cpp:38:3: note: def_stmt: _31 = -_9;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: def =  _31
+  def_stmt =  _31 = -_9;
+
+ured_omp4.cpp:38:3: note: add new stmt: vect_s$b_15.71_98 = vect__31.70_96 + vect_s$b_15.71_97;
+
+ured_omp4.cpp:38:3: note: vect_get_vec_def_for_operand: s$b_27
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$b_27
+ured_omp4.cpp:38:3: note: def_stmt: s$b_27 = PHI <s$b_15(6), s$b_47(26)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: def =  s$b_27
+  def_stmt =  s$b_27 = PHI <s$b_15(6), s$b_47(26)>
+
+ured_omp4.cpp:38:3: note: transform reduction: created def-use cycle: vect_s$b_15.71_97 = PHI <vect_s$b_15.71_98(6), { 0.0, 0.0, 0.0, 0.0 }(26)>
+
+vect_s$b_15.71_98 = vect__31.70_96 + vect_s$b_15.71_97;
+
+ured_omp4.cpp:38:3: note: Reduce using direct vector reduction.
+ured_omp4.cpp:38:3: note: extract scalar result
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: i_11 = i_24 + 1;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: vectp_q.63_88 = vectp_q.63_87 + 16;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: if (NN_4(D) > i_11)
+
+
+loop at ured_omp4.cpp:39: if (ivtmp_104 < bnd.60_60)
+
+ured_omp4.cpp:38:3: note: LOOP VECTORIZED
+
+ured_omp4.cpp:35:8: note: vectorized 1 loops in function.
+ured_omp4.cpp:38:3: note: loop with 3 iterations completely unrolled
+ured_omp4.cpp:35:8: note: loop with 6 iterations completely unrolled
+ured_omp4.cpp:38:3: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:38:3: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:38:3: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:35:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:35:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:35:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:35:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:35:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:35:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:35:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:35:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:35:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:39:22: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:39:22: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:39:22: note: got vectype for stmt: _120 = *_119;
+const vector(4) float
+ured_omp4.cpp:39:22: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:39:22: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:39:22: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:39:22: note: got vectype for stmt: _133 = *_132;
+const vector(4) float
+ured_omp4.cpp:39:22: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:39:22: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:39:22: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:39:22: note: got vectype for stmt: _146 = *_145;
+const vector(4) float
+ured_omp4.cpp:39:22: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:39:22: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:39:22: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:39:22: note: got vectype for stmt: _159 = *_158;
+const vector(4) float
+ured_omp4.cpp:39:22: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:39:22: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:39:22: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:39:22: note: got vectype for stmt: _172 = *_171;
+const vector(4) float
+ured_omp4.cpp:39:22: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:39:22: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:39:22: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:39:22: note: got vectype for stmt: _37 = *_36;
+const vector(4) float
+ured_omp4.cpp:39:22: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:35:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:35:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:35:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:35:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:35:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:35:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:35:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:35:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:35:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:39:23: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:39:23: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:39:23: note: not vectorized: no vectype for stmt: vect__9.65_89 = MEM[(const float *)vectp_q.63_87];
+ scalar_type: const vector(4) float
+ured_omp4.cpp:39:23: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:39:22: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:39:22: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:39:22: note: got vectype for stmt: _68 = *_67;
+const vector(4) float
+ured_omp4.cpp:39:22: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:35:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:35:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:35:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:39:22: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:39:22: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:39:22: note: got vectype for stmt: _5 = *_24;
+const vector(4) float
+ured_omp4.cpp:39:22: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:39:22: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:39:22: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:39:22: note: got vectype for stmt: _108 = *_107;
+const vector(4) float
+ured_omp4.cpp:39:22: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:35:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:35:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:35:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:35:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:35:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:35:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:35:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:35:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:35:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:35:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:35:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:35:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:42:10: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:42:10: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:42:10: note: got vectype for stmt: MEM[(struct TwoInt *)&D.63269] = s$a_19;
+vector(4) float
+ured_omp4.cpp:42:10: note: got vectype for stmt: MEM[(struct TwoInt *)&D.63269 + 4B] = s$b_18;
+vector(4) float
+ured_omp4.cpp:42:10: note: === vect_analyze_data_ref_accesses ===
+ured_omp4.cpp:42:10: note: Detected interleaving MEM[(struct TwoInt *)&D.63269] and MEM[(struct TwoInt *)&D.63269 + 4B]
+ured_omp4.cpp:42:10: note: Detected interleaving of size 2
+ured_omp4.cpp:42:10: note: === vect_pattern_recog ===
+ured_omp4.cpp:42:10: note: === vect_slp_analyze_data_ref_dependences ===
+ured_omp4.cpp:42:10: note: === vect_analyze_data_refs_alignment ===
+ured_omp4.cpp:42:10: note: vect_compute_data_ref_alignment:
+ured_omp4.cpp:42:10: note: force alignment of MEM[(struct TwoInt *)&D.63269]
+ured_omp4.cpp:42:10: note: misalign = 0 bytes of ref MEM[(struct TwoInt *)&D.63269]
+ured_omp4.cpp:42:10: note: vect_compute_data_ref_alignment:
+ured_omp4.cpp:42:10: note: force alignment of MEM[(struct TwoInt *)&D.63269 + 4B]
+ured_omp4.cpp:42:10: note: misalign = 4 bytes of ref MEM[(struct TwoInt *)&D.63269 + 4B]
+ured_omp4.cpp:42:10: note: === vect_analyze_slp ===
+ured_omp4.cpp:42:10: note: Build SLP failed: unrolling required in basic block SLP
+ured_omp4.cpp:42:10: note: Failed to SLP the basic block.
+ured_omp4.cpp:42:10: note: not vectorized: failed to find SLP opportunities in basic block.
+
+Analyzing loop at ured_omp4.cpp:47
+ured_omp4.cpp:47:3: note: ===== analyze_loop_nest =====
+ured_omp4.cpp:47:3: note: === vect_analyze_loop_form ===
+ured_omp4.cpp:47:3: note: ===== analyze_loop_nest_1 =====
+ured_omp4.cpp:47:3: note: === vect_analyze_loop_form ===
+ured_omp4.cpp:47:3: note: not vectorized: control flow in loop.
+ured_omp4.cpp:47:3: note: bad inner-loop form.
+ured_omp4.cpp:47:3: note: not vectorized: Bad inner loop.
+ured_omp4.cpp:47:3: note: bad loop form.
+
+Analyzing loop at ured_omp4.cpp:48
+ured_omp4.cpp:48:5: note: ===== analyze_loop_nest =====
+ured_omp4.cpp:48:5: note: === vect_analyze_loop_form ===
+ured_omp4.cpp:48:5: note: not vectorized: control flow in loop.
+ured_omp4.cpp:48:5: note: bad loop form.
+
+Analyzing loop at ured_omp4.cpp:46
+ured_omp4.cpp:46:13: note: ===== analyze_loop_nest =====
+ured_omp4.cpp:46:13: note: === vect_analyze_loop_form ===
+ured_omp4.cpp:46:13: note: === get_loop_niters ===
+ured_omp4.cpp:46:13: note: ==> get_loop_niters:4
+ured_omp4.cpp:46:13: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:46:13: note: got vectype for stmt: _68->a = 0.0;
+vector(4) float
+ured_omp4.cpp:46:13: note: got vectype for stmt: _68->b = 0.0;
+vector(4) float
+ured_omp4.cpp:46:13: note: === vect_analyze_data_ref_accesses ===
+ured_omp4.cpp:46:13: note: Detected interleaving _68->a and _68->b
+ured_omp4.cpp:46:13: note: Detected interleaving of size 2
+ured_omp4.cpp:46:13: note: === vect_analyze_scalar_cycles ===
+ured_omp4.cpp:46:13: note: Analyze phi: _68 = PHI <_10(3), &s(2)>
+
+ured_omp4.cpp:46:13: note: Access function of PHI: {(struct TwoInt *) &s, +, 8}_1
+ured_omp4.cpp:46:13: note: step: 8,  init: (struct TwoInt *) &s
+ured_omp4.cpp:46:13: note: Detected induction.
+ured_omp4.cpp:46:13: note: Analyze phi: _66 = PHI <_11(3), 3(2)>
+
+ured_omp4.cpp:46:13: note: Access function of PHI: {3, +, -1}_1
+ured_omp4.cpp:46:13: note: step: -1,  init: 3
+ured_omp4.cpp:46:13: note: Detected induction.
+ured_omp4.cpp:46:13: note: Analyze phi: .MEM_64 = PHI <.MEM_50(3), .MEM_8(D)(2)>
+
+ured_omp4.cpp:46:13: note: Analyze phi: ivtmp_67 = PHI <ivtmp_101(3), 4(2)>
+
+ured_omp4.cpp:46:13: note: Access function of PHI: {4, +, 18446744073709551615}_1
+ured_omp4.cpp:46:13: note: step: 18446744073709551615,  init: 4
+ured_omp4.cpp:46:13: note: Detected induction.
+ured_omp4.cpp:46:13: note: === vect_pattern_recog ===
+ured_omp4.cpp:46:13: note: === vect_mark_stmts_to_be_vectorized ===
+ured_omp4.cpp:46:13: note: init: phi relevant? _68 = PHI <_10(3), &s(2)>
+
+ured_omp4.cpp:46:13: note: init: phi relevant? _66 = PHI <_11(3), 3(2)>
+
+ured_omp4.cpp:46:13: note: init: phi relevant? .MEM_64 = PHI <.MEM_50(3), .MEM_8(D)(2)>
+
+ured_omp4.cpp:46:13: note: init: phi relevant? ivtmp_67 = PHI <ivtmp_101(3), 4(2)>
+
+ured_omp4.cpp:46:13: note: init: stmt relevant? _68->a = 0.0;
+
+ured_omp4.cpp:46:13: note: vec_stmt_relevant_p: stmt has vdefs.
+ured_omp4.cpp:46:13: note: mark relevant 4, live 0.
+ured_omp4.cpp:46:13: note: init: stmt relevant? _68->b = 0.0;
+
+ured_omp4.cpp:46:13: note: vec_stmt_relevant_p: stmt has vdefs.
+ured_omp4.cpp:46:13: note: mark relevant 4, live 0.
+ured_omp4.cpp:46:13: note: init: stmt relevant? _10 = _68 + 8;
+
+ured_omp4.cpp:46:13: note: init: stmt relevant? _11 = _66 + -1;
+
+ured_omp4.cpp:46:13: note: init: stmt relevant? ivtmp_101 = ivtmp_67 - 1;
+
+ured_omp4.cpp:46:13: note: init: stmt relevant? if (ivtmp_101 != 0)
+
+ured_omp4.cpp:46:13: note: worklist: examine stmt: _68->b = 0.0;
+
+ured_omp4.cpp:46:13: note: worklist: examine stmt: _68->a = 0.0;
+
+ured_omp4.cpp:46:13: note: === vect_analyze_data_ref_dependences ===
+ured_omp4.cpp:46:13: note: === vect_determine_vectorization_factor ===
+ured_omp4.cpp:46:13: note: ==> examining phi: _68 = PHI <_10(3), &s(2)>
+
+ured_omp4.cpp:46:13: note: ==> examining phi: _66 = PHI <_11(3), 3(2)>
+
+ured_omp4.cpp:46:13: note: ==> examining phi: .MEM_64 = PHI <.MEM_50(3), .MEM_8(D)(2)>
+
+ured_omp4.cpp:46:13: note: ==> examining phi: ivtmp_67 = PHI <ivtmp_101(3), 4(2)>
+
+ured_omp4.cpp:46:13: note: ==> examining statement: _68->a = 0.0;
+
+ured_omp4.cpp:46:13: note: get vectype for scalar type:  float
+ured_omp4.cpp:46:13: note: vectype: vector(4) float
+ured_omp4.cpp:46:13: note: nunits = 4
+ured_omp4.cpp:46:13: note: ==> examining statement: _68->b = 0.0;
+
+ured_omp4.cpp:46:13: note: get vectype for scalar type:  float
+ured_omp4.cpp:46:13: note: vectype: vector(4) float
+ured_omp4.cpp:46:13: note: nunits = 4
+ured_omp4.cpp:46:13: note: ==> examining statement: _10 = _68 + 8;
+
+ured_omp4.cpp:46:13: note: skip.
+ured_omp4.cpp:46:13: note: ==> examining statement: _11 = _66 + -1;
+
+ured_omp4.cpp:46:13: note: skip.
+ured_omp4.cpp:46:13: note: ==> examining statement: ivtmp_101 = ivtmp_67 - 1;
+
+ured_omp4.cpp:46:13: note: skip.
+ured_omp4.cpp:46:13: note: ==> examining statement: if (ivtmp_101 != 0)
+
+ured_omp4.cpp:46:13: note: skip.
+ured_omp4.cpp:46:13: note: vectorization factor = 4
+ured_omp4.cpp:46:13: note: === vect_analyze_data_refs_alignment ===
+ured_omp4.cpp:46:13: note: vect_compute_data_ref_alignment:
+ured_omp4.cpp:46:13: note: misalign = 0 bytes of ref _68->a
+ured_omp4.cpp:46:13: note: vect_compute_data_ref_alignment:
+ured_omp4.cpp:46:13: note: misalign = 4 bytes of ref _68->b
+ured_omp4.cpp:46:13: note: === vect_prune_runtime_alias_test_list ===
+ured_omp4.cpp:46:13: note: === vect_enhance_data_refs_alignment ===
+ured_omp4.cpp:46:13: note: vect_can_advance_ivs_p:
+ured_omp4.cpp:46:13: note: Analyze phi: _68 = PHI <_10(3), &s(2)>
+
+ured_omp4.cpp:46:13: note: Analyze phi: _66 = PHI <_11(3), 3(2)>
+
+ured_omp4.cpp:46:13: note: Analyze phi: .MEM_64 = PHI <.MEM_50(3), .MEM_8(D)(2)>
+
+ured_omp4.cpp:46:13: note: virtual phi. skip.
+ured_omp4.cpp:46:13: note: Analyze phi: ivtmp_67 = PHI <ivtmp_101(3), 4(2)>
+
+ured_omp4.cpp:46:13: note: vect_model_store_cost: aligned.
+ured_omp4.cpp:46:13: note: vect_get_data_access_cost: inside_cost = 1, outside_cost = 0.
+ured_omp4.cpp:46:13: note: === vect_analyze_slp ===
+ured_omp4.cpp:46:13: note: Build SLP for _68->a = 0.0;
+
+ured_omp4.cpp:46:13: note: Build SLP for _68->b = 0.0;
+
+ured_omp4.cpp:46:13: note: vect_is_simple_use: operand 0.0
+ured_omp4.cpp:46:13: note: vect_is_simple_use: operand 0.0
+ured_omp4.cpp:46:13: note: vect_model_store_cost: aligned.
+ured_omp4.cpp:46:13: note: vect_model_store_cost: inside_cost = 1, prologue_cost = 0 .
+ured_omp4.cpp:46:13: note: vect_is_simple_use: operand 0.0
+node 
+	stmt 0 _68->a = 0.0;
+
+	stmt 1 _68->b = 0.0;
+
+ured_omp4.cpp:46:13: note: === vect_make_slp_decision ===
+ured_omp4.cpp:46:13: note: Decided to SLP 1 instances. Unrolling factor 2
+ured_omp4.cpp:46:13: note: === vect_detect_hybrid_slp ===
+ured_omp4.cpp:46:13: note: === vect_analyze_loop_operations ===
+ured_omp4.cpp:46:13: note: Updating vectorization factor to 2
+ured_omp4.cpp:46:13: note: examining phi: _68 = PHI <_10(3), &s(2)>
+
+ured_omp4.cpp:46:13: note: examining phi: _66 = PHI <_11(3), 3(2)>
+
+ured_omp4.cpp:46:13: note: examining phi: .MEM_64 = PHI <.MEM_50(3), .MEM_8(D)(2)>
+
+ured_omp4.cpp:46:13: note: examining phi: ivtmp_67 = PHI <ivtmp_101(3), 4(2)>
+
+ured_omp4.cpp:46:13: note: ==> examining statement: _68->a = 0.0;
+
+ured_omp4.cpp:46:13: note: vect_is_simple_use: operand 0.0
+ured_omp4.cpp:46:13: note: vect_is_simple_use: operand 0.0
+ured_omp4.cpp:46:13: note: ==> examining statement: _68->b = 0.0;
+
+ured_omp4.cpp:46:13: note: vect_is_simple_use: operand 0.0
+ured_omp4.cpp:46:13: note: ==> examining statement: _10 = _68 + 8;
+
+ured_omp4.cpp:46:13: note: irrelevant.
+ured_omp4.cpp:46:13: note: ==> examining statement: _11 = _66 + -1;
+
+ured_omp4.cpp:46:13: note: irrelevant.
+ured_omp4.cpp:46:13: note: ==> examining statement: ivtmp_101 = ivtmp_67 - 1;
+
+ured_omp4.cpp:46:13: note: irrelevant.
+ured_omp4.cpp:46:13: note: ==> examining statement: if (ivtmp_101 != 0)
+
+ured_omp4.cpp:46:13: note: irrelevant.
+ured_omp4.cpp:46:13: note: vectorization_factor = 2, niters = 4
+ured_omp4.cpp:46:13: note: === vect_update_slp_costs_according_to_vf ===
+ured_omp4.cpp:46:13: note: Cost model analysis: 
+  Vector inside of loop cost: 1
+  Vector prologue cost: 1
+  Vector epilogue cost: 0
+  Scalar iteration cost: 2
+  Scalar outside cost: 0
+  Vector outside cost: 1
+  prologue iterations: 0
+  epilogue iterations: 0
+  Calculated minimum iters for profitability: 1
+
+ured_omp4.cpp:46:13: note:   Runtime profitability threshold = 1
+ured_omp4.cpp:46:13: note:   Static estimate profitability threshold = 1
+ured_omp4.cpp:46:13: note: loop vectorized
+ured_omp4.cpp:46:13: note: === vec_transform_loop ===
+ured_omp4.cpp:46:13: note: ------>vectorizing phi: _68 = PHI <_10(3), &s(15)>
+
+ured_omp4.cpp:46:13: note: ------>vectorizing phi: _66 = PHI <_11(3), 3(15)>
+
+ured_omp4.cpp:46:13: note: ------>vectorizing phi: .MEM_64 = PHI <.MEM_50(3), .MEM_8(D)(15)>
+
+ured_omp4.cpp:46:13: note: ------>vectorizing phi: ivtmp_67 = PHI <ivtmp_101(3), 4(15)>
+
+ured_omp4.cpp:46:13: note: ------>vectorizing statement: _68->a = 0.0;
+
+ured_omp4.cpp:46:13: note: === scheduling SLP instances ===
+ured_omp4.cpp:46:13: note: ------>vectorizing SLP node starting from: _68->a = 0.0;
+
+ured_omp4.cpp:46:13: note: vect_is_simple_use: operand 0.0
+ured_omp4.cpp:46:13: note: vect_is_simple_use: operand 0.0
+ured_omp4.cpp:46:13: note: transform store. ncopies = 1
+ured_omp4.cpp:46:13: note: created new init_stmt: vect_cst_.84_100 = { 0.0, 0.0, 0.0, 0.0 };
+
+ured_omp4.cpp:46:13: note: create vector_type-pointer variable to type: vector(4) float  vectorizing a record based array ref: MEM[(struct TwoInt *)&s]
+ured_omp4.cpp:46:13: note: created vectp_s.86_99
+ured_omp4.cpp:46:13: note: add new stmt: MEM[(struct TwoInt *)vectp_s.85_98] = vect_cst_.84_100;
+
+ured_omp4.cpp:46:13: note: vectorizing stmts using SLP.
+ured_omp4.cpp:46:13: note: ------>vectorizing statement: MEM[(struct TwoInt *)vectp_s.85_98] = vect_cst_.84_100;
+
+ured_omp4.cpp:46:13: note: ------>vectorizing statement: _10 = _68 + 8;
+
+ured_omp4.cpp:46:13: note: ------>vectorizing statement: _11 = _66 + -1;
+
+ured_omp4.cpp:46:13: note: ------>vectorizing statement: ivtmp_101 = ivtmp_67 - 1;
+
+ured_omp4.cpp:46:13: note: ------>vectorizing statement: vectp_s.85_97 = vectp_s.85_98 + 16;
+
+ured_omp4.cpp:46:13: note: ------>vectorizing statement: if (ivtmp_101 != 0)
+
+
+loop at ured_omp4.cpp:4: if (ivtmp_49 < 2)
+
+ured_omp4.cpp:46:13: note: LOOP VECTORIZED
+
+ured_omp4.cpp:45:8: note: vectorized 1 loops in function.
+ured_omp4.cpp:45:8: note: loop with 2 iterations completely unrolled
+ured_omp4.cpp:4:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:4:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:4:8: note: not vectorized: no vectype for stmt: MEM[(struct TwoInt *)vectp_s.86_99] = vect_cst_.84_100;
+ scalar_type: vector(4) float
+ured_omp4.cpp:4:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:45:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:45:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:45:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:45:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:45:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:45:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:49:24: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:49:24: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:49:24: note: got vectype for stmt: _25 = *_24;
+const vector(4) float
+ured_omp4.cpp:49:24: note: got vectype for stmt: _34 = MEM[(struct TwoInt *)&s][j_4].a;
+vector(4) float
+ured_omp4.cpp:49:24: note: got vectype for stmt: MEM[(struct TwoInt *)&s][j_4].a = _35;
+vector(4) float
+ured_omp4.cpp:49:24: note: got vectype for stmt: _36 = MEM[(struct TwoInt *)&s][j_4].b;
+vector(4) float
+ured_omp4.cpp:49:24: note: got vectype for stmt: MEM[(struct TwoInt *)&s][j_4].b = _37;
+vector(4) float
+ured_omp4.cpp:49:24: note: === vect_analyze_data_ref_accesses ===
+ured_omp4.cpp:49:24: note: Detected interleaving MEM[(struct TwoInt *)&s][j_4].a and MEM[(struct TwoInt *)&s][j_4].b
+ured_omp4.cpp:49:24: note: Detected interleaving MEM[(struct TwoInt *)&s][j_4].a and MEM[(struct TwoInt *)&s][j_4].b
+ured_omp4.cpp:49:24: note: Detected interleaving of size 2
+ured_omp4.cpp:49:24: note: Detected interleaving of size 2
+ured_omp4.cpp:49:24: note: === vect_pattern_recog ===
+ured_omp4.cpp:49:24: note: vect_is_simple_use: operand _21
+ured_omp4.cpp:49:24: note: def_stmt: _21 = (long unsigned int) _20;
+
+ured_omp4.cpp:49:24: note: type of def: 3.
+ured_omp4.cpp:49:24: note: vect_is_simple_use: operand _20
+ured_omp4.cpp:49:24: note: def_stmt: _20 = i_69 + j_4;
+
+ured_omp4.cpp:49:24: note: type of def: 3.
+ured_omp4.cpp:49:24: note: vect_is_simple_use: operand 4
+ured_omp4.cpp:49:24: note: === vect_slp_analyze_data_ref_dependences ===
+ured_omp4.cpp:49:24: note: determined dependence between MEM[(struct TwoInt *)&s][j_4].a and MEM[(struct TwoInt *)&s][j_4].a
+ured_omp4.cpp:49:24: note: determined dependence between MEM[(struct TwoInt *)&s][j_4].b and MEM[(struct TwoInt *)&s][j_4].b
+ured_omp4.cpp:49:24: note: === vect_analyze_data_refs_alignment ===
+ured_omp4.cpp:49:24: note: vect_compute_data_ref_alignment:
+ured_omp4.cpp:49:24: note: SLP: step doesn't divide the vector-size.
+ured_omp4.cpp:49:24: note: Unknown alignment for access: *(q_23(D) + (sizetype) ((long unsigned int) i_69 * 4))
+ured_omp4.cpp:49:24: note: vect_compute_data_ref_alignment:
+ured_omp4.cpp:49:24: note: SLP: step doesn't divide the vector-size.
+ured_omp4.cpp:49:24: note: Unknown alignment for access: s
+ured_omp4.cpp:49:24: note: vect_compute_data_ref_alignment:
+ured_omp4.cpp:49:24: note: SLP: step doesn't divide the vector-size.
+ured_omp4.cpp:49:24: note: Unknown alignment for access: s
+ured_omp4.cpp:49:24: note: vect_compute_data_ref_alignment:
+ured_omp4.cpp:49:24: note: SLP: step doesn't divide the vector-size.
+ured_omp4.cpp:49:24: note: Unknown alignment for access: s
+ured_omp4.cpp:49:24: note: vect_compute_data_ref_alignment:
+ured_omp4.cpp:49:24: note: SLP: step doesn't divide the vector-size.
+ured_omp4.cpp:49:24: note: Unknown alignment for access: s
+ured_omp4.cpp:49:24: note: === vect_analyze_slp ===
+ured_omp4.cpp:49:24: note: Build SLP failed: unrolling required in basic block SLP
+ured_omp4.cpp:49:24: note: Failed to SLP the basic block.
+ured_omp4.cpp:49:24: note: not vectorized: failed to find SLP opportunities in basic block.
+ured_omp4.cpp:48:5: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:48:5: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:48:5: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:48:5: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:48:5: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:48:5: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:47:3: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:47:3: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:47:3: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:45:8: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:45:8: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:45:8: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:24:12: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:24:12: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:24:12: note: got vectype for stmt: rh$a_17 = MEM[(struct TwoInt[4] *)&s + 8B];
+vector(4) float
+ured_omp4.cpp:24:12: note: got vectype for stmt: rh$b_55 = MEM[(struct TwoInt[4] *)&s + 12B];
+vector(4) float
+ured_omp4.cpp:24:12: note: got vectype for stmt: _39 = MEM[(struct TwoInt *)&s].a;
+vector(4) float
+ured_omp4.cpp:24:12: note: got vectype for stmt: _41 = MEM[(struct TwoInt *)&s].b;
+vector(4) float
+ured_omp4.cpp:24:12: note: got vectype for stmt: rh$a_58 = MEM[(struct TwoInt[4] *)&s + 16B];
+vector(4) float
+ured_omp4.cpp:24:12: note: got vectype for stmt: rh$b_61 = MEM[(struct TwoInt[4] *)&s + 20B];
+vector(4) float
+ured_omp4.cpp:24:12: note: got vectype for stmt: _43 = MEM[(struct TwoInt *)&s + 24B].a;
+vector(4) float
+ured_omp4.cpp:24:12: note: got vectype for stmt: _45 = MEM[(struct TwoInt *)&s + 24B].b;
+vector(4) float
+ured_omp4.cpp:24:12: note: got vectype for stmt: MEM[(struct TwoInt *)&s + 24B].a = _47;
+vector(4) float
+ured_omp4.cpp:24:12: note: got vectype for stmt: MEM[(struct TwoInt *)&s + 24B].b = _48;
+vector(4) float
+ured_omp4.cpp:24:12: note: got vectype for stmt: D.63291 = s[3];
+vector(2) long unsigned int
+ured_omp4.cpp:24:12: note: not vectorized: more than one data ref in stmt: D.63291 = s[3];
+
+ured_omp4.cpp:24:12: note: === vect_analyze_data_ref_accesses ===
+ured_omp4.cpp:24:12: note: Detected interleaving MEM[(struct TwoInt *)&s].a and MEM[(struct TwoInt *)&s].b
+ured_omp4.cpp:24:12: note: Detected interleaving MEM[(struct TwoInt *)&s].a and MEM[(struct TwoInt[4] *)&s + 8B]
+ured_omp4.cpp:24:12: note: Detected interleaving MEM[(struct TwoInt *)&s].a and MEM[(struct TwoInt[4] *)&s + 12B]
+ured_omp4.cpp:24:12: note: Detected interleaving MEM[(struct TwoInt *)&s].a and MEM[(struct TwoInt[4] *)&s + 16B]
+ured_omp4.cpp:24:12: note: Detected interleaving MEM[(struct TwoInt *)&s].a and MEM[(struct TwoInt[4] *)&s + 20B]
+ured_omp4.cpp:24:12: note: Detected interleaving MEM[(struct TwoInt *)&s].a and MEM[(struct TwoInt *)&s + 24B].a
+ured_omp4.cpp:24:12: note: Detected interleaving MEM[(struct TwoInt *)&s].a and MEM[(struct TwoInt *)&s + 24B].b
+ured_omp4.cpp:24:12: note: Detected interleaving MEM[(struct TwoInt *)&s + 24B].a and MEM[(struct TwoInt *)&s + 24B].b
+ured_omp4.cpp:24:12: note: Detected interleaving of size 8
+ured_omp4.cpp:24:12: note: Detected interleaving of size 2
+ured_omp4.cpp:24:12: note: === vect_pattern_recog ===
+ured_omp4.cpp:24:12: note: === vect_slp_analyze_data_ref_dependences ===
+ured_omp4.cpp:24:12: note: determined dependence between MEM[(struct TwoInt *)&s + 24B].a and MEM[(struct TwoInt *)&s + 24B].a
+ured_omp4.cpp:24:12: note: determined dependence between MEM[(struct TwoInt *)&s + 24B].b and MEM[(struct TwoInt *)&s + 24B].b
+ured_omp4.cpp:24:12: note: can't determine dependence between s[3] and MEM[(struct TwoInt *)&s + 24B].a
+ured_omp4.cpp:24:12: note: not vectorized: unhandled data dependence in basic block.
+
+Analyzing loop at ured_omp4.cpp:38
+ured_omp4.cpp:38:3: note: ===== analyze_loop_nest =====
+ured_omp4.cpp:38:3: note: === vect_analyze_loop_form ===
+ured_omp4.cpp:38:3: note: === get_loop_niters ===
+ured_omp4.cpp:38:3: note: ==> get_loop_niters:1024
+ured_omp4.cpp:38:3: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:38:3: note: got vectype for stmt: _28 = *_27;
+const vector(4) float
+ured_omp4.cpp:38:3: note: === vect_analyze_data_ref_accesses ===
+ured_omp4.cpp:38:3: note: === vect_analyze_scalar_cycles ===
+ured_omp4.cpp:38:3: note: Analyze phi: i_54 = PHI <i_33(5), 0(8)>
+
+ured_omp4.cpp:38:3: note: Access function of PHI: {0, +, 1}_2
+ured_omp4.cpp:38:3: note: step: 1,  init: 0
+ured_omp4.cpp:38:3: note: Detected induction.
+ured_omp4.cpp:38:3: note: Analyze phi: s$a_55 = PHI <s$a_30(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: Access function of PHI: {0.0, +, _28}_2
+ured_omp4.cpp:38:3: note: step: _28,  init: 0.0
+ured_omp4.cpp:38:3: note: step unknown.
+ured_omp4.cpp:38:3: note: Analyze phi: s$b_56 = PHI <s$b_32(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: Access function of PHI: {0.0, +, -_28}_2
+ured_omp4.cpp:38:3: note: step: -_28,  init: 0.0
+ured_omp4.cpp:38:3: note: step unknown.
+ured_omp4.cpp:38:3: note: Analyze phi: ivtmp_50 = PHI <ivtmp_49(5), 1024(8)>
+
+ured_omp4.cpp:38:3: note: Access function of PHI: {1024, +, 4294967295}_2
+ured_omp4.cpp:38:3: note: step: 4294967295,  init: 1024
+ured_omp4.cpp:38:3: note: Detected induction.
+ured_omp4.cpp:38:3: note: Analyze phi: s$b_56 = PHI <s$b_32(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: detected reduction: need to swap operands: s$b_32 = s$b_56 + _65;
+
+ured_omp4.cpp:38:3: note: Detected reduction.
+ured_omp4.cpp:38:3: note: Analyze phi: s$a_55 = PHI <s$a_30(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: detected reduction: need to swap operands: s$a_30 = s$a_55 + _28;
+
+ured_omp4.cpp:38:3: note: Detected reduction.
+ured_omp4.cpp:38:3: note: === vect_pattern_recog ===
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _25
+ured_omp4.cpp:38:3: note: def_stmt: _25 = (long unsigned int) i_54;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand i_54
+ured_omp4.cpp:38:3: note: def_stmt: i_54 = PHI <i_33(5), 0(8)>
+
+ured_omp4.cpp:38:3: note: type of def: 4.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand 4
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _28
+ured_omp4.cpp:38:3: note: def_stmt: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _28
+ured_omp4.cpp:38:3: note: def_stmt: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _65
+ured_omp4.cpp:38:3: note: def_stmt: _65 = -_28;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _65
+ured_omp4.cpp:38:3: note: def_stmt: _65 = -_28;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: === vect_mark_stmts_to_be_vectorized ===
+ured_omp4.cpp:38:3: note: init: phi relevant? i_54 = PHI <i_33(5), 0(8)>
+
+ured_omp4.cpp:38:3: note: init: phi relevant? s$a_55 = PHI <s$a_30(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: init: phi relevant? s$b_56 = PHI <s$b_32(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: init: phi relevant? ivtmp_50 = PHI <ivtmp_49(5), 1024(8)>
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? _25 = (long unsigned int) i_54;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? _26 = _25 * 4;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? _27 = &q + _26;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? _28 = *_27;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? s$a_30 = _28 + s$a_55;
+
+ured_omp4.cpp:38:3: note: vec_stmt_relevant_p: used out of loop.
+ured_omp4.cpp:38:3: note: mark relevant 0, live 1.
+ured_omp4.cpp:38:3: note: init: stmt relevant? _65 = -_28;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? s$b_32 = _65 + s$b_56;
+
+ured_omp4.cpp:38:3: note: vec_stmt_relevant_p: used out of loop.
+ured_omp4.cpp:38:3: note: mark relevant 0, live 1.
+ured_omp4.cpp:38:3: note: init: stmt relevant? i_33 = i_54 + 1;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? ivtmp_49 = ivtmp_50 - 1;
+
+ured_omp4.cpp:38:3: note: init: stmt relevant? if (ivtmp_49 != 0)
+
+ured_omp4.cpp:38:3: note: worklist: examine stmt: s$b_32 = _65 + s$b_56;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$b_56
+ured_omp4.cpp:38:3: note: def_stmt: s$b_56 = PHI <s$b_32(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: mark relevant 3, live 0.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _65
+ured_omp4.cpp:38:3: note: def_stmt: _65 = -_28;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: mark relevant 3, live 0.
+ured_omp4.cpp:38:3: note: worklist: examine stmt: _65 = -_28;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _28
+ured_omp4.cpp:38:3: note: def_stmt: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: mark relevant 3, live 0.
+ured_omp4.cpp:38:3: note: worklist: examine stmt: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: worklist: examine stmt: s$b_56 = PHI <s$b_32(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$b_32
+ured_omp4.cpp:38:3: note: def_stmt: s$b_32 = _65 + s$b_56;
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: reduc-stmt defining reduc-phi in the same nest.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand 0.0
+ured_omp4.cpp:38:3: note: worklist: examine stmt: s$a_30 = _28 + s$a_55;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$a_55
+ured_omp4.cpp:38:3: note: def_stmt: s$a_55 = PHI <s$a_30(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: mark relevant 3, live 0.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _28
+ured_omp4.cpp:38:3: note: def_stmt: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: mark relevant 3, live 0.
+ured_omp4.cpp:38:3: note: already marked relevant/live.
+ured_omp4.cpp:38:3: note: worklist: examine stmt: s$a_55 = PHI <s$a_30(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$a_30
+ured_omp4.cpp:38:3: note: def_stmt: s$a_30 = _28 + s$a_55;
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: reduc-stmt defining reduc-phi in the same nest.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand 0.0
+ured_omp4.cpp:38:3: note: === vect_analyze_data_ref_dependences ===
+ured_omp4.cpp:38:3: note: === vect_determine_vectorization_factor ===
+ured_omp4.cpp:38:3: note: ==> examining phi: i_54 = PHI <i_33(5), 0(8)>
+
+ured_omp4.cpp:38:3: note: ==> examining phi: s$a_55 = PHI <s$a_30(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: nunits = 4
+ured_omp4.cpp:38:3: note: ==> examining phi: s$b_56 = PHI <s$b_32(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: nunits = 4
+ured_omp4.cpp:38:3: note: ==> examining phi: ivtmp_50 = PHI <ivtmp_49(5), 1024(8)>
+
+ured_omp4.cpp:38:3: note: ==> examining statement: _25 = (long unsigned int) i_54;
+
+ured_omp4.cpp:38:3: note: skip.
+ured_omp4.cpp:38:3: note: ==> examining statement: _26 = _25 * 4;
+
+ured_omp4.cpp:38:3: note: skip.
+ured_omp4.cpp:38:3: note: ==> examining statement: _27 = &q + _26;
+
+ured_omp4.cpp:38:3: note: skip.
+ured_omp4.cpp:38:3: note: ==> examining statement: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: nunits = 4
+ured_omp4.cpp:38:3: note: ==> examining statement: s$a_30 = _28 + s$a_55;
+
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: nunits = 4
+ured_omp4.cpp:38:3: note: ==> examining statement: _65 = -_28;
+
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: nunits = 4
+ured_omp4.cpp:38:3: note: ==> examining statement: s$b_32 = _65 + s$b_56;
+
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:38:3: note: vectype: vector(4) float
+ured_omp4.cpp:38:3: note: nunits = 4
+ured_omp4.cpp:38:3: note: ==> examining statement: i_33 = i_54 + 1;
+
+ured_omp4.cpp:38:3: note: skip.
+ured_omp4.cpp:38:3: note: ==> examining statement: ivtmp_49 = ivtmp_50 - 1;
+
+ured_omp4.cpp:38:3: note: skip.
+ured_omp4.cpp:38:3: note: ==> examining statement: if (ivtmp_49 != 0)
+
+ured_omp4.cpp:38:3: note: skip.
+ured_omp4.cpp:38:3: note: vectorization factor = 4
+ured_omp4.cpp:38:3: note: === vect_analyze_data_refs_alignment ===
+ured_omp4.cpp:38:3: note: vect_compute_data_ref_alignment:
+ured_omp4.cpp:38:3: note: misalign = 0 bytes of ref *_27
+ured_omp4.cpp:38:3: note: === vect_prune_runtime_alias_test_list ===
+ured_omp4.cpp:38:3: note: === vect_enhance_data_refs_alignment ===
+ured_omp4.cpp:38:3: note: vect_can_advance_ivs_p:
+ured_omp4.cpp:38:3: note: Analyze phi: i_54 = PHI <i_33(5), 0(8)>
+
+ured_omp4.cpp:38:3: note: Analyze phi: s$a_55 = PHI <s$a_30(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: reduc phi. skip.
+ured_omp4.cpp:38:3: note: Analyze phi: s$b_56 = PHI <s$b_32(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: reduc phi. skip.
+ured_omp4.cpp:38:3: note: Analyze phi: ivtmp_50 = PHI <ivtmp_49(5), 1024(8)>
+
+ured_omp4.cpp:38:3: note: vect_model_load_cost: aligned.
+ured_omp4.cpp:38:3: note: vect_get_data_access_cost: inside_cost = 1, outside_cost = 0.
+ured_omp4.cpp:38:3: note: === vect_analyze_slp ===
+ured_omp4.cpp:38:3: note: Build SLP for s$b_32 = _65 + s$b_56;
+
+ured_omp4.cpp:38:3: note: Build SLP for s$a_30 = _28 + s$a_55;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _65
+ured_omp4.cpp:38:3: note: def_stmt: _65 = -_28;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$b_56
+ured_omp4.cpp:38:3: note: def_stmt: s$b_56 = PHI <s$b_32(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _28
+ured_omp4.cpp:38:3: note: def_stmt: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$a_55
+ured_omp4.cpp:38:3: note: def_stmt: s$a_55 = PHI <s$a_30(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: Build SLP for _65 = -_28;
+
+ured_omp4.cpp:38:3: note: Build SLP for _28 = *_27;
+
+ured_omp4.cpp:38:3: note: Build SLP failed: different operation in stmt _28 = *_27;
+
+ured_omp4.cpp:38:3: note: === vect_make_slp_decision ===
+ured_omp4.cpp:38:3: note: === vect_detect_hybrid_slp ===
+ured_omp4.cpp:38:3: note: === vect_analyze_loop_operations ===
+ured_omp4.cpp:38:3: note: examining phi: i_54 = PHI <i_33(5), 0(8)>
+
+ured_omp4.cpp:38:3: note: examining phi: s$a_55 = PHI <s$a_30(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: examining phi: s$b_56 = PHI <s$b_32(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: examining phi: ivtmp_50 = PHI <ivtmp_49(5), 1024(8)>
+
+ured_omp4.cpp:38:3: note: ==> examining statement: _25 = (long unsigned int) i_54;
+
+ured_omp4.cpp:38:3: note: irrelevant.
+ured_omp4.cpp:38:3: note: ==> examining statement: _26 = _25 * 4;
+
+ured_omp4.cpp:38:3: note: irrelevant.
+ured_omp4.cpp:38:3: note: ==> examining statement: _27 = &q + _26;
+
+ured_omp4.cpp:38:3: note: irrelevant.
+ured_omp4.cpp:38:3: note: ==> examining statement: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand *_27
+ured_omp4.cpp:38:3: note: not ssa-name.
+ured_omp4.cpp:38:3: note: use not simple.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand *_27
+ured_omp4.cpp:38:3: note: not ssa-name.
+ured_omp4.cpp:38:3: note: use not simple.
+ured_omp4.cpp:38:3: note: vect_model_load_cost: aligned.
+ured_omp4.cpp:38:3: note: vect_model_load_cost: inside_cost = 1, prologue_cost = 0 .
+ured_omp4.cpp:38:3: note: ==> examining statement: s$a_30 = _28 + s$a_55;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _28
+ured_omp4.cpp:38:3: note: def_stmt: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$a_55
+ured_omp4.cpp:38:3: note: def_stmt: s$a_55 = PHI <s$a_30(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: detected reduction: s$a_30 = _28 + s$a_55;
+
+vect_model_reduction_cost: inside_cost = 1, prologue_cost = 1, epilogue_cost = 2 .
+ured_omp4.cpp:38:3: note: ==> examining statement: _65 = -_28;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _28
+ured_omp4.cpp:38:3: note: def_stmt: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: === vectorizable_operation ===
+ured_omp4.cpp:38:3: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+ured_omp4.cpp:38:3: note: ==> examining statement: s$b_32 = _65 + s$b_56;
+
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _65
+ured_omp4.cpp:38:3: note: def_stmt: _65 = -_28;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$b_56
+ured_omp4.cpp:38:3: note: def_stmt: s$b_56 = PHI <s$b_32(5), 0.0(8)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: detected reduction: s$b_32 = _65 + s$b_56;
+
+vect_model_reduction_cost: inside_cost = 1, prologue_cost = 1, epilogue_cost = 2 .
+ured_omp4.cpp:38:3: note: ==> examining statement: i_33 = i_54 + 1;
+
+ured_omp4.cpp:38:3: note: irrelevant.
+ured_omp4.cpp:38:3: note: ==> examining statement: ivtmp_49 = ivtmp_50 - 1;
+
+ured_omp4.cpp:38:3: note: irrelevant.
+ured_omp4.cpp:38:3: note: ==> examining statement: if (ivtmp_49 != 0)
+
+ured_omp4.cpp:38:3: note: irrelevant.
+ured_omp4.cpp:38:3: note: vectorization_factor = 4, niters = 1024
+ured_omp4.cpp:38:3: note: === vect_update_slp_costs_according_to_vf ===
+ured_omp4.cpp:38:3: note: Cost model analysis: 
+  Vector inside of loop cost: 4
+  Vector prologue cost: 2
+  Vector epilogue cost: 4
+  Scalar iteration cost: 4
+  Scalar outside cost: 0
+  Vector outside cost: 6
+  prologue iterations: 0
+  epilogue iterations: 0
+  Calculated minimum iters for profitability: 3
+
+ured_omp4.cpp:38:3: note:   Runtime profitability threshold = 3
+ured_omp4.cpp:38:3: note:   Static estimate profitability threshold = 3
+ured_omp4.cpp:38:3: note: loop vectorized
+ured_omp4.cpp:38:3: note: === vec_transform_loop ===
+ured_omp4.cpp:38:3: note: ------>vectorizing phi: i_54 = PHI <i_33(5), 0(9)>
+
+ured_omp4.cpp:38:3: note: ------>vectorizing phi: s$a_55 = PHI <s$a_30(5), 0.0(9)>
+
+ured_omp4.cpp:38:3: note: ------>vectorizing phi: s$b_56 = PHI <s$b_32(5), 0.0(9)>
+
+ured_omp4.cpp:38:3: note: ------>vectorizing phi: ivtmp_50 = PHI <ivtmp_49(5), 1024(9)>
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: _25 = (long unsigned int) i_54;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: _26 = _25 * 4;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: _27 = &q + _26;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: transform statement.
+ured_omp4.cpp:38:3: note: transform load. ncopies = 1
+ured_omp4.cpp:38:3: note: create vector_type-pointer variable to type: const vector(4) float  vectorizing a pointer ref: MEM[(const float *)&q]
+ured_omp4.cpp:38:3: note: created vectp_q.107_64
+ured_omp4.cpp:38:3: note: add new stmt: vect__28.108_52 = MEM[(const float *)vectp_q.106_63];
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: s$a_30 = _28 + s$a_55;
+
+ured_omp4.cpp:38:3: note: transform statement.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _28
+ured_omp4.cpp:38:3: note: def_stmt: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$a_55
+ured_omp4.cpp:38:3: note: def_stmt: s$a_55 = PHI <s$a_30(5), 0.0(9)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: detected reduction: s$a_30 = _28 + s$a_55;
+
+ured_omp4.cpp:38:3: note: transform reduction.
+ured_omp4.cpp:38:3: note: vect_get_vec_def_for_operand: _28
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _28
+ured_omp4.cpp:38:3: note: def_stmt: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: def =  _28
+  def_stmt =  _28 = *_27;
+
+ured_omp4.cpp:38:3: note: add new stmt: vect_s$a_30.109_31 = vect__28.108_52 + vect_s$a_30.109_51;
+
+ured_omp4.cpp:38:3: note: vect_get_vec_def_for_operand: s$a_55
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$a_55
+ured_omp4.cpp:38:3: note: def_stmt: s$a_55 = PHI <s$a_30(5), 0.0(9)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: def =  s$a_55
+  def_stmt =  s$a_55 = PHI <s$a_30(5), 0.0(9)>
+
+ured_omp4.cpp:38:3: note: transform reduction: created def-use cycle: vect_s$a_30.109_51 = PHI <vect_s$a_30.109_31(5), { 0.0, 0.0, 0.0, 0.0 }(9)>
+
+vect_s$a_30.109_31 = vect__28.108_52 + vect_s$a_30.109_51;
+
+ured_omp4.cpp:38:3: note: Reduce using direct vector reduction.
+ured_omp4.cpp:38:3: note: extract scalar result
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: _65 = -_28;
+
+ured_omp4.cpp:38:3: note: transform statement.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _28
+ured_omp4.cpp:38:3: note: def_stmt: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: transform binary/unary operation.
+ured_omp4.cpp:38:3: note: vect_get_vec_def_for_operand: _28
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _28
+ured_omp4.cpp:38:3: note: def_stmt: _28 = *_27;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: def =  _28
+  def_stmt =  _28 = *_27;
+
+ured_omp4.cpp:38:3: note: add new stmt: vect__65.113_2 = -vect__28.108_52;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: s$b_32 = _65 + s$b_56;
+
+ured_omp4.cpp:38:3: note: transform statement.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _65
+ured_omp4.cpp:38:3: note: def_stmt: _65 = -_28;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$b_56
+ured_omp4.cpp:38:3: note: def_stmt: s$b_56 = PHI <s$b_32(5), 0.0(9)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: detected reduction: s$b_32 = _65 + s$b_56;
+
+ured_omp4.cpp:38:3: note: transform reduction.
+ured_omp4.cpp:38:3: note: vect_get_vec_def_for_operand: _65
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand _65
+ured_omp4.cpp:38:3: note: def_stmt: _65 = -_28;
+
+ured_omp4.cpp:38:3: note: type of def: 3.
+ured_omp4.cpp:38:3: note: def =  _65
+  def_stmt =  _65 = -_28;
+
+ured_omp4.cpp:38:3: note: add new stmt: vect_s$b_32.114_58 = vect__65.113_2 + vect_s$b_32.114_59;
+
+ured_omp4.cpp:38:3: note: vect_get_vec_def_for_operand: s$b_56
+ured_omp4.cpp:38:3: note: vect_is_simple_use: operand s$b_56
+ured_omp4.cpp:38:3: note: def_stmt: s$b_56 = PHI <s$b_32(5), 0.0(9)>
+
+ured_omp4.cpp:38:3: note: type of def: 5.
+ured_omp4.cpp:38:3: note: def =  s$b_56
+  def_stmt =  s$b_56 = PHI <s$b_32(5), 0.0(9)>
+
+ured_omp4.cpp:38:3: note: transform reduction: created def-use cycle: vect_s$b_32.114_59 = PHI <vect_s$b_32.114_58(5), { 0.0, 0.0, 0.0, 0.0 }(9)>
+
+vect_s$b_32.114_58 = vect__65.113_2 + vect_s$b_32.114_59;
+
+ured_omp4.cpp:38:3: note: Reduce using direct vector reduction.
+ured_omp4.cpp:38:3: note: extract scalar result
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: i_33 = i_54 + 1;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: ivtmp_49 = ivtmp_50 - 1;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: vectp_q.106_53 = vectp_q.106_63 + 16;
+
+ured_omp4.cpp:38:3: note: ------>vectorizing statement: if (ivtmp_49 != 0)
+
+
+loop at ured_omp4.cpp:39: if (ivtmp_70 < 256)
+
+ured_omp4.cpp:38:3: note: LOOP VECTORIZED
+
+
+Analyzing loop at ured_omp4.cpp:63
+ured_omp4.cpp:63:3: note: ===== analyze_loop_nest =====
+ured_omp4.cpp:63:3: note: === vect_analyze_loop_form ===
+ured_omp4.cpp:63:3: note: === get_loop_niters ===
+ured_omp4.cpp:63:3: note: ==> get_loop_niters:(((unsigned long) &MEM[(void *)&q + 4096B] - (unsigned long) ((float *) &q + 4)) /[ex] 4 & 4611686018427387903) + 1
+ured_omp4.cpp:63:3: note: Symbolic number of iterations is (((unsigned long) &MEM[(void *)&q + 4096B] - (unsigned long) ((float *) &q + 4)) /[ex] 4 & 4611686018427387903) + 1
+ured_omp4.cpp:63:3: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:63:3: note: got vectype for stmt: *__for_begin_61 = a_60;
+vector(4) float
+ured_omp4.cpp:63:3: note: === vect_analyze_data_ref_accesses ===
+ured_omp4.cpp:63:3: note: === vect_analyze_scalar_cycles ===
+ured_omp4.cpp:63:3: note: Analyze phi: a_60 = PHI <a_5(4), 0.0(2)>
+
+ured_omp4.cpp:63:3: note: Access function of PHI: {0.0, +, 1.0e+0}_1
+ured_omp4.cpp:63:3: note: step: 1.0e+0,  init: 0.0
+ured_omp4.cpp:63:3: note: Detected induction.
+ured_omp4.cpp:63:3: note: Analyze phi: __for_begin_61 = PHI <__for_begin_7(4), &q(2)>
+
+ured_omp4.cpp:63:3: note: Access function of PHI: {(float *) &q, +, 4}_1
+ured_omp4.cpp:63:3: note: step: 4,  init: (float *) &q
+ured_omp4.cpp:63:3: note: Detected induction.
+ured_omp4.cpp:63:3: note: Analyze phi: .MEM_62 = PHI <.MEM_6(4), .MEM_4(D)(2)>
+
+ured_omp4.cpp:63:3: note: === vect_pattern_recog ===
+ured_omp4.cpp:63:3: note: === vect_mark_stmts_to_be_vectorized ===
+ured_omp4.cpp:63:3: note: init: phi relevant? a_60 = PHI <a_5(4), 0.0(2)>
+
+ured_omp4.cpp:63:3: note: init: phi relevant? __for_begin_61 = PHI <__for_begin_7(4), &q(2)>
+
+ured_omp4.cpp:63:3: note: init: phi relevant? .MEM_62 = PHI <.MEM_6(4), .MEM_4(D)(2)>
+
+ured_omp4.cpp:63:3: note: init: stmt relevant? a_5 = a_60 + 1.0e+0;
+
+ured_omp4.cpp:63:3: note: init: stmt relevant? *__for_begin_61 = a_60;
+
+ured_omp4.cpp:63:3: note: vec_stmt_relevant_p: stmt has vdefs.
+ured_omp4.cpp:63:3: note: mark relevant 4, live 0.
+ured_omp4.cpp:63:3: note: init: stmt relevant? __for_begin_7 = __for_begin_61 + 4;
+
+ured_omp4.cpp:63:3: note: init: stmt relevant? if (&MEM[(void *)&q + 4096B] != __for_begin_7)
+
+ured_omp4.cpp:63:3: note: worklist: examine stmt: *__for_begin_61 = a_60;
+
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand a_60
+ured_omp4.cpp:63:3: note: def_stmt: a_60 = PHI <a_5(4), 0.0(2)>
+
+ured_omp4.cpp:63:3: note: type of def: 4.
+ured_omp4.cpp:63:3: note: mark relevant 4, live 0.
+ured_omp4.cpp:63:3: note: worklist: examine stmt: a_60 = PHI <a_5(4), 0.0(2)>
+
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand a_5
+ured_omp4.cpp:63:3: note: def_stmt: a_5 = a_60 + 1.0e+0;
+
+ured_omp4.cpp:63:3: note: type of def: 3.
+ured_omp4.cpp:63:3: note: mark relevant 4, live 0.
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand 0.0
+ured_omp4.cpp:63:3: note: worklist: examine stmt: a_5 = a_60 + 1.0e+0;
+
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand a_60
+ured_omp4.cpp:63:3: note: def_stmt: a_60 = PHI <a_5(4), 0.0(2)>
+
+ured_omp4.cpp:63:3: note: type of def: 4.
+ured_omp4.cpp:63:3: note: mark relevant 4, live 0.
+ured_omp4.cpp:63:3: note: already marked relevant/live.
+ured_omp4.cpp:63:3: note: === vect_analyze_data_ref_dependences ===
+ured_omp4.cpp:63:3: note: === vect_determine_vectorization_factor ===
+ured_omp4.cpp:63:3: note: ==> examining phi: a_60 = PHI <a_5(4), 0.0(2)>
+
+ured_omp4.cpp:63:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:63:3: note: vectype: vector(4) float
+ured_omp4.cpp:63:3: note: nunits = 4
+ured_omp4.cpp:63:3: note: ==> examining phi: __for_begin_61 = PHI <__for_begin_7(4), &q(2)>
+
+ured_omp4.cpp:63:3: note: ==> examining phi: .MEM_62 = PHI <.MEM_6(4), .MEM_4(D)(2)>
+
+ured_omp4.cpp:63:3: note: ==> examining statement: a_5 = a_60 + 1.0e+0;
+
+ured_omp4.cpp:63:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:63:3: note: vectype: vector(4) float
+ured_omp4.cpp:63:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:63:3: note: vectype: vector(4) float
+ured_omp4.cpp:63:3: note: nunits = 4
+ured_omp4.cpp:63:3: note: ==> examining statement: *__for_begin_61 = a_60;
+
+ured_omp4.cpp:63:3: note: get vectype for scalar type:  float
+ured_omp4.cpp:63:3: note: vectype: vector(4) float
+ured_omp4.cpp:63:3: note: nunits = 4
+ured_omp4.cpp:63:3: note: ==> examining statement: __for_begin_7 = __for_begin_61 + 4;
+
+ured_omp4.cpp:63:3: note: skip.
+ured_omp4.cpp:63:3: note: ==> examining statement: if (&MEM[(void *)&q + 4096B] != __for_begin_7)
+
+ured_omp4.cpp:63:3: note: skip.
+ured_omp4.cpp:63:3: note: vectorization factor = 4
+ured_omp4.cpp:63:3: note: === vect_analyze_data_refs_alignment ===
+ured_omp4.cpp:63:3: note: vect_compute_data_ref_alignment:
+ured_omp4.cpp:63:3: note: misalign = 0 bytes of ref *__for_begin_61
+ured_omp4.cpp:63:3: note: === vect_prune_runtime_alias_test_list ===
+ured_omp4.cpp:63:3: note: === vect_enhance_data_refs_alignment ===
+ured_omp4.cpp:63:3: note: vect_can_advance_ivs_p:
+ured_omp4.cpp:63:3: note: Analyze phi: a_60 = PHI <a_5(4), 0.0(2)>
+
+ured_omp4.cpp:63:3: note: Analyze phi: __for_begin_61 = PHI <__for_begin_7(4), &q(2)>
+
+ured_omp4.cpp:63:3: note: Analyze phi: .MEM_62 = PHI <.MEM_6(4), .MEM_4(D)(2)>
+
+ured_omp4.cpp:63:3: note: virtual phi. skip.
+ured_omp4.cpp:63:3: note: vect_model_store_cost: aligned.
+ured_omp4.cpp:63:3: note: vect_get_data_access_cost: inside_cost = 1, outside_cost = 0.
+ured_omp4.cpp:63:3: note: cost model: epilogue peel iters set to vf/2 because loop iterations are unknown .
+ured_omp4.cpp:63:3: note: === vect_analyze_slp ===
+ured_omp4.cpp:63:3: note: === vect_make_slp_decision ===
+ured_omp4.cpp:63:3: note: === vect_detect_hybrid_slp ===
+ured_omp4.cpp:63:3: note: === vect_analyze_loop_operations ===
+ured_omp4.cpp:63:3: note: examining phi: a_60 = PHI <a_5(4), 0.0(2)>
+
+ured_omp4.cpp:63:3: note: === vectorizable_induction ===
+ured_omp4.cpp:63:3: note: vect_model_induction_cost: inside_cost = 1, prologue_cost = 2 .
+ured_omp4.cpp:63:3: note: examining phi: __for_begin_61 = PHI <__for_begin_7(4), &q(2)>
+
+ured_omp4.cpp:63:3: note: examining phi: .MEM_62 = PHI <.MEM_6(4), .MEM_4(D)(2)>
+
+ured_omp4.cpp:63:3: note: ==> examining statement: a_5 = a_60 + 1.0e+0;
+
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand a_60
+ured_omp4.cpp:63:3: note: def_stmt: a_60 = PHI <a_5(4), 0.0(2)>
+
+ured_omp4.cpp:63:3: note: type of def: 4.
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand 1.0e+0
+ured_omp4.cpp:63:3: note: === vectorizable_operation ===
+ured_omp4.cpp:63:3: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 1 .
+ured_omp4.cpp:63:3: note: ==> examining statement: *__for_begin_61 = a_60;
+
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand a_60
+ured_omp4.cpp:63:3: note: def_stmt: a_60 = PHI <a_5(4), 0.0(2)>
+
+ured_omp4.cpp:63:3: note: type of def: 4.
+ured_omp4.cpp:63:3: note: vect_model_store_cost: aligned.
+ured_omp4.cpp:63:3: note: vect_model_store_cost: inside_cost = 1, prologue_cost = 0 .
+ured_omp4.cpp:63:3: note: ==> examining statement: __for_begin_7 = __for_begin_61 + 4;
+
+ured_omp4.cpp:63:3: note: irrelevant.
+ured_omp4.cpp:63:3: note: ==> examining statement: if (&MEM[(void *)&q + 4096B] != __for_begin_7)
+
+ured_omp4.cpp:63:3: note: irrelevant.
+ured_omp4.cpp:63:3: note: === vect_update_slp_costs_according_to_vf ===
+ured_omp4.cpp:63:3: note: cost model: epilogue peel iters set to vf/2 because loop iterations are unknown .
+ured_omp4.cpp:63:3: note: Cost model analysis: 
+  Vector inside of loop cost: 3
+  Vector prologue cost: 9
+  Vector epilogue cost: 4
+  Scalar iteration cost: 2
+  Scalar outside cost: 6
+  Vector outside cost: 13
+  prologue iterations: 0
+  epilogue iterations: 2
+  Calculated minimum iters for profitability: 5
+
+ured_omp4.cpp:63:3: note:   Runtime profitability threshold = 4
+ured_omp4.cpp:63:3: note:   Static estimate profitability threshold = 4
+ured_omp4.cpp:63:3: note: epilog loop required.
+ured_omp4.cpp:63:3: note: vect_can_advance_ivs_p:
+ured_omp4.cpp:63:3: note: Analyze phi: a_60 = PHI <a_5(4), 0.0(2)>
+
+ured_omp4.cpp:63:3: note: Analyze phi: __for_begin_61 = PHI <__for_begin_7(4), &q(2)>
+
+ured_omp4.cpp:63:3: note: Analyze phi: .MEM_62 = PHI <.MEM_6(4), .MEM_4(D)(2)>
+
+ured_omp4.cpp:63:3: note: virtual phi. skip.
+ured_omp4.cpp:63:3: note: loop vectorized
+ured_omp4.cpp:63:3: note: === vec_transform_loop ===
+ured_omp4.cpp:63:3: note: Profitability threshold is 4 loop iterations.
+ured_omp4.cpp:63:3: note: === vect_do_peeling_for_loop_bound ===
+ured_omp4.cpp:63:3: note: vect_update_ivs_after_vectorizer: phi: a_60 = PHI <a_5(4), 0.0(14)>
+
+ured_omp4.cpp:63:3: note: vect_update_ivs_after_vectorizer: phi: __for_begin_61 = PHI <__for_begin_7(4), &q(14)>
+
+ured_omp4.cpp:63:3: note: vect_update_ivs_after_vectorizer: phi: .MEM_62 = PHI <.MEM_6(4), .MEM_4(D)(14)>
+
+ured_omp4.cpp:63:3: note: virtual phi. skip.
+Setting upper bound of nb iterations for epilogue loop to 3
+ured_omp4.cpp:63:3: note: ------>vectorizing phi: a_60 = PHI <a_5(4), 0.0(18)>
+
+ured_omp4.cpp:63:3: note: transform phi.
+ured_omp4.cpp:63:3: note: transform induction phi.
+ured_omp4.cpp:63:3: note: step: 1.0e+0,  init: 0.0
+ured_omp4.cpp:63:3: note: created new init_stmt: vect_cst_.124_106 = { 0.0, 1.0e+0, 2.0e+0, 3.0e+0 };
+
+ured_omp4.cpp:63:3: note: created new init_stmt: vect_cst_.125_107 = { 4.0e+0, 4.0e+0, 4.0e+0, 4.0e+0 };
+
+ured_omp4.cpp:63:3: note: transform induction: created def-use cycle: vect_vec_iv_.126_108 = PHI <vect_vec_iv_.126_109(4), vect_cst_.124_106(18)>
+
+vect_vec_iv_.126_109 = vect_vec_iv_.126_108 + vect_cst_.125_107;
+
+ured_omp4.cpp:63:3: note: ------>vectorizing phi: __for_begin_61 = PHI <__for_begin_7(4), &q(18)>
+
+ured_omp4.cpp:63:3: note: ------>vectorizing phi: .MEM_62 = PHI <.MEM_6(4), .MEM_4(D)(18)>
+
+ured_omp4.cpp:63:3: note: ------>vectorizing phi: vect_vec_iv_.126_108 = PHI <vect_vec_iv_.126_109(4), vect_cst_.124_106(18)>
+
+ured_omp4.cpp:63:3: note: ------>vectorizing statement: vect_vec_iv_.126_109 = vect_vec_iv_.126_108 + vect_cst_.125_107;
+
+ured_omp4.cpp:63:3: note: ------>vectorizing statement: a_5 = a_60 + 1.0e+0;
+
+ured_omp4.cpp:63:3: note: transform statement.
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand a_60
+ured_omp4.cpp:63:3: note: def_stmt: a_60 = PHI <a_5(4), 0.0(18)>
+
+ured_omp4.cpp:63:3: note: type of def: 4.
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand 1.0e+0
+ured_omp4.cpp:63:3: note: transform binary/unary operation.
+ured_omp4.cpp:63:3: note: vect_get_vec_def_for_operand: a_60
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand a_60
+ured_omp4.cpp:63:3: note: def_stmt: a_60 = PHI <a_5(4), 0.0(18)>
+
+ured_omp4.cpp:63:3: note: type of def: 4.
+ured_omp4.cpp:63:3: note: def =  a_60
+  def_stmt =  a_60 = PHI <a_5(4), 0.0(18)>
+
+ured_omp4.cpp:63:3: note: vect_get_vec_def_for_operand: 1.0e+0
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand 1.0e+0
+ured_omp4.cpp:63:3: note: Create vector_cst. nunits = 4
+ured_omp4.cpp:63:3: note: created new init_stmt: vect_cst_.128_110 = { 1.0e+0, 1.0e+0, 1.0e+0, 1.0e+0 };
+
+ured_omp4.cpp:63:3: note: add new stmt: vect_a_5.127_111 = vect_vec_iv_.126_108 + vect_cst_.128_110;
+
+ured_omp4.cpp:63:3: note: ------>vectorizing statement: *__for_begin_61 = a_60;
+
+ured_omp4.cpp:63:3: note: transform statement.
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand a_60
+ured_omp4.cpp:63:3: note: def_stmt: a_60 = PHI <a_5(4), 0.0(18)>
+
+ured_omp4.cpp:63:3: note: type of def: 4.
+ured_omp4.cpp:63:3: note: transform store. ncopies = 1
+ured_omp4.cpp:63:3: note: vect_get_vec_def_for_operand: a_60
+ured_omp4.cpp:63:3: note: vect_is_simple_use: operand a_60
+ured_omp4.cpp:63:3: note: def_stmt: a_60 = PHI <a_5(4), 0.0(18)>
+
+ured_omp4.cpp:63:3: note: type of def: 4.
+ured_omp4.cpp:63:3: note: def =  a_60
+  def_stmt =  a_60 = PHI <a_5(4), 0.0(18)>
+
+ured_omp4.cpp:63:3: note: create vector_type-pointer variable to type: vector(4) float  vectorizing a pointer ref: MEM[(float &)&q]
+ured_omp4.cpp:63:3: note: created vectp_q.130_112
+ured_omp4.cpp:63:3: note: add new stmt: MEM[(float &)vectp_q.129_113] = vect_vec_iv_.126_108;
+
+ured_omp4.cpp:63:3: note: ------>vectorizing statement: __for_begin_7 = __for_begin_61 + 4;
+
+ured_omp4.cpp:63:3: note: ------>vectorizing statement: vectp_q.129_114 = vectp_q.129_113 + 16;
+
+ured_omp4.cpp:63:3: note: ------>vectorizing statement: if (&MEM[(void *)&q + 4096B] != __for_begin_7)
+
+
+loop at ured_omp4.cpp:63: if (ivtmp_116 < bnd.119_77)
+
+ured_omp4.cpp:63:3: note: LOOP VECTORIZED
+
+ured_omp4.cpp:59:5: note: vectorized 2 loops in function.
+ured_omp4.cpp:63:3: note: loop with 4 iterations completely unrolled
+ured_omp4.cpp:59:5: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:59:5: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:59:5: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:59:5: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:59:5: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:59:5: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:63:26: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:63:26: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:63:26: note: not vectorized: no vectype for stmt: MEM[(float &)vectp_q.129_113] = vect_vec_iv_.126_108;
+ scalar_type: vector(4) float
+ured_omp4.cpp:63:26: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:63:26: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:63:26: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:63:26: note: got vectype for stmt: *__for_begin_81 = a_80;
+vector(4) float
+ured_omp4.cpp:63:26: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:59:5: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:59:5: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:59:5: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:63:26: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:63:26: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:63:26: note: got vectype for stmt: *__for_begin_97 = a_95;
+vector(4) float
+ured_omp4.cpp:63:26: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:63:26: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:63:26: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:63:26: note: got vectype for stmt: *__for_begin_102 = a_54;
+vector(4) float
+ured_omp4.cpp:63:26: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:63:26: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:63:26: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:63:26: note: got vectype for stmt: *__for_begin_25 = a_110;
+vector(4) float
+ured_omp4.cpp:63:26: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:59:5: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:59:5: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:59:5: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:59:5: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:59:5: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:59:5: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:39:23: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:39:23: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:39:23: note: not vectorized: no vectype for stmt: vect__28.108_52 = MEM[(const float *)vectp_q.106_63];
+ scalar_type: const vector(4) float
+ured_omp4.cpp:39:23: note: not vectorized: not enough data-refs in basic block.
+/usr/local/include/c++/4.9.0/ostream:228:43: note: ===vect_slp_analyze_bb===
+/usr/local/include/c++/4.9.0/ostream:228:43: note: === vect_analyze_data_refs ===
+/usr/local/include/c++/4.9.0/ostream:228:43: note: not vectorized: not enough data-refs in basic block.
+ured_omp4.cpp:59:5: note: ===vect_slp_analyze_bb===
+ured_omp4.cpp:59:5: note: === vect_analyze_data_refs ===
+ured_omp4.cpp:59:5: note: not vectorized: not enough data-refs in basic block.
+/usr/local/include/c++/4.9.0/iostream:74:25: note: ===vect_slp_analyze_bb===
+/usr/local/include/c++/4.9.0/iostream:74:25: note: === vect_analyze_data_refs ===
+/usr/local/include/c++/4.9.0/iostream:74:25: note: not vectorized: not enough data-refs in basic block.

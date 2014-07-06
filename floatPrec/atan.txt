@@ -1,0 +1,21 @@
+
+   // degree =  3   => absolute accuracy is  -22 bits
+template<> inline float approx_atan2i_P< 3 >(float x){
+ return  (-0xf.6bd86p-20) + x * ((-0x2.79e708p28) + x * (0x6.800c4p-12 + x * 0x7.d2174p24)) ;
+}
+   // degree =  5   => absolute accuracy is  -19 bits
+template<> inline float approx_atan2i_P< 5 >(float x){
+ return  (-0x1.e5d1a8p-32) + x * ((-0x2.88df6p28) + x * (0x1.195a5p-24 + x * (0xb.c326cp24 + x * ((-0x4.af0bfp-24) + x * (-0x3.3b89dp24))))) ;
+}
+   // degree =  7   => absolute accuracy is  -16 bits
+template<> inline float approx_atan2i_P< 7 >(float x){
+ return  (-0xb.4fd24p-40) + x * ((-0x2.8b62d8p28) + x * (0x9.5d6p-32 + x * (0xd.15f96p24 + x * ((-0x5.9000cp-28) + x * ((-0x5.f596fp24) + x * (0x9.0cbaep-28 + x * 0x1.96a454p24)))))) ;
+}
+   // degree =  9   => absolute accuracy is  -13 bits
+template<> inline float approx_atan2i_P< 9 >(float x){
+ return  (-0x3.c69c68p-16) + x * ((-0x2.8bcfcp28) + x * (0xf.84c2p-12 + x * (0xd.7534ep24 + x * ((-0x8.bd66ap-8) + x * ((-0x7.57235p24) + x * (0x1.6f5854p-4 + x * (0x3.78392p24 + x * ((-0x1.18e69cp-4) + x * (-0xd.96d3cp20))))))))) ;
+}
+   // degree =  11   => absolute accuracy is  -11 bits
+template<> inline float approx_atan2i_P< 11 >(float x){
+ return  (-0x3.b0ab38p-32) + x * ((-0x2.8be24p28) + x * (0x1.4f0518p-24 + x * (0xd.8d616p24 + x * ((-0x1.1586bp-20) + x * ((-0x7.e2b13p24) + x * (0x4.b32ep-20 + x * (0x4.be5b9p24 + x * ((-0x7.e5503p-20) + x * ((-0x2.251e48p24) + x * (0x4.74e65p-20 + x * 0x7.a3af8p20)))))))))) ;
+}

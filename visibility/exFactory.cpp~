@@ -1,0 +1,33 @@
+#include<memory>
+
+class Base {
+public:  
+  virtual ~Base(){}
+
+  virtual void hi()=0;
+
+};
+
+
+template<typename Base>
+class Factory {
+public:
+  typedef std::shared_ptr<B> pointer;
+
+  template<typename T, typename... Args>
+  pointer operator()(Args&&... args) {
+    return pointer(new T(std::forward<Args>(args)...);}
+  }
+
+};
+
+
+int main() {
+
+  auto factory = magic().get("A");
+
+  auto bp = factory(3.,2.);
+
+  std::cout << (*bp).hi() << std::endl;
+
+};

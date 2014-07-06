@@ -1,0 +1,3 @@
+export CXXFLAGS="-O3 -I../Boost/1.35.0_python2.5/osx104_ia32_gcc401/include/boost-1_35 -L../Boost/1.35.0_python2.5/osx104_ia32_gcc401/lib -lboost_serialization-mt-1_35"
+export DYLD_LIBRARY_PATH=/Users/innocent/RealStuff/Boost/1.35.0_python2.5/osx104_ia32_gcc401/lib
+

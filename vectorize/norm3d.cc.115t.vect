@@ -1,0 +1,1774 @@
+
+;; Function void norm(XYZ*, XYZ*, int) (_Z4normP3XYZS0_i, funcdef_no=226, decl_uid=4367, symbol_order=156)
+
+
+Analyzing loop at norm3d.cc:15
+norm3d.cc:15:17: note: ===== analyze_loop_nest =====
+norm3d.cc:15:17: note: === vect_analyze_loop_form ===
+norm3d.cc:15:17: note: === get_loop_niters ===
+Analyzing # of iterations of loop 1
+  exit condition [1, + , 1](no_overflow) < size_4(D)
+  bounds on difference of bases: 0 ... 2147483646
+  result:
+    # of iterations (unsigned int) size_4(D) + 4294967295, bounded by 2147483646
+norm3d.cc:15:17: note: Symbolic number of iterations is (unsigned int) size_4(D)
+norm3d.cc:15:17: note: === vect_analyze_data_refs ===
+Creating dr for _8->x
+analyze_innermost: success.
+	base_address: in_7(D)
+	offset from base address: 0
+	constant offset from base address: 0
+	step: 12
+	aligned to: 128
+	base_object: *in_7(D)
+	Access function 0: 0
+	Access function 1: {0B, +, 12}_1
+Creating dr for _8->y
+analyze_innermost: success.
+	base_address: in_7(D)
+	offset from base address: 0
+	constant offset from base address: 4
+	step: 12
+	aligned to: 128
+	base_object: *in_7(D)
+	Access function 0: 32
+	Access function 1: {0B, +, 12}_1
+Creating dr for _8->z
+analyze_innermost: success.
+	base_address: in_7(D)
+	offset from base address: 0
+	constant offset from base address: 8
+	step: 12
+	aligned to: 128
+	base_object: *in_7(D)
+	Access function 0: 64
+	Access function 1: {0B, +, 12}_1
+Creating dr for _18->x
+analyze_innermost: success.
+	base_address: out_17(D)
+	offset from base address: 0
+	constant offset from base address: 0
+	step: 12
+	aligned to: 128
+	base_object: *out_17(D)
+	Access function 0: 0
+	Access function 1: {0B, +, 12}_1
+Creating dr for _18->y
+analyze_innermost: success.
+	base_address: out_17(D)
+	offset from base address: 0
+	constant offset from base address: 4
+	step: 12
+	aligned to: 128
+	base_object: *out_17(D)
+	Access function 0: 32
+	Access function 1: {0B, +, 12}_1
+Creating dr for _18->z
+analyze_innermost: success.
+	base_address: out_17(D)
+	offset from base address: 0
+	constant offset from base address: 8
+	step: 12
+	aligned to: 128
+	base_object: *out_17(D)
+	Access function 0: 64
+	Access function 1: {0B, +, 12}_1
+norm3d.cc:15:17: note: got vectype for stmt: _9 = _8->x;
+vector(4) float
+norm3d.cc:15:17: note: got vectype for stmt: _11 = _8->y;
+vector(4) float
+norm3d.cc:15:17: note: got vectype for stmt: _14 = _8->z;
+vector(4) float
+norm3d.cc:15:17: note: got vectype for stmt: _18->x = _19;
+vector(4) float
+norm3d.cc:15:17: note: got vectype for stmt: _18->y = _21;
+vector(4) float
+norm3d.cc:15:17: note: got vectype for stmt: _18->z = _23;
+vector(4) float
+norm3d.cc:15:17: note: === vect_analyze_data_ref_accesses ===
+norm3d.cc:15:17: note: Detected interleaving _8->x and _8->y
+norm3d.cc:15:17: note: Detected interleaving _8->x and _8->z
+norm3d.cc:15:17: note: Detected interleaving _18->x and _18->y
+norm3d.cc:15:17: note: Detected interleaving _18->x and _18->z
+norm3d.cc:15:17: note: Detected interleaving of size 3
+norm3d.cc:15:17: note: Detected interleaving of size 3
+norm3d.cc:15:17: note: === vect_analyze_scalar_cycles ===
+norm3d.cc:15:17: note: Analyze phi: i_27 = PHI <0(4), i_25(7)>
+
+norm3d.cc:15:17: note: Access function of PHI: {0, +, 1}_1
+norm3d.cc:15:17: note: step: 1,  init: 0
+norm3d.cc:15:17: note: Detected induction.
+norm3d.cc:15:17: note: Analyze phi: .MEM_30 = PHI <.MEM_3(D)(4), .MEM_24(7)>
+
+norm3d.cc:15:17: note: === vect_pattern_recog ===
+norm3d.cc:15:17: note: vect_is_simple_use: operand _5
+norm3d.cc:15:17: note: def_stmt: _5 = (long unsigned int) i_27;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand i_27
+norm3d.cc:15:17: note: def_stmt: i_27 = PHI <0(4), i_25(7)>
+
+norm3d.cc:15:17: note: type of def: 4.
+norm3d.cc:15:17: note: vect_is_simple_use: operand 12
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: === vect_mark_stmts_to_be_vectorized ===
+norm3d.cc:15:17: note: init: phi relevant? i_27 = PHI <0(4), i_25(7)>
+
+norm3d.cc:15:17: note: init: phi relevant? .MEM_30 = PHI <.MEM_3(D)(4), .MEM_24(7)>
+
+norm3d.cc:15:17: note: init: stmt relevant? _5 = (long unsigned int) i_27;
+
+norm3d.cc:15:17: note: init: stmt relevant? _6 = _5 * 12;
+
+norm3d.cc:15:17: note: init: stmt relevant? _8 = in_7(D) + _6;
+
+norm3d.cc:15:17: note: init: stmt relevant? _9 = _8->x;
+
+norm3d.cc:15:17: note: init: stmt relevant? powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: init: stmt relevant? _11 = _8->y;
+
+norm3d.cc:15:17: note: init: stmt relevant? powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: init: stmt relevant? _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: init: stmt relevant? _14 = _8->z;
+
+norm3d.cc:15:17: note: init: stmt relevant? powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: init: stmt relevant? _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: init: stmt relevant? _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: init: stmt relevant? _18 = out_17(D) + _6;
+
+norm3d.cc:15:17: note: init: stmt relevant? _19 = _9 / _26;
+
+norm3d.cc:15:17: note: init: stmt relevant? _18->x = _19;
+
+norm3d.cc:15:17: note: vec_stmt_relevant_p: stmt has vdefs.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: init: stmt relevant? _21 = _11 / _26;
+
+norm3d.cc:15:17: note: init: stmt relevant? _18->y = _21;
+
+norm3d.cc:15:17: note: vec_stmt_relevant_p: stmt has vdefs.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: init: stmt relevant? _23 = _14 / _26;
+
+norm3d.cc:15:17: note: init: stmt relevant? _18->z = _23;
+
+norm3d.cc:15:17: note: vec_stmt_relevant_p: stmt has vdefs.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: init: stmt relevant? i_25 = i_27 + 1;
+
+norm3d.cc:15:17: note: init: stmt relevant? if (size_4(D) > i_25)
+
+norm3d.cc:15:17: note: worklist: examine stmt: _18->z = _23;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _23
+norm3d.cc:15:17: note: def_stmt: _23 = _14 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: worklist: examine stmt: _23 = _14 / _26;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: worklist: examine stmt: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _16
+norm3d.cc:15:17: note: def_stmt: _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: worklist: examine stmt: _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_2
+norm3d.cc:15:17: note: def_stmt: powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _13
+norm3d.cc:15:17: note: def_stmt: _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: worklist: examine stmt: _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_28
+norm3d.cc:15:17: note: def_stmt: powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_29
+norm3d.cc:15:17: note: def_stmt: powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: worklist: examine stmt: powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: already marked relevant/live.
+norm3d.cc:15:17: note: worklist: examine stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: worklist: examine stmt: powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: already marked relevant/live.
+norm3d.cc:15:17: note: worklist: examine stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: worklist: examine stmt: powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: already marked relevant/live.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: already marked relevant/live.
+norm3d.cc:15:17: note: worklist: examine stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: worklist: examine stmt: _18->y = _21;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _21
+norm3d.cc:15:17: note: def_stmt: _21 = _11 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: worklist: examine stmt: _21 = _11 / _26;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: already marked relevant/live.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: already marked relevant/live.
+norm3d.cc:15:17: note: worklist: examine stmt: _18->x = _19;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _19
+norm3d.cc:15:17: note: def_stmt: _19 = _9 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: worklist: examine stmt: _19 = _9 / _26;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: already marked relevant/live.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: mark relevant 4, live 0.
+norm3d.cc:15:17: note: already marked relevant/live.
+norm3d.cc:15:17: note: === vect_analyze_data_ref_dependences ===
+(compute_affine_dependence
+  stmt_a: _9 = _8->x;
+  stmt_b: _11 = _8->y;
+(analyze_overlapping_iterations 
+  (chrec_a = 0)
+  (chrec_b = 32)
+(analyze_ziv_subscript 
+)
+  (overlap_iterations_a = no dependence)
+  (overlap_iterations_b = no dependence))
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _9 = _8->x;
+  stmt_b: _14 = _8->z;
+(analyze_overlapping_iterations 
+  (chrec_a = 0)
+  (chrec_b = 64)
+(analyze_ziv_subscript 
+)
+  (overlap_iterations_a = no dependence)
+  (overlap_iterations_b = no dependence))
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _9 = _8->x;
+  stmt_b: _18->x = _19;
+) -> dependence analysis failed
+(compute_affine_dependence
+  stmt_a: _9 = _8->x;
+  stmt_b: _18->y = _21;
+) -> dependence analysis failed
+(compute_affine_dependence
+  stmt_a: _9 = _8->x;
+  stmt_b: _18->z = _23;
+) -> dependence analysis failed
+(compute_affine_dependence
+  stmt_a: _11 = _8->y;
+  stmt_b: _14 = _8->z;
+(analyze_overlapping_iterations 
+  (chrec_a = 32)
+  (chrec_b = 64)
+(analyze_ziv_subscript 
+)
+  (overlap_iterations_a = no dependence)
+  (overlap_iterations_b = no dependence))
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _11 = _8->y;
+  stmt_b: _18->x = _19;
+) -> dependence analysis failed
+(compute_affine_dependence
+  stmt_a: _11 = _8->y;
+  stmt_b: _18->y = _21;
+) -> dependence analysis failed
+(compute_affine_dependence
+  stmt_a: _11 = _8->y;
+  stmt_b: _18->z = _23;
+) -> dependence analysis failed
+(compute_affine_dependence
+  stmt_a: _14 = _8->z;
+  stmt_b: _18->x = _19;
+) -> dependence analysis failed
+(compute_affine_dependence
+  stmt_a: _14 = _8->z;
+  stmt_b: _18->y = _21;
+) -> dependence analysis failed
+(compute_affine_dependence
+  stmt_a: _14 = _8->z;
+  stmt_b: _18->z = _23;
+) -> dependence analysis failed
+(compute_affine_dependence
+  stmt_a: _18->x = _19;
+  stmt_b: _18->y = _21;
+(analyze_overlapping_iterations 
+  (chrec_a = 0)
+  (chrec_b = 32)
+(analyze_ziv_subscript 
+)
+  (overlap_iterations_a = no dependence)
+  (overlap_iterations_b = no dependence))
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _18->x = _19;
+  stmt_b: _18->z = _23;
+(analyze_overlapping_iterations 
+  (chrec_a = 0)
+  (chrec_b = 64)
+(analyze_ziv_subscript 
+)
+  (overlap_iterations_a = no dependence)
+  (overlap_iterations_b = no dependence))
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _18->y = _21;
+  stmt_b: _18->z = _23;
+(analyze_overlapping_iterations 
+  (chrec_a = 32)
+  (chrec_b = 64)
+(analyze_ziv_subscript 
+)
+  (overlap_iterations_a = no dependence)
+  (overlap_iterations_b = no dependence))
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _9 = _8->x;
+  stmt_b: _9 = _8->x;
+(analyze_overlapping_iterations 
+  (chrec_a = 0)
+  (chrec_b = 0)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 12}_1)
+  (chrec_b = {0B, +, 12}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+(compute_affine_dependence
+  stmt_a: _11 = _8->y;
+  stmt_b: _11 = _8->y;
+(analyze_overlapping_iterations 
+  (chrec_a = 32)
+  (chrec_b = 32)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 12}_1)
+  (chrec_b = {0B, +, 12}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+(compute_affine_dependence
+  stmt_a: _14 = _8->z;
+  stmt_b: _14 = _8->z;
+(analyze_overlapping_iterations 
+  (chrec_a = 64)
+  (chrec_b = 64)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 12}_1)
+  (chrec_b = {0B, +, 12}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+(compute_affine_dependence
+  stmt_a: _18->x = _19;
+  stmt_b: _18->x = _19;
+(analyze_overlapping_iterations 
+  (chrec_a = 0)
+  (chrec_b = 0)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 12}_1)
+  (chrec_b = {0B, +, 12}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+(compute_affine_dependence
+  stmt_a: _18->y = _21;
+  stmt_b: _18->y = _21;
+(analyze_overlapping_iterations 
+  (chrec_a = 32)
+  (chrec_b = 32)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 12}_1)
+  (chrec_b = {0B, +, 12}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+(compute_affine_dependence
+  stmt_a: _18->z = _23;
+  stmt_b: _18->z = _23;
+(analyze_overlapping_iterations 
+  (chrec_a = 64)
+  (chrec_b = 64)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 12}_1)
+  (chrec_b = {0B, +, 12}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+norm3d.cc:15:17: note: === vect_determine_vectorization_factor ===
+norm3d.cc:15:17: note: ==> examining phi: i_27 = PHI <0(4), i_25(7)>
+
+norm3d.cc:15:17: note: ==> examining phi: .MEM_30 = PHI <.MEM_3(D)(4), .MEM_24(7)>
+
+norm3d.cc:15:17: note: ==> examining statement: _5 = (long unsigned int) i_27;
+
+norm3d.cc:15:17: note: skip.
+norm3d.cc:15:17: note: ==> examining statement: _6 = _5 * 12;
+
+norm3d.cc:15:17: note: skip.
+norm3d.cc:15:17: note: ==> examining statement: _8 = in_7(D) + _6;
+
+norm3d.cc:15:17: note: skip.
+norm3d.cc:15:17: note: ==> examining statement: _9 = _8->x;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: _11 = _8->y;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: _14 = _8->z;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: _18 = out_17(D) + _6;
+
+norm3d.cc:15:17: note: skip.
+norm3d.cc:15:17: note: ==> examining statement: _19 = _9 / _26;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: _18->x = _19;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: _21 = _11 / _26;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: _18->y = _21;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: _23 = _14 / _26;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: _18->z = _23;
+
+norm3d.cc:15:17: note: get vectype for scalar type:  float
+norm3d.cc:15:17: note: vectype: vector(4) float
+norm3d.cc:15:17: note: nunits = 4
+norm3d.cc:15:17: note: ==> examining statement: i_25 = i_27 + 1;
+
+norm3d.cc:15:17: note: skip.
+norm3d.cc:15:17: note: ==> examining statement: if (size_4(D) > i_25)
+
+norm3d.cc:15:17: note: skip.
+norm3d.cc:15:17: note: vectorization factor = 4
+norm3d.cc:15:17: note: === vect_analyze_data_refs_alignment ===
+norm3d.cc:15:17: note: vect_compute_data_ref_alignment:
+norm3d.cc:15:17: note: can't force alignment of ref: _8->x
+norm3d.cc:15:17: note: vect_compute_data_ref_alignment:
+norm3d.cc:15:17: note: can't force alignment of ref: _8->y
+norm3d.cc:15:17: note: vect_compute_data_ref_alignment:
+norm3d.cc:15:17: note: can't force alignment of ref: _8->z
+norm3d.cc:15:17: note: vect_compute_data_ref_alignment:
+norm3d.cc:15:17: note: can't force alignment of ref: _18->x
+norm3d.cc:15:17: note: vect_compute_data_ref_alignment:
+norm3d.cc:15:17: note: can't force alignment of ref: _18->y
+norm3d.cc:15:17: note: vect_compute_data_ref_alignment:
+norm3d.cc:15:17: note: can't force alignment of ref: _18->z
+norm3d.cc:15:17: note: === vect_prune_runtime_alias_test_list ===
+norm3d.cc:15:17: note: === vect_enhance_data_refs_alignment ===
+norm3d.cc:15:17: note: vector alignment may not be reachable
+norm3d.cc:15:17: note: vect_can_advance_ivs_p:
+norm3d.cc:15:17: note: Analyze phi: i_27 = PHI <0(4), i_25(7)>
+
+norm3d.cc:15:17: note: Analyze phi: .MEM_30 = PHI <.MEM_3(D)(4), .MEM_24(7)>
+
+norm3d.cc:15:17: note: virtual phi. skip.
+norm3d.cc:15:17: note: Vectorizing an unaligned access.
+norm3d.cc:15:17: note: Vectorizing an unaligned access.
+norm3d.cc:15:17: note: === vect_analyze_slp ===
+norm3d.cc:15:17: note: Build SLP for _18->x = _19;
+
+norm3d.cc:15:17: note: Build SLP for _18->y = _21;
+
+norm3d.cc:15:17: note: Build SLP for _18->z = _23;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _19
+norm3d.cc:15:17: note: def_stmt: _19 = _9 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _21
+norm3d.cc:15:17: note: def_stmt: _21 = _11 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _23
+norm3d.cc:15:17: note: def_stmt: _23 = _14 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: Build SLP for _19 = _9 / _26;
+
+norm3d.cc:15:17: note: Build SLP for _21 = _11 / _26;
+
+norm3d.cc:15:17: note: Build SLP for _23 = _14 / _26;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: Build SLP for _9 = _8->x;
+
+norm3d.cc:15:17: note: Build SLP for _11 = _8->y;
+
+norm3d.cc:15:17: note: Build SLP for _14 = _8->z;
+
+norm3d.cc:15:17: note: Build SLP for _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: Build SLP for _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: Build SLP for _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _16
+norm3d.cc:15:17: note: def_stmt: _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _16
+norm3d.cc:15:17: note: def_stmt: _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _16
+norm3d.cc:15:17: note: def_stmt: _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: Build SLP for _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: Build SLP for _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: Build SLP for _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_2
+norm3d.cc:15:17: note: def_stmt: powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _13
+norm3d.cc:15:17: note: def_stmt: _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_2
+norm3d.cc:15:17: note: def_stmt: powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _13
+norm3d.cc:15:17: note: def_stmt: _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_2
+norm3d.cc:15:17: note: def_stmt: powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _13
+norm3d.cc:15:17: note: def_stmt: _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: Build SLP for powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: Build SLP for powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: Build SLP for powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: Build SLP for _14 = _8->z;
+
+norm3d.cc:15:17: note: Build SLP for _14 = _8->z;
+
+norm3d.cc:15:17: note: Build SLP for _14 = _8->z;
+
+norm3d.cc:15:17: note: Build SLP for _14 = _8->z;
+
+norm3d.cc:15:17: note: Build SLP for _14 = _8->z;
+
+norm3d.cc:15:17: note: Build SLP for _14 = _8->z;
+
+norm3d.cc:15:17: note: Build SLP for _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: Build SLP for _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: Build SLP for _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_28
+norm3d.cc:15:17: note: def_stmt: powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_29
+norm3d.cc:15:17: note: def_stmt: powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_28
+norm3d.cc:15:17: note: def_stmt: powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_29
+norm3d.cc:15:17: note: def_stmt: powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_28
+norm3d.cc:15:17: note: def_stmt: powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_29
+norm3d.cc:15:17: note: def_stmt: powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: Build SLP for powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: Build SLP for powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: Build SLP for powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: Build SLP for _11 = _8->y;
+
+norm3d.cc:15:17: note: Build SLP for _11 = _8->y;
+
+norm3d.cc:15:17: note: Build SLP for _11 = _8->y;
+
+norm3d.cc:15:17: note: Build SLP for _11 = _8->y;
+
+norm3d.cc:15:17: note: Build SLP for _11 = _8->y;
+
+norm3d.cc:15:17: note: Build SLP for _11 = _8->y;
+
+norm3d.cc:15:17: note: Build SLP for powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: Build SLP for powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: Build SLP for powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: Build SLP for _9 = _8->x;
+
+norm3d.cc:15:17: note: Build SLP for _9 = _8->x;
+
+norm3d.cc:15:17: note: Build SLP for _9 = _8->x;
+
+norm3d.cc:15:17: note: Build SLP for _9 = _8->x;
+
+norm3d.cc:15:17: note: Build SLP for _9 = _8->x;
+
+norm3d.cc:15:17: note: Build SLP for _9 = _8->x;
+
+norm3d.cc:15:17: note: Load permutation 0 1 2 2 2 2 2 2 2 1 1 1 1 1 1 0 0 0 0 0 0 
+norm3d.cc:15:17: note: Build SLP failed: unsupported load permutation _18->x = _19;
+
+norm3d.cc:15:17: note: === vect_make_slp_decision ===
+norm3d.cc:15:17: note: === vect_detect_hybrid_slp ===
+norm3d.cc:15:17: note: === vect_analyze_loop_operations ===
+norm3d.cc:15:17: note: examining phi: i_27 = PHI <0(4), i_25(7)>
+
+norm3d.cc:15:17: note: examining phi: .MEM_30 = PHI <.MEM_3(D)(4), .MEM_24(7)>
+
+norm3d.cc:15:17: note: ==> examining statement: _5 = (long unsigned int) i_27;
+
+norm3d.cc:15:17: note: irrelevant.
+norm3d.cc:15:17: note: ==> examining statement: _6 = _5 * 12;
+
+norm3d.cc:15:17: note: irrelevant.
+norm3d.cc:15:17: note: ==> examining statement: _8 = in_7(D) + _6;
+
+norm3d.cc:15:17: note: irrelevant.
+norm3d.cc:15:17: note: ==> examining statement: _9 = _8->x;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _8->x
+norm3d.cc:15:17: note: not ssa-name.
+norm3d.cc:15:17: note: use not simple.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _8->x
+norm3d.cc:15:17: note: not ssa-name.
+norm3d.cc:15:17: note: use not simple.
+norm3d.cc:15:17: note: no array mode for V4SF[3]
+norm3d.cc:15:17: note: vect_model_load_cost: strided group_size = 3 .
+norm3d.cc:15:17: note: vect_model_load_cost: unaligned supported by hardware.
+norm3d.cc:15:17: note: vect_model_load_cost: inside_cost = 8, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: === vectorizable_operation ===
+norm3d.cc:15:17: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: _11 = _8->y;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _8->y
+norm3d.cc:15:17: note: not ssa-name.
+norm3d.cc:15:17: note: use not simple.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _8->y
+norm3d.cc:15:17: note: not ssa-name.
+norm3d.cc:15:17: note: use not simple.
+norm3d.cc:15:17: note: no array mode for V4SF[3]
+norm3d.cc:15:17: note: vect_model_load_cost: unaligned supported by hardware.
+norm3d.cc:15:17: note: vect_model_load_cost: inside_cost = 2, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: === vectorizable_operation ===
+norm3d.cc:15:17: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_28
+norm3d.cc:15:17: note: def_stmt: powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_29
+norm3d.cc:15:17: note: def_stmt: powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: === vectorizable_operation ===
+norm3d.cc:15:17: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: _14 = _8->z;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _8->z
+norm3d.cc:15:17: note: not ssa-name.
+norm3d.cc:15:17: note: use not simple.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _8->z
+norm3d.cc:15:17: note: not ssa-name.
+norm3d.cc:15:17: note: use not simple.
+norm3d.cc:15:17: note: no array mode for V4SF[3]
+norm3d.cc:15:17: note: vect_model_load_cost: unaligned supported by hardware.
+norm3d.cc:15:17: note: vect_model_load_cost: inside_cost = 2, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: === vectorizable_operation ===
+norm3d.cc:15:17: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_2
+norm3d.cc:15:17: note: def_stmt: powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _13
+norm3d.cc:15:17: note: def_stmt: _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: === vectorizable_operation ===
+norm3d.cc:15:17: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _16
+norm3d.cc:15:17: note: def_stmt: _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: === vectorizable_call ===
+norm3d.cc:15:17: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: _18 = out_17(D) + _6;
+
+norm3d.cc:15:17: note: irrelevant.
+norm3d.cc:15:17: note: ==> examining statement: _19 = _9 / _26;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: === vectorizable_operation ===
+norm3d.cc:15:17: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: _18->x = _19;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _19
+norm3d.cc:15:17: note: def_stmt: _19 = _9 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: no array mode for V4SF[3]
+norm3d.cc:15:17: note: vect_is_simple_use: operand _21
+norm3d.cc:15:17: note: def_stmt: _21 = _11 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _23
+norm3d.cc:15:17: note: def_stmt: _23 = _14 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_model_store_cost: strided group_size = 3 .
+norm3d.cc:15:17: note: vect_model_store_cost: unaligned supported by hardware.
+norm3d.cc:15:17: note: vect_model_store_cost: inside_cost = 8, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: _21 = _11 / _26;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: === vectorizable_operation ===
+norm3d.cc:15:17: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: _18->y = _21;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _21
+norm3d.cc:15:17: note: def_stmt: _21 = _11 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: no array mode for V4SF[3]
+norm3d.cc:15:17: note: vect_model_store_cost: unaligned supported by hardware.
+norm3d.cc:15:17: note: vect_model_store_cost: inside_cost = 2, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: _23 = _14 / _26;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: === vectorizable_operation ===
+norm3d.cc:15:17: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: _18->z = _23;
+
+norm3d.cc:15:17: note: vect_is_simple_use: operand _23
+norm3d.cc:15:17: note: def_stmt: _23 = _14 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: no array mode for V4SF[3]
+norm3d.cc:15:17: note: vect_model_store_cost: unaligned supported by hardware.
+norm3d.cc:15:17: note: vect_model_store_cost: inside_cost = 2, prologue_cost = 0 .
+norm3d.cc:15:17: note: ==> examining statement: i_25 = i_27 + 1;
+
+norm3d.cc:15:17: note: irrelevant.
+norm3d.cc:15:17: note: ==> examining statement: if (size_4(D) > i_25)
+
+norm3d.cc:15:17: note: irrelevant.
+norm3d.cc:15:17: note: === vect_update_slp_costs_according_to_vf ===
+norm3d.cc:15:17: note: cost model: epilogue peel iters set to vf/2 because loop iterations are unknown .
+norm3d.cc:15:17: note: Cost model analysis: 
+  Vector inside of loop cost: 33
+  Vector prologue cost: 6
+  Vector epilogue cost: 30
+  Scalar iteration cost: 15
+  Scalar outside cost: 6
+  Vector outside cost: 36
+  prologue iterations: 0
+  epilogue iterations: 2
+  Calculated minimum iters for profitability: 3
+
+norm3d.cc:15:17: note:   Runtime profitability threshold = 3
+norm3d.cc:15:17: note:   Static estimate profitability threshold = 3
+norm3d.cc:15:17: note: epilog loop required
+norm3d.cc:15:17: note: vect_can_advance_ivs_p:
+norm3d.cc:15:17: note: Analyze phi: i_27 = PHI <0(4), i_25(7)>
+
+norm3d.cc:15:17: note: Analyze phi: .MEM_30 = PHI <.MEM_3(D)(4), .MEM_24(7)>
+
+norm3d.cc:15:17: note: virtual phi. skip.
+norm3d.cc:15:17: note: loop vectorized
+norm3d.cc:15:17: note: === vec_transform_loop ===
+norm3d.cc:15:17: note: Profitability threshold is 3 loop iterations.
+norm3d.cc:15:17: note: === vect_do_peeling_for_loop_bound ===
+Removing basic block 8
+basic block 8, loop depth 0
+ pred:       4
+ succ:      
+
+
+;; Scaling loop 1 with scale 0.666600, bounding iterations to 3 from guessed 16
+;; guessed iterations are now 2
+;; Scaling loop 2 with scale 0.777800, bounding iterations to 4 from guessed 13
+;; guessed iterations are now 3
+norm3d.cc:15:17: note: vect_can_advance_ivs_p:
+norm3d.cc:15:17: note: Analyze phi: i_27 = PHI <0(12), i_25(7)>
+
+norm3d.cc:15:17: note: Analyze phi: .MEM_30 = PHI <.MEM_3(D)(12), .MEM_24(7)>
+
+norm3d.cc:15:17: note: virtual phi. skip.
+norm3d.cc:15:17: note: vect_update_ivs_after_vectorizer: phi: i_27 = PHI <0(12), i_25(7)>
+
+norm3d.cc:15:17: note: vect_update_ivs_after_vectorizer: phi: .MEM_30 = PHI <.MEM_3(D)(12), .MEM_24(7)>
+
+norm3d.cc:15:17: note: virtual phi. skip.
+Setting upper bound of nb iterations for epilogue loop to 2
+norm3d.cc:15:17: note: ------>vectorizing phi: i_27 = PHI <0(16), i_25(7)>
+
+norm3d.cc:15:17: note: ------>vectorizing phi: .MEM_30 = PHI <.MEM_3(D)(16), .MEM_24(7)>
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _5 = (long unsigned int) i_27;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _6 = _5 * 12;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _8 = in_7(D) + _6;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _9 = _8->x;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: no array mode for V4SF[3]
+norm3d.cc:15:17: note: transform load. ncopies = 1
+norm3d.cc:15:17: note: create vector_type-pointer variable to type: vector(4) float  vectorizing a record based array ref: *in_7(D)
+norm3d.cc:15:17: note: created vectp_in.9_65
+norm3d.cc:15:17: note: add new stmt: vect__9.10_68 = MEM[(float *)vectp_in.8_66];
+
+norm3d.cc:15:17: note: add new stmt: vectp_in.8_69 = vectp_in.8_66 + 16;
+
+norm3d.cc:15:17: note: add new stmt: vect__9.11_70 = MEM[(float *)vectp_in.8_69];
+
+norm3d.cc:15:17: note: add new stmt: vectp_in.8_71 = vectp_in.8_69 + 16;
+
+norm3d.cc:15:17: note: add new stmt: vect__9.12_72 = MEM[(float *)vectp_in.8_71];
+
+norm3d.cc:15:17: note: add new stmt: vect_suffle3_low_73 = VEC_PERM_EXPR <vect__9.10_68, vect__9.11_70, { 0, 3, 6, 0 }>;
+
+norm3d.cc:15:17: note: add new stmt: vect_suffle3_high_74 = VEC_PERM_EXPR <vect_suffle3_low_73, vect__9.12_72, { 0, 1, 2, 5 }>;
+
+norm3d.cc:15:17: note: add new stmt: vect_suffle3_low_75 = VEC_PERM_EXPR <vect__9.10_68, vect__9.11_70, { 1, 4, 7, 0 }>;
+
+norm3d.cc:15:17: note: add new stmt: vect_suffle3_high_76 = VEC_PERM_EXPR <vect_suffle3_low_75, vect__9.12_72, { 0, 1, 2, 6 }>;
+
+norm3d.cc:15:17: note: add new stmt: vect_suffle3_low_77 = VEC_PERM_EXPR <vect__9.10_68, vect__9.11_70, { 2, 5, 0, 0 }>;
+
+norm3d.cc:15:17: note: add new stmt: vect_suffle3_high_78 = VEC_PERM_EXPR <vect_suffle3_low_77, vect__9.12_72, { 0, 1, 4, 7 }>;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: transform binary/unary operation.
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _9
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _9
+  def_stmt =  _9 = _8->x;
+
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _9
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _9
+  def_stmt =  _9 = _8->x;
+
+norm3d.cc:15:17: note: add new stmt: vect_powmult_29.13_79 = vect_suffle3_high_74 * vect_suffle3_high_74;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _11 = _8->y;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: no array mode for V4SF[3]
+norm3d.cc:15:17: note: transform load. ncopies = 1
+norm3d.cc:15:17: note: ------>vectorizing statement: powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: transform binary/unary operation.
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _11
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _11
+  def_stmt =  _11 = _8->y;
+
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _11
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _11
+  def_stmt =  _11 = _8->y;
+
+norm3d.cc:15:17: note: add new stmt: vect_powmult_28.14_80 = vect_suffle3_high_76 * vect_suffle3_high_76;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_28
+norm3d.cc:15:17: note: def_stmt: powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_29
+norm3d.cc:15:17: note: def_stmt: powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: transform binary/unary operation.
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: powmult_28
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_28
+norm3d.cc:15:17: note: def_stmt: powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  powmult_28
+  def_stmt =  powmult_28 = _11 * _11;
+
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: powmult_29
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_29
+norm3d.cc:15:17: note: def_stmt: powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  powmult_29
+  def_stmt =  powmult_29 = _9 * _9;
+
+norm3d.cc:15:17: note: add new stmt: vect__13.15_81 = vect_powmult_28.14_80 + vect_powmult_29.13_79;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _14 = _8->z;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: no array mode for V4SF[3]
+norm3d.cc:15:17: note: transform load. ncopies = 1
+norm3d.cc:15:17: note: ------>vectorizing statement: powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: transform binary/unary operation.
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _14
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _14
+  def_stmt =  _14 = _8->z;
+
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _14
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _14
+  def_stmt =  _14 = _8->z;
+
+norm3d.cc:15:17: note: add new stmt: vect_powmult_2.16_82 = vect_suffle3_high_78 * vect_suffle3_high_78;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_2
+norm3d.cc:15:17: note: def_stmt: powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _13
+norm3d.cc:15:17: note: def_stmt: _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: transform binary/unary operation.
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: powmult_2
+norm3d.cc:15:17: note: vect_is_simple_use: operand powmult_2
+norm3d.cc:15:17: note: def_stmt: powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  powmult_2
+  def_stmt =  powmult_2 = _14 * _14;
+
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _13
+norm3d.cc:15:17: note: vect_is_simple_use: operand _13
+norm3d.cc:15:17: note: def_stmt: _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _13
+  def_stmt =  _13 = powmult_28 + powmult_29;
+
+norm3d.cc:15:17: note: add new stmt: vect__16.17_83 = vect_powmult_2.16_82 + vect__13.15_81;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _26 = __builtin_sqrtf (_16);
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _16
+norm3d.cc:15:17: note: def_stmt: _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: transform call.
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _16
+norm3d.cc:15:17: note: vect_is_simple_use: operand _16
+norm3d.cc:15:17: note: def_stmt: _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _16
+  def_stmt =  _16 = powmult_2 + _13;
+
+norm3d.cc:15:17: note: add new stmt: vect__26.18_84 = __builtin_ia32_sqrtps_nr (vect__16.17_83);
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _18 = out_17(D) + _6;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _19 = _9 / _26;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = 0.0;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: transform binary/unary operation.
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _9
+norm3d.cc:15:17: note: vect_is_simple_use: operand _9
+norm3d.cc:15:17: note: def_stmt: _9 = _8->x;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _9
+  def_stmt =  _9 = _8->x;
+
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _26
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = 0.0;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _26
+  def_stmt =  _26 = 0.0;
+
+norm3d.cc:15:17: note: add new stmt: vect__19.19_85 = vect_suffle3_high_74 / vect__26.18_84;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _18->x = _19;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _19
+norm3d.cc:15:17: note: def_stmt: _19 = _9 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: no array mode for V4SF[3]
+norm3d.cc:15:17: note: vect_is_simple_use: operand _21
+norm3d.cc:15:17: note: def_stmt: _21 = _11 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _23
+norm3d.cc:15:17: note: def_stmt: _23 = _14 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: ------>vectorizing statement: _21 = _11 / _26;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = 0.0;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: transform binary/unary operation.
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _11
+norm3d.cc:15:17: note: vect_is_simple_use: operand _11
+norm3d.cc:15:17: note: def_stmt: _11 = _8->y;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _11
+  def_stmt =  _11 = _8->y;
+
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _26
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = 0.0;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _26
+  def_stmt =  _26 = 0.0;
+
+norm3d.cc:15:17: note: add new stmt: vect__21.20_86 = vect_suffle3_high_76 / vect__26.18_84;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _18->y = _21;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _21
+norm3d.cc:15:17: note: def_stmt: _21 = _11 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: no array mode for V4SF[3]
+norm3d.cc:15:17: note: ------>vectorizing statement: _23 = _14 / _26;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = 0.0;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: transform binary/unary operation.
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _14
+norm3d.cc:15:17: note: vect_is_simple_use: operand _14
+norm3d.cc:15:17: note: def_stmt: _14 = _8->z;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _14
+  def_stmt =  _14 = _8->z;
+
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _26
+norm3d.cc:15:17: note: vect_is_simple_use: operand _26
+norm3d.cc:15:17: note: def_stmt: _26 = 0.0;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _26
+  def_stmt =  _26 = 0.0;
+
+norm3d.cc:15:17: note: add new stmt: vect__23.21_87 = vect_suffle3_high_78 / vect__26.18_84;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: _18->z = _23;
+
+norm3d.cc:15:17: note: transform statement.
+norm3d.cc:15:17: note: vect_is_simple_use: operand _23
+norm3d.cc:15:17: note: def_stmt: _23 = _14 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: no array mode for V4SF[3]
+norm3d.cc:15:17: note: transform store. ncopies = 1
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _19
+norm3d.cc:15:17: note: vect_is_simple_use: operand _19
+norm3d.cc:15:17: note: def_stmt: _19 = _9 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _19
+  def_stmt =  _19 = _9 / _26;
+
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _21
+norm3d.cc:15:17: note: vect_is_simple_use: operand _21
+norm3d.cc:15:17: note: def_stmt: _21 = _11 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _21
+  def_stmt =  _21 = _11 / _26;
+
+norm3d.cc:15:17: note: vect_get_vec_def_for_operand: _23
+norm3d.cc:15:17: note: vect_is_simple_use: operand _23
+norm3d.cc:15:17: note: def_stmt: _23 = _14 / _26;
+
+norm3d.cc:15:17: note: type of def: 3.
+norm3d.cc:15:17: note: def =  _23
+  def_stmt =  _23 = _14 / _26;
+
+norm3d.cc:15:17: note: create vector_type-pointer variable to type: vector(4) float  vectorizing a record based array ref: *out_17(D)
+norm3d.cc:15:17: note: created vectp_out.23_88
+norm3d.cc:15:17: note: add new stmt: vect_shuffle3_low_91 = VEC_PERM_EXPR <vect__19.19_85, vect__21.20_86, { 0, 4, 0, 1 }>;
+
+norm3d.cc:15:17: note: add new stmt: vect_shuffle3_high_92 = VEC_PERM_EXPR <vect_shuffle3_low_91, vect__23.21_87, { 0, 1, 4, 3 }>;
+
+norm3d.cc:15:17: note: add new stmt: vect_shuffle3_low_93 = VEC_PERM_EXPR <vect__19.19_85, vect__21.20_86, { 5, 0, 2, 6 }>;
+
+norm3d.cc:15:17: note: add new stmt: vect_shuffle3_high_94 = VEC_PERM_EXPR <vect_shuffle3_low_93, vect__23.21_87, { 0, 5, 2, 3 }>;
+
+norm3d.cc:15:17: note: add new stmt: vect_shuffle3_low_95 = VEC_PERM_EXPR <vect__19.19_85, vect__21.20_86, { 0, 3, 7, 0 }>;
+
+norm3d.cc:15:17: note: add new stmt: vect_shuffle3_high_96 = VEC_PERM_EXPR <vect_shuffle3_low_95, vect__23.21_87, { 6, 1, 2, 7 }>;
+
+norm3d.cc:15:17: note: add new stmt: MEM[(float *)vectp_out.22_89] = vect_shuffle3_high_92;
+
+norm3d.cc:15:17: note: add new stmt: vectp_out.22_98 = vectp_out.22_89 + 16;
+
+norm3d.cc:15:17: note: add new stmt: MEM[(float *)vectp_out.22_98] = vect_shuffle3_high_94;
+
+norm3d.cc:15:17: note: add new stmt: vectp_out.22_100 = vectp_out.22_98 + 16;
+
+norm3d.cc:15:17: note: add new stmt: MEM[(float *)vectp_out.22_100] = vect_shuffle3_high_96;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: i_25 = i_27 + 1;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: vectp_in.8_67 = vectp_in.8_71 + 16;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: vectp_out.22_90 = vectp_out.22_100 + 16;
+
+norm3d.cc:15:17: note: ------>vectorizing statement: if (size_4(D) > i_25)
+
+
+loop at norm3d.cc:17: if (ivtmp_22 < bnd.5_15)
+
+;; Scaling loop 1 with scale 0.250000, bounding iterations to 2 from guessed 2
+;; guessed iterations are now 1
+norm3d.cc:15:17: note: LOOP VECTORIZED
+
+norm3d.cc:12:1: note: vectorized 1 loops in function.
+Merging blocks 4 and 12
+Merging blocks 14 and 6
+void norm(XYZ*, XYZ*, int) (struct XYZ * in, struct XYZ * out, int size)
+{
+  vector(4) float * vectp_out.23;
+  vector(4) float * vectp_out.22;
+  vector(4) float vect__23.21;
+  vector(4) float vect__21.20;
+  vector(4) float vect__19.19;
+  vector(4) float vect__26.18;
+  vector(4) float vect__16.17;
+  vector(4) float vect_powmult_2.16;
+  vector(4) float vect__13.15;
+  vector(4) float vect_powmult_28.14;
+  vector(4) float vect_powmult_29.13;
+  vector(4) float vect__9.12;
+  vector(4) float vect__9.11;
+  vector(4) float vect__9.10;
+  vector(4) float * vectp_in.9;
+  vector(4) float * vectp_in.8;
+  int tmp.7;
+  unsigned int ratio_mult_vf.6;
+  unsigned int bnd.5;
+  unsigned int niters.4;
+  int i;
+  float _1;
+  float powmult_2;
+  long unsigned int _5;
+  long unsigned int _6;
+  struct XYZ * _8;
+  float _9;
+  float _11;
+  float _13;
+  float _14;
+  float _16;
+  struct XYZ * _18;
+  float _19;
+  float _21;
+  unsigned int ivtmp_22;
+  float _23;
+  unsigned int ivtmp_24;
+  float _26;
+  float powmult_28;
+  float powmult_29;
+  unsigned int _31;
+  float _33;
+  float _35;
+  struct XYZ * _36;
+  float _37;
+  float _38;
+  float powmult_39;
+  float _40;
+  float _41;
+  float powmult_42;
+  float _43;
+  float powmult_44;
+  float _45;
+  struct XYZ * _46;
+  long unsigned int _47;
+  long unsigned int _48;
+  unsigned int _52;
+  unsigned int _53;
+  unsigned int _57;
+  vector(4) float vect_suffle3_low_73;
+  vector(4) float vect_suffle3_high_74;
+  vector(4) float vect_suffle3_low_75;
+  vector(4) float vect_suffle3_high_76;
+  vector(4) float vect_suffle3_low_77;
+  vector(4) float vect_suffle3_high_78;
+  vector(4) float vect_shuffle3_low_91;
+  vector(4) float vect_shuffle3_high_92;
+  vector(4) float vect_shuffle3_low_93;
+  vector(4) float vect_shuffle3_high_94;
+  vector(4) float vect_shuffle3_low_95;
+  vector(4) float vect_shuffle3_high_96;
+
+  <bb 2>:
+  if (size_4(D) > 0)
+    goto <bb 4>;
+  else
+    goto <bb 3>;
+
+  <bb 3>:
+  return;
+
+  <bb 4>:
+  niters.4_12 = (unsigned int) size_4(D);
+  _31 = niters.4_12 + 4294967292;
+  _52 = _31 >> 2;
+  bnd.5_15 = _52 + 1;
+  ratio_mult_vf.6_51 = bnd.5_15 << 2;
+  _53 = (unsigned int) size_4(D);
+  _57 = _53 + 4294967295;
+  if (_57 <= 2)
+    goto <bb 10>;
+  else
+    goto <bb 5>;
+
+  <bb 5>:
+  vectp_in.9_65 = in_7(D);
+  vectp_out.23_88 = out_17(D);
+
+  <bb 6>:
+  # i_27 = PHI <0(5), i_25(13)>
+  # vectp_in.8_66 = PHI <vectp_in.9_65(5), vectp_in.8_67(13)>
+  # vectp_out.22_89 = PHI <vectp_out.23_88(5), vectp_out.22_90(13)>
+  # ivtmp_24 = PHI <0(5), ivtmp_22(13)>
+  _5 = (long unsigned int) i_27;
+  _6 = _5 * 12;
+  _8 = in_7(D) + _6;
+  vect__9.10_68 = MEM[(float *)vectp_in.8_66];
+  vectp_in.8_69 = vectp_in.8_66 + 16;
+  vect__9.11_70 = MEM[(float *)vectp_in.8_69];
+  vectp_in.8_71 = vectp_in.8_69 + 16;
+  vect__9.12_72 = MEM[(float *)vectp_in.8_71];
+  vect_suffle3_low_73 = VEC_PERM_EXPR <vect__9.10_68, vect__9.11_70, { 0, 3, 6, 0 }>;
+  vect_suffle3_high_74 = VEC_PERM_EXPR <vect_suffle3_low_73, vect__9.12_72, { 0, 1, 2, 5 }>;
+  vect_suffle3_low_75 = VEC_PERM_EXPR <vect__9.10_68, vect__9.11_70, { 1, 4, 7, 0 }>;
+  vect_suffle3_high_76 = VEC_PERM_EXPR <vect_suffle3_low_75, vect__9.12_72, { 0, 1, 2, 6 }>;
+  vect_suffle3_low_77 = VEC_PERM_EXPR <vect__9.10_68, vect__9.11_70, { 2, 5, 0, 0 }>;
+  vect_suffle3_high_78 = VEC_PERM_EXPR <vect_suffle3_low_77, vect__9.12_72, { 0, 1, 4, 7 }>;
+  _9 = _8->x;
+  vect_powmult_29.13_79 = vect_suffle3_high_74 * vect_suffle3_high_74;
+  powmult_29 = _9 * _9;
+  _11 = _8->y;
+  vect_powmult_28.14_80 = vect_suffle3_high_76 * vect_suffle3_high_76;
+  powmult_28 = _11 * _11;
+  vect__13.15_81 = vect_powmult_28.14_80 + vect_powmult_29.13_79;
+  _13 = powmult_28 + powmult_29;
+  _14 = _8->z;
+  vect_powmult_2.16_82 = vect_suffle3_high_78 * vect_suffle3_high_78;
+  powmult_2 = _14 * _14;
+  vect__16.17_83 = vect_powmult_2.16_82 + vect__13.15_81;
+  _16 = powmult_2 + _13;
+  vect__26.18_84 = __builtin_ia32_sqrtps_nr (vect__16.17_83);
+  _26 = 0.0;
+  _18 = out_17(D) + _6;
+  vect__19.19_85 = vect_suffle3_high_74 / vect__26.18_84;
+  _19 = _9 / _26;
+  vect__21.20_86 = vect_suffle3_high_76 / vect__26.18_84;
+  _21 = _11 / _26;
+  vect__23.21_87 = vect_suffle3_high_78 / vect__26.18_84;
+  _23 = _14 / _26;
+  vect_shuffle3_low_91 = VEC_PERM_EXPR <vect__19.19_85, vect__21.20_86, { 0, 4, 0, 1 }>;
+  vect_shuffle3_high_92 = VEC_PERM_EXPR <vect_shuffle3_low_91, vect__23.21_87, { 0, 1, 4, 3 }>;
+  vect_shuffle3_low_93 = VEC_PERM_EXPR <vect__19.19_85, vect__21.20_86, { 5, 0, 2, 6 }>;
+  vect_shuffle3_high_94 = VEC_PERM_EXPR <vect_shuffle3_low_93, vect__23.21_87, { 0, 5, 2, 3 }>;
+  vect_shuffle3_low_95 = VEC_PERM_EXPR <vect__19.19_85, vect__21.20_86, { 0, 3, 7, 0 }>;
+  vect_shuffle3_high_96 = VEC_PERM_EXPR <vect_shuffle3_low_95, vect__23.21_87, { 6, 1, 2, 7 }>;
+  MEM[(float *)vectp_out.22_89] = vect_shuffle3_high_92;
+  vectp_out.22_98 = vectp_out.22_89 + 16;
+  MEM[(float *)vectp_out.22_98] = vect_shuffle3_high_94;
+  vectp_out.22_100 = vectp_out.22_98 + 16;
+  MEM[(float *)vectp_out.22_100] = vect_shuffle3_high_96;
+  i_25 = i_27 + 1;
+  vectp_in.8_67 = vectp_in.8_71 + 16;
+  vectp_out.22_90 = vectp_out.22_100 + 16;
+  ivtmp_22 = ivtmp_24 + 1;
+  if (ivtmp_22 < bnd.5_15)
+    goto <bb 13>;
+  else
+    goto <bb 9>;
+
+  <bb 7>:
+  # i_50 = PHI <i_54(8), i_58(10)>
+  _48 = (long unsigned int) i_50;
+  _47 = _48 * 12;
+  _46 = in_7(D) + _47;
+  _45 = _46->x;
+  powmult_44 = _45 * _45;
+  _43 = _46->y;
+  powmult_42 = _43 * _43;
+  _41 = powmult_42 + powmult_44;
+  _40 = _46->z;
+  powmult_39 = _40 * _40;
+  _38 = powmult_39 + _41;
+  _37 = __builtin_sqrtf (_38);
+  _36 = out_17(D) + _47;
+  _35 = _45 / _37;
+  _36->x = _35;
+  _33 = _43 / _37;
+  _36->y = _33;
+  _1 = _40 / _37;
+  _36->z = _1;
+  i_54 = i_50 + 1;
+  if (size_4(D) > i_54)
+    goto <bb 8>;
+  else
+    goto <bb 11>;
+
+  <bb 8>:
+  goto <bb 7>;
+
+  <bb 9>:
+  # i_59 = PHI <i_25(6)>
+  tmp.7_64 = (int) ratio_mult_vf.6_51;
+  if (niters.4_12 == ratio_mult_vf.6_51)
+    goto <bb 12>;
+  else
+    goto <bb 10>;
+
+  <bb 10>:
+  # i_58 = PHI <tmp.7_64(9), 0(4)>
+  goto <bb 7>;
+
+  <bb 11>:
+
+  <bb 12>:
+  goto <bb 3>;
+
+  <bb 13>:
+  goto <bb 6>;
+
+}
+
+

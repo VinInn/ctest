@@ -1,0 +1,52 @@
+./a.out:
+(__TEXT,__text) section
+__Z6intLogPfi:
+0000000100000d80	subq	$40, %rsp
+0000000100000d84	testl	%esi, %esi
+0000000100000d86	movl	$0, 16(%rsp)
+0000000100000d8e	movl	$0, 20(%rsp)
+0000000100000d96	jle	0x100000dfa
+0000000100000d98	xorl	%ecx, %ecx
+0000000100000d9a	xorl	%r9d, %r9d
+0000000100000d9d	xorl	%edx, %edx
+0000000100000d9f	jmp	0x100000db2
+0000000100000da1	nopl	(%rax)
+0000000100000da8	nopl	(%rax,%rax)
+0000000100000db0	movl	%eax, %ecx
+0000000100000db2	movl	(%rdi,%rdx,4), %r8d
+0000000100000db6	addq	$1, %rdx
+0000000100000dba	movl	%r8d, %eax
+0000000100000dbd	shrl	$23, %r8d
+0000000100000dc1	andl	$8388607, %eax
+0000000100000dc6	movzbl	%r8b, %r8d
+0000000100000dca	leal	-127(%r9,%r8), %r9d
+0000000100000dcf	orq	$8388608, %rax
+0000000100000dd5	imulq	%rcx, %rax
+0000000100000dd9	addq	$4194304, %rax
+0000000100000ddf	shrq	$23, %rax
+0000000100000de3	movl	%eax, %ecx
+0000000100000de5	shrl	$31, %ecx
+0000000100000de8	shrl	%cl, %eax
+0000000100000dea	addl	%ecx, %r9d
+0000000100000ded	cmpl	%edx, %esi
+0000000100000def	jg	0x100000db0
+0000000100000df1	movl	%eax, 20(%rsp)
+0000000100000df5	movl	%r9d, 16(%rsp)
+0000000100000dfa	movl	20(%rsp), %eax
+0000000100000dfe	xorpd	%xmm1, %xmm1
+0000000100000e02	xorpd	%xmm0, %xmm0
+0000000100000e06	movl	16(%rsp), %edx
+0000000100000e0a	movl	%eax, %ecx
+0000000100000e0c	shrl	$31, %ecx
+0000000100000e0f	addl	%ecx, %edx
+0000000100000e11	shrl	%cl, %eax
+0000000100000e13	cvtsi2sd	%edx, %xmm1
+0000000100000e17	cvtsi2sdq	%rax, %xmm0
+0000000100000e1c	movsd	%xmm1, 8(%rsp)
+0000000100000e22	callq	0x100000f06 ## symbol stub for: _log2
+0000000100000e27	addsd	8(%rsp), %xmm0
+0000000100000e2d	subsd	283(%rip), %xmm0
+0000000100000e35	addq	$40, %rsp
+0000000100000e39	unpcklpd	%xmm0, %xmm0
+0000000100000e3d	cvtpd2ps	%xmm0, %xmm0
+0000000100000e41	ret

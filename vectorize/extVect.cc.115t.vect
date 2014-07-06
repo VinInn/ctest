@@ -1,0 +1,2439 @@
+
+;; Function V4 ebuild(float) (_Z6ebuildf, funcdef_no=230, decl_uid=4406, symbol_order=156)
+
+V4 ebuild(float) (float x)
+{
+  vector(4) float _2;
+
+  <bb 2>:
+  _2 = {x_1(D), x_1(D), x_1(D), x_1(D)};
+  return _2;
+
+}
+
+
+
+;; Function float64x4_t convert(float32x4_t) (_Z7convertU8__vectorf, funcdef_no=232, decl_uid=4416, symbol_order=158)
+
+float64x4_t convert(float32x4_t) (float32x4_t x)
+{
+  float _2;
+  double _3;
+  float _4;
+  double _5;
+  float _6;
+  double _7;
+  float _8;
+  double _9;
+  vector(4) double _10;
+
+  <bb 2>:
+  _2 = BIT_FIELD_REF <x_12(D), 32, 0>;
+  _3 = (double) _2;
+  _4 = BIT_FIELD_REF <x_12(D), 32, 32>;
+  _5 = (double) _4;
+  _6 = BIT_FIELD_REF <x_12(D), 32, 64>;
+  _7 = (double) _6;
+  _8 = BIT_FIELD_REF <x_12(D), 32, 96>;
+  _9 = (double) _8;
+  _10 = {_3, _5, _7, _9};
+  <retval> = _10;
+  return <retval>;
+
+}
+
+
+
+;; Function float32x4_t convert(float64x4_t) (_Z7convertU8__vectord, funcdef_no=233, decl_uid=4420, symbol_order=159)
+
+float32x4_t convert(float64x4_t) (float64x4_t x)
+{
+  double _2;
+  float _3;
+  double _4;
+  float _5;
+  double _6;
+  float _7;
+  double _8;
+  float _9;
+  float32x4_t _10;
+
+  <bb 2>:
+  _2 = BIT_FIELD_REF <x_11(D), 64, 0>;
+  _3 = (float) _2;
+  _4 = BIT_FIELD_REF <x_11(D), 64, 64>;
+  _5 = (float) _4;
+  _6 = BIT_FIELD_REF <x_11(D), 64, 128>;
+  _7 = (float) _6;
+  _8 = BIT_FIELD_REF <x_11(D), 64, 192>;
+  _9 = (float) _8;
+  _10 = {_3, _5, _7, _9};
+  return _10;
+
+}
+
+
+
+;; Function float32x4_t loadIt(const float*) (_Z6loadItPKf, funcdef_no=234, decl_uid=4424, symbol_order=160)
+
+float32x4_t loadIt(const float*) (const float * x)
+{
+  type _3;
+
+  <bb 2>:
+  _3 = MEM[(const typeA *)x_2(D)];
+  return _3;
+
+}
+
+
+
+;; Function float32x4a4_t loadA4(const float*) (_Z6loadA4PKf, funcdef_no=235, decl_uid=4441, symbol_order=161)
+
+float32x4a4_t loadA4(const float*) (const float * x)
+{
+  float32x4a4_t _2;
+
+  <bb 2>:
+  _2 = MEM[(const float32x4a4_t *)x_3(D)];
+  return _2;
+
+}
+
+
+
+;; Function float32x4_t loadV4(float32x4a4_t) (_Z6loadV4U8__vectorf, funcdef_no=236, decl_uid=4444, symbol_order=162)
+
+float32x4_t loadV4(float32x4a4_t) (float32x4a4_t x)
+{
+  <bb 2>:
+  return x_2(D);
+
+}
+
+
+
+;; Function float64x4_t loadIt(const double*) (_Z6loadItPKd, funcdef_no=237, decl_uid=4448, symbol_order=163)
+
+float64x4_t loadIt(const double*) (const double * x)
+{
+  vector(4) double _4;
+
+  <bb 2>:
+  _4 = MEM[(const typeA *)x_2(D)];
+  <retval> = _4;
+  return <retval>;
+
+}
+
+
+
+;; Function float32x4_t shuffleA(float32x4_t) (_Z8shuffleAU8__vectorf, funcdef_no=238, decl_uid=4465, symbol_order=164)
+
+float32x4_t shuffleA(float32x4_t) (float32x4_t x)
+{
+  float32x4_t _3;
+
+  <bb 2>:
+  _3 = VEC_PERM_EXPR <x_2(D), x_2(D), { 0, 0, 1, 1 }>;
+  return _3;
+
+}
+
+
+
+;; Function float32x4_t shuffleB(float32x4_t) (_Z8shuffleBU8__vectorf, funcdef_no=239, decl_uid=4469, symbol_order=165)
+
+float32x4_t shuffleB(float32x4_t) (float32x4_t x)
+{
+  float32x4_t _3;
+
+  <bb 2>:
+  _3 = VEC_PERM_EXPR <x_1(D), x_1(D), { 0, 0, 1, 1 }>;
+  return _3;
+
+}
+
+
+
+;; Function float32x4_t shuffle2A(const float32x4_t&) (_Z9shuffle2ARKU8__vectorf, funcdef_no=240, decl_uid=4473, symbol_order=166)
+
+float32x4_t shuffle2A(const float32x4_t&) (const float32x4_t & x)
+{
+  float _3;
+  float _4;
+  float _5;
+  float _6;
+  float32x4_t _7;
+
+  <bb 2>:
+  _3 = MEM[(const float *)x_1(D) + 4B];
+  _4 = MEM[(const float *)x_1(D)];
+  _5 = MEM[(const float *)x_1(D) + 12B];
+  _6 = MEM[(const float *)x_1(D) + 8B];
+  _7 = {_3, _4, _5, _6};
+  return _7;
+
+}
+
+
+
+;; Function float32x4_t shuffle2B(const float32x4_t&) (_Z9shuffle2BRKU8__vectorf, funcdef_no=241, decl_uid=4477, symbol_order=167)
+
+float32x4_t shuffle2B(const float32x4_t&) (const float32x4_t & x)
+{
+  vector(4) float _3;
+  float32x4_t _4;
+
+  <bb 2>:
+  _3 = *x_2(D);
+  _4 = VEC_PERM_EXPR <_3, _3, { 1, 0, 3, 2 }>;
+  return _4;
+
+}
+
+
+
+;; Function float sum(float32x4_t) (_Z3sumU8__vectorf, funcdef_no=242, decl_uid=4481, symbol_order=168)
+
+float sum(float32x4_t) (float32x4_t x)
+{
+  float _2;
+  float _3;
+  float _4;
+  float _5;
+  float _6;
+  float _7;
+  float _8;
+
+  <bb 2>:
+  _2 = BIT_FIELD_REF <x_9(D), 32, 0>;
+  _3 = BIT_FIELD_REF <x_9(D), 32, 32>;
+  _4 = _3 + _2;
+  _5 = BIT_FIELD_REF <x_9(D), 32, 64>;
+  _6 = _4 + _5;
+  _7 = BIT_FIELD_REF <x_9(D), 32, 96>;
+  _8 = _6 + _7;
+  return _8;
+
+}
+
+
+
+;; Function float suml(float32x4_t) (_Z4sumlU8__vectorf, funcdef_no=243, decl_uid=4484, symbol_order=169)
+
+extVect.cc:94:8: note: vectorized 0 loops in function.
+float suml(float32x4_t) (float32x4_t x)
+{
+  int i;
+  float r;
+  float _16;
+  float _24;
+  float _32;
+  float _40;
+
+  <bb 2>:
+  _16 = BIT_FIELD_REF <x_13(D), 32, 0>;
+  _24 = BIT_FIELD_REF <x_13(D), 32, 32>;
+  r_25 = _24 + _16;
+  _32 = BIT_FIELD_REF <x_13(D), 32, 64>;
+  r_33 = r_25 + _32;
+  _40 = BIT_FIELD_REF <x_13(D), 32, 96>;
+  r_41 = r_33 + _40;
+  return r_41;
+
+}
+
+
+
+;; Function float sum(float32x4_t, float32x4_t) (_Z3sumU8__vectorfS_, funcdef_no=244, decl_uid=4494, symbol_order=170)
+
+float sum(float32x4_t, float32x4_t) (float32x4_t x, float32x4_t y)
+{
+  vector(4) float _3;
+  float _5;
+  float _6;
+  float _7;
+  float _8;
+  float _9;
+  float _10;
+  float _11;
+
+  <bb 2>:
+  _3 = x_1(D) * y_2(D);
+  _5 = BIT_FIELD_REF <_3, 32, 0>;
+  _6 = BIT_FIELD_REF <_3, 32, 32>;
+  _7 = _6 + _5;
+  _8 = BIT_FIELD_REF <_3, 32, 64>;
+  _9 = _7 + _8;
+  _10 = BIT_FIELD_REF <_3, 32, 96>;
+  _11 = _9 + _10;
+  return _11;
+
+}
+
+
+
+;; Function float32x4_t prod1(float32x4_t, float32x4_t) (_Z5prod1U8__vectorfS_, funcdef_no=245, decl_uid=4498, symbol_order=171)
+
+float32x4_t prod1(float32x4_t, float32x4_t) (float32x4_t x, float32x4_t y)
+{
+  vector(4) float _2;
+  float32x4_t _4;
+
+  <bb 2>:
+  _2 = VEC_PERM_EXPR <x_5(D), x_5(D), { 1, 1, 1, 1 }>;
+  _4 = y_3(D) * _2;
+  return _4;
+
+}
+
+
+
+;; Function float32x4_t prodM(float32x4_t, float32x4_t*) (_Z5prodMU8__vectorfPS_, funcdef_no=246, decl_uid=4502, symbol_order=172)
+
+float32x4_t prodM(float32x4_t, float32x4_t*) (float32x4_t x, float32x4_t * y)
+{
+  vector(4) float _2;
+  vector(4) float _4;
+  vector(4) float _5;
+  vector(4) float _6;
+  vector(4) float _7;
+  vector(4) float _8;
+  vector(4) float _9;
+  vector(4) float _10;
+  vector(4) float _11;
+  vector(4) float _12;
+  float32x4_t _13;
+
+  <bb 2>:
+  _2 = VEC_PERM_EXPR <x_14(D), x_14(D), { 0, 0, 0, 0 }>;
+  _4 = *y_3(D);
+  _5 = _4 * _2;
+  _6 = VEC_PERM_EXPR <x_14(D), x_14(D), { 1, 1, 1, 1 }>;
+  _7 = MEM[(float32x4_t *)y_3(D) + 16B];
+  _8 = _7 * _6;
+  _9 = _8 + _5;
+  _10 = VEC_PERM_EXPR <x_14(D), x_14(D), { 2, 2, 2, 2 }>;
+  _11 = MEM[(float32x4_t *)y_3(D) + 32B];
+  _12 = _11 * _10;
+  _13 = _9 + _12;
+  return _13;
+
+}
+
+
+
+;; Function float32x4_t div(float32x4_t, float32x4_t) (_Z3divU8__vectorfS_, funcdef_no=247, decl_uid=4506, symbol_order=173)
+
+float32x4_t div(float32x4_t, float32x4_t) (float32x4_t x, float32x4_t y)
+{
+  float32x4_t _3;
+
+  <bb 2>:
+  _3 = x_1(D) / y_2(D);
+  return _3;
+
+}
+
+
+
+;; Function float32x4_t sqrt(float32x4_t) (_Z4sqrtU8__vectorf, funcdef_no=248, decl_uid=4509, symbol_order=174)
+
+float32x4_t sqrt(float32x4_t) (float32x4_t x)
+{
+  float _2;
+  float _3;
+  float _4;
+  float _5;
+  float32x4_t _6;
+  float _7;
+  float _8;
+  float _9;
+  float _10;
+
+  <bb 2>:
+  _2 = BIT_FIELD_REF <x_11(D), 32, 0>;
+  _7 = __builtin_sqrtf (_2);
+  _3 = BIT_FIELD_REF <x_11(D), 32, 32>;
+  _8 = __builtin_sqrtf (_3);
+  _4 = BIT_FIELD_REF <x_11(D), 32, 64>;
+  _9 = __builtin_sqrtf (_4);
+  _5 = BIT_FIELD_REF <x_11(D), 32, 96>;
+  _10 = __builtin_sqrtf (_5);
+  _6 = {_7, _8, _9, _10};
+  return _6;
+
+}
+
+
+
+;; Function float32x4_t sqrtl(float32x4_t) (_Z5sqrtlU8__vectorf, funcdef_no=249, decl_uid=4516, symbol_order=175)
+
+
+Analyzing loop at extVect.cc:126
+extVect.cc:126:3: note: ===== analyze_loop_nest =====
+extVect.cc:126:3: note: === vect_analyze_loop_form ===
+extVect.cc:126:3: note: === get_loop_niters ===
+Analyzing # of iterations of loop 1
+  exit condition [3, + , 4294967295] != 0
+  bounds on difference of bases: -3 ... -3
+  result:
+    # of iterations 3, bounded by 3
+extVect.cc:126:3: note: === vect_analyze_data_refs ===
+Creating dr for *_7
+analyze_innermost: success.
+	base_address: &x
+	offset from base address: 0
+	constant offset from base address: 0
+	step: 4
+	aligned to: 128
+	base_object: MEM[(float *)&x]
+	Access function 0: {0B, +, 4}_1
+Creating dr for *_6
+analyze_innermost: success.
+	base_address: &r
+	offset from base address: 0
+	constant offset from base address: 0
+	step: 4
+	aligned to: 128
+	base_object: MEM[(float *)&r]
+	Access function 0: {0B, +, 4}_1
+extVect.cc:126:3: note: got vectype for stmt: _8 = *_7;
+vector(4) float
+extVect.cc:126:3: note: got vectype for stmt: *_6 = _13;
+vector(4) float
+extVect.cc:126:3: note: === vect_analyze_data_ref_accesses ===
+extVect.cc:126:3: note: === vect_analyze_scalar_cycles ===
+extVect.cc:126:3: note: Analyze phi: i_16 = PHI <i_10(4), 0(2)>
+
+extVect.cc:126:3: note: Access function of PHI: {0, +, 1}_1
+extVect.cc:126:3: note: step: 1,  init: 0
+extVect.cc:126:3: note: Detected induction.
+extVect.cc:126:3: note: Analyze phi: .MEM_17 = PHI <.MEM_9(4), .MEM_3(D)(2)>
+
+extVect.cc:126:3: note: Analyze phi: ivtmp_27 = PHI <ivtmp_26(4), 4(2)>
+
+extVect.cc:126:3: note: Access function of PHI: {4, +, 4294967295}_1
+extVect.cc:126:3: note: step: 4294967295,  init: 4
+extVect.cc:126:3: note: Detected induction.
+extVect.cc:126:3: note: === vect_pattern_recog ===
+extVect.cc:126:3: note: vect_is_simple_use: operand _4
+extVect.cc:126:3: note: def_stmt: _4 = (long unsigned int) i_16;
+
+extVect.cc:126:3: note: type of def: 3.
+extVect.cc:126:3: note: vect_is_simple_use: operand i_16
+extVect.cc:126:3: note: def_stmt: i_16 = PHI <i_10(4), 0(2)>
+
+extVect.cc:126:3: note: type of def: 4.
+extVect.cc:126:3: note: vect_is_simple_use: operand 4
+extVect.cc:126:3: note: === vect_mark_stmts_to_be_vectorized ===
+extVect.cc:126:3: note: init: phi relevant? i_16 = PHI <i_10(4), 0(2)>
+
+extVect.cc:126:3: note: init: phi relevant? .MEM_17 = PHI <.MEM_9(4), .MEM_3(D)(2)>
+
+extVect.cc:126:3: note: init: phi relevant? ivtmp_27 = PHI <ivtmp_26(4), 4(2)>
+
+extVect.cc:126:3: note: init: stmt relevant? _4 = (long unsigned int) i_16;
+
+extVect.cc:126:3: note: init: stmt relevant? _5 = _4 * 4;
+
+extVect.cc:126:3: note: init: stmt relevant? _6 = &r + _5;
+
+extVect.cc:126:3: note: init: stmt relevant? _7 = &x + _5;
+
+extVect.cc:126:3: note: init: stmt relevant? _8 = *_7;
+
+extVect.cc:126:3: note: init: stmt relevant? _13 = __builtin_sqrtf (_8);
+
+extVect.cc:126:3: note: init: stmt relevant? *_6 = _13;
+
+extVect.cc:126:3: note: vec_stmt_relevant_p: stmt has vdefs.
+extVect.cc:126:3: note: mark relevant 4, live 0.
+extVect.cc:126:3: note: init: stmt relevant? i_10 = i_16 + 1;
+
+extVect.cc:126:3: note: init: stmt relevant? ivtmp_26 = ivtmp_27 - 1;
+
+extVect.cc:126:3: note: init: stmt relevant? if (ivtmp_26 != 0)
+
+extVect.cc:126:3: note: worklist: examine stmt: *_6 = _13;
+
+extVect.cc:126:3: note: vect_is_simple_use: operand _13
+extVect.cc:126:3: note: def_stmt: _13 = __builtin_sqrtf (_8);
+
+extVect.cc:126:3: note: type of def: 3.
+extVect.cc:126:3: note: mark relevant 4, live 0.
+extVect.cc:126:3: note: worklist: examine stmt: _13 = __builtin_sqrtf (_8);
+
+extVect.cc:126:3: note: vect_is_simple_use: operand _8
+extVect.cc:126:3: note: def_stmt: _8 = *_7;
+
+extVect.cc:126:3: note: type of def: 3.
+extVect.cc:126:3: note: mark relevant 4, live 0.
+extVect.cc:126:3: note: worklist: examine stmt: _8 = *_7;
+
+extVect.cc:126:3: note: === vect_analyze_data_ref_dependences ===
+(compute_affine_dependence
+  stmt_a: _8 = *_7;
+  stmt_b: *_6 = _13;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _8 = *_7;
+  stmt_b: _8 = *_7;
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 4}_1)
+  (chrec_b = {0B, +, 4}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+(compute_affine_dependence
+  stmt_a: *_6 = _13;
+  stmt_b: *_6 = _13;
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 4}_1)
+  (chrec_b = {0B, +, 4}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+extVect.cc:126:3: note: === vect_determine_vectorization_factor ===
+extVect.cc:126:3: note: ==> examining phi: i_16 = PHI <i_10(4), 0(2)>
+
+extVect.cc:126:3: note: ==> examining phi: .MEM_17 = PHI <.MEM_9(4), .MEM_3(D)(2)>
+
+extVect.cc:126:3: note: ==> examining phi: ivtmp_27 = PHI <ivtmp_26(4), 4(2)>
+
+extVect.cc:126:3: note: ==> examining statement: _4 = (long unsigned int) i_16;
+
+extVect.cc:126:3: note: skip.
+extVect.cc:126:3: note: ==> examining statement: _5 = _4 * 4;
+
+extVect.cc:126:3: note: skip.
+extVect.cc:126:3: note: ==> examining statement: _6 = &r + _5;
+
+extVect.cc:126:3: note: skip.
+extVect.cc:126:3: note: ==> examining statement: _7 = &x + _5;
+
+extVect.cc:126:3: note: skip.
+extVect.cc:126:3: note: ==> examining statement: _8 = *_7;
+
+extVect.cc:126:3: note: get vectype for scalar type:  float
+extVect.cc:126:3: note: vectype: vector(4) float
+extVect.cc:126:3: note: nunits = 4
+extVect.cc:126:3: note: ==> examining statement: _13 = __builtin_sqrtf (_8);
+
+extVect.cc:126:3: note: get vectype for scalar type:  float
+extVect.cc:126:3: note: vectype: vector(4) float
+extVect.cc:126:3: note: get vectype for scalar type:  float
+extVect.cc:126:3: note: vectype: vector(4) float
+extVect.cc:126:3: note: nunits = 4
+extVect.cc:126:3: note: ==> examining statement: *_6 = _13;
+
+extVect.cc:126:3: note: get vectype for scalar type:  float
+extVect.cc:126:3: note: vectype: vector(4) float
+extVect.cc:126:3: note: nunits = 4
+extVect.cc:126:3: note: ==> examining statement: i_10 = i_16 + 1;
+
+extVect.cc:126:3: note: skip.
+extVect.cc:126:3: note: ==> examining statement: ivtmp_26 = ivtmp_27 - 1;
+
+extVect.cc:126:3: note: skip.
+extVect.cc:126:3: note: ==> examining statement: if (ivtmp_26 != 0)
+
+extVect.cc:126:3: note: skip.
+extVect.cc:126:3: note: vectorization factor = 4
+extVect.cc:126:3: note: === vect_analyze_data_refs_alignment ===
+extVect.cc:126:3: note: vect_compute_data_ref_alignment:
+extVect.cc:126:3: note: misalign = 0 bytes of ref *_7
+extVect.cc:126:3: note: vect_compute_data_ref_alignment:
+extVect.cc:126:3: note: misalign = 0 bytes of ref *_6
+extVect.cc:126:3: note: === vect_prune_runtime_alias_test_list ===
+extVect.cc:126:3: note: === vect_enhance_data_refs_alignment ===
+extVect.cc:126:3: note: vect_can_advance_ivs_p:
+extVect.cc:126:3: note: Analyze phi: i_16 = PHI <i_10(4), 0(2)>
+
+extVect.cc:126:3: note: Analyze phi: .MEM_17 = PHI <.MEM_9(4), .MEM_3(D)(2)>
+
+extVect.cc:126:3: note: virtual phi. skip.
+extVect.cc:126:3: note: Analyze phi: ivtmp_27 = PHI <ivtmp_26(4), 4(2)>
+
+extVect.cc:126:3: note: vect_model_load_cost: aligned.
+extVect.cc:126:3: note: vect_get_data_access_cost: inside_cost = 1, outside_cost = 0.
+extVect.cc:126:3: note: vect_model_store_cost: aligned.
+extVect.cc:126:3: note: vect_get_data_access_cost: inside_cost = 2, outside_cost = 0.
+extVect.cc:126:3: note: === vect_analyze_slp ===
+extVect.cc:126:3: note: === vect_make_slp_decision ===
+extVect.cc:126:3: note: === vect_detect_hybrid_slp ===
+extVect.cc:126:3: note: === vect_analyze_loop_operations ===
+extVect.cc:126:3: note: examining phi: i_16 = PHI <i_10(4), 0(2)>
+
+extVect.cc:126:3: note: examining phi: .MEM_17 = PHI <.MEM_9(4), .MEM_3(D)(2)>
+
+extVect.cc:126:3: note: examining phi: ivtmp_27 = PHI <ivtmp_26(4), 4(2)>
+
+extVect.cc:126:3: note: ==> examining statement: _4 = (long unsigned int) i_16;
+
+extVect.cc:126:3: note: irrelevant.
+extVect.cc:126:3: note: ==> examining statement: _5 = _4 * 4;
+
+extVect.cc:126:3: note: irrelevant.
+extVect.cc:126:3: note: ==> examining statement: _6 = &r + _5;
+
+extVect.cc:126:3: note: irrelevant.
+extVect.cc:126:3: note: ==> examining statement: _7 = &x + _5;
+
+extVect.cc:126:3: note: irrelevant.
+extVect.cc:126:3: note: ==> examining statement: _8 = *_7;
+
+extVect.cc:126:3: note: vect_is_simple_use: operand *_7
+extVect.cc:126:3: note: not ssa-name.
+extVect.cc:126:3: note: use not simple.
+extVect.cc:126:3: note: vect_is_simple_use: operand *_7
+extVect.cc:126:3: note: not ssa-name.
+extVect.cc:126:3: note: use not simple.
+extVect.cc:126:3: note: vect_model_load_cost: aligned.
+extVect.cc:126:3: note: vect_model_load_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:126:3: note: ==> examining statement: _13 = __builtin_sqrtf (_8);
+
+extVect.cc:126:3: note: vect_is_simple_use: operand _8
+extVect.cc:126:3: note: def_stmt: _8 = *_7;
+
+extVect.cc:126:3: note: type of def: 3.
+extVect.cc:126:3: note: === vectorizable_call ===
+extVect.cc:126:3: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:126:3: note: ==> examining statement: *_6 = _13;
+
+extVect.cc:126:3: note: vect_is_simple_use: operand _13
+extVect.cc:126:3: note: def_stmt: _13 = __builtin_sqrtf (_8);
+
+extVect.cc:126:3: note: type of def: 3.
+extVect.cc:126:3: note: vect_model_store_cost: aligned.
+extVect.cc:126:3: note: vect_model_store_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:126:3: note: ==> examining statement: i_10 = i_16 + 1;
+
+extVect.cc:126:3: note: irrelevant.
+extVect.cc:126:3: note: ==> examining statement: ivtmp_26 = ivtmp_27 - 1;
+
+extVect.cc:126:3: note: irrelevant.
+extVect.cc:126:3: note: ==> examining statement: if (ivtmp_26 != 0)
+
+extVect.cc:126:3: note: irrelevant.
+extVect.cc:126:3: note: vectorization_factor = 4, niters = 4
+extVect.cc:126:3: note: === vect_update_slp_costs_according_to_vf ===
+extVect.cc:126:3: note: Cost model analysis: 
+  Vector inside of loop cost: 3
+  Vector prologue cost: 0
+  Vector epilogue cost: 0
+  Scalar iteration cost: 3
+  Scalar outside cost: 0
+  Vector outside cost: 0
+  prologue iterations: 0
+  epilogue iterations: 0
+  Calculated minimum iters for profitability: 1
+
+extVect.cc:126:3: note:   Runtime profitability threshold = 3
+extVect.cc:126:3: note:   Static estimate profitability threshold = 3
+extVect.cc:126:3: note: loop vectorized
+extVect.cc:126:3: note: === vec_transform_loop ===
+extVect.cc:126:3: note: ------>vectorizing phi: i_16 = PHI <i_10(4), 0(6)>
+
+extVect.cc:126:3: note: ------>vectorizing phi: .MEM_17 = PHI <.MEM_9(4), .MEM_3(D)(6)>
+
+extVect.cc:126:3: note: ------>vectorizing phi: ivtmp_27 = PHI <ivtmp_26(4), 4(6)>
+
+extVect.cc:126:3: note: ------>vectorizing statement: _4 = (long unsigned int) i_16;
+
+extVect.cc:126:3: note: ------>vectorizing statement: _5 = _4 * 4;
+
+extVect.cc:126:3: note: ------>vectorizing statement: _6 = &r + _5;
+
+extVect.cc:126:3: note: ------>vectorizing statement: _7 = &x + _5;
+
+extVect.cc:126:3: note: ------>vectorizing statement: _8 = *_7;
+
+extVect.cc:126:3: note: transform statement.
+extVect.cc:126:3: note: transform load. ncopies = 1
+extVect.cc:126:3: note: create vector_type-pointer variable to type: vector(4) float  vectorizing a pointer ref: MEM[(float *)&x]
+extVect.cc:126:3: note: created vectp_x.74_25
+extVect.cc:126:3: note: add new stmt: vect__8.75_15 = MEM[(float *)vectp_x.73_24];
+
+extVect.cc:126:3: note: ------>vectorizing statement: _13 = __builtin_sqrtf (_8);
+
+extVect.cc:126:3: note: transform statement.
+extVect.cc:126:3: note: vect_is_simple_use: operand _8
+extVect.cc:126:3: note: def_stmt: _8 = *_7;
+
+extVect.cc:126:3: note: type of def: 3.
+extVect.cc:126:3: note: transform call.
+extVect.cc:126:3: note: vect_get_vec_def_for_operand: _8
+extVect.cc:126:3: note: vect_is_simple_use: operand _8
+extVect.cc:126:3: note: def_stmt: _8 = *_7;
+
+extVect.cc:126:3: note: type of def: 3.
+extVect.cc:126:3: note: def =  _8
+  def_stmt =  _8 = *_7;
+
+extVect.cc:126:3: note: add new stmt: vect__13.76_14 = __builtin_ia32_sqrtps_nr (vect__8.75_15);
+
+extVect.cc:126:3: note: ------>vectorizing statement: *_6 = _13;
+
+extVect.cc:126:3: note: transform statement.
+extVect.cc:126:3: note: vect_is_simple_use: operand _13
+extVect.cc:126:3: note: def_stmt: _13 = 0.0;
+
+extVect.cc:126:3: note: type of def: 3.
+extVect.cc:126:3: note: transform store. ncopies = 1
+extVect.cc:126:3: note: vect_get_vec_def_for_operand: _13
+extVect.cc:126:3: note: vect_is_simple_use: operand _13
+extVect.cc:126:3: note: def_stmt: _13 = 0.0;
+
+extVect.cc:126:3: note: type of def: 3.
+extVect.cc:126:3: note: def =  _13
+  def_stmt =  _13 = 0.0;
+
+extVect.cc:126:3: note: create vector_type-pointer variable to type: vector(4) float  vectorizing a pointer ref: MEM[(float *)&r]
+extVect.cc:126:3: note: created vectp_r.78_2
+extVect.cc:126:3: note: add new stmt: MEM[(float *)vectp_r.77_1] = vect__13.76_14;
+
+extVect.cc:126:3: note: ------>vectorizing statement: i_10 = i_16 + 1;
+
+extVect.cc:126:3: note: ------>vectorizing statement: ivtmp_26 = ivtmp_27 - 1;
+
+extVect.cc:126:3: note: ------>vectorizing statement: vectp_x.73_18 = vectp_x.73_24 + 16;
+
+extVect.cc:126:3: note: ------>vectorizing statement: vectp_r.77_23 = vectp_r.77_1 + 16;
+
+extVect.cc:126:3: note: ------>vectorizing statement: if (ivtmp_26 != 0)
+
+
+loop at extVect.cc:126: if (ivtmp_21 < 1)
+
+;; Scaling loop 1 with scale 0.250000, bounding iterations to 1 from guessed 3
+;; guessed iterations are now 1
+extVect.cc:126:3: note: LOOP VECTORIZED
+
+extVect.cc:124:13: note: vectorized 1 loops in function.
+Merging blocks 2 and 6
+float32x4_t sqrtl(float32x4_t) (float32x4_t x)
+{
+  vector(4) float * vectp_r.78;
+  vector(4) float * vectp_r.77;
+  vector(4) float vect__13.76;
+  vector(4) float vect__8.75;
+  vector(4) float * vectp_x.74;
+  vector(4) float * vectp_x.73;
+  int i;
+  float32x4_t r;
+  long unsigned int _4;
+  long unsigned int _5;
+  float * _6;
+  float * _7;
+  float _8;
+  unsigned int ivtmp_9;
+  float32x4_t _11;
+  float _13;
+  unsigned int ivtmp_21;
+  unsigned int ivtmp_26;
+  unsigned int ivtmp_27;
+
+  <bb 2>:
+  vectp_x.74_25 = &x;
+  vectp_r.78_2 = &r;
+
+  <bb 3>:
+  # i_16 = PHI <i_10(4), 0(2)>
+  # ivtmp_27 = PHI <ivtmp_26(4), 4(2)>
+  # vectp_x.73_24 = PHI <vectp_x.73_18(4), vectp_x.74_25(2)>
+  # vectp_r.77_1 = PHI <vectp_r.77_23(4), vectp_r.78_2(2)>
+  # ivtmp_9 = PHI <ivtmp_21(4), 0(2)>
+  _4 = (long unsigned int) i_16;
+  _5 = _4 * 4;
+  _6 = &r + _5;
+  _7 = &x + _5;
+  vect__8.75_15 = MEM[(float *)vectp_x.73_24];
+  _8 = *_7;
+  vect__13.76_14 = __builtin_ia32_sqrtps_nr (vect__8.75_15);
+  _13 = 0.0;
+  MEM[(float *)vectp_r.77_1] = vect__13.76_14;
+  i_10 = i_16 + 1;
+  ivtmp_26 = ivtmp_27 - 1;
+  vectp_x.73_18 = vectp_x.73_24 + 16;
+  vectp_r.77_23 = vectp_r.77_1 + 16;
+  ivtmp_21 = ivtmp_9 + 1;
+  if (ivtmp_21 < 1)
+    goto <bb 4>;
+  else
+    goto <bb 5>;
+
+  <bb 4>:
+  goto <bb 3>;
+
+  <bb 5>:
+  _11 = r;
+  r ={v} {CLOBBER};
+  return _11;
+
+}
+
+
+
+;; Function float64x4_t dfmav(float64x4_t, float64x4_t, float64x4_t, double, double) (_Z5dfmavU8__vectordS_S_dd, funcdef_no=250, decl_uid=4529, symbol_order=176)
+
+float64x4_t dfmav(float64x4_t, float64x4_t, float64x4_t, double, double) (float64x4_t x, float64x4_t y, float64x4_t z, double a, double b)
+{
+  vector(4) double _2;
+  vector(4) double _6;
+  vector(4) double _8;
+  vector(4) double _10;
+  vector(4) double _11;
+  vector(4) double _14;
+
+  <bb 2>:
+  _2 = {a_1(D), a_1(D), a_1(D), a_1(D)};
+  _6 = {b_5(D), b_5(D), b_5(D), b_5(D)};
+  _8 = z_7(D) * _6;
+  _10 = _8 + y_9(D);
+  _14 = x_3(D) * _10;
+  _11 = _14 * _2;
+  <retval> = _11;
+  return <retval>;
+
+}
+
+
+
+;; Function float64x4_t dfmal(float64x4_t, float64x4_t, float64x4_t, double, double) (_Z5dfmalU8__vectordS_S_dd, funcdef_no=251, decl_uid=4536, symbol_order=177)
+
+
+Analyzing loop at extVect.cc:138
+extVect.cc:138:9: note: ===== analyze_loop_nest =====
+extVect.cc:138:9: note: === vect_analyze_loop_form ===
+extVect.cc:138:9: note: === get_loop_niters ===
+Analyzing # of iterations of loop 1
+  exit condition [3, + , 4294967295] != 0
+  bounds on difference of bases: -3 ... -3
+  result:
+    # of iterations 3, bounded by 3
+extVect.cc:138:9: note: === vect_analyze_data_refs ===
+Creating dr for *_7
+analyze_innermost: success.
+	base_address: &x
+	offset from base address: 0
+	constant offset from base address: 0
+	step: 8
+	aligned to: 128
+	base_object: MEM[(double *)&x]
+	Access function 0: {0B, +, 8}_1
+Creating dr for *_11
+analyze_innermost: success.
+	base_address: &y
+	offset from base address: 0
+	constant offset from base address: 0
+	step: 8
+	aligned to: 128
+	base_object: MEM[(double *)&y]
+	Access function 0: {0B, +, 8}_1
+Creating dr for *_13
+analyze_innermost: success.
+	base_address: &z
+	offset from base address: 0
+	constant offset from base address: 0
+	step: 8
+	aligned to: 128
+	base_object: MEM[(double *)&z]
+	Access function 0: {0B, +, 8}_1
+Creating dr for *_6
+analyze_innermost: success.
+	base_address: &<retval>
+	offset from base address: 0
+	constant offset from base address: 0
+	step: 8
+	aligned to: 128
+	base_object: MEM[(double *)&<retval>]
+	Access function 0: {0B, +, 8}_1
+extVect.cc:138:9: note: got vectype for stmt: _8 = *_7;
+vector(2) double
+extVect.cc:138:9: note: got vectype for stmt: _12 = *_11;
+vector(2) double
+extVect.cc:138:9: note: got vectype for stmt: _14 = *_13;
+vector(2) double
+extVect.cc:138:9: note: got vectype for stmt: *_6 = _18;
+vector(2) double
+extVect.cc:138:9: note: === vect_analyze_data_ref_accesses ===
+extVect.cc:138:9: note: === vect_analyze_scalar_cycles ===
+extVect.cc:138:9: note: Analyze phi: i_23 = PHI <i_20(4), 0(2)>
+
+extVect.cc:138:9: note: Access function of PHI: {0, +, 1}_1
+extVect.cc:138:9: note: step: 1,  init: 0
+extVect.cc:138:9: note: Detected induction.
+extVect.cc:138:9: note: Analyze phi: .MEM_24 = PHI <.MEM_19(4), .MEM_3(D)(2)>
+
+extVect.cc:138:9: note: Analyze phi: ivtmp_55 = PHI <ivtmp_54(4), 4(2)>
+
+extVect.cc:138:9: note: Access function of PHI: {4, +, 4294967295}_1
+extVect.cc:138:9: note: step: 4294967295,  init: 4
+extVect.cc:138:9: note: Detected induction.
+extVect.cc:138:9: note: === vect_pattern_recog ===
+extVect.cc:138:9: note: vect_is_simple_use: operand _4
+extVect.cc:138:9: note: def_stmt: _4 = (long unsigned int) i_23;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: vect_is_simple_use: operand i_23
+extVect.cc:138:9: note: def_stmt: i_23 = PHI <i_20(4), 0(2)>
+
+extVect.cc:138:9: note: type of def: 4.
+extVect.cc:138:9: note: vect_is_simple_use: operand 8
+extVect.cc:138:9: note: vect_is_simple_use: operand _8
+extVect.cc:138:9: note: def_stmt: _8 = *_7;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: vect_is_simple_use: operand _14
+extVect.cc:138:9: note: def_stmt: _14 = *_13;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: vect_is_simple_use: operand _10
+extVect.cc:138:9: note: def_stmt: _10 = _8 * a_9(D);
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: === vect_mark_stmts_to_be_vectorized ===
+extVect.cc:138:9: note: init: phi relevant? i_23 = PHI <i_20(4), 0(2)>
+
+extVect.cc:138:9: note: init: phi relevant? .MEM_24 = PHI <.MEM_19(4), .MEM_3(D)(2)>
+
+extVect.cc:138:9: note: init: phi relevant? ivtmp_55 = PHI <ivtmp_54(4), 4(2)>
+
+extVect.cc:138:9: note: init: stmt relevant? _4 = (long unsigned int) i_23;
+
+extVect.cc:138:9: note: init: stmt relevant? _5 = _4 * 8;
+
+extVect.cc:138:9: note: init: stmt relevant? _6 = &<retval> + _5;
+
+extVect.cc:138:9: note: init: stmt relevant? _7 = &x + _5;
+
+extVect.cc:138:9: note: init: stmt relevant? _8 = *_7;
+
+extVect.cc:138:9: note: init: stmt relevant? _10 = _8 * a_9(D);
+
+extVect.cc:138:9: note: init: stmt relevant? _11 = &y + _5;
+
+extVect.cc:138:9: note: init: stmt relevant? _12 = *_11;
+
+extVect.cc:138:9: note: init: stmt relevant? _13 = &z + _5;
+
+extVect.cc:138:9: note: init: stmt relevant? _14 = *_13;
+
+extVect.cc:138:9: note: init: stmt relevant? _16 = _14 * b_15(D);
+
+extVect.cc:138:9: note: init: stmt relevant? _17 = _16 + _12;
+
+extVect.cc:138:9: note: init: stmt relevant? _18 = _10 * _17;
+
+extVect.cc:138:9: note: init: stmt relevant? *_6 = _18;
+
+extVect.cc:138:9: note: vec_stmt_relevant_p: stmt has vdefs.
+extVect.cc:138:9: note: mark relevant 4, live 0.
+extVect.cc:138:9: note: init: stmt relevant? i_20 = i_23 + 1;
+
+extVect.cc:138:9: note: init: stmt relevant? ivtmp_54 = ivtmp_55 - 1;
+
+extVect.cc:138:9: note: init: stmt relevant? if (ivtmp_54 != 0)
+
+extVect.cc:138:9: note: worklist: examine stmt: *_6 = _18;
+
+extVect.cc:138:9: note: vect_is_simple_use: operand _18
+extVect.cc:138:9: note: def_stmt: _18 = _10 * _17;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: mark relevant 4, live 0.
+extVect.cc:138:9: note: worklist: examine stmt: _18 = _10 * _17;
+
+extVect.cc:138:9: note: vect_is_simple_use: operand _10
+extVect.cc:138:9: note: def_stmt: _10 = _8 * a_9(D);
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: mark relevant 4, live 0.
+extVect.cc:138:9: note: vect_is_simple_use: operand _17
+extVect.cc:138:9: note: def_stmt: _17 = _16 + _12;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: mark relevant 4, live 0.
+extVect.cc:138:9: note: worklist: examine stmt: _17 = _16 + _12;
+
+extVect.cc:138:9: note: vect_is_simple_use: operand _16
+extVect.cc:138:9: note: def_stmt: _16 = _14 * b_15(D);
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: mark relevant 4, live 0.
+extVect.cc:138:9: note: vect_is_simple_use: operand _12
+extVect.cc:138:9: note: def_stmt: _12 = *_11;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: mark relevant 4, live 0.
+extVect.cc:138:9: note: worklist: examine stmt: _12 = *_11;
+
+extVect.cc:138:9: note: worklist: examine stmt: _16 = _14 * b_15(D);
+
+extVect.cc:138:9: note: vect_is_simple_use: operand _14
+extVect.cc:138:9: note: def_stmt: _14 = *_13;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: mark relevant 4, live 0.
+extVect.cc:138:9: note: vect_is_simple_use: operand b_15(D)
+extVect.cc:138:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:138:9: note: worklist: examine stmt: _14 = *_13;
+
+extVect.cc:138:9: note: worklist: examine stmt: _10 = _8 * a_9(D);
+
+extVect.cc:138:9: note: vect_is_simple_use: operand _8
+extVect.cc:138:9: note: def_stmt: _8 = *_7;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: mark relevant 4, live 0.
+extVect.cc:138:9: note: vect_is_simple_use: operand a_9(D)
+extVect.cc:138:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:138:9: note: worklist: examine stmt: _8 = *_7;
+
+extVect.cc:138:9: note: === vect_analyze_data_ref_dependences ===
+(compute_affine_dependence
+  stmt_a: _8 = *_7;
+  stmt_b: _12 = *_11;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _8 = *_7;
+  stmt_b: _14 = *_13;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _8 = *_7;
+  stmt_b: *_6 = _18;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _12 = *_11;
+  stmt_b: _14 = *_13;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _12 = *_11;
+  stmt_b: *_6 = _18;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _14 = *_13;
+  stmt_b: *_6 = _18;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _8 = *_7;
+  stmt_b: _8 = *_7;
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 8}_1)
+  (chrec_b = {0B, +, 8}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+(compute_affine_dependence
+  stmt_a: _12 = *_11;
+  stmt_b: _12 = *_11;
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 8}_1)
+  (chrec_b = {0B, +, 8}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+(compute_affine_dependence
+  stmt_a: _14 = *_13;
+  stmt_b: _14 = *_13;
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 8}_1)
+  (chrec_b = {0B, +, 8}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+(compute_affine_dependence
+  stmt_a: *_6 = _18;
+  stmt_b: *_6 = _18;
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 8}_1)
+  (chrec_b = {0B, +, 8}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+extVect.cc:138:9: note: === vect_determine_vectorization_factor ===
+extVect.cc:138:9: note: ==> examining phi: i_23 = PHI <i_20(4), 0(2)>
+
+extVect.cc:138:9: note: ==> examining phi: .MEM_24 = PHI <.MEM_19(4), .MEM_3(D)(2)>
+
+extVect.cc:138:9: note: ==> examining phi: ivtmp_55 = PHI <ivtmp_54(4), 4(2)>
+
+extVect.cc:138:9: note: ==> examining statement: _4 = (long unsigned int) i_23;
+
+extVect.cc:138:9: note: skip.
+extVect.cc:138:9: note: ==> examining statement: _5 = _4 * 8;
+
+extVect.cc:138:9: note: skip.
+extVect.cc:138:9: note: ==> examining statement: _6 = &<retval> + _5;
+
+extVect.cc:138:9: note: skip.
+extVect.cc:138:9: note: ==> examining statement: _7 = &x + _5;
+
+extVect.cc:138:9: note: skip.
+extVect.cc:138:9: note: ==> examining statement: _8 = *_7;
+
+extVect.cc:138:9: note: get vectype for scalar type:  double
+extVect.cc:138:9: note: vectype: vector(2) double
+extVect.cc:138:9: note: nunits = 2
+extVect.cc:138:9: note: ==> examining statement: _10 = _8 * a_9(D);
+
+extVect.cc:138:9: note: get vectype for scalar type:  double
+extVect.cc:138:9: note: vectype: vector(2) double
+extVect.cc:138:9: note: get vectype for scalar type:  double
+extVect.cc:138:9: note: vectype: vector(2) double
+extVect.cc:138:9: note: nunits = 2
+extVect.cc:138:9: note: ==> examining statement: _11 = &y + _5;
+
+extVect.cc:138:9: note: skip.
+extVect.cc:138:9: note: ==> examining statement: _12 = *_11;
+
+extVect.cc:138:9: note: get vectype for scalar type:  double
+extVect.cc:138:9: note: vectype: vector(2) double
+extVect.cc:138:9: note: nunits = 2
+extVect.cc:138:9: note: ==> examining statement: _13 = &z + _5;
+
+extVect.cc:138:9: note: skip.
+extVect.cc:138:9: note: ==> examining statement: _14 = *_13;
+
+extVect.cc:138:9: note: get vectype for scalar type:  double
+extVect.cc:138:9: note: vectype: vector(2) double
+extVect.cc:138:9: note: nunits = 2
+extVect.cc:138:9: note: ==> examining statement: _16 = _14 * b_15(D);
+
+extVect.cc:138:9: note: get vectype for scalar type:  double
+extVect.cc:138:9: note: vectype: vector(2) double
+extVect.cc:138:9: note: get vectype for scalar type:  double
+extVect.cc:138:9: note: vectype: vector(2) double
+extVect.cc:138:9: note: nunits = 2
+extVect.cc:138:9: note: ==> examining statement: _17 = _16 + _12;
+
+extVect.cc:138:9: note: get vectype for scalar type:  double
+extVect.cc:138:9: note: vectype: vector(2) double
+extVect.cc:138:9: note: get vectype for scalar type:  double
+extVect.cc:138:9: note: vectype: vector(2) double
+extVect.cc:138:9: note: nunits = 2
+extVect.cc:138:9: note: ==> examining statement: _18 = _10 * _17;
+
+extVect.cc:138:9: note: get vectype for scalar type:  double
+extVect.cc:138:9: note: vectype: vector(2) double
+extVect.cc:138:9: note: get vectype for scalar type:  double
+extVect.cc:138:9: note: vectype: vector(2) double
+extVect.cc:138:9: note: nunits = 2
+extVect.cc:138:9: note: ==> examining statement: *_6 = _18;
+
+extVect.cc:138:9: note: get vectype for scalar type:  double
+extVect.cc:138:9: note: vectype: vector(2) double
+extVect.cc:138:9: note: nunits = 2
+extVect.cc:138:9: note: ==> examining statement: i_20 = i_23 + 1;
+
+extVect.cc:138:9: note: skip.
+extVect.cc:138:9: note: ==> examining statement: ivtmp_54 = ivtmp_55 - 1;
+
+extVect.cc:138:9: note: skip.
+extVect.cc:138:9: note: ==> examining statement: if (ivtmp_54 != 0)
+
+extVect.cc:138:9: note: skip.
+extVect.cc:138:9: note: vectorization factor = 2
+extVect.cc:138:9: note: === vect_analyze_data_refs_alignment ===
+extVect.cc:138:9: note: vect_compute_data_ref_alignment:
+extVect.cc:138:9: note: misalign = 0 bytes of ref *_7
+extVect.cc:138:9: note: vect_compute_data_ref_alignment:
+extVect.cc:138:9: note: misalign = 0 bytes of ref *_11
+extVect.cc:138:9: note: vect_compute_data_ref_alignment:
+extVect.cc:138:9: note: misalign = 0 bytes of ref *_13
+extVect.cc:138:9: note: vect_compute_data_ref_alignment:
+extVect.cc:138:9: note: misalign = 0 bytes of ref *_6
+extVect.cc:138:9: note: === vect_prune_runtime_alias_test_list ===
+extVect.cc:138:9: note: === vect_enhance_data_refs_alignment ===
+extVect.cc:138:9: note: vect_can_advance_ivs_p:
+extVect.cc:138:9: note: Analyze phi: i_23 = PHI <i_20(4), 0(2)>
+
+extVect.cc:138:9: note: Analyze phi: .MEM_24 = PHI <.MEM_19(4), .MEM_3(D)(2)>
+
+extVect.cc:138:9: note: virtual phi. skip.
+extVect.cc:138:9: note: Analyze phi: ivtmp_55 = PHI <ivtmp_54(4), 4(2)>
+
+extVect.cc:138:9: note: vect_model_load_cost: aligned.
+extVect.cc:138:9: note: vect_get_data_access_cost: inside_cost = 1, outside_cost = 0.
+extVect.cc:138:9: note: vect_model_load_cost: aligned.
+extVect.cc:138:9: note: vect_get_data_access_cost: inside_cost = 2, outside_cost = 0.
+extVect.cc:138:9: note: vect_model_load_cost: aligned.
+extVect.cc:138:9: note: vect_get_data_access_cost: inside_cost = 3, outside_cost = 0.
+extVect.cc:138:9: note: vect_model_store_cost: aligned.
+extVect.cc:138:9: note: vect_get_data_access_cost: inside_cost = 4, outside_cost = 0.
+extVect.cc:138:9: note: === vect_analyze_slp ===
+extVect.cc:138:9: note: === vect_make_slp_decision ===
+extVect.cc:138:9: note: === vect_detect_hybrid_slp ===
+extVect.cc:138:9: note: === vect_analyze_loop_operations ===
+extVect.cc:138:9: note: examining phi: i_23 = PHI <i_20(4), 0(2)>
+
+extVect.cc:138:9: note: examining phi: .MEM_24 = PHI <.MEM_19(4), .MEM_3(D)(2)>
+
+extVect.cc:138:9: note: examining phi: ivtmp_55 = PHI <ivtmp_54(4), 4(2)>
+
+extVect.cc:138:9: note: ==> examining statement: _4 = (long unsigned int) i_23;
+
+extVect.cc:138:9: note: irrelevant.
+extVect.cc:138:9: note: ==> examining statement: _5 = _4 * 8;
+
+extVect.cc:138:9: note: irrelevant.
+extVect.cc:138:9: note: ==> examining statement: _6 = &<retval> + _5;
+
+extVect.cc:138:9: note: irrelevant.
+extVect.cc:138:9: note: ==> examining statement: _7 = &x + _5;
+
+extVect.cc:138:9: note: irrelevant.
+extVect.cc:138:9: note: ==> examining statement: _8 = *_7;
+
+extVect.cc:138:9: note: vect_is_simple_use: operand *_7
+extVect.cc:138:9: note: not ssa-name.
+extVect.cc:138:9: note: use not simple.
+extVect.cc:138:9: note: vect_is_simple_use: operand *_7
+extVect.cc:138:9: note: not ssa-name.
+extVect.cc:138:9: note: use not simple.
+extVect.cc:138:9: note: vect_model_load_cost: aligned.
+extVect.cc:138:9: note: vect_model_load_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:138:9: note: ==> examining statement: _10 = _8 * a_9(D);
+
+extVect.cc:138:9: note: vect_is_simple_use: operand _8
+extVect.cc:138:9: note: def_stmt: _8 = *_7;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: vect_is_simple_use: operand a_9(D)
+extVect.cc:138:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:138:9: note: === vectorizable_operation ===
+extVect.cc:138:9: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 1 .
+extVect.cc:138:9: note: ==> examining statement: _11 = &y + _5;
+
+extVect.cc:138:9: note: irrelevant.
+extVect.cc:138:9: note: ==> examining statement: _12 = *_11;
+
+extVect.cc:138:9: note: vect_is_simple_use: operand *_11
+extVect.cc:138:9: note: not ssa-name.
+extVect.cc:138:9: note: use not simple.
+extVect.cc:138:9: note: vect_is_simple_use: operand *_11
+extVect.cc:138:9: note: not ssa-name.
+extVect.cc:138:9: note: use not simple.
+extVect.cc:138:9: note: vect_model_load_cost: aligned.
+extVect.cc:138:9: note: vect_model_load_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:138:9: note: ==> examining statement: _13 = &z + _5;
+
+extVect.cc:138:9: note: irrelevant.
+extVect.cc:138:9: note: ==> examining statement: _14 = *_13;
+
+extVect.cc:138:9: note: vect_is_simple_use: operand *_13
+extVect.cc:138:9: note: not ssa-name.
+extVect.cc:138:9: note: use not simple.
+extVect.cc:138:9: note: vect_is_simple_use: operand *_13
+extVect.cc:138:9: note: not ssa-name.
+extVect.cc:138:9: note: use not simple.
+extVect.cc:138:9: note: vect_model_load_cost: aligned.
+extVect.cc:138:9: note: vect_model_load_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:138:9: note: ==> examining statement: _16 = _14 * b_15(D);
+
+extVect.cc:138:9: note: vect_is_simple_use: operand _14
+extVect.cc:138:9: note: def_stmt: _14 = *_13;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: vect_is_simple_use: operand b_15(D)
+extVect.cc:138:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:138:9: note: === vectorizable_operation ===
+extVect.cc:138:9: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 1 .
+extVect.cc:138:9: note: ==> examining statement: _17 = _16 + _12;
+
+extVect.cc:138:9: note: vect_is_simple_use: operand _16
+extVect.cc:138:9: note: def_stmt: _16 = _14 * b_15(D);
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: vect_is_simple_use: operand _12
+extVect.cc:138:9: note: def_stmt: _12 = *_11;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: === vectorizable_operation ===
+extVect.cc:138:9: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:138:9: note: ==> examining statement: _18 = _10 * _17;
+
+extVect.cc:138:9: note: vect_is_simple_use: operand _10
+extVect.cc:138:9: note: def_stmt: _10 = _8 * a_9(D);
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: vect_is_simple_use: operand _17
+extVect.cc:138:9: note: def_stmt: _17 = _16 + _12;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: === vectorizable_operation ===
+extVect.cc:138:9: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:138:9: note: ==> examining statement: *_6 = _18;
+
+extVect.cc:138:9: note: vect_is_simple_use: operand _18
+extVect.cc:138:9: note: def_stmt: _18 = _10 * _17;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: vect_model_store_cost: aligned.
+extVect.cc:138:9: note: vect_model_store_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:138:9: note: ==> examining statement: i_20 = i_23 + 1;
+
+extVect.cc:138:9: note: irrelevant.
+extVect.cc:138:9: note: ==> examining statement: ivtmp_54 = ivtmp_55 - 1;
+
+extVect.cc:138:9: note: irrelevant.
+extVect.cc:138:9: note: ==> examining statement: if (ivtmp_54 != 0)
+
+extVect.cc:138:9: note: irrelevant.
+extVect.cc:138:9: note: vectorization_factor = 2, niters = 4
+extVect.cc:138:9: note: === vect_update_slp_costs_according_to_vf ===
+extVect.cc:138:9: note: Cost model analysis: 
+  Vector inside of loop cost: 8
+  Vector prologue cost: 2
+  Vector epilogue cost: 0
+  Scalar iteration cost: 8
+  Scalar outside cost: 0
+  Vector outside cost: 2
+  prologue iterations: 0
+  epilogue iterations: 0
+  Calculated minimum iters for profitability: 1
+
+extVect.cc:138:9: note:   Runtime profitability threshold = 1
+extVect.cc:138:9: note:   Static estimate profitability threshold = 1
+extVect.cc:138:9: note: loop vectorized
+extVect.cc:138:9: note: === vec_transform_loop ===
+extVect.cc:138:9: note: ------>vectorizing phi: i_23 = PHI <i_20(4), 0(6)>
+
+extVect.cc:138:9: note: ------>vectorizing phi: .MEM_24 = PHI <.MEM_19(4), .MEM_3(D)(6)>
+
+extVect.cc:138:9: note: ------>vectorizing phi: ivtmp_55 = PHI <ivtmp_54(4), 4(6)>
+
+extVect.cc:138:9: note: ------>vectorizing statement: _4 = (long unsigned int) i_23;
+
+extVect.cc:138:9: note: ------>vectorizing statement: _5 = _4 * 8;
+
+extVect.cc:138:9: note: ------>vectorizing statement: _6 = &<retval> + _5;
+
+extVect.cc:138:9: note: ------>vectorizing statement: _7 = &x + _5;
+
+extVect.cc:138:9: note: ------>vectorizing statement: _8 = *_7;
+
+extVect.cc:138:9: note: transform statement.
+extVect.cc:138:9: note: transform load. ncopies = 1
+extVect.cc:138:9: note: create vector_type-pointer variable to type: vector(2) double  vectorizing a pointer ref: MEM[(double *)&x]
+extVect.cc:138:9: note: created vectp_x.84_53
+extVect.cc:138:9: note: add new stmt: vect__8.85_50 = MEM[(double *)vectp_x.83_52];
+
+extVect.cc:138:9: note: ------>vectorizing statement: _10 = _8 * a_9(D);
+
+extVect.cc:138:9: note: transform statement.
+extVect.cc:138:9: note: vect_is_simple_use: operand _8
+extVect.cc:138:9: note: def_stmt: _8 = *_7;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: vect_is_simple_use: operand a_9(D)
+extVect.cc:138:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:138:9: note: transform binary/unary operation.
+extVect.cc:138:9: note: vect_get_vec_def_for_operand: _8
+extVect.cc:138:9: note: vect_is_simple_use: operand _8
+extVect.cc:138:9: note: def_stmt: _8 = *_7;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: def =  _8
+  def_stmt =  _8 = *_7;
+
+extVect.cc:138:9: note: vect_get_vec_def_for_operand: a_9(D)
+extVect.cc:138:9: note: vect_is_simple_use: operand a_9(D)
+extVect.cc:138:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:138:9: note: def =  a_9(D)
+  def_stmt =  GIMPLE_NOP
+
+extVect.cc:138:9: note: Create vector_inv.
+extVect.cc:138:9: note: created new init_stmt: vect_cst_.87_49 = {a_9(D), a_9(D)};
+
+extVect.cc:138:9: note: add new stmt: vect__10.86_48 = vect__8.85_50 * vect_cst_.87_49;
+
+extVect.cc:138:9: note: ------>vectorizing statement: _11 = &y + _5;
+
+extVect.cc:138:9: note: ------>vectorizing statement: _12 = *_11;
+
+extVect.cc:138:9: note: transform statement.
+extVect.cc:138:9: note: transform load. ncopies = 1
+extVect.cc:138:9: note: create vector_type-pointer variable to type: vector(2) double  vectorizing a pointer ref: MEM[(double *)&y]
+extVect.cc:138:9: note: created vectp_y.89_47
+extVect.cc:138:9: note: add new stmt: vect__12.90_37 = MEM[(double *)vectp_y.88_46];
+
+extVect.cc:138:9: note: ------>vectorizing statement: _13 = &z + _5;
+
+extVect.cc:138:9: note: ------>vectorizing statement: _14 = *_13;
+
+extVect.cc:138:9: note: transform statement.
+extVect.cc:138:9: note: transform load. ncopies = 1
+extVect.cc:138:9: note: create vector_type-pointer variable to type: vector(2) double  vectorizing a pointer ref: MEM[(double *)&z]
+extVect.cc:138:9: note: created vectp_z.92_36
+extVect.cc:138:9: note: add new stmt: vect__14.93_33 = MEM[(double *)vectp_z.91_35];
+
+extVect.cc:138:9: note: ------>vectorizing statement: _16 = _14 * b_15(D);
+
+extVect.cc:138:9: note: transform statement.
+extVect.cc:138:9: note: vect_is_simple_use: operand _14
+extVect.cc:138:9: note: def_stmt: _14 = *_13;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: vect_is_simple_use: operand b_15(D)
+extVect.cc:138:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:138:9: note: transform binary/unary operation.
+extVect.cc:138:9: note: vect_get_vec_def_for_operand: _14
+extVect.cc:138:9: note: vect_is_simple_use: operand _14
+extVect.cc:138:9: note: def_stmt: _14 = *_13;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: def =  _14
+  def_stmt =  _14 = *_13;
+
+extVect.cc:138:9: note: vect_get_vec_def_for_operand: b_15(D)
+extVect.cc:138:9: note: vect_is_simple_use: operand b_15(D)
+extVect.cc:138:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:138:9: note: def =  b_15(D)
+  def_stmt =  GIMPLE_NOP
+
+extVect.cc:138:9: note: Create vector_inv.
+extVect.cc:138:9: note: created new init_stmt: vect_cst_.95_32 = {b_15(D), b_15(D)};
+
+extVect.cc:138:9: note: add new stmt: vect__16.94_31 = vect__14.93_33 * vect_cst_.95_32;
+
+extVect.cc:138:9: note: ------>vectorizing statement: _17 = _16 + _12;
+
+extVect.cc:138:9: note: transform statement.
+extVect.cc:138:9: note: vect_is_simple_use: operand _16
+extVect.cc:138:9: note: def_stmt: _16 = _14 * b_15(D);
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: vect_is_simple_use: operand _12
+extVect.cc:138:9: note: def_stmt: _12 = *_11;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: transform binary/unary operation.
+extVect.cc:138:9: note: vect_get_vec_def_for_operand: _16
+extVect.cc:138:9: note: vect_is_simple_use: operand _16
+extVect.cc:138:9: note: def_stmt: _16 = _14 * b_15(D);
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: def =  _16
+  def_stmt =  _16 = _14 * b_15(D);
+
+extVect.cc:138:9: note: vect_get_vec_def_for_operand: _12
+extVect.cc:138:9: note: vect_is_simple_use: operand _12
+extVect.cc:138:9: note: def_stmt: _12 = *_11;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: def =  _12
+  def_stmt =  _12 = *_11;
+
+extVect.cc:138:9: note: add new stmt: vect__17.96_30 = vect__16.94_31 + vect__12.90_37;
+
+extVect.cc:138:9: note: ------>vectorizing statement: _18 = _10 * _17;
+
+extVect.cc:138:9: note: transform statement.
+extVect.cc:138:9: note: vect_is_simple_use: operand _10
+extVect.cc:138:9: note: def_stmt: _10 = _8 * a_9(D);
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: vect_is_simple_use: operand _17
+extVect.cc:138:9: note: def_stmt: _17 = _16 + _12;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: transform binary/unary operation.
+extVect.cc:138:9: note: vect_get_vec_def_for_operand: _10
+extVect.cc:138:9: note: vect_is_simple_use: operand _10
+extVect.cc:138:9: note: def_stmt: _10 = _8 * a_9(D);
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: def =  _10
+  def_stmt =  _10 = _8 * a_9(D);
+
+extVect.cc:138:9: note: vect_get_vec_def_for_operand: _17
+extVect.cc:138:9: note: vect_is_simple_use: operand _17
+extVect.cc:138:9: note: def_stmt: _17 = _16 + _12;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: def =  _17
+  def_stmt =  _17 = _16 + _12;
+
+extVect.cc:138:9: note: add new stmt: vect__18.97_29 = vect__10.86_48 * vect__17.96_30;
+
+extVect.cc:138:9: note: ------>vectorizing statement: *_6 = _18;
+
+extVect.cc:138:9: note: transform statement.
+extVect.cc:138:9: note: vect_is_simple_use: operand _18
+extVect.cc:138:9: note: def_stmt: _18 = _10 * _17;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: transform store. ncopies = 1
+extVect.cc:138:9: note: vect_get_vec_def_for_operand: _18
+extVect.cc:138:9: note: vect_is_simple_use: operand _18
+extVect.cc:138:9: note: def_stmt: _18 = _10 * _17;
+
+extVect.cc:138:9: note: type of def: 3.
+extVect.cc:138:9: note: def =  _18
+  def_stmt =  _18 = _10 * _17;
+
+extVect.cc:138:9: note: create vector_type-pointer variable to type: vector(2) double  vectorizing a pointer ref: MEM[(double *)&<retval>]
+extVect.cc:138:9: note: created vectp_r.99_28
+extVect.cc:138:9: note: add new stmt: MEM[(double *)vectp_r.98_27] = vect__18.97_29;
+
+extVect.cc:138:9: note: ------>vectorizing statement: i_20 = i_23 + 1;
+
+extVect.cc:138:9: note: ------>vectorizing statement: ivtmp_54 = ivtmp_55 - 1;
+
+extVect.cc:138:9: note: ------>vectorizing statement: vectp_x.83_51 = vectp_x.83_52 + 16;
+
+extVect.cc:138:9: note: ------>vectorizing statement: vectp_y.88_45 = vectp_y.88_46 + 16;
+
+extVect.cc:138:9: note: ------>vectorizing statement: vectp_z.91_34 = vectp_z.91_35 + 16;
+
+extVect.cc:138:9: note: ------>vectorizing statement: vectp_r.98_26 = vectp_r.98_27 + 16;
+
+extVect.cc:138:9: note: ------>vectorizing statement: if (ivtmp_54 != 0)
+
+
+loop at extVect.cc:139: if (ivtmp_22 < 2)
+
+;; Scaling loop 1 with scale 0.500000, bounding iterations to 2 from guessed 3
+;; guessed iterations are now 2
+extVect.cc:138:9: note: LOOP VECTORIZED
+
+extVect.cc:136:13: note: vectorized 1 loops in function.
+Merging blocks 2 and 6
+float64x4_t dfmal(float64x4_t, float64x4_t, float64x4_t, double, double) (float64x4_t x, float64x4_t y, float64x4_t z, double a, double b)
+{
+  vector(2) double * vectp_r.99;
+  vector(2) double * vectp_r.98;
+  vector(2) double vect__18.97;
+  vector(2) double vect__17.96;
+  vector(2) double vect_cst_.95;
+  vector(2) double vect__16.94;
+  vector(2) double vect__14.93;
+  vector(2) double * vectp_z.92;
+  vector(2) double * vectp_z.91;
+  vector(2) double vect__12.90;
+  vector(2) double * vectp_y.89;
+  vector(2) double * vectp_y.88;
+  vector(2) double vect_cst_.87;
+  vector(2) double vect__10.86;
+  vector(2) double vect__8.85;
+  vector(2) double * vectp_x.84;
+  vector(2) double * vectp_x.83;
+  int i;
+  long unsigned int _4;
+  long unsigned int _5;
+  double * _6;
+  double * _7;
+  double _8;
+  double _10;
+  double * _11;
+  double _12;
+  double * _13;
+  double _14;
+  double _16;
+  double _17;
+  double _18;
+  unsigned int ivtmp_19;
+  unsigned int ivtmp_22;
+  unsigned int ivtmp_54;
+  unsigned int ivtmp_55;
+
+  <bb 2>:
+  vectp_x.84_53 = &x;
+  vect_cst_.87_49 = {a_9(D), a_9(D)};
+  vectp_y.89_47 = &y;
+  vectp_z.92_36 = &z;
+  vect_cst_.95_32 = {b_15(D), b_15(D)};
+  vectp_r.99_28 = &<retval>;
+
+  <bb 3>:
+  # i_23 = PHI <i_20(4), 0(2)>
+  # ivtmp_55 = PHI <ivtmp_54(4), 4(2)>
+  # vectp_x.83_52 = PHI <vectp_x.83_51(4), vectp_x.84_53(2)>
+  # vectp_y.88_46 = PHI <vectp_y.88_45(4), vectp_y.89_47(2)>
+  # vectp_z.91_35 = PHI <vectp_z.91_34(4), vectp_z.92_36(2)>
+  # vectp_r.98_27 = PHI <vectp_r.98_26(4), vectp_r.99_28(2)>
+  # ivtmp_19 = PHI <ivtmp_22(4), 0(2)>
+  _4 = (long unsigned int) i_23;
+  _5 = _4 * 8;
+  _6 = &<retval> + _5;
+  _7 = &x + _5;
+  vect__8.85_50 = MEM[(double *)vectp_x.83_52];
+  _8 = *_7;
+  vect__10.86_48 = vect__8.85_50 * vect_cst_.87_49;
+  _10 = _8 * a_9(D);
+  _11 = &y + _5;
+  vect__12.90_37 = MEM[(double *)vectp_y.88_46];
+  _12 = *_11;
+  _13 = &z + _5;
+  vect__14.93_33 = MEM[(double *)vectp_z.91_35];
+  _14 = *_13;
+  vect__16.94_31 = vect__14.93_33 * vect_cst_.95_32;
+  _16 = _14 * b_15(D);
+  vect__17.96_30 = vect__16.94_31 + vect__12.90_37;
+  _17 = _16 + _12;
+  vect__18.97_29 = vect__10.86_48 * vect__17.96_30;
+  _18 = _10 * _17;
+  MEM[(double *)vectp_r.98_27] = vect__18.97_29;
+  i_20 = i_23 + 1;
+  ivtmp_54 = ivtmp_55 - 1;
+  vectp_x.83_51 = vectp_x.83_52 + 16;
+  vectp_y.88_45 = vectp_y.88_46 + 16;
+  vectp_z.91_34 = vectp_z.91_35 + 16;
+  vectp_r.98_26 = vectp_r.98_27 + 16;
+  ivtmp_22 = ivtmp_19 + 1;
+  if (ivtmp_22 < 2)
+    goto <bb 4>;
+  else
+    goto <bb 5>;
+
+  <bb 4>:
+  goto <bb 3>;
+
+  <bb 5>:
+  return <retval>;
+
+}
+
+
+
+;; Function float64x8_t dfma8v(float64x8_t, float64x8_t, float64x8_t, double, double) (_Z6dfma8vU8__vectordS_S_dd, funcdef_no=252, decl_uid=4549, symbol_order=178)
+
+float64x8_t dfma8v(float64x8_t, float64x8_t, float64x8_t, double, double) (float64x8_t x, float64x8_t y, float64x8_t z, double a, double b)
+{
+  vector(8) double _2;
+  vector(8) double _6;
+  vector(8) double _8;
+  vector(8) double _10;
+  vector(8) double _11;
+  vector(8) double _14;
+
+  <bb 2>:
+  _2 = {a_1(D), a_1(D), a_1(D), a_1(D), a_1(D), a_1(D), a_1(D), a_1(D)};
+  _6 = {b_5(D), b_5(D), b_5(D), b_5(D), b_5(D), b_5(D), b_5(D), b_5(D)};
+  _8 = z_7(D) * _6;
+  _10 = _8 + y_9(D);
+  _14 = x_3(D) * _10;
+  _11 = _14 * _2;
+  <retval> = _11;
+  return <retval>;
+
+}
+
+
+
+;; Function float64x8_t dfma8l(float64x8_t, float64x8_t, float64x8_t, double, double) (_Z6dfma8lU8__vectordS_S_dd, funcdef_no=253, decl_uid=4556, symbol_order=179)
+
+
+Analyzing loop at extVect.cc:149
+extVect.cc:149:9: note: ===== analyze_loop_nest =====
+extVect.cc:149:9: note: === vect_analyze_loop_form ===
+extVect.cc:149:9: note: === get_loop_niters ===
+Analyzing # of iterations of loop 1
+  exit condition [7, + , 4294967295] != 0
+  bounds on difference of bases: -7 ... -7
+  result:
+    # of iterations 7, bounded by 7
+extVect.cc:149:9: note: === vect_analyze_data_refs ===
+Creating dr for *_7
+analyze_innermost: success.
+	base_address: &x
+	offset from base address: 0
+	constant offset from base address: 0
+	step: 8
+	aligned to: 128
+	base_object: MEM[(double *)&x]
+	Access function 0: {0B, +, 8}_1
+Creating dr for *_11
+analyze_innermost: success.
+	base_address: &y
+	offset from base address: 0
+	constant offset from base address: 0
+	step: 8
+	aligned to: 128
+	base_object: MEM[(double *)&y]
+	Access function 0: {0B, +, 8}_1
+Creating dr for *_13
+analyze_innermost: success.
+	base_address: &z
+	offset from base address: 0
+	constant offset from base address: 0
+	step: 8
+	aligned to: 128
+	base_object: MEM[(double *)&z]
+	Access function 0: {0B, +, 8}_1
+Creating dr for *_6
+analyze_innermost: success.
+	base_address: &<retval>
+	offset from base address: 0
+	constant offset from base address: 0
+	step: 8
+	aligned to: 128
+	base_object: MEM[(double *)&<retval>]
+	Access function 0: {0B, +, 8}_1
+extVect.cc:149:9: note: got vectype for stmt: _8 = *_7;
+vector(2) double
+extVect.cc:149:9: note: got vectype for stmt: _12 = *_11;
+vector(2) double
+extVect.cc:149:9: note: got vectype for stmt: _14 = *_13;
+vector(2) double
+extVect.cc:149:9: note: got vectype for stmt: *_6 = _18;
+vector(2) double
+extVect.cc:149:9: note: === vect_analyze_data_ref_accesses ===
+extVect.cc:149:9: note: === vect_analyze_scalar_cycles ===
+extVect.cc:149:9: note: Analyze phi: i_23 = PHI <i_20(4), 0(2)>
+
+extVect.cc:149:9: note: Access function of PHI: {0, +, 1}_1
+extVect.cc:149:9: note: step: 1,  init: 0
+extVect.cc:149:9: note: Detected induction.
+extVect.cc:149:9: note: Analyze phi: .MEM_24 = PHI <.MEM_19(4), .MEM_3(D)(2)>
+
+extVect.cc:149:9: note: Analyze phi: ivtmp_55 = PHI <ivtmp_54(4), 8(2)>
+
+extVect.cc:149:9: note: Access function of PHI: {8, +, 4294967295}_1
+extVect.cc:149:9: note: step: 4294967295,  init: 8
+extVect.cc:149:9: note: Detected induction.
+extVect.cc:149:9: note: === vect_pattern_recog ===
+extVect.cc:149:9: note: vect_is_simple_use: operand _4
+extVect.cc:149:9: note: def_stmt: _4 = (long unsigned int) i_23;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: vect_is_simple_use: operand i_23
+extVect.cc:149:9: note: def_stmt: i_23 = PHI <i_20(4), 0(2)>
+
+extVect.cc:149:9: note: type of def: 4.
+extVect.cc:149:9: note: vect_is_simple_use: operand 8
+extVect.cc:149:9: note: vect_is_simple_use: operand _8
+extVect.cc:149:9: note: def_stmt: _8 = *_7;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: vect_is_simple_use: operand _14
+extVect.cc:149:9: note: def_stmt: _14 = *_13;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: vect_is_simple_use: operand _10
+extVect.cc:149:9: note: def_stmt: _10 = _8 * a_9(D);
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: === vect_mark_stmts_to_be_vectorized ===
+extVect.cc:149:9: note: init: phi relevant? i_23 = PHI <i_20(4), 0(2)>
+
+extVect.cc:149:9: note: init: phi relevant? .MEM_24 = PHI <.MEM_19(4), .MEM_3(D)(2)>
+
+extVect.cc:149:9: note: init: phi relevant? ivtmp_55 = PHI <ivtmp_54(4), 8(2)>
+
+extVect.cc:149:9: note: init: stmt relevant? _4 = (long unsigned int) i_23;
+
+extVect.cc:149:9: note: init: stmt relevant? _5 = _4 * 8;
+
+extVect.cc:149:9: note: init: stmt relevant? _6 = &<retval> + _5;
+
+extVect.cc:149:9: note: init: stmt relevant? _7 = &x + _5;
+
+extVect.cc:149:9: note: init: stmt relevant? _8 = *_7;
+
+extVect.cc:149:9: note: init: stmt relevant? _10 = _8 * a_9(D);
+
+extVect.cc:149:9: note: init: stmt relevant? _11 = &y + _5;
+
+extVect.cc:149:9: note: init: stmt relevant? _12 = *_11;
+
+extVect.cc:149:9: note: init: stmt relevant? _13 = &z + _5;
+
+extVect.cc:149:9: note: init: stmt relevant? _14 = *_13;
+
+extVect.cc:149:9: note: init: stmt relevant? _16 = _14 * b_15(D);
+
+extVect.cc:149:9: note: init: stmt relevant? _17 = _16 + _12;
+
+extVect.cc:149:9: note: init: stmt relevant? _18 = _10 * _17;
+
+extVect.cc:149:9: note: init: stmt relevant? *_6 = _18;
+
+extVect.cc:149:9: note: vec_stmt_relevant_p: stmt has vdefs.
+extVect.cc:149:9: note: mark relevant 4, live 0.
+extVect.cc:149:9: note: init: stmt relevant? i_20 = i_23 + 1;
+
+extVect.cc:149:9: note: init: stmt relevant? ivtmp_54 = ivtmp_55 - 1;
+
+extVect.cc:149:9: note: init: stmt relevant? if (ivtmp_54 != 0)
+
+extVect.cc:149:9: note: worklist: examine stmt: *_6 = _18;
+
+extVect.cc:149:9: note: vect_is_simple_use: operand _18
+extVect.cc:149:9: note: def_stmt: _18 = _10 * _17;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: mark relevant 4, live 0.
+extVect.cc:149:9: note: worklist: examine stmt: _18 = _10 * _17;
+
+extVect.cc:149:9: note: vect_is_simple_use: operand _10
+extVect.cc:149:9: note: def_stmt: _10 = _8 * a_9(D);
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: mark relevant 4, live 0.
+extVect.cc:149:9: note: vect_is_simple_use: operand _17
+extVect.cc:149:9: note: def_stmt: _17 = _16 + _12;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: mark relevant 4, live 0.
+extVect.cc:149:9: note: worklist: examine stmt: _17 = _16 + _12;
+
+extVect.cc:149:9: note: vect_is_simple_use: operand _16
+extVect.cc:149:9: note: def_stmt: _16 = _14 * b_15(D);
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: mark relevant 4, live 0.
+extVect.cc:149:9: note: vect_is_simple_use: operand _12
+extVect.cc:149:9: note: def_stmt: _12 = *_11;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: mark relevant 4, live 0.
+extVect.cc:149:9: note: worklist: examine stmt: _12 = *_11;
+
+extVect.cc:149:9: note: worklist: examine stmt: _16 = _14 * b_15(D);
+
+extVect.cc:149:9: note: vect_is_simple_use: operand _14
+extVect.cc:149:9: note: def_stmt: _14 = *_13;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: mark relevant 4, live 0.
+extVect.cc:149:9: note: vect_is_simple_use: operand b_15(D)
+extVect.cc:149:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:149:9: note: worklist: examine stmt: _14 = *_13;
+
+extVect.cc:149:9: note: worklist: examine stmt: _10 = _8 * a_9(D);
+
+extVect.cc:149:9: note: vect_is_simple_use: operand _8
+extVect.cc:149:9: note: def_stmt: _8 = *_7;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: mark relevant 4, live 0.
+extVect.cc:149:9: note: vect_is_simple_use: operand a_9(D)
+extVect.cc:149:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:149:9: note: worklist: examine stmt: _8 = *_7;
+
+extVect.cc:149:9: note: === vect_analyze_data_ref_dependences ===
+(compute_affine_dependence
+  stmt_a: _8 = *_7;
+  stmt_b: _12 = *_11;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _8 = *_7;
+  stmt_b: _14 = *_13;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _8 = *_7;
+  stmt_b: *_6 = _18;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _12 = *_11;
+  stmt_b: _14 = *_13;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _12 = *_11;
+  stmt_b: *_6 = _18;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _14 = *_13;
+  stmt_b: *_6 = _18;
+) -> no dependence
+(compute_affine_dependence
+  stmt_a: _8 = *_7;
+  stmt_b: _8 = *_7;
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 8}_1)
+  (chrec_b = {0B, +, 8}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+(compute_affine_dependence
+  stmt_a: _12 = *_11;
+  stmt_b: _12 = *_11;
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 8}_1)
+  (chrec_b = {0B, +, 8}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+(compute_affine_dependence
+  stmt_a: _14 = *_13;
+  stmt_b: _14 = *_13;
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 8}_1)
+  (chrec_b = {0B, +, 8}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+(compute_affine_dependence
+  stmt_a: *_6 = _18;
+  stmt_b: *_6 = _18;
+(analyze_overlapping_iterations 
+  (chrec_a = {0B, +, 8}_1)
+  (chrec_b = {0B, +, 8}_1)
+  (overlap_iterations_a = [0])
+  (overlap_iterations_b = [0]))
+)
+extVect.cc:149:9: note: === vect_determine_vectorization_factor ===
+extVect.cc:149:9: note: ==> examining phi: i_23 = PHI <i_20(4), 0(2)>
+
+extVect.cc:149:9: note: ==> examining phi: .MEM_24 = PHI <.MEM_19(4), .MEM_3(D)(2)>
+
+extVect.cc:149:9: note: ==> examining phi: ivtmp_55 = PHI <ivtmp_54(4), 8(2)>
+
+extVect.cc:149:9: note: ==> examining statement: _4 = (long unsigned int) i_23;
+
+extVect.cc:149:9: note: skip.
+extVect.cc:149:9: note: ==> examining statement: _5 = _4 * 8;
+
+extVect.cc:149:9: note: skip.
+extVect.cc:149:9: note: ==> examining statement: _6 = &<retval> + _5;
+
+extVect.cc:149:9: note: skip.
+extVect.cc:149:9: note: ==> examining statement: _7 = &x + _5;
+
+extVect.cc:149:9: note: skip.
+extVect.cc:149:9: note: ==> examining statement: _8 = *_7;
+
+extVect.cc:149:9: note: get vectype for scalar type:  double
+extVect.cc:149:9: note: vectype: vector(2) double
+extVect.cc:149:9: note: nunits = 2
+extVect.cc:149:9: note: ==> examining statement: _10 = _8 * a_9(D);
+
+extVect.cc:149:9: note: get vectype for scalar type:  double
+extVect.cc:149:9: note: vectype: vector(2) double
+extVect.cc:149:9: note: get vectype for scalar type:  double
+extVect.cc:149:9: note: vectype: vector(2) double
+extVect.cc:149:9: note: nunits = 2
+extVect.cc:149:9: note: ==> examining statement: _11 = &y + _5;
+
+extVect.cc:149:9: note: skip.
+extVect.cc:149:9: note: ==> examining statement: _12 = *_11;
+
+extVect.cc:149:9: note: get vectype for scalar type:  double
+extVect.cc:149:9: note: vectype: vector(2) double
+extVect.cc:149:9: note: nunits = 2
+extVect.cc:149:9: note: ==> examining statement: _13 = &z + _5;
+
+extVect.cc:149:9: note: skip.
+extVect.cc:149:9: note: ==> examining statement: _14 = *_13;
+
+extVect.cc:149:9: note: get vectype for scalar type:  double
+extVect.cc:149:9: note: vectype: vector(2) double
+extVect.cc:149:9: note: nunits = 2
+extVect.cc:149:9: note: ==> examining statement: _16 = _14 * b_15(D);
+
+extVect.cc:149:9: note: get vectype for scalar type:  double
+extVect.cc:149:9: note: vectype: vector(2) double
+extVect.cc:149:9: note: get vectype for scalar type:  double
+extVect.cc:149:9: note: vectype: vector(2) double
+extVect.cc:149:9: note: nunits = 2
+extVect.cc:149:9: note: ==> examining statement: _17 = _16 + _12;
+
+extVect.cc:149:9: note: get vectype for scalar type:  double
+extVect.cc:149:9: note: vectype: vector(2) double
+extVect.cc:149:9: note: get vectype for scalar type:  double
+extVect.cc:149:9: note: vectype: vector(2) double
+extVect.cc:149:9: note: nunits = 2
+extVect.cc:149:9: note: ==> examining statement: _18 = _10 * _17;
+
+extVect.cc:149:9: note: get vectype for scalar type:  double
+extVect.cc:149:9: note: vectype: vector(2) double
+extVect.cc:149:9: note: get vectype for scalar type:  double
+extVect.cc:149:9: note: vectype: vector(2) double
+extVect.cc:149:9: note: nunits = 2
+extVect.cc:149:9: note: ==> examining statement: *_6 = _18;
+
+extVect.cc:149:9: note: get vectype for scalar type:  double
+extVect.cc:149:9: note: vectype: vector(2) double
+extVect.cc:149:9: note: nunits = 2
+extVect.cc:149:9: note: ==> examining statement: i_20 = i_23 + 1;
+
+extVect.cc:149:9: note: skip.
+extVect.cc:149:9: note: ==> examining statement: ivtmp_54 = ivtmp_55 - 1;
+
+extVect.cc:149:9: note: skip.
+extVect.cc:149:9: note: ==> examining statement: if (ivtmp_54 != 0)
+
+extVect.cc:149:9: note: skip.
+extVect.cc:149:9: note: vectorization factor = 2
+extVect.cc:149:9: note: === vect_analyze_data_refs_alignment ===
+extVect.cc:149:9: note: vect_compute_data_ref_alignment:
+extVect.cc:149:9: note: misalign = 0 bytes of ref *_7
+extVect.cc:149:9: note: vect_compute_data_ref_alignment:
+extVect.cc:149:9: note: misalign = 0 bytes of ref *_11
+extVect.cc:149:9: note: vect_compute_data_ref_alignment:
+extVect.cc:149:9: note: misalign = 0 bytes of ref *_13
+extVect.cc:149:9: note: vect_compute_data_ref_alignment:
+extVect.cc:149:9: note: misalign = 0 bytes of ref *_6
+extVect.cc:149:9: note: === vect_prune_runtime_alias_test_list ===
+extVect.cc:149:9: note: === vect_enhance_data_refs_alignment ===
+extVect.cc:149:9: note: vect_can_advance_ivs_p:
+extVect.cc:149:9: note: Analyze phi: i_23 = PHI <i_20(4), 0(2)>
+
+extVect.cc:149:9: note: Analyze phi: .MEM_24 = PHI <.MEM_19(4), .MEM_3(D)(2)>
+
+extVect.cc:149:9: note: virtual phi. skip.
+extVect.cc:149:9: note: Analyze phi: ivtmp_55 = PHI <ivtmp_54(4), 8(2)>
+
+extVect.cc:149:9: note: vect_model_load_cost: aligned.
+extVect.cc:149:9: note: vect_get_data_access_cost: inside_cost = 1, outside_cost = 0.
+extVect.cc:149:9: note: vect_model_load_cost: aligned.
+extVect.cc:149:9: note: vect_get_data_access_cost: inside_cost = 2, outside_cost = 0.
+extVect.cc:149:9: note: vect_model_load_cost: aligned.
+extVect.cc:149:9: note: vect_get_data_access_cost: inside_cost = 3, outside_cost = 0.
+extVect.cc:149:9: note: vect_model_store_cost: aligned.
+extVect.cc:149:9: note: vect_get_data_access_cost: inside_cost = 4, outside_cost = 0.
+extVect.cc:149:9: note: === vect_analyze_slp ===
+extVect.cc:149:9: note: === vect_make_slp_decision ===
+extVect.cc:149:9: note: === vect_detect_hybrid_slp ===
+extVect.cc:149:9: note: === vect_analyze_loop_operations ===
+extVect.cc:149:9: note: examining phi: i_23 = PHI <i_20(4), 0(2)>
+
+extVect.cc:149:9: note: examining phi: .MEM_24 = PHI <.MEM_19(4), .MEM_3(D)(2)>
+
+extVect.cc:149:9: note: examining phi: ivtmp_55 = PHI <ivtmp_54(4), 8(2)>
+
+extVect.cc:149:9: note: ==> examining statement: _4 = (long unsigned int) i_23;
+
+extVect.cc:149:9: note: irrelevant.
+extVect.cc:149:9: note: ==> examining statement: _5 = _4 * 8;
+
+extVect.cc:149:9: note: irrelevant.
+extVect.cc:149:9: note: ==> examining statement: _6 = &<retval> + _5;
+
+extVect.cc:149:9: note: irrelevant.
+extVect.cc:149:9: note: ==> examining statement: _7 = &x + _5;
+
+extVect.cc:149:9: note: irrelevant.
+extVect.cc:149:9: note: ==> examining statement: _8 = *_7;
+
+extVect.cc:149:9: note: vect_is_simple_use: operand *_7
+extVect.cc:149:9: note: not ssa-name.
+extVect.cc:149:9: note: use not simple.
+extVect.cc:149:9: note: vect_is_simple_use: operand *_7
+extVect.cc:149:9: note: not ssa-name.
+extVect.cc:149:9: note: use not simple.
+extVect.cc:149:9: note: vect_model_load_cost: aligned.
+extVect.cc:149:9: note: vect_model_load_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:149:9: note: ==> examining statement: _10 = _8 * a_9(D);
+
+extVect.cc:149:9: note: vect_is_simple_use: operand _8
+extVect.cc:149:9: note: def_stmt: _8 = *_7;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: vect_is_simple_use: operand a_9(D)
+extVect.cc:149:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:149:9: note: === vectorizable_operation ===
+extVect.cc:149:9: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 1 .
+extVect.cc:149:9: note: ==> examining statement: _11 = &y + _5;
+
+extVect.cc:149:9: note: irrelevant.
+extVect.cc:149:9: note: ==> examining statement: _12 = *_11;
+
+extVect.cc:149:9: note: vect_is_simple_use: operand *_11
+extVect.cc:149:9: note: not ssa-name.
+extVect.cc:149:9: note: use not simple.
+extVect.cc:149:9: note: vect_is_simple_use: operand *_11
+extVect.cc:149:9: note: not ssa-name.
+extVect.cc:149:9: note: use not simple.
+extVect.cc:149:9: note: vect_model_load_cost: aligned.
+extVect.cc:149:9: note: vect_model_load_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:149:9: note: ==> examining statement: _13 = &z + _5;
+
+extVect.cc:149:9: note: irrelevant.
+extVect.cc:149:9: note: ==> examining statement: _14 = *_13;
+
+extVect.cc:149:9: note: vect_is_simple_use: operand *_13
+extVect.cc:149:9: note: not ssa-name.
+extVect.cc:149:9: note: use not simple.
+extVect.cc:149:9: note: vect_is_simple_use: operand *_13
+extVect.cc:149:9: note: not ssa-name.
+extVect.cc:149:9: note: use not simple.
+extVect.cc:149:9: note: vect_model_load_cost: aligned.
+extVect.cc:149:9: note: vect_model_load_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:149:9: note: ==> examining statement: _16 = _14 * b_15(D);
+
+extVect.cc:149:9: note: vect_is_simple_use: operand _14
+extVect.cc:149:9: note: def_stmt: _14 = *_13;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: vect_is_simple_use: operand b_15(D)
+extVect.cc:149:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:149:9: note: === vectorizable_operation ===
+extVect.cc:149:9: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 1 .
+extVect.cc:149:9: note: ==> examining statement: _17 = _16 + _12;
+
+extVect.cc:149:9: note: vect_is_simple_use: operand _16
+extVect.cc:149:9: note: def_stmt: _16 = _14 * b_15(D);
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: vect_is_simple_use: operand _12
+extVect.cc:149:9: note: def_stmt: _12 = *_11;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: === vectorizable_operation ===
+extVect.cc:149:9: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:149:9: note: ==> examining statement: _18 = _10 * _17;
+
+extVect.cc:149:9: note: vect_is_simple_use: operand _10
+extVect.cc:149:9: note: def_stmt: _10 = _8 * a_9(D);
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: vect_is_simple_use: operand _17
+extVect.cc:149:9: note: def_stmt: _17 = _16 + _12;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: === vectorizable_operation ===
+extVect.cc:149:9: note: vect_model_simple_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:149:9: note: ==> examining statement: *_6 = _18;
+
+extVect.cc:149:9: note: vect_is_simple_use: operand _18
+extVect.cc:149:9: note: def_stmt: _18 = _10 * _17;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: vect_model_store_cost: aligned.
+extVect.cc:149:9: note: vect_model_store_cost: inside_cost = 1, prologue_cost = 0 .
+extVect.cc:149:9: note: ==> examining statement: i_20 = i_23 + 1;
+
+extVect.cc:149:9: note: irrelevant.
+extVect.cc:149:9: note: ==> examining statement: ivtmp_54 = ivtmp_55 - 1;
+
+extVect.cc:149:9: note: irrelevant.
+extVect.cc:149:9: note: ==> examining statement: if (ivtmp_54 != 0)
+
+extVect.cc:149:9: note: irrelevant.
+extVect.cc:149:9: note: vectorization_factor = 2, niters = 8
+extVect.cc:149:9: note: === vect_update_slp_costs_according_to_vf ===
+extVect.cc:149:9: note: Cost model analysis: 
+  Vector inside of loop cost: 8
+  Vector prologue cost: 2
+  Vector epilogue cost: 0
+  Scalar iteration cost: 8
+  Scalar outside cost: 0
+  Vector outside cost: 2
+  prologue iterations: 0
+  epilogue iterations: 0
+  Calculated minimum iters for profitability: 1
+
+extVect.cc:149:9: note:   Runtime profitability threshold = 1
+extVect.cc:149:9: note:   Static estimate profitability threshold = 1
+extVect.cc:149:9: note: loop vectorized
+extVect.cc:149:9: note: === vec_transform_loop ===
+extVect.cc:149:9: note: ------>vectorizing phi: i_23 = PHI <i_20(4), 0(6)>
+
+extVect.cc:149:9: note: ------>vectorizing phi: .MEM_24 = PHI <.MEM_19(4), .MEM_3(D)(6)>
+
+extVect.cc:149:9: note: ------>vectorizing phi: ivtmp_55 = PHI <ivtmp_54(4), 8(6)>
+
+extVect.cc:149:9: note: ------>vectorizing statement: _4 = (long unsigned int) i_23;
+
+extVect.cc:149:9: note: ------>vectorizing statement: _5 = _4 * 8;
+
+extVect.cc:149:9: note: ------>vectorizing statement: _6 = &<retval> + _5;
+
+extVect.cc:149:9: note: ------>vectorizing statement: _7 = &x + _5;
+
+extVect.cc:149:9: note: ------>vectorizing statement: _8 = *_7;
+
+extVect.cc:149:9: note: transform statement.
+extVect.cc:149:9: note: transform load. ncopies = 1
+extVect.cc:149:9: note: create vector_type-pointer variable to type: vector(2) double  vectorizing a pointer ref: MEM[(double *)&x]
+extVect.cc:149:9: note: created vectp_x.105_53
+extVect.cc:149:9: note: add new stmt: vect__8.106_50 = MEM[(double *)vectp_x.104_52];
+
+extVect.cc:149:9: note: ------>vectorizing statement: _10 = _8 * a_9(D);
+
+extVect.cc:149:9: note: transform statement.
+extVect.cc:149:9: note: vect_is_simple_use: operand _8
+extVect.cc:149:9: note: def_stmt: _8 = *_7;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: vect_is_simple_use: operand a_9(D)
+extVect.cc:149:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:149:9: note: transform binary/unary operation.
+extVect.cc:149:9: note: vect_get_vec_def_for_operand: _8
+extVect.cc:149:9: note: vect_is_simple_use: operand _8
+extVect.cc:149:9: note: def_stmt: _8 = *_7;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: def =  _8
+  def_stmt =  _8 = *_7;
+
+extVect.cc:149:9: note: vect_get_vec_def_for_operand: a_9(D)
+extVect.cc:149:9: note: vect_is_simple_use: operand a_9(D)
+extVect.cc:149:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:149:9: note: def =  a_9(D)
+  def_stmt =  GIMPLE_NOP
+
+extVect.cc:149:9: note: Create vector_inv.
+extVect.cc:149:9: note: created new init_stmt: vect_cst_.108_49 = {a_9(D), a_9(D)};
+
+extVect.cc:149:9: note: add new stmt: vect__10.107_48 = vect__8.106_50 * vect_cst_.108_49;
+
+extVect.cc:149:9: note: ------>vectorizing statement: _11 = &y + _5;
+
+extVect.cc:149:9: note: ------>vectorizing statement: _12 = *_11;
+
+extVect.cc:149:9: note: transform statement.
+extVect.cc:149:9: note: transform load. ncopies = 1
+extVect.cc:149:9: note: create vector_type-pointer variable to type: vector(2) double  vectorizing a pointer ref: MEM[(double *)&y]
+extVect.cc:149:9: note: created vectp_y.110_47
+extVect.cc:149:9: note: add new stmt: vect__12.111_37 = MEM[(double *)vectp_y.109_46];
+
+extVect.cc:149:9: note: ------>vectorizing statement: _13 = &z + _5;
+
+extVect.cc:149:9: note: ------>vectorizing statement: _14 = *_13;
+
+extVect.cc:149:9: note: transform statement.
+extVect.cc:149:9: note: transform load. ncopies = 1
+extVect.cc:149:9: note: create vector_type-pointer variable to type: vector(2) double  vectorizing a pointer ref: MEM[(double *)&z]
+extVect.cc:149:9: note: created vectp_z.113_36
+extVect.cc:149:9: note: add new stmt: vect__14.114_33 = MEM[(double *)vectp_z.112_35];
+
+extVect.cc:149:9: note: ------>vectorizing statement: _16 = _14 * b_15(D);
+
+extVect.cc:149:9: note: transform statement.
+extVect.cc:149:9: note: vect_is_simple_use: operand _14
+extVect.cc:149:9: note: def_stmt: _14 = *_13;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: vect_is_simple_use: operand b_15(D)
+extVect.cc:149:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:149:9: note: transform binary/unary operation.
+extVect.cc:149:9: note: vect_get_vec_def_for_operand: _14
+extVect.cc:149:9: note: vect_is_simple_use: operand _14
+extVect.cc:149:9: note: def_stmt: _14 = *_13;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: def =  _14
+  def_stmt =  _14 = *_13;
+
+extVect.cc:149:9: note: vect_get_vec_def_for_operand: b_15(D)
+extVect.cc:149:9: note: vect_is_simple_use: operand b_15(D)
+extVect.cc:149:9: note: def_stmt: GIMPLE_NOP
+
+extVect.cc:149:9: note: def =  b_15(D)
+  def_stmt =  GIMPLE_NOP
+
+extVect.cc:149:9: note: Create vector_inv.
+extVect.cc:149:9: note: created new init_stmt: vect_cst_.116_32 = {b_15(D), b_15(D)};
+
+extVect.cc:149:9: note: add new stmt: vect__16.115_31 = vect__14.114_33 * vect_cst_.116_32;
+
+extVect.cc:149:9: note: ------>vectorizing statement: _17 = _16 + _12;
+
+extVect.cc:149:9: note: transform statement.
+extVect.cc:149:9: note: vect_is_simple_use: operand _16
+extVect.cc:149:9: note: def_stmt: _16 = _14 * b_15(D);
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: vect_is_simple_use: operand _12
+extVect.cc:149:9: note: def_stmt: _12 = *_11;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: transform binary/unary operation.
+extVect.cc:149:9: note: vect_get_vec_def_for_operand: _16
+extVect.cc:149:9: note: vect_is_simple_use: operand _16
+extVect.cc:149:9: note: def_stmt: _16 = _14 * b_15(D);
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: def =  _16
+  def_stmt =  _16 = _14 * b_15(D);
+
+extVect.cc:149:9: note: vect_get_vec_def_for_operand: _12
+extVect.cc:149:9: note: vect_is_simple_use: operand _12
+extVect.cc:149:9: note: def_stmt: _12 = *_11;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: def =  _12
+  def_stmt =  _12 = *_11;
+
+extVect.cc:149:9: note: add new stmt: vect__17.117_30 = vect__16.115_31 + vect__12.111_37;
+
+extVect.cc:149:9: note: ------>vectorizing statement: _18 = _10 * _17;
+
+extVect.cc:149:9: note: transform statement.
+extVect.cc:149:9: note: vect_is_simple_use: operand _10
+extVect.cc:149:9: note: def_stmt: _10 = _8 * a_9(D);
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: vect_is_simple_use: operand _17
+extVect.cc:149:9: note: def_stmt: _17 = _16 + _12;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: transform binary/unary operation.
+extVect.cc:149:9: note: vect_get_vec_def_for_operand: _10
+extVect.cc:149:9: note: vect_is_simple_use: operand _10
+extVect.cc:149:9: note: def_stmt: _10 = _8 * a_9(D);
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: def =  _10
+  def_stmt =  _10 = _8 * a_9(D);
+
+extVect.cc:149:9: note: vect_get_vec_def_for_operand: _17
+extVect.cc:149:9: note: vect_is_simple_use: operand _17
+extVect.cc:149:9: note: def_stmt: _17 = _16 + _12;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: def =  _17
+  def_stmt =  _17 = _16 + _12;
+
+extVect.cc:149:9: note: add new stmt: vect__18.118_29 = vect__10.107_48 * vect__17.117_30;
+
+extVect.cc:149:9: note: ------>vectorizing statement: *_6 = _18;
+
+extVect.cc:149:9: note: transform statement.
+extVect.cc:149:9: note: vect_is_simple_use: operand _18
+extVect.cc:149:9: note: def_stmt: _18 = _10 * _17;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: transform store. ncopies = 1
+extVect.cc:149:9: note: vect_get_vec_def_for_operand: _18
+extVect.cc:149:9: note: vect_is_simple_use: operand _18
+extVect.cc:149:9: note: def_stmt: _18 = _10 * _17;
+
+extVect.cc:149:9: note: type of def: 3.
+extVect.cc:149:9: note: def =  _18
+  def_stmt =  _18 = _10 * _17;
+
+extVect.cc:149:9: note: create vector_type-pointer variable to type: vector(2) double  vectorizing a pointer ref: MEM[(double *)&<retval>]
+extVect.cc:149:9: note: created vectp_r.120_28
+extVect.cc:149:9: note: add new stmt: MEM[(double *)vectp_r.119_27] = vect__18.118_29;
+
+extVect.cc:149:9: note: ------>vectorizing statement: i_20 = i_23 + 1;
+
+extVect.cc:149:9: note: ------>vectorizing statement: ivtmp_54 = ivtmp_55 - 1;
+
+extVect.cc:149:9: note: ------>vectorizing statement: vectp_x.104_51 = vectp_x.104_52 + 16;
+
+extVect.cc:149:9: note: ------>vectorizing statement: vectp_y.109_45 = vectp_y.109_46 + 16;
+
+extVect.cc:149:9: note: ------>vectorizing statement: vectp_z.112_34 = vectp_z.112_35 + 16;
+
+extVect.cc:149:9: note: ------>vectorizing statement: vectp_r.119_26 = vectp_r.119_27 + 16;
+
+extVect.cc:149:9: note: ------>vectorizing statement: if (ivtmp_54 != 0)
+
+
+loop at extVect.cc:150: if (ivtmp_22 < 4)
+
+;; Scaling loop 1 with scale 0.500000, bounding iterations to 4 from guessed 8
+;; guessed iterations are now 4
+extVect.cc:149:9: note: LOOP VECTORIZED
+
+extVect.cc:147:13: note: vectorized 1 loops in function.
+Merging blocks 2 and 6
+float64x8_t dfma8l(float64x8_t, float64x8_t, float64x8_t, double, double) (float64x8_t x, float64x8_t y, float64x8_t z, double a, double b)
+{
+  vector(2) double * vectp_r.120;
+  vector(2) double * vectp_r.119;
+  vector(2) double vect__18.118;
+  vector(2) double vect__17.117;
+  vector(2) double vect_cst_.116;
+  vector(2) double vect__16.115;
+  vector(2) double vect__14.114;
+  vector(2) double * vectp_z.113;
+  vector(2) double * vectp_z.112;
+  vector(2) double vect__12.111;
+  vector(2) double * vectp_y.110;
+  vector(2) double * vectp_y.109;
+  vector(2) double vect_cst_.108;
+  vector(2) double vect__10.107;
+  vector(2) double vect__8.106;
+  vector(2) double * vectp_x.105;
+  vector(2) double * vectp_x.104;
+  int i;
+  long unsigned int _4;
+  long unsigned int _5;
+  double * _6;
+  double * _7;
+  double _8;
+  double _10;
+  double * _11;
+  double _12;
+  double * _13;
+  double _14;
+  double _16;
+  double _17;
+  double _18;
+  unsigned int ivtmp_19;
+  unsigned int ivtmp_22;
+  unsigned int ivtmp_54;
+  unsigned int ivtmp_55;
+
+  <bb 2>:
+  vectp_x.105_53 = &x;
+  vect_cst_.108_49 = {a_9(D), a_9(D)};
+  vectp_y.110_47 = &y;
+  vectp_z.113_36 = &z;
+  vect_cst_.116_32 = {b_15(D), b_15(D)};
+  vectp_r.120_28 = &<retval>;
+
+  <bb 3>:
+  # i_23 = PHI <i_20(4), 0(2)>
+  # ivtmp_55 = PHI <ivtmp_54(4), 8(2)>
+  # vectp_x.104_52 = PHI <vectp_x.104_51(4), vectp_x.105_53(2)>
+  # vectp_y.109_46 = PHI <vectp_y.109_45(4), vectp_y.110_47(2)>
+  # vectp_z.112_35 = PHI <vectp_z.112_34(4), vectp_z.113_36(2)>
+  # vectp_r.119_27 = PHI <vectp_r.119_26(4), vectp_r.120_28(2)>
+  # ivtmp_19 = PHI <ivtmp_22(4), 0(2)>
+  _4 = (long unsigned int) i_23;
+  _5 = _4 * 8;
+  _6 = &<retval> + _5;
+  _7 = &x + _5;
+  vect__8.106_50 = MEM[(double *)vectp_x.104_52];
+  _8 = *_7;
+  vect__10.107_48 = vect__8.106_50 * vect_cst_.108_49;
+  _10 = _8 * a_9(D);
+  _11 = &y + _5;
+  vect__12.111_37 = MEM[(double *)vectp_y.109_46];
+  _12 = *_11;
+  _13 = &z + _5;
+  vect__14.114_33 = MEM[(double *)vectp_z.112_35];
+  _14 = *_13;
+  vect__16.115_31 = vect__14.114_33 * vect_cst_.116_32;
+  _16 = _14 * b_15(D);
+  vect__17.117_30 = vect__16.115_31 + vect__12.111_37;
+  _17 = _16 + _12;
+  vect__18.118_29 = vect__10.107_48 * vect__17.117_30;
+  _18 = _10 * _17;
+  MEM[(double *)vectp_r.119_27] = vect__18.118_29;
+  i_20 = i_23 + 1;
+  ivtmp_54 = ivtmp_55 - 1;
+  vectp_x.104_51 = vectp_x.104_52 + 16;
+  vectp_y.109_45 = vectp_y.109_46 + 16;
+  vectp_z.112_34 = vectp_z.112_35 + 16;
+  vectp_r.119_26 = vectp_r.119_27 + 16;
+  ivtmp_22 = ivtmp_19 + 1;
+  if (ivtmp_22 < 4)
+    goto <bb 4>;
+  else
+    goto <bb 5>;
+
+  <bb 4>:
+  goto <bb 3>;
+
+  <bb 5>:
+  return <retval>;
+
+}
+
+

@@ -1,0 +1,29 @@
+
+   // degree =  3   => absolute accuracy is  7 bits
+template<> inline float approx_atan2f_P< 3 >(float x){
+ return  (-0x6.0e112p-48) + x * ((-0xf.8eed2p-4) + x * (0x2.8d777p-40 + x * 0x3.1238p-4)) ;
+}
+   // degree =  5   => absolute accuracy is  10 bits
+template<> inline float approx_atan2f_P< 5 >(float x){
+ return  (-0xb.eecf8p-64) + x * ((-0xf.ecfc8p-4) + x * (0x6.e7e46p-56 + x * (0x4.9e79dp-4 + x * ((-0x1.d6deccp-52) + x * (-0x1.44f924p-4))))) ;
+}
+   // degree =  7   => absolute accuracy is  13 bits
+template<> inline float approx_atan2f_P< 7 >(float x){
+ return  (-0x4.6ed96p-68) + x * ((-0xf.fcc7ap-4) + x * (0x3.ad3fep-60 + x * (0x5.23886p-4 + x * ((-0x2.2f2c28p-56) + x * ((-0x2.571968p-4) + x * (0x3.8dc358p-56 + x * 0x9.fb05p-8)))))) ;
+}
+   // degree =  9   => absolute accuracy is  16 bits
+template<> inline float approx_atan2f_P< 9 >(float x){
+ return  (-0x1.7b61e8p-44) + x * ((-0xf.ff73ep-4) + x * (0x6.17952p-40 + x * (0x5.48ee1p-4 + x * ((-0x3.6e6ffp-36) + x * ((-0x2.e1efe8p-4) + x * (0x9.03c3cp-36 + x * (0x1.5cce54p-4 + x * ((-0x6.e4c6ap-36) + x * (-0x5.56245p-8))))))))) ;
+}
+   // degree =  11   => absolute accuracy is  19 bits
+template<> inline float approx_atan2f_P< 11 >(float x){
+ return  (-0x1.7089b4p-60) + x * ((-0xf.ffe82p-4) + x * (0x8.301c6p-56 + x * (0x5.526c8p-4 + x * ((-0x6.cacbbp-52) + x * ((-0x3.18bea8p-4) + x * (0x1.d78db8p-48 + x * (0x1.dce3bcp-4 + x * ((-0x3.18a6c8p-48) + x * ((-0xd.7a64ap-8) + x * (0x1.bf9394p-48 + x * 0x3.000eap-8)))))))))) ;
+}
+   // degree =  13   => absolute accuracy is  21 bits
+template<> inline float approx_atan2f_P< 13 >(float x){
+ return  (-0x4.3dda9p-60) + x * ((-0xf.fffbep-4) + x * (0x2.072848p-52 + x * (0x5.54adp-4 + x * ((-0x2.5485p-48) + x * ((-0x3.2b4df8p-4) + x * (0xe.ce4b6p-48 + x * (0x2.1df79p-4 + x * ((-0x2.8b1ad8p-44) + x * ((-0x1.46081p-4) + x * (0x3.1c429p-44 + x * (0x8.99028p-8 + x * ((-0x1.62c66p-44) + x * (-0x1.be0bc4p-8))))))))))))) ;
+}
+   // degree =  15   => absolute accuracy is  24 bits
+template<> inline float approx_atan2f_P< 15 >(float x){
+ return  (-0x1.4ba5acp-60) + x * ((-0xf.ffff4p-4) + x * (0xc.98718p-56 + x * (0x5.552f9p-4 + x * ((-0x1.2d7b28p-48) + x * ((-0x3.30f728p-4) + x * (0xa.1bffp-48 + x * (0x2.39826p-4 + x * ((-0x2.7e0c9p-44) + x * ((-0x1.8a880cp-4) + x * (0x4.e6d39p-44 + x * (0xe.484d6p-8 + x * ((-0x4.aa3b4p-44) + x * ((-0x5.93d5p-8) + x * (0x1.b55e98p-44 + x * 0x1.0875dcp-8)))))))))))))) ;
+}

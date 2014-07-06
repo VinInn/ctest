@@ -1,0 +1,394 @@
+a.out:
+(__TEXT,__text) section
+tanhP4(float):
+0000000100001480	minss	2288(%rip), %xmm0
+0000000100001488	movss	2284(%rip), %xmm1
+0000000100001490	comiss	%xmm0, %xmm1
+0000000100001493	jbe	0x1000014f0
+0000000100001495	movss	2275(%rip), %xmm1
+000000010000149d	comiss	%xmm0, %xmm1
+00000001000014a0	movaps	%xmm0, %xmm1
+00000001000014a3	ja	0x100001590
+00000001000014a9	mulss	2279(%rip), %xmm1
+00000001000014b1	addss	2275(%rip), %xmm1
+00000001000014b9	mulss	%xmm0, %xmm1
+00000001000014bd	addss	2267(%rip), %xmm1
+00000001000014c5	mulss	%xmm0, %xmm1
+00000001000014c9	addss	2259(%rip), %xmm1
+00000001000014d1	mulss	%xmm0, %xmm1
+00000001000014d5	subss	2251(%rip), %xmm1
+00000001000014dd	movaps	%xmm1, %xmm0
+00000001000014e0	ret
+00000001000014e1	nopl	(%rax)
+00000001000014e8	nopl	(%rax,%rax)
+00000001000014f0	movss	2228(%rip), %xmm1
+00000001000014f8	comiss	%xmm0, %xmm1
+00000001000014fb	movaps	%xmm0, %xmm1
+00000001000014fe	jbe	0x100001550
+0000000100001500	mulss	2216(%rip), %xmm1
+0000000100001508	addss	2212(%rip), %xmm1
+0000000100001510	mulss	%xmm0, %xmm1
+0000000100001514	addss	2204(%rip), %xmm1
+000000010000151c	mulss	%xmm0, %xmm1
+0000000100001520	addss	2196(%rip), %xmm1
+0000000100001528	mulss	%xmm0, %xmm1
+000000010000152c	addss	2188(%rip), %xmm1
+0000000100001534	mulss	%xmm0, %xmm1
+0000000100001538	addss	2180(%rip), %xmm1
+0000000100001540	movaps	%xmm1, %xmm0
+0000000100001543	ret
+0000000100001544	nopw	(%rax,%rax)
+000000010000154a	nopw	(%rax,%rax)
+0000000100001550	mulss	2160(%rip), %xmm1
+0000000100001558	addss	2156(%rip), %xmm1
+0000000100001560	mulss	%xmm0, %xmm1
+0000000100001564	addss	2148(%rip), %xmm1
+000000010000156c	mulss	%xmm0, %xmm1
+0000000100001570	addss	2140(%rip), %xmm1
+0000000100001578	mulss	%xmm0, %xmm1
+000000010000157c	addss	2044(%rip), %xmm1
+0000000100001584	movaps	%xmm1, %xmm0
+0000000100001587	ret
+0000000100001588	nopl	(%rax,%rax)
+0000000100001590	mulss	2028(%rip), %xmm1
+0000000100001598	addss	2024(%rip), %xmm1
+00000001000015a0	mulss	%xmm0, %xmm1
+00000001000015a4	addss	2016(%rip), %xmm1
+00000001000015ac	mulss	%xmm0, %xmm1
+00000001000015b0	addss	2008(%rip), %xmm1
+00000001000015b8	mulss	%xmm0, %xmm1
+00000001000015bc	addss	2000(%rip), %xmm1
+00000001000015c4	mulss	%xmm0, %xmm1
+00000001000015c8	movaps	%xmm1, %xmm0
+00000001000015cb	ret
+00000001000015cc	nop
+00000001000015cd	nop
+00000001000015ce	nop
+00000001000015cf	nop
+float approx_logf<4>(float):
+00000001000015d0	comiss	2057(%rip), %xmm0
+00000001000015d7	movss	2041(%rip), %xmm1
+00000001000015df	jae	0x10000165a
+00000001000015e1	movd	%xmm0, %edx
+00000001000015e5	movd	%xmm0, %eax
+00000001000015e9	movss	2035(%rip), %xmm1
+00000001000015f1	sarl	$22, %edx
+00000001000015f4	andl	$8388607, %eax
+00000001000015f9	movd	%xmm0, %ecx
+00000001000015fd	andl	$1, %edx
+0000000100001600	orl	$1065353216, %eax
+0000000100001605	sarl	$23, %ecx
+0000000100001608	movl	%edx, %esi
+000000010000160a	movzbl	%cl, %ecx
+000000010000160d	shll	$23, %esi
+0000000100001610	subl	%esi, %eax
+0000000100001612	movd	%eax, %xmm2
+0000000100001616	subss	1890(%rip), %xmm2
+000000010000161e	leal	-127(%rdx,%rcx), %eax
+0000000100001622	mulss	%xmm2, %xmm1
+0000000100001626	addss	1978(%rip), %xmm1
+000000010000162e	mulss	%xmm2, %xmm1
+0000000100001632	addss	1970(%rip), %xmm1
+000000010000163a	mulss	%xmm2, %xmm1
+000000010000163e	addss	1962(%rip), %xmm1
+0000000100001646	mulss	%xmm2, %xmm1
+000000010000164a	cvtsi2ss	%eax, %xmm2
+000000010000164e	mulss	1950(%rip), %xmm2
+0000000100001656	addss	%xmm2, %xmm1
+000000010000165a	xorps	%xmm2, %xmm2
+000000010000165d	comiss	%xmm0, %xmm2
+0000000100001660	jae	0x100001670
+0000000100001662	movaps	%xmm1, %xmm0
+0000000100001665	ret
+0000000100001666	nopw	%cs:(%rax,%rax)
+0000000100001670	movss	1892(%rip), %xmm0
+0000000100001678	ret
+0000000100001679	nopl	(%rax)
+float approx_expf<3>(float):
+0000000100001680	maxss	1904(%rip), %xmm0
+0000000100001688	movss	1904(%rip), %xmm1
+0000000100001690	movss	1944(%rip), %xmm2
+0000000100001698	minss	1884(%rip), %xmm0
+00000001000016a0	movss	1888(%rip), %xmm3
+00000001000016a8	mulss	%xmm0, %xmm1
+00000001000016ac	addss	1872(%rip), %xmm1
+00000001000016b4	andps	%xmm1, %xmm2
+00000001000016b7	ucomiss	%xmm2, %xmm3
+00000001000016ba	jbe	0x1000016e1
+00000001000016bc	cvttss2si	%xmm1, %eax
+00000001000016c0	movss	1720(%rip), %xmm3
+00000001000016c8	cvtsi2ss	%eax, %xmm2
+00000001000016cc	movaps	%xmm2, %xmm5
+00000001000016cf	cmpnless	%xmm1, %xmm5
+00000001000016d4	movaps	%xmm5, %xmm1
+00000001000016d7	andps	%xmm3, %xmm1
+00000001000016da	subss	%xmm1, %xmm2
+00000001000016de	movaps	%xmm2, %xmm1
+00000001000016e1	movss	1827(%rip), %xmm2
+00000001000016e9	cvttss2si	%xmm1, %eax
+00000001000016ed	mulss	%xmm1, %xmm2
+00000001000016f1	addl	$126, %eax
+00000001000016f4	shll	$23, %eax
+00000001000016f7	subss	%xmm2, %xmm0
+00000001000016fb	movd	%eax, %xmm4
+00000001000016ff	movaps	%xmm0, %xmm2
+0000000100001702	movss	1798(%rip), %xmm0
+000000010000170a	mulss	%xmm1, %xmm0
+000000010000170e	subss	%xmm0, %xmm2
+0000000100001712	movss	1786(%rip), %xmm0
+000000010000171a	mulss	%xmm2, %xmm0
+000000010000171e	addss	1778(%rip), %xmm0
+0000000100001726	mulss	%xmm2, %xmm0
+000000010000172a	addss	1770(%rip), %xmm0
+0000000100001732	mulss	%xmm2, %xmm0
+0000000100001736	addss	1598(%rip), %xmm0
+000000010000173e	mulss	%xmm4, %xmm0
+0000000100001742	ret
+0000000100001743	nopw	(%rax,%rax)
+0000000100001749	nopl	(%rax)
+void accTest<double (*)(double), float (*)(float)>(double (*)(double), float (*)(float), float, float):
+0000000100001750	pushq	%r15
+0000000100001752	pushq	%r14
+0000000100001754	pushq	%r13
+0000000100001756	pushq	%r12
+0000000100001758	pushq	%rbp
+0000000100001759	pushq	%rbx
+000000010000175a	subq	$24, %rsp
+000000010000175e	movq	2243(%rip), %rax
+0000000100001765	movq	2236(%rip), %rcx
+000000010000176c	movq	(%rax), %rax
+000000010000176f	movq	-24(%rax), %rax
+0000000100001773	movq	240(%rax,%rcx), %rbx
+000000010000177b	testq	%rbx, %rbx
+000000010000177e	je	0x100001b56
+0000000100001784	cmpb	$0, 56(%rbx)
+0000000100001788	movq	%rdi, %r14
+000000010000178b	movq	%rsi, %r15
+000000010000178e	movd	%xmm0, %r12d
+0000000100001793	movd	%xmm1, %ebp
+0000000100001797	je	0x100001ac0
+000000010000179d	movzbl	67(%rbx), %eax
+00000001000017a1	movq	2176(%rip), %rdi
+00000001000017a8	movsbl	%al, %esi
+00000001000017ab	callq	0x100001c44 ## symbol stub for: std::ostream::put(char)
+00000001000017b0	movq	%rax, %rdi
+00000001000017b3	callq	0x100001c4a ## symbol stub for: std::ostream::flush()
+00000001000017b8	leaq	1345(%rip), %rsi ## literal pool for: launching  exhaustive test for 
+00000001000017bf	movl	$31, %edx
+00000001000017c4	movq	%rax, %rdi
+00000001000017c7	movq	%rax, %rbx
+00000001000017ca	callq	0x100001c6e ## symbol stub for: std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)
+00000001000017cf	movq	2138(%rip), %rsi
+00000001000017d6	testq	%rsi, %rsi
+00000001000017d9	je	0x100001b3c
+00000001000017df	movl	$5, %edx
+00000001000017e4	movq	%rbx, %rdi
+00000001000017e7	callq	0x100001c6e ## symbol stub for: std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)
+00000001000017ec	movq	(%rbx), %rax
+00000001000017ef	movq	-24(%rax), %rax
+00000001000017f3	movq	240(%rbx,%rax), %r13
+00000001000017fb	testq	%r13, %r13
+00000001000017fe	je	0x100001b56
+0000000100001804	cmpb	$0, 56(%r13)
+0000000100001809	je	0x100001b20
+000000010000180f	movzbl	67(%r13), %eax
+0000000100001814	movsbl	%al, %esi
+0000000100001817	movq	%rbx, %rdi
+000000010000181a	addl	$1, %r12d
+000000010000181e	callq	0x100001c44 ## symbol stub for: std::ostream::put(char)
+0000000100001823	subl	$1, %ebp
+0000000100001826	movq	%rax, %rdi
+0000000100001829	movl	%ebp, %ebx
+000000010000182b	callq	0x100001c4a ## symbol stub for: std::ostream::flush()
+0000000100001830	movq	2033(%rip), %rdi
+0000000100001837	subl	%r12d, %ebx
+000000010000183a	movl	%r12d, (%rsp)
+000000010000183e	leaq	1243(%rip), %rsi ## literal pool for: limits 
+0000000100001845	movl	$7, %edx
+000000010000184a	callq	0x100001c6e ## symbol stub for: std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)
+000000010000184f	movq	2002(%rip), %rdi
+0000000100001856	movss	(%rsp), %xmm0
+000000010000185b	cvtps2pd	%xmm0, %xmm0
+000000010000185e	callq	0x100001c50 ## symbol stub for: std::ostream& std::ostream::_M_insert<double>(double)
+0000000100001863	movl	$1, %edx
+0000000100001868	leaq	1209(%rip), %rsi ## literal pool for:  
+000000010000186f	movq	%rax, %r12
+0000000100001872	movq	%rax, %rdi
+0000000100001875	callq	0x100001c6e ## symbol stub for: std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)
+000000010000187a	movq	%r12, %rdi
+000000010000187d	movd	%ebp, %xmm4
+0000000100001881	unpcklps	%xmm4, %xmm4
+0000000100001884	cvtps2pd	%xmm4, %xmm0
+0000000100001887	callq	0x100001c50 ## symbol stub for: std::ostream& std::ostream::_M_insert<double>(double)
+000000010000188c	movq	%rax, %r12
+000000010000188f	movl	$1, %edx
+0000000100001894	movq	%rax, %rdi
+0000000100001897	leaq	1162(%rip), %rsi ## literal pool for:  
+000000010000189e	callq	0x100001c6e ## symbol stub for: std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)
+00000001000018a3	movl	%ebx, %esi
+00000001000018a5	movq	%r12, %rdi
+00000001000018a8	callq	0x100001c56 ## symbol stub for: std::ostream& std::ostream::_M_insert<unsigned long>(unsigned long)
+00000001000018ad	movq	%rax, %r12
+00000001000018b0	movq	(%rax), %rax
+00000001000018b3	movq	-24(%rax), %rax
+00000001000018b7	movq	240(%r12,%rax), %rbx
+00000001000018bf	testq	%rbx, %rbx
+00000001000018c2	je	0x100001b56
+00000001000018c8	cmpb	$0, 56(%rbx)
+00000001000018cc	je	0x100001b00
+00000001000018d2	movzbl	67(%rbx), %eax
+00000001000018d6	movq	%r12, %rdi
+00000001000018d9	movsbl	%al, %esi
+00000001000018dc	xorl	%r13d, %r13d
+00000001000018df	callq	0x100001c44 ## symbol stub for: std::ostream::put(char)
+00000001000018e4	xorl	%r12d, %r12d
+00000001000018e7	movq	%rax, %rdi
+00000001000018ea	callq	0x100001c4a ## symbol stub for: std::ostream::flush()
+00000001000018ef	xorps	%xmm3, %xmm3
+00000001000018f2	movl	$0, 12(%rsp)
+00000001000018fa	movss	%xmm3, 4(%rsp)
+0000000100001900	movss	%xmm3, 8(%rsp)
+0000000100001906	nopw	%cs:(%rax,%rax)
+0000000100001910	movl	(%rsp), %eax
+0000000100001913	cmpl	%eax, %ebp
+0000000100001915	jbe	0x1000019af
+000000010000191b	addl	$1, %eax
+000000010000191e	movl	%eax, (%rsp)
+0000000100001921	movd	%eax, %xmm0
+0000000100001925	callq	*%r15
+0000000100001928	movd	%xmm0, %ebx
+000000010000192c	movss	(%rsp), %xmm0
+0000000100001931	cvtps2pd	%xmm0, %xmm0
+0000000100001934	callq	*%r14
+0000000100001937	movd	%ebx, %xmm1
+000000010000193b	unpcklpd	%xmm0, %xmm0
+000000010000193f	cvtpd2ps	%xmm0, %xmm0
+0000000100001943	subss	%xmm0, %xmm1
+0000000100001947	movd	%xmm0, %eax
+000000010000194b	subl	%eax, %ebx
+000000010000194d	movaps	%xmm1, %xmm2
+0000000100001950	movl	%ebx, %eax
+0000000100001952	divss	%xmm0, %xmm1
+0000000100001956	sarl	$31, %eax
+0000000100001959	andps	1232(%rip), %xmm2
+0000000100001960	xorl	%eax, %ebx
+0000000100001962	maxss	8(%rsp), %xmm2
+0000000100001968	subl	%eax, %ebx
+000000010000196a	cmpl	%ebx, %r12d
+000000010000196d	cmovll	%ebx, %r12d
+0000000100001971	cmpl	$127, %ebx
+0000000100001974	movss	%xmm2, 8(%rsp)
+000000010000197a	andps	1199(%rip), %xmm1
+0000000100001981	maxss	4(%rsp), %xmm1
+0000000100001987	movss	%xmm1, 4(%rsp)
+000000010000198d	jle	0x100001910
+000000010000198f	addl	$1, %r13d
+0000000100001993	cmpl	$16393, %ebx
+0000000100001999	jle	0x100001910
+000000010000199f	movl	(%rsp), %eax
+00000001000019a2	addl	$1, 12(%rsp)
+00000001000019a7	cmpl	%eax, %ebp
+00000001000019a9	ja	0x10000191b
+00000001000019af	movq	1650(%rip), %rdi
+00000001000019b6	movl	$56, %edx
+00000001000019bb	leaq	878(%rip), %rsi ## literal pool for: absdiff / reldeff/ maxdiff / diff >127 / diff >16393 :  
+00000001000019c2	callq	0x100001c6e ## symbol stub for: std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)
+00000001000019c7	movq	1626(%rip), %rdi
+00000001000019ce	movss	8(%rsp), %xmm0
+00000001000019d4	cvtps2pd	%xmm0, %xmm0
+00000001000019d7	callq	0x100001c50 ## symbol stub for: std::ostream& std::ostream::_M_insert<double>(double)
+00000001000019dc	movl	$3, %edx
+00000001000019e1	leaq	897(%rip), %rsi ## literal pool for:  / 
+00000001000019e8	movq	%rax, %rbx
+00000001000019eb	movq	%rax, %rdi
+00000001000019ee	callq	0x100001c6e ## symbol stub for: std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)
+00000001000019f3	movq	%rbx, %rdi
+00000001000019f6	movss	4(%rsp), %xmm0
+00000001000019fc	cvtps2pd	%xmm0, %xmm0
+00000001000019ff	callq	0x100001c50 ## symbol stub for: std::ostream& std::ostream::_M_insert<double>(double)
+0000000100001a04	movl	$3, %edx
+0000000100001a09	leaq	857(%rip), %rsi ## literal pool for:  / 
+0000000100001a10	movq	%rax, %rbx
+0000000100001a13	movq	%rax, %rdi
+0000000100001a16	callq	0x100001c6e ## symbol stub for: std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)
+0000000100001a1b	movq	%rbx, %rdi
+0000000100001a1e	movl	%r12d, %esi
+0000000100001a21	callq	0x100001c5c ## symbol stub for: std::ostream::operator<<(int)
+0000000100001a26	movl	$3, %edx
+0000000100001a2b	leaq	823(%rip), %rsi ## literal pool for:  / 
+0000000100001a32	movq	%rax, %rbx
+0000000100001a35	movq	%rax, %rdi
+0000000100001a38	callq	0x100001c6e ## symbol stub for: std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)
+0000000100001a3d	movq	%rbx, %rdi
+0000000100001a40	movl	%r13d, %esi
+0000000100001a43	callq	0x100001c5c ## symbol stub for: std::ostream::operator<<(int)
+0000000100001a48	movl	$3, %edx
+0000000100001a4d	leaq	789(%rip), %rsi ## literal pool for:  / 
+0000000100001a54	movq	%rax, %rdi
+0000000100001a57	movq	%rax, %rbx
+0000000100001a5a	callq	0x100001c6e ## symbol stub for: std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)
+0000000100001a5f	movl	12(%rsp), %esi
+0000000100001a63	movq	%rbx, %rdi
+0000000100001a66	callq	0x100001c5c ## symbol stub for: std::ostream::operator<<(int)
+0000000100001a6b	movq	%rax, %rbp
+0000000100001a6e	movq	(%rax), %rax
+0000000100001a71	movq	-24(%rax), %rax
+0000000100001a75	movq	240(%rbp,%rax), %rbx
+0000000100001a7d	testq	%rbx, %rbx
+0000000100001a80	je	0x100001b56
+0000000100001a86	cmpb	$0, 56(%rbx)
+0000000100001a8a	je	0x100001ae0
+0000000100001a8c	movzbl	67(%rbx), %eax
+0000000100001a90	movq	%rbp, %rdi
+0000000100001a93	movsbl	%al, %esi
+0000000100001a96	callq	0x100001c44 ## symbol stub for: std::ostream::put(char)
+0000000100001a9b	addq	$24, %rsp
+0000000100001a9f	popq	%rbx
+0000000100001aa0	movq	%rax, %rdi
+0000000100001aa3	popq	%rbp
+0000000100001aa4	popq	%r12
+0000000100001aa6	popq	%r13
+0000000100001aa8	popq	%r14
+0000000100001aaa	popq	%r15
+0000000100001aac	jmpq	0x100001c4a ## symbol stub for: std::ostream::flush()
+0000000100001ab1	nopl	(%rax)
+0000000100001ab8	nopl	(%rax,%rax)
+0000000100001ac0	movq	%rbx, %rdi
+0000000100001ac3	callq	0x100001c3e ## symbol stub for: std::ctype<char>::_M_widen_init() const
+0000000100001ac8	movq	(%rbx), %rax
+0000000100001acb	movl	$10, %esi
+0000000100001ad0	movq	%rbx, %rdi
+0000000100001ad3	callq	*48(%rax)
+0000000100001ad6	jmpq	0x1000017a1
+0000000100001adb	nopl	(%rax,%rax)
+0000000100001ae0	movq	%rbx, %rdi
+0000000100001ae3	callq	0x100001c3e ## symbol stub for: std::ctype<char>::_M_widen_init() const
+0000000100001ae8	movq	(%rbx), %rax
+0000000100001aeb	movl	$10, %esi
+0000000100001af0	movq	%rbx, %rdi
+0000000100001af3	callq	*48(%rax)
+0000000100001af6	jmp	0x100001a90
+0000000100001af8	nopl	(%rax,%rax)
+0000000100001b00	movq	%rbx, %rdi
+0000000100001b03	callq	0x100001c3e ## symbol stub for: std::ctype<char>::_M_widen_init() const
+0000000100001b08	movq	(%rbx), %rax
+0000000100001b0b	movl	$10, %esi
+0000000100001b10	movq	%rbx, %rdi
+0000000100001b13	callq	*48(%rax)
+0000000100001b16	jmpq	0x1000018d6
+0000000100001b1b	nopl	(%rax,%rax)
+0000000100001b20	movq	%r13, %rdi
+0000000100001b23	callq	0x100001c3e ## symbol stub for: std::ctype<char>::_M_widen_init() const
+0000000100001b28	movq	(%r13), %rax
+0000000100001b2c	movl	$10, %esi
+0000000100001b31	movq	%r13, %rdi
+0000000100001b34	callq	*48(%rax)
+0000000100001b37	jmpq	0x100001814
+0000000100001b3c	movq	(%rbx), %rax
+0000000100001b3f	movq	%rbx, %rdi
+0000000100001b42	addq	-24(%rax), %rdi
+0000000100001b46	movl	32(%rdi), %esi
+0000000100001b49	orl	$1, %esi
+0000000100001b4c	callq	0x100001c68 ## symbol stub for: std::basic_ios<char, std::char_traits<char> >::clear(std::_Ios_Iostate)
+0000000100001b51	jmpq	0x1000017ec
+0000000100001b56	callq	0x100001c74 ## symbol stub for: std::__throw_bad_cast()

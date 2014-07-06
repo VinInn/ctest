@@ -1,0 +1,6 @@
+export VFLAGS="-flto -fuse-linker-plugin -g"
+setenv  VFLAGS "-flto -fuse-linker-plugin -g"
+g++ -O -std=gnu++0x  Base.cc -fPIC -shared -o libBase.so  $VFLAGS  -Wl,-rpath ./
+g++ -O -std=gnu++0x  plugA.cpp -fPIC -shared -o plugA.so  $VFLAGS -L./ -lBase -Wl,-rpath ./
+g++ -O -std=gnu++0x  Derived.cc helloD.cc plugD.cpp -fPIC -shared -o plugD.so  $VFLAGS -L./ -lBase -Wl,-rpath ./  $1
+g++ -O -std=gnu++0x  exFactory.cpp -fPIC -o exFactory  $VFLAGS -L./ -lBase -ldl -Wl,-rpath ./

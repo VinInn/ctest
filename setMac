@@ -1,0 +1,7 @@
+export PATH=/usr/local/bin:${PATH}
+export LD_LIBRARY_PATH=./:/usr/local/lib:${LD_LIBRARY_PATH}
+export MYCXXFLAGS="-Ofast -std=gnu++0x -msse4  -fvisibility-inlines-hidden"
+export OPTFLAGS="-fassociative-math -fno-signed-zeros -fno-trapping-math -freciprocal-math -fno-math-errno -ffinite-math-only"
+export MYCXXFLAGS="${CXXFLAGS} -ftree-vectorize -ftree-vectorizer-verbose=1 -pthread -fPIC"
+# "-D_GLIBCXX_PARALLEL -fopenmp"
+export DYLD_LIBRARY_PATH=${LD_LIBRARY_PATH}

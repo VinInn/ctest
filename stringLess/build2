@@ -1,0 +1,10 @@
+rm configs/* configsOld/*
+for ((N=0; N<2; N++)); do sed "s/0/${N}/g" Configuration.h > configs/Configuration${N}.h; done; 
+cat configs/*.h > Configuration.cc
+c++ -Ofast -std=c++0x -c Configuration.cc -fvisibility-inlines-hidden
+c++ -Ofast -std=c++0x tester.cpp Configuration.o -fvisibility-inlines-hidden 
+
+for ((N=0; N<2; N++)); do sed "s/0/${N}/g" ConfigurationOld.h > configsOld/Configuration${N}.h; done; 
+cat configsOld/*.h > ConfigurationOld.cc
+c++ -Ofast -std=c++0x -c ConfigurationOld.cc -fvisibility-inlines-hidden
+c++ -Ofast -std=c++0x tester.cpp ConfigurationOld.o -fvisibility-inlines-hidden -o Old.exe
