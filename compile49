@@ -1,0 +1,2 @@
+c++ -Ofast -fopenmp  -Wall  -march=corei7 -ftree-vectorizer-verbose=4 -Wopenmp-simd -Wvector-operation-performance -fopt-info-vec
+
