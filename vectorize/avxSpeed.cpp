@@ -31,6 +31,14 @@ sum(Float const *  x,
   return _sum0(x,y,z,n);
 }
 
+Float  __attribute__ ((__target__ ("arch=sandybridge")))
+sum(Float const *  x,
+     Float const *  y, Float const *  z, int n) {
+  return _sum0(x,y,z,n);
+}
+
+
+
 Float  __attribute__ ((__target__ ("arch=nehalem")))
 sum(Float const *  x,
      Float const *  y, Float const *  z, int n) {
