@@ -21,9 +21,8 @@ float32x4_t foo(float32x4_t a, float32x4_t b, float32x4_t c) {
 template<typename Float>
 Float bart(Float a) { 
   constexpr Float zero{0.f};
-  constexpr Float it = zero+float(0x5.8b90cp4);
-  // log of the smallest normal
-  constexpr Float zt = zero-float(0x5.75628p4);
+  constexpr Float it = zero+4.f;
+  constexpr Float zt = zero-3.f;
   return vmin(vmax(a,zt),it);
 }
 
