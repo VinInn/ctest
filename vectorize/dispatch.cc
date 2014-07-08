@@ -23,8 +23,8 @@ sum1(float const *  x,
 }
 
 
-float  __attribute__ ( (__target__("arch=nehalem"), __target__("arch=haswell")) )
-sum0(float const *  x, 
+float  __attribute__ ( (__target__("default")) )
+sum1(float const *  x, 
       float const *  y, float const *  z) {
  float sum=0;
  for (int i=0; i!=1024; ++i)
