@@ -1,11 +1,11 @@
 #include <atomic>
 #include <algorithm>
 
-// keeps the running average of the last 16 entries
+// keeps the running average of the last N entries
 // thread safe, fast: does not garantee precise update in case of collision
 class RunningAverage {
 public:
-  static constexpr int N = 16;
+  static constexpr int N = 16;  // better be a power of 2
   explicit RunningAverage(unsigned int k=4) : m_mean(N*k), curr(0) {
     for (auto & i : buffer) i=k; 
   }
@@ -17,7 +17,7 @@ public:
   void update(unsigned int q) {
     int e=curr;
     while(!curr.compare_exchange_weak(e,e+1)); 
-    int k = 15&e;
+    int k = (N-1)&e;
     int old = buffer[k];
     if (!buffer[k].compare_exchange_strong(old,q)) return;
     m_mean+= (q-old); 
