@@ -9,5 +9,5 @@ struct Base {
 
    static Base * me;
    static std::atomic<int> a;
-
+   static __thread int b;
 };
