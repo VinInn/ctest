@@ -53,8 +53,8 @@ int main() {
   //tbb::task_scheduler_init init;  // Automatic number of threads
   tbb::task_scheduler_init init(tbb::task_scheduler_init::default_num_threads());  // Explicit number of threads
 
-  std::random_device rd;
-  std::mt19937 e2(rd());
+  // std::random_device rd;
+  std::mt19937 e2; // (rd());
   std::normal_distribution<> normal_dist(1000., 200.);
 
 
