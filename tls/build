@@ -1,0 +1,2 @@
+c++ -std=c++11 -shared -O3 -fPIC tls.cc -o tls.so
+c++ -O3 -fPIC -std=c++11 main.cpp -ldl
