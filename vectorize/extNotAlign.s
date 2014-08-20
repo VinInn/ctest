@@ -3,8 +3,8 @@ LCOLDB0:
 	.text
 LHOTB0:
 	.align 4,0x90
-	.globl __Z4loadU8__vectorf
-__Z4loadU8__vectorf:
+	.globl __Z4loadDv4_f
+__Z4loadDv4_f:
 LFB0:
 	ret
 LFE0:
@@ -20,9 +20,7 @@ LHOTB1:
 	.globl __Z4loadPKf
 __Z4loadPKf:
 LFB1:
-	pxor	%xmm0, %xmm0
-	movlps	(%rdi), %xmm0
-	movhps	8(%rdi), %xmm0
+	vmovups	(%rdi), %xmm0
 	ret
 LFE1:
 	.section __TEXT,__text_cold,regular,pure_instructions
@@ -34,11 +32,10 @@ LCOLDB2:
 	.text
 LHOTB2:
 	.align 4,0x90
-	.globl __Z5storePfU8__vectorf
-__Z5storePfU8__vectorf:
+	.globl __Z5storePfDv4_f
+__Z5storePfDv4_f:
 LFB2:
-	movlps	%xmm0, (%rdi)
-	movhps	%xmm0, 8(%rdi)
+	vmovups	%xmm0, (%rdi)
 	ret
 LFE2:
 	.section __TEXT,__text_cold,regular,pure_instructions
@@ -50,15 +47,11 @@ LCOLDB3:
 	.text
 LHOTB3:
 	.align 4,0x90
-	.globl __Z3addPfU8__vectorf
-__Z3addPfU8__vectorf:
+	.globl __Z3addPfDv4_f
+__Z3addPfDv4_f:
 LFB3:
-	pxor	%xmm1, %xmm1
-	movlps	(%rdi), %xmm1
-	movhps	8(%rdi), %xmm1
-	addps	%xmm0, %xmm1
-	movlps	%xmm1, (%rdi)
-	movhps	%xmm1, 8(%rdi)
+	vaddps	(%rdi), %xmm0, %xmm0
+	vmovups	%xmm0, (%rdi)
 	ret
 LFE3:
 	.section __TEXT,__text_cold,regular,pure_instructions
@@ -70,15 +63,10 @@ LCOLDB4:
 	.text
 LHOTB4:
 	.align 4,0x90
-	.globl __Z5add11PfS_U8__vectorf
-__Z5add11PfS_U8__vectorf:
+	.globl __Z5load3PKf
+__Z5load3PKf:
 LFB4:
-	movaps	(%rdi), %xmm1
-	addps	%xmm0, %xmm1
-	movaps	%xmm1, (%rdi)
-	addps	(%rsi), %xmm0
-	addps	%xmm0, %xmm1
-	movaps	%xmm1, (%rsi)
+	vmovups	(%rdi), %xmm0
 	ret
 LFE4:
 	.section __TEXT,__text_cold,regular,pure_instructions
@@ -90,22 +78,11 @@ LCOLDB5:
 	.text
 LHOTB5:
 	.align 4,0x90
-	.globl __Z5add14PfS_U8__vectorf
-__Z5add14PfS_U8__vectorf:
+	.globl __Z6store3PfDv4_f
+__Z6store3PfDv4_f:
 LFB5:
-	pxor	%xmm1, %xmm1
-	movlps	(%rdi), %xmm1
-	pxor	%xmm2, %xmm2
-	movhps	8(%rdi), %xmm1
-	addps	%xmm0, %xmm1
-	movlps	%xmm1, (%rdi)
-	movhps	%xmm1, 8(%rdi)
-	movlps	(%rsi), %xmm2
-	movhps	8(%rsi), %xmm2
-	addps	%xmm0, %xmm2
-	addps	%xmm2, %xmm1
-	movlps	%xmm1, (%rsi)
-	movhps	%xmm1, 8(%rsi)
+	vblendps	$8, (%rdi), %xmm0, %xmm0
+	vmovups	%xmm0, (%rdi)
 	ret
 LFE5:
 	.section __TEXT,__text_cold,regular,pure_instructions
@@ -117,22 +94,12 @@ LCOLDB6:
 	.text
 LHOTB6:
 	.align 4,0x90
-	.globl __Z5add98PfS_U8__vectorf
-__Z5add98PfS_U8__vectorf:
+	.globl __Z4add3PfDv4_f
+__Z4add3PfDv4_f:
 LFB6:
-	pxor	%xmm1, %xmm1
-	movlps	(%rdi), %xmm1
-	pxor	%xmm2, %xmm2
-	movhps	8(%rdi), %xmm1
-	addps	%xmm0, %xmm1
-	movlps	%xmm1, (%rdi)
-	movhps	%xmm1, 8(%rdi)
-	movlps	(%rsi), %xmm2
-	movhps	8(%rsi), %xmm2
-	addps	%xmm0, %xmm2
-	addps	%xmm2, %xmm1
-	movlps	%xmm1, (%rsi)
-	movhps	%xmm1, 8(%rsi)
+	vaddps	(%rdi), %xmm0, %xmm0
+	vblendps	$8, (%rdi), %xmm0, %xmm0
+	vmovups	%xmm0, (%rdi)
 	ret
 LFE6:
 	.section __TEXT,__text_cold,regular,pure_instructions
@@ -140,13 +107,70 @@ LCOLDE6:
 	.text
 LHOTE6:
 	.section __TEXT,__text_cold,regular,pure_instructions
-LCOLDB9:
-	.section __TEXT,__text_startup,regular,pure_instructions
-LHOTB9:
-	.align 4
-	.globl _main
-_main:
+LCOLDB7:
+	.text
+LHOTB7:
+	.align 4,0x90
+	.globl __Z5add11PfS_Dv4_f
+__Z5add11PfS_Dv4_f:
 LFB7:
+	vaddps	(%rdi), %xmm0, %xmm1
+	vmovaps	%xmm1, (%rdi)
+	vaddps	(%rsi), %xmm0, %xmm0
+	vaddps	%xmm1, %xmm0, %xmm0
+	vmovaps	%xmm0, (%rsi)
+	ret
+LFE7:
+	.section __TEXT,__text_cold,regular,pure_instructions
+LCOLDE7:
+	.text
+LHOTE7:
+	.section __TEXT,__text_cold,regular,pure_instructions
+LCOLDB8:
+	.text
+LHOTB8:
+	.align 4,0x90
+	.globl __Z5add14PfS_Dv4_f
+__Z5add14PfS_Dv4_f:
+LFB8:
+	vaddps	(%rdi), %xmm0, %xmm1
+	vmovups	%xmm1, (%rdi)
+	vaddps	(%rsi), %xmm0, %xmm0
+	vaddps	%xmm1, %xmm0, %xmm0
+	vmovups	%xmm0, (%rsi)
+	ret
+LFE8:
+	.section __TEXT,__text_cold,regular,pure_instructions
+LCOLDE8:
+	.text
+LHOTE8:
+	.section __TEXT,__text_cold,regular,pure_instructions
+LCOLDB9:
+	.text
+LHOTB9:
+	.align 4,0x90
+	.globl __Z5add98PfS_Dv4_f
+__Z5add98PfS_Dv4_f:
+LFB9:
+	vaddps	(%rdi), %xmm0, %xmm1
+	vmovups	%xmm1, (%rdi)
+	vaddps	(%rsi), %xmm0, %xmm0
+	vaddps	%xmm1, %xmm0, %xmm0
+	vmovups	%xmm0, (%rsi)
+	ret
+LFE9:
+	.section __TEXT,__text_cold,regular,pure_instructions
+LCOLDE9:
+	.text
+LHOTE9:
+	.section __TEXT,__text_cold,regular,pure_instructions
+LCOLDB12:
+	.text
+LHOTB12:
+	.align 4,0x90
+	.globl __Z4doitv
+__Z4doitv:
+LFB10:
 	pushq	%rbx
 LCFI0:
 	movl	$12300, %edx
@@ -155,44 +179,107 @@ LCFI0:
 LCFI1:
 	movq	%rsp, %rdi
 	call	_memset
-	movaps	LC8(%rip), %xmm1
-	movq	%rsp, %rdi
 	movl	$0x3f800000, (%rsp)
-	leaq	4104(%rsp), %rdx
+	movq	%rsp, %rdi
 	movq	%rsp, %rax
-	.align 4
-L9:
-	movlps	%xmm1, (%rax)
+	vmovaps	LC11(%rip), %xmm0
+	leaq	4104(%rsp), %rdx
+	.align 4,0x90
+L12:
+	vmovups	%xmm0, (%rax)
 	addq	$12, %rax
-	movhps	%xmm1, -4(%rax)
 	cmpq	%rdx, %rax
-	jne	L9
-	pxor	%xmm2, %xmm2
-	.align 4
-L11:
-	movaps	%xmm2, %xmm0
+	jne	L12
+	.align 4,0x90
+L14:
+	vaddps	(%rdi), %xmm0, %xmm1
 	addq	$12, %rdi
-	movlps	-12(%rdi), %xmm0
-	movhps	-4(%rdi), %xmm0
-	addps	%xmm1, %xmm0
-	movlps	%xmm0, -12(%rdi)
-	movhps	%xmm0, -4(%rdi)
+	vmovups	%xmm1, -12(%rdi)
 	cmpq	%rdx, %rdi
-	jne	L11
-	cvttss2si	496(%rsp), %eax
+	jne	L14
+	vcvttss2si	496(%rsp), %eax
 	addq	$12304, %rsp
 LCFI2:
 	popq	%rbx
 LCFI3:
 	ret
-LFE7:
+LFE10:
 	.section __TEXT,__text_cold,regular,pure_instructions
-LCOLDE9:
+LCOLDE12:
+	.text
+LHOTE12:
+	.section __TEXT,__text_cold,regular,pure_instructions
+LCOLDB13:
+	.text
+LHOTB13:
+	.align 4,0x90
+	.globl __Z5doit3v
+__Z5doit3v:
+LFB11:
+	pushq	%rbx
+LCFI4:
+	movl	$12300, %edx
+	xorl	%esi, %esi
+	subq	$12304, %rsp
+LCFI5:
+	movq	%rsp, %rdi
+	call	_memset
+	movl	$0x3f800000, (%rsp)
+	movq	%rsp, %rdi
+	movq	%rsp, %rax
+	vmovaps	LC11(%rip), %xmm1
+	leaq	4104(%rsp), %rdx
+	.align 4,0x90
+L20:
+	vblendps	$8, (%rax), %xmm1, %xmm0
+	addq	$12, %rax
+	vmovups	%xmm0, -12(%rax)
+	cmpq	%rdx, %rax
+	jne	L20
+	.align 4,0x90
+L22:
+	vaddps	(%rdi), %xmm1, %xmm0
+	addq	$12, %rdi
+	vblendps	$8, -12(%rdi), %xmm0, %xmm0
+	vmovups	%xmm0, -12(%rdi)
+	cmpq	%rdi, %rdx
+	jne	L22
+	vcvttss2si	496(%rsp), %eax
+	addq	$12304, %rsp
+LCFI6:
+	popq	%rbx
+LCFI7:
+	ret
+LFE11:
+	.section __TEXT,__text_cold,regular,pure_instructions
+LCOLDE13:
+	.text
+LHOTE13:
+	.section __TEXT,__text_cold,regular,pure_instructions
+LCOLDB14:
 	.section __TEXT,__text_startup,regular,pure_instructions
-LHOTE9:
+LHOTB14:
+	.align 4
+	.globl _main
+_main:
+LFB12:
+	pushq	%rbx
+LCFI8:
+	call	__Z4doitv
+	movl	%eax, %ebx
+	call	__Z5doit3v
+	addl	%ebx, %eax
+	popq	%rbx
+LCFI9:
+	ret
+LFE12:
+	.section __TEXT,__text_cold,regular,pure_instructions
+LCOLDE14:
+	.section __TEXT,__text_startup,regular,pure_instructions
+LHOTE14:
 	.literal16
 	.align 4
-LC8:
+LC11:
 	.long	1065353216
 	.long	1073741824
 	.long	1077936128
@@ -303,30 +390,119 @@ LASFDE15:
 	.set L$set$16,LFE7-LFB7
 	.quad L$set$16
 	.byte	0
-	.byte	0x4
-	.set L$set$17,LCFI0-LFB7
+	.align 3
+LEFDE15:
+LSFDE17:
+	.set L$set$17,LEFDE17-LASFDE17
 	.long L$set$17
+LASFDE17:
+	.long	LASFDE17-EH_frame1
+	.quad	LFB8-.
+	.set L$set$18,LFE8-LFB8
+	.quad L$set$18
+	.byte	0
+	.align 3
+LEFDE17:
+LSFDE19:
+	.set L$set$19,LEFDE19-LASFDE19
+	.long L$set$19
+LASFDE19:
+	.long	LASFDE19-EH_frame1
+	.quad	LFB9-.
+	.set L$set$20,LFE9-LFB9
+	.quad L$set$20
+	.byte	0
+	.align 3
+LEFDE19:
+LSFDE21:
+	.set L$set$21,LEFDE21-LASFDE21
+	.long L$set$21
+LASFDE21:
+	.long	LASFDE21-EH_frame1
+	.quad	LFB10-.
+	.set L$set$22,LFE10-LFB10
+	.quad L$set$22
+	.byte	0
+	.byte	0x4
+	.set L$set$23,LCFI0-LFB10
+	.long L$set$23
 	.byte	0xe
 	.byte	0x10
 	.byte	0x83
 	.byte	0x2
 	.byte	0x4
-	.set L$set$18,LCFI1-LCFI0
-	.long L$set$18
+	.set L$set$24,LCFI1-LCFI0
+	.long L$set$24
 	.byte	0xe
 	.byte	0xa0,0x60
 	.byte	0x4
-	.set L$set$19,LCFI2-LCFI1
-	.long L$set$19
+	.set L$set$25,LCFI2-LCFI1
+	.long L$set$25
 	.byte	0xe
 	.byte	0x10
 	.byte	0x4
-	.set L$set$20,LCFI3-LCFI2
-	.long L$set$20
+	.set L$set$26,LCFI3-LCFI2
+	.long L$set$26
 	.byte	0xe
 	.byte	0x8
 	.align 3
-LEFDE15:
+LEFDE21:
+LSFDE23:
+	.set L$set$27,LEFDE23-LASFDE23
+	.long L$set$27
+LASFDE23:
+	.long	LASFDE23-EH_frame1
+	.quad	LFB11-.
+	.set L$set$28,LFE11-LFB11
+	.quad L$set$28
+	.byte	0
+	.byte	0x4
+	.set L$set$29,LCFI4-LFB11
+	.long L$set$29
+	.byte	0xe
+	.byte	0x10
+	.byte	0x83
+	.byte	0x2
+	.byte	0x4
+	.set L$set$30,LCFI5-LCFI4
+	.long L$set$30
+	.byte	0xe
+	.byte	0xa0,0x60
+	.byte	0x4
+	.set L$set$31,LCFI6-LCFI5
+	.long L$set$31
+	.byte	0xe
+	.byte	0x10
+	.byte	0x4
+	.set L$set$32,LCFI7-LCFI6
+	.long L$set$32
+	.byte	0xe
+	.byte	0x8
+	.align 3
+LEFDE23:
+LSFDE25:
+	.set L$set$33,LEFDE25-LASFDE25
+	.long L$set$33
+LASFDE25:
+	.long	LASFDE25-EH_frame1
+	.quad	LFB12-.
+	.set L$set$34,LFE12-LFB12
+	.quad L$set$34
+	.byte	0
+	.byte	0x4
+	.set L$set$35,LCFI8-LFB12
+	.long L$set$35
+	.byte	0xe
+	.byte	0x10
+	.byte	0x83
+	.byte	0x2
+	.byte	0x4
+	.set L$set$36,LCFI9-LCFI8
+	.long L$set$36
+	.byte	0xe
+	.byte	0x8
+	.align 3
+LEFDE25:
 	.constructor
 	.destructor
 	.align 1

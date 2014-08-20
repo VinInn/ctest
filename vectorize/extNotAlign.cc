@@ -1,5 +1,7 @@
 typedef float __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
 typedef float __attribute__( ( vector_size( 16 ) , aligned(4) ) ) float32x4a4_t;
+typedef int __attribute__( ( vector_size( 16 ) ) ) int32x4_t;
+
 
 
 float32x4_t load(float32x4a4_t x) {
@@ -20,6 +22,25 @@ void store(float * x, float32x4_t v) {
 void add(float * x, float32x4_t v) {
    *(float32x4a4_t*)(x) += v;
 }
+
+
+float32x4_t load3(float const * x) {
+   return *(float32x4a4_t const *)(x);
+}
+
+void store3(float * x, float32x4_t v) {
+   int32x4_t mask = {0,1,2,7};
+   decltype(auto) res = *(float32x4a4_t*)(x);
+   res = __builtin_shuffle(v,res,mask);
+}
+
+
+void add3(float * x, float32x4_t v) {
+   int32x4_t mask = {0,1,2,7};
+   decltype(auto) res = *(float32x4a4_t*)(x);
+   res = __builtin_shuffle(v+res,res,mask);
+}
+
 
 
 void add11(float * x, float * y, float32x4_t v) {
@@ -47,7 +68,7 @@ void add98(float * x, float * y, float32x4_t v) {
 
 
 
-int main() {
+int doit() {
 
   float v[3*1025]{1};
 
@@ -62,5 +83,34 @@ int main() {
     add(v+i,v1);
 
 
- return v[124];
+ return v[124]+v2[2];
 };
+
+
+int doit3() {
+
+  float v[3*1025]{1};
+   
+  float32x4_t v1{1,2,3,4};
+
+  float32x4_t v2 = load3(v+3);
+
+  for (int i=0;i<1024; i+=3)
+    store3(v+i,v1);
+ 
+  for (int i=0;i<1024; i+=3)
+    add3(v+i,v1);
+   
+ 
+ return v[124]+v2[2];
+};
+
+
+
+int main() {
+
+  return doit()+doit3();
+
+}
+
+
