@@ -1,36 +1,45 @@
-typedef float __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
-typedef float __attribute__( ( vector_size( 16 ) , aligned(4) ) ) float32x4a4_t;
-typedef int __attribute__( ( vector_size( 16 ) ) ) int32x4_t;
+#include <x86intrin.h>
+#ifdef __AVX__
+#define NATIVE_VECT_LENGH 32
+#else
+#define NATIVE_VECT_LENGH 16
+#endif
+
+typedef float __attribute__( ( vector_size( NATIVE_VECT_LENGH ) ) ) vfloat32_t;
+typedef float __attribute__( ( vector_size( NATIVE_VECT_LENGH ) , aligned(4) ) ) vfloat32a4_t;
+typedef int __attribute__( ( vector_size( NATIVE_VECT_LENGH ) ) ) vint32_t;
 
 
 inline
-float32x4_t load(float const * x) {
-   return *(float32x4a4_t const *)(x);
+vfloat32_t load(float const * x) {
+   return *(vfloat32a4_t const *)(x);
 }
 
 
 int minloc(float const * x, int N) {
-  float32x4_t v0;
-  int32x4_t index;
+  vfloat32_t v0;
+  vint32_t index;
 
-  auto M = 4*(N/4);
+  constexpr int WIDTH = NATIVE_VECT_LENGH/4; 
+
+  auto M = WIDTH*(N/WIDTH);
   for (int i=M; i<N; ++i) {
     v0[i-M] = x[i];
     index[i]=i;
   }
-  for (int i=N; i<M+4;++i) {
+  for (int i=N; i<M+WIDTH;++i) {
     v0[i-M] = x[0];
     index[i]=0;
   }
-  int32x4_t j = {0,1,2,3};
-  for (int i=0; i<M; i+=4) {
+  vint32_t j;  for (int i=0;i<WIDTH; ++i) j[i]=i;  // can be done better
+  for (int i=0; i<M; i+=WIDTH) {
     decltype(auto) v = load(x+i);
     index =  (v<v0) ? j : index;
     v0 = (v<v0) ? v : v0;
-    j+=4;
+    j+=WIDTH;
   }
   auto k = 0;
-  for (int i=1;i<4; ++i) if (v0[i]<v0[k]) k=i;
+  for (int i=1;i<WIDTH; ++i) if (v0[i]<v0[k]) k=i;
   return index[k];
 }
 
@@ -53,6 +62,8 @@ inline unsigned long long rdtscp() {
 
 
 int main() {
+
+   std::cout << "NATIVE_VECT_LENGH " << NATIVE_VECT_LENGH << std::endl;
 
   float x[1024];
   for (int i=0; i<1024; ++i) x[i]= i%2 ? i : -i;
