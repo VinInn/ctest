@@ -1,6 +1,7 @@
 #include "ExprEval.h"
 
 #include "MyExpr.h"
+#include "vcut.h"
 
 
 #include <iostream>
@@ -21,6 +22,15 @@ int main() {
   func->eval(c,r);
 
   std::cout << r.size()  << ' '  <<  std::count(r.begin(),r.end(),true) << std::endl;
+
+
+  std::string cut = "bool eval(int i, int j) override { return i<10&& j<5; }";
+
+  ExprEval parser2("vcut",cut.c_str());
+
+  auto mcut = parser2.expr<vcut>();
+
+  std::cout << mcut->eval(2,7) << ' ' << mcut->eval(3, 4) << std::endl;
 
   return 0;
 
