@@ -1,3 +1,3 @@
-c++ -std=c++14 -O3 -Wall test/popen_t.cpp src/popenCPP.cc -Iinclude; ./a.out -ldl
-c++ -std=c++14 -O3 -Wall test/ExprEval_t.cpp src/ExprEval.cc src/popenCPP.cc -Iinclude; ./a.out -ldl
+c++ -std=c++14 -O3 -Wall test/popen_t.cpp src/popenCPP.cc -Iinclude -ldl; ./a.out
+c++ -std=c++14 -O3 -Wall test/ExprEval_t.cpp src/ExprEval.cc src/popenCPP.cc -Iinclude -ldl; ./a.out
 
