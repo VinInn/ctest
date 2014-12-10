@@ -44,7 +44,7 @@ ExprEval::ExprEval(const char * iname, const char * iexpr) :
     tmp<<source << std::endl;
   }
 
-  std::string cpp = "c++ -H -std=c++14 -O3 -Wall -Ilib -shared -fPIC -o ";
+  std::string cpp = "c++ -H -std=c++14 -O3 -Wall -Ilib -shared -fPIC -Winvalid-pch -o ";
   cpp += ofile + ' ' + sfile+" 2>&1\n";
 
   std::cout << cpp << std::endl;

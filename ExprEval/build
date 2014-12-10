@@ -1,4 +1,4 @@
-c++ -std=c++14 -O3 -Wall include/MyExpr.h 
-c++ -std=c++14 -O3 -Wall include/vcut.h
+c++ -std=c++14 -O3 -Wall -fPIC include/MyExpr.h 
+c++ -std=c++14 -O3 -Wall -fPIC include/vcut.h
 mv include/*.gch lib/.
 
