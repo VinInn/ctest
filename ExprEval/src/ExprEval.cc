@@ -16,15 +16,28 @@ namespace {
 }
 
 ExprEval::ExprEval(const char * iname, const char * iexpr) :
-  m_name(generateName())
+  m_name("VI_"+generateName())
 {
-  char quote ='"';
-  std::string source = std::string("#include ")+quote+iname+".h"+quote+"\n";
-  source+=iexpr;
-  source+="\n";
 
-  std::string sfile = "/tmp/VI_"+m_name+".cc";
-  std::string ofile = "/tmp/VI_"+m_name+".so";
+  
+  std::string factory = "factory" + m_name;
+
+  std::string quote("\"");
+  std::string source = std::string("#include ")+quote+iname+".h"+quote+"\n";
+  source+="struct "+m_name+" final : public "+iname + "{\n";
+  source+=iexpr;
+  source+="\n};\n";
+
+
+  source += "extern " + quote+'C'+quote+' ' + std::string(iname) + "* "+factory+"() {\n";
+  source += "static "+m_name+" local;\n";
+  source += "return &local;\n}\n";
+
+
+  std::cout << source << std::endl;
+
+  std::string sfile = "/tmp/"+m_name+".cc";
+  std::string ofile = "/tmp/"+m_name+".so";
 
   {
     std::ofstream tmp(sfile.c_str());
@@ -49,12 +62,14 @@ ExprEval::ExprEval(const char * iname, const char * iexpr) :
     return;
   }
 
+  m_expr = dlsym(dl,factory.c_str());
+
 }
 
 
 ExprEval::~ExprEval(){
-  std::string sfile = "/tmp/VI_"+m_name+".cc";
-  std::string ofile = "/tmp/VI_"+m_name+".so";
+  std::string sfile = "/tmp/"+m_name+".cc";
+  std::string ofile = "/tmp/"+m_name+".so";
 
   std::string rm="rm -f "; rm+=sfile+' '+ofile;
 
