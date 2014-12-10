@@ -1,0 +1,3 @@
+c++ -std=c++14 -O3 -Wall include/MyExpr.h 
+mv include/*.gch lib/.
+

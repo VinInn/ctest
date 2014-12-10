@@ -62,6 +62,8 @@ float32x4_t atan<float32x4_t>(float32x4_t t) {
 
 
 
+float32x4_t doAtan(float32x4_t z) { return atan(z);}
+
 
 float32x4_t va[1024];
 float32x4_t vb[1024];

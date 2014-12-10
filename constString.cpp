@@ -7,6 +7,7 @@ typedef  unsigned long  int  ub4;   /* unsigned 4-byte quantities */
 typedef        char ub1;
 
 
+
 constexpr
 std::size_t
 unaligned_load(const char* p, std::size_t * n)
@@ -60,8 +61,8 @@ int main() {
   constexpr ub8 k = less24(p,strlen(p),0);
 
 
-  // size_t n=0; 
-  constexpr auto n = unaligned_load(p);
+  size_t n=0; 
+  unaligned_load(p,&n);
 
   std::cout << i << std::endl;
   std::cout << j << std::endl;
