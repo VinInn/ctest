@@ -15,7 +15,7 @@ namespace any_details {
   struct maxSizeT {
     typedef typename std::tuple_element<N-1,TupleType>::type Elem;
     enum { valueSize = vmax(sizeof(Elem), (long unsigned int)(maxSizeT<TupleType,N-1>::valueSize)),
-	   valueAlign = vmax(sizeof(Elem), (long unsigned int)(maxSizeT<TupleType,N-1>::valueAlign)) };
+	   valueAlign = vmax(alignof(Elem), (long unsigned int)(maxSizeT<TupleType,N-1>::valueAlign)) };
   };
   
   template<class TupleType>
@@ -45,7 +45,7 @@ namespace any_details {
   template<class Head, typename ... Tail>
 struct maxSize {
     enum { valueSize = vmax(sizeof(Head), (long unsigned int)(maxSize<Tail...>::valueSize)),
-	   valueAlign = vmax(sizeof(Head), (long unsigned int)(maxSize<Tail...>::valueAlign)),
+	   valueAlign = vmax(alignof(Head), (long unsigned int)(maxSize<Tail...>::valueAlign)),
     };
   };
 
@@ -59,7 +59,7 @@ struct maxSize {
 template<typename P, typename...C>
 struct AnyOfP {
   // using aligned_union_t = typename std::aligned_union<4,C...>::type;
-  enum { size = any_details::maxSize<C...>::valueSize, align = maxSize<C...>::valueAlign};
+  enum { size = any_details::maxSize<C...>::valueSize, align = any_details::maxSize<C...>::valueAlign};
   using aligned_union_t = typename std::aligned_storage<size,align>::type;
 
 
@@ -130,7 +130,7 @@ struct BuildAnyOf {
 template<typename...C>
 struct AnyOf {
   // using aligned_union_t = typename std::aligned_union<8,C...>::type;
-  enum { size = any_details::maxSize<C...>::valueSize, align = maxSize<C...>::valueAlign};
+  enum { size = any_details::maxSize<C...>::valueSize, align = any_details::maxSize<C...>::valueAlign};
   using aligned_union_t = typename std::aligned_storage<size,align>::type;
 
 
@@ -173,7 +173,7 @@ struct AnyOf {
   template<typename T> 
   void reset(T const & t) noexcept {
     destroy();
-    m_index = tuple_index<TT, T>::value;
+    m_index = any_details::tuple_index<TT, T>::value;
     deleter=Deleter<T>::destroy;
     new(&mem) T(t);
   }
@@ -237,6 +237,8 @@ struct A2 : public B {
 #include<typeinfo>
 
 int main() {
+
+  using namespace any_details;
 
   using TT = std::tuple<int, float, double,char>;
 
