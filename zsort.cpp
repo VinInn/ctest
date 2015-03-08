@@ -51,12 +51,12 @@ constexpr unsigned int  FULL = 0xffffffff;
 constexpr unsigned int  BITMAX = 31;
 
 constexpr unsigned int  setbits(unsigned int p, unsigned int v) {
-  auto mask = (MASK >> (BITMAX-p)) & (~(FULL << p) & FULL);
-  return  (v | mask) & ~(1 << p) & FULL;
+  auto mask = (MASK >> (BITMAX-p)) & (~(FULL << p)); // & FULL);
+  return  (v | mask) & ~(1 << p); // & FULL;
 }
 
 constexpr unsigned int unsetbits(unsigned int p, unsigned int v) {
-  auto mask = ~(MASK >> (BITMAX-p)) & FULL;
+  auto mask = ~(MASK >> (BITMAX-p)); // & FULL;
   return  (v & mask) | (1 << p);
 }
 
