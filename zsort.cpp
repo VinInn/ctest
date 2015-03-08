@@ -93,11 +93,13 @@ std::tuple<unsigned int,unsigned int> bigmin(unsigned int minz, unsigned int max
 
 
 template<typename Iter>
+inline
 Iter bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax) {
   return bisect(a,b,zmin,zmax,[](auto q) { return q;});
 }
   
 template<typename Iter, typename F>
+inline
 Iter bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax, F f ) {
   auto e = b;
   while( (a<b) & ( f(*(b-1)) >= zmin )  ) {
@@ -111,8 +113,8 @@ Iter bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax, F f ) {
 
 
 template<typename Iter, typename EX,  typename F, typename R>
-void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex, F f,
-	     R range, unsigned int ozmin, unsigned int ozmax) {
+void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex,  F const & f,
+	     R const & range, unsigned int ozmin, unsigned int ozmax) {
 
 #ifndef ZSEARCH_NO_LINEAR_OPT
   if (b-a < 64) {
@@ -138,7 +140,7 @@ void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex, F f,
 
 
 template<typename Iter, typename EX,  typename F>
-void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex, F f) {
+void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex, F const & f) {
   auto xmin = zmin&XMASK;
   auto ymin = zmin&YMASK;
   auto xmax = zmax&XMASK;
