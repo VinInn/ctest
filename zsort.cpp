@@ -102,7 +102,7 @@ template<typename Iter, typename F>
 inline
 Iter bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax, F f ) {
   auto e = b;
-  while( (a<b) & ( f(*(b-1)) >= zmin )  ) {
+  while( (a<b) && ( f(*(b-1)) >= zmin )  ) {
     auto p = a+(b-a)/2;
     if ( f(*p)<zmin ) a=p;
     else if( f(*p)>zmax) b=p;
@@ -149,7 +149,7 @@ void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex, F cons
   auto range = [=](auto z)->bool {
     auto x = z&XMASK;
     auto y = z&YMASK;
-    return (x>=xmin)&&(x<=xmax)&&(y>=ymin)&&(y<=ymax);
+    return (x>=xmin)&(x<=xmax)&&(y>=ymin)&(y<=ymax);
   };
 
   zsearch(a,b,zmin,zmax,ex,f, range, zmin, zmax);
@@ -273,7 +273,7 @@ void testZSearch(int N) {
     assert(ymax<=0xffff);
     
     auto range = [=](auto x, auto y)->bool {
-      return (x>=xmin)&&(x<=xmax)&&(y>=ymin)&&(y<=ymax);
+      return (x>=xmin)&(x<=xmax)&&(y>=ymin)&(y<=ymax);
     };
 
 
