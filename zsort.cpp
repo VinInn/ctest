@@ -324,10 +324,10 @@ int main() {
 
   testBisect();
 
-  testZSearch(200);
-  testZSearch(1000);
-  testZSearch(5000);
-  // testZSearch(10000);
+
+  for (int N=32; N<17000; N*=2)
+    testZSearch(N);
+
 
   
   std::cout << zhash(1,1) << std::endl;
