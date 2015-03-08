@@ -100,7 +100,7 @@ Iter bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax) {
 template<typename Iter, typename F>
 Iter bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax, F f ) {
   auto e = b;
-  while(a<b & f(*(b-1)) >= zmin) {
+  while( (a<b) & ( f(*(b-1)) >= zmin )  ) {
     auto p = a+(b-a)/2;
     if ( f(*p)<zmin ) a=p;
     else if( f(*p)>zmax) b=p;
@@ -114,10 +114,12 @@ template<typename Iter, typename EX,  typename F, typename R>
 void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex, F f,
 	     R range, unsigned int ozmin, unsigned int ozmax) {
 
+#ifndef ZSEARCH_NO_LINEAR_OPT
   if (b-a < 64) {
     for (;a!=b;++a) if (range(ex(*a)))  f(*a); // report
     return;
   }
+#endif
   
   auto p = bisect(a,b,zmin,zmax,ex);
   if (p==b) return;
@@ -213,7 +215,7 @@ void testBisect() {
 
   v = {1,3,5,9};
   p = bisect(v.begin(),v.end(),3,7);
-  assert(p>v.begin() & p<v.end());
+  assert( (p>v.begin()) & (p<v.end()));
 
   v = {4,5};
   p = bisect(v.begin(),v.end(),3,7);
@@ -237,7 +239,7 @@ void testZSearch(int N) {
   auto pos = std::bind ( distribution, generator );
 
   int k=0; unsigned int m=0;
-  long long t1=0, t2=0;
+  long long t1=0, t2=0, t3=0;
 
 
   for (int j=0; j<100; ++j) {
@@ -250,7 +252,10 @@ void testZSearch(int N) {
   }
   std::sort(begin(w),end(w),[](auto const & a, auto const & b) { return a.z<b.z;});
   // std::cout << w[0].z << ' ' << w.back().z << std::endl;
-
+  auto w2 = w;
+  std::sort(begin(w2),end(w2),[](auto const & a, auto const & b) { return a.x<b.x;});
+  
+  
 
   for (unsigned int i=10; i<5000; ++i) {
     auto x=pos(); auto y=pos(); auto mx = 0xffff -i;
@@ -270,19 +275,36 @@ void testZSearch(int N) {
     };
 
 
+    // brute force
     std::vector<unsigned int> s0; s0.reserve(N);
     t1 -= rdtsc();
     std::for_each(begin(w),end(w),[&](auto z) {
 	if (range(z.x,z.y)) s0.push_back(z.z);}
       );
     t1 += rdtsc();
-    
-    std::vector<unsigned int> s1; s1.reserve(N);
+
+    // x sorting
+    std::vector<unsigned int> s2; s2.reserve(N);
     t2 -= rdtsc();
+    X wmin{xmin,ymin,zmin};
+    X wmax{xmax,ymax,zmax};
+    auto a = std::lower_bound(begin(w2),end(w2),wmin,[&](auto x1, auto x2) { return x1.x < x2.x;});
+    auto b = std::upper_bound(a,end(w2),wmax,[&](auto x1, auto x2) { return x1.x < x2.x;});
+    std::for_each(a,b,[&](auto z) {
+	if (range(z.x,z.y)) s2.push_back(z.z);}
+      );
+   t2 += rdtsc();
+   std::sort(begin(s2),end(s2));
+   assert(s0==s2);
+     
+
+    // zseach
+    std::vector<unsigned int> s1; s1.reserve(N);
+    t3 -= rdtsc();
     zsearch(w.begin(),w.end(),zmin,zmax,[](auto q) { return q.z;},
 	    [&](auto z) {s1.push_back(z.z);}
 	    );
-    t2 += rdtsc();
+    t3 += rdtsc();
     std::sort(begin(s1),end(s1));
 
     assert(s0==s1);
@@ -292,7 +314,7 @@ void testZSearch(int N) {
 
   }
   std::cout << N << ' ' << k << ' ' << m <<std::endl;
-  std::cout << double(t1)/1000000. << ' ' << double(t2)/1000000. << std::endl;
+  std::cout << double(t1)/1000000. << ' ' << double(t2)/1000000. << ' ' << double(t3)/1000000. << std::endl;
   
 }
 
@@ -305,7 +327,7 @@ int main() {
   testZSearch(200);
   testZSearch(1000);
   testZSearch(5000);
-  testZSearch(10000);
+  // testZSearch(10000);
 
   
   std::cout << zhash(1,1) << std::endl;
@@ -351,28 +373,48 @@ int main() {
     for ( auto y=0U; y<=17; ++y)
       if ( (++k)%3==0 ) w.emplace_back(X{x,y,zhash(x,y)});
 
-  std::sort(begin(w),end(w),[](auto const & a, auto const & b) { return a.z<b.z;});
-  std::cout << w[0].z << ' ' << w.back().z << std::endl;
 
-  k=0;
-  std::for_each(begin(w),end(w),[&](auto z) {
-      if (range(z.x,z.y)) std::cout << "found " <<k++ << ' ' << z.z << ':' << z.x << ',' << z.y << std::endl;}
-    );
+  auto dotest = [&]() {
+  
+    std::sort(begin(w),end(w),[](auto const & a, auto const & b) { return a.z<b.z;});
+    std::cout << w[0].z << ' ' << w.back().z << std::endl;
+    
+    int k1=0;
+    std::for_each(begin(w),end(w),[&](auto z) {
+	if (range(z.x,z.y)) std::cout << "found " <<k1++ << ' ' << z.z << ':' << z.x << ',' << z.y << std::endl;}
+      );
+    
+    
+    auto p = bisect(w.begin(),w.end(),zmin,zmax,[](auto q) { return q.z;});
+    if (p!=w.end()) {
+      auto z = *p;
+      std::cout << w[0].z << ' ' << w.back().z << ' ' << z.z << ':' << z.x << ',' << z.y << std::endl;
+      auto mxmn = bigmin(zmin, zmax, z.z);
+      std::cout << zmin << ' ' << zmax << ' ' << std::get<0>(mxmn) << ',' <<  std::get<1>(mxmn) << std::endl;
+    }  
+    
+    int k2=0;
+    zsearch(w.begin(),w.end(),zmin,zmax,[](auto q) { return q.z;},
+	    [&](auto z) { std::cout << "found " << k2++ << ' ' << z.z << ':' << z.x << ',' << z.y << std::endl;}
+	    ); 
+
+    assert(k1==k2);
+  };  // end dotest
+
+  
+  dotest();
+  w.emplace_back(X{3,3,zhash(3,3)});
+  w.emplace_back(X{3,3,zhash(3,3)});
+  w.emplace_back(X{3,3,zhash(3,3)});
+  dotest();
+  w.emplace_back(X{4,7,zhash(4,7)});
+  w.emplace_back(X{4,7,zhash(4,7)});
+  w.emplace_back(X{4,7,zhash(4,7)});
+  dotest();
   
   
-  auto p = bisect(w.begin(),w.end(),zmin,zmax,[](auto q) { return q.z;});
-  if (p!=w.end()) {
-    auto z = *p;
-    std::cout << w[0].z << ' ' << w.back().z << ' ' << z.z << ':' << z.x << ',' << z.y << std::endl;
-    auto mxmn = bigmin(zmin, zmax, z.z);
-    std::cout << zmin << ' ' << zmax << ' ' << std::get<0>(mxmn) << ',' <<  std::get<1>(mxmn) << std::endl;
-  }  
 
-  k=0;
-  zsearch(w.begin(),w.end(),zmin,zmax,[](auto q) { return q.z;},
-	  [&](auto z) { std::cout << "found " << k++ << ' ' << z.z << ':' << z.x << ',' << z.y << std::endl;}
-	  ); 
-
+  
   return 0;
 
 }
