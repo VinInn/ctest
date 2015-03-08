@@ -117,7 +117,7 @@ void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex,  F con
 	     R const & range, unsigned int ozmin, unsigned int ozmax) {
 
 #ifndef ZSEARCH_NO_LINEAR_OPT
-  if (b-a < 64) {
+  if ( (b-a) < 64) {
     for (;a!=b;++a) if (range(ex(*a)))  f(*a); // report
     return;
   }
@@ -149,7 +149,7 @@ void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex, F cons
   auto range = [=](auto z)->bool {
     auto x = z&XMASK;
     auto y = z&YMASK;
-    return (x>=xmin)&(x<=xmax)&(y>=ymin)&(y<=ymax);
+    return (x>=xmin)&&(x<=xmax)&&(y>=ymin)&&(y<=ymax);
   };
 
   zsearch(a,b,zmin,zmax,ex,f, range, zmin, zmax);
@@ -273,7 +273,7 @@ void testZSearch(int N) {
     assert(ymax<=0xffff);
     
     auto range = [=](auto x, auto y)->bool {
-      return (x>=xmin)&(x<=xmax)&(y>=ymin)&(y<=ymax);
+      return (x>=xmin)&&(x<=xmax)&&(y>=ymin)&&(y<=ymax);
     };
 
 
