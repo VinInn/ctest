@@ -3,20 +3,20 @@
 #include<tuple>
 
 
-static constexpr unsigned int B[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF};
+constexpr unsigned int B[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF};
 // 01010101010101010101010101010101
 // 00110011001100110011001100110011
 // 00001111000011110000111100001111
 // 00000000111111110000000011111111
-static constexpr unsigned int S[] = {1, 2, 4, 8};
+constexpr unsigned int S[] = {1, 2, 4, 8};
 
 
 
 /* Interleave lower 16 bits of x and y, so the bits of x
  * are in the even positions and bits from y in the odd
  * z gets the resulting 32-bit Morton Number.
- * x and y must initially be less than 65536.
- * so better be unsigned short
+ * x and y must initially be less than 0xffff:
+ * so better be unsigned short.
  */
 constexpr unsigned int zhash(unsigned int x, unsigned int y) {
   x = (x | (x << S[3])) & B[3];
@@ -138,9 +138,57 @@ void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex,  F con
 
 }
 
+template<typename Iter, typename EX,  typename F>
+class ZSearch {
+public:
+  ZSearch(unsigned int zmin, unsigned int zmax, EX iex, F const & ff) :
+    ozmin(zmin),ozmax(zmax), ex(iex), f(ff){}
+
+  bool range(unsigned int z) const {
+    auto x = z&XMASK;
+    auto y = z&YMASK;
+    return (x>=xmin)&(x<=xmax)&&(y>=ymin)&(y<=ymax);
+  }
+
+  
+  void search(Iter a, Iter b, unsigned int zmin, unsigned int zmax) const {
+
+      
+#ifndef ZSEARCH_NO_LINEAR_OPT
+    if ( (b-a) < 64) {
+      for (;a!=b;++a) if (range(ex(*a)))  f(*a); // report
+      return;
+    }
+#endif
+  
+    auto p = bisect(a,b,zmin,zmax,ex);
+    if (p==b) return;
+    if (range(ex(*p))) {
+      f(*p); // report
+      search(a,p,zmin,zmax);
+      search(p+1,b,zmin,zmax);
+    } else {
+      auto mxmn = bigmin(ozmin, ozmax, ex(*p));
+      // std::cout << "cont " << ex(*p) << " " << zmin << ',' << std::get<0>(mxmn) << ' ' <<  std::get<1>(mxmn)  << ',' << zmax << std::endl;
+      search(a,p,zmin,std::get<0>(mxmn));
+      search(p+1,b,std::get<1>(mxmn),zmax);
+    }
+  }
+  
+private:
+
+  unsigned int ozmin, ozmax, xmin=ozmin&XMASK, ymin=ozmin&YMASK, xmax=ozmax&XMASK, ymax=ozmax&YMASK;
+
+  EX ex;
+  F f;
+  
+};
+
+
 
 template<typename Iter, typename EX,  typename F>
 void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex, F const & f) {
+  /*
   auto xmin = zmin&XMASK;
   auto ymin = zmin&YMASK;
   auto xmax = zmax&XMASK;
@@ -153,7 +201,11 @@ void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex, F cons
   };
 
   zsearch(a,b,zmin,zmax,ex,f, range, zmin, zmax);
+  */
 
+  ZSearch<Iter,EX,F> zs(zmin,zmax,ex,f);
+  zs.search(a,b,zmin,zmax);
+  
 }
 
 
