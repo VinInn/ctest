@@ -286,6 +286,9 @@ inline volatile unsigned long long rdtsc() {
 }
 
 
+
+#include "KDTreeLinkerAlgo.h"
+
 void testZSearch(int N) {
 
   std::default_random_engine generator;
@@ -293,7 +296,7 @@ void testZSearch(int N) {
   auto pos = std::bind ( distribution, generator );
 
   int k=0; unsigned int m=0;
-  long long t1=0, t2=0, t3=0;
+  long long t1=0, t2=0, t3=0, t4=0;
 
 
   for (int j=0; j<100; ++j) {
@@ -309,6 +312,12 @@ void testZSearch(int N) {
   auto w2 = w;
   std::sort(begin(w2),end(w2),[](auto const & a, auto const & b) { return a.x<b.x;});
   
+  KDTreeLinkerAlgo<unsigned int> kdt;
+  KDTreeBox kdSpace(0,0xffff,0,0xffff);
+  std::vector<KDTreeNodeInfo<unsigned int> > kdv; kdv.resize(w2.size());
+  std::transform(begin(w2),end(w2),begin(kdv),[](auto const & ww) { return KDTreeNodeInfo<unsigned int>(ww.z,ww.x,ww.y);});
+  kdt.build(kdv,kdSpace);
+
   
 
   for (unsigned int i=10; i<5000; ++i) {
@@ -323,6 +332,8 @@ void testZSearch(int N) {
     assert(ymin<0xffff);
     assert(xmax<=0xffff);
     assert(ymax<=0xffff);
+
+    KDTreeBox kdbox(xmin,xmax,ymin,ymax);
     
     auto range = [=](auto x, auto y)->bool {
       return (x>=xmin)&(x<=xmax)&&(y>=ymin)&(y<=ymax);
@@ -350,15 +361,25 @@ void testZSearch(int N) {
    t2 += rdtsc();
    std::sort(begin(s2),end(s2));
    assert(s0==s2);
-     
 
+
+
+   // KDTree
+   std::vector<unsigned int> s3; s3.reserve(N);
+   t3 -= rdtsc();
+   kdt.search(kdbox,s3);
+   t3 += rdtsc();
+   std::sort(begin(s3),end(s3));
+   assert(s0==s3);
+
+    
     // zseach
     std::vector<unsigned int> s1; s1.reserve(N);
-    t3 -= rdtsc();
+    t4 -= rdtsc();
     zsearch(w.begin(),w.end(),zmin,zmax,[](auto q) { return q.z;},
 	    [&](auto z) {s1.push_back(z.z);}
 	    );
-    t3 += rdtsc();
+    t4 += rdtsc();
     std::sort(begin(s1),end(s1));
 
     assert(s0==s1);
@@ -368,7 +389,8 @@ void testZSearch(int N) {
 
   }
   std::cout << N << ' ' << k << ' ' << m <<std::endl;
-  std::cout << double(t1)/1000000. << ' ' << double(t2)/1000000. << ' ' << double(t3)/1000000. << std::endl;
+  std::cout << double(t1)/1000000. << ' ' << double(t2)/1000000.
+	    << ' ' << double(t3)/1000000. << ' ' << double(t4)/1000000. << std::endl;
   
 }
 
