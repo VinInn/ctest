@@ -94,21 +94,21 @@ std::tuple<unsigned int,unsigned int> bigmin(unsigned int minz, unsigned int max
 
 template<typename Iter>
 inline
-Iter bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax) {
+std::tuple<Iter,Iter,Iter> bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax) {
   return bisect(a,b,zmin,zmax,[](auto q) { return q;});
 }
   
 template<typename Iter, typename F>
 inline
-Iter bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax, F f ) {
+std::tuple<Iter,Iter,Iter> bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax, F f ) {
   auto e = b;
   while( (a<b) && ( f(*(b-1)) >= zmin )  ) {
     auto p = a+(b-a)/2;
     if ( f(*p)<zmin ) a=p;
     else if( f(*p)>zmax) b=p;
-    else return p;
+    else return std::make_tuple(p,a,b);
   }
-  return e;
+  return std::make_tuple(e,e,e);
 }
 
 
@@ -123,7 +123,8 @@ void zsearch(Iter a, Iter b, unsigned int zmin, unsigned int zmax, EX ex,  F con
   }
 #endif
   
-  auto p = bisect(a,b,zmin,zmax,ex);
+  Iter p;
+  std::tie(p,a,b) = bisect(a,b,zmin,zmax,ex);
   if (p==b) return;
   if (range(ex(*p))) {
     f(*p); // report
@@ -161,7 +162,8 @@ public:
     }
 #endif
   
-    auto p = bisect(a,b,zmin,zmax,ex);
+    Iter p;
+    std::tie(p,a,b) = bisect(a,b,zmin,zmax,ex);
     if (p==b) return;
     if (range(ex(*p))) {
       f(*p); // report
@@ -219,60 +221,65 @@ void testBisect() {
 
   std::vector<unsigned int> v;
 
-  auto p = bisect(v.begin(),v.end(),3,7);
+  auto  a = v.end();
+  auto b = a;
+  auto p = b;
+
+  
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert(p==v.end());
 
   v = {1};
-  p = bisect(v.begin(),v.end(),3,7);
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert(p==v.end());
 
   v = {1,2};
-  p = bisect(v.begin(),v.end(),3,7);
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert(p==v.end());
 
 
   v = {1,9};
-  p = bisect(v.begin(),v.end(),3,7);
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert(p==v.end());
   v = {1,2,9,12};
-  p = bisect(v.begin(),v.end(),3,7);
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert(p==v.end());
 
   
   v = {9};
-  p = bisect(v.begin(),v.end(),3,7);
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert(p==v.end());
 
 
   v = {9,11};
-  p = bisect(v.begin(),v.end(),3,7);
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert(p==v.end());
 
   
   v = {5};
-  p = bisect(v.begin(),v.end(),3,7);
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert(p==v.begin());
 
 
   v = {1,5};
-  p = bisect(v.begin(),v.end(),3,7);
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert(p==(v.begin()+1));
 
   v = {5,9};
-  p = bisect(v.begin(),v.end(),3,7);
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert(p==(v.begin()));
 
 
   v = {1,5,9};
-  p = bisect(v.begin(),v.end(),3,7);
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert(p==(v.begin()+1));
 
   v = {1,3,5,9};
-  p = bisect(v.begin(),v.end(),3,7);
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert( (p>v.begin()) & (p<v.end()));
 
   v = {4,5};
-  p = bisect(v.begin(),v.end(),3,7);
+  std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
   assert(p!=v.end());
 
   
@@ -460,8 +467,11 @@ int main() {
 	if (range(z.x,z.y)) std::cout << "found " <<k1++ << ' ' << z.z << ':' << z.x << ',' << z.y << std::endl;}
       );
     
-    
-    auto p = bisect(w.begin(),w.end(),zmin,zmax,[](auto q) { return q.z;});
+    auto a = w.end();
+    auto b = a;
+    auto p = b;
+
+    std::tie(p,a,b) = bisect(w.begin(),w.end(),zmin,zmax,[](auto q) { return q.z;});
     if (p!=w.end()) {
       auto z = *p;
       std::cout << w[0].z << ' ' << w.back().z << ' ' << z.z << ':' << z.x << ',' << z.y << std::endl;
