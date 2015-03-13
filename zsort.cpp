@@ -101,14 +101,13 @@ std::tuple<Iter,Iter,Iter> bisect(Iter a, Iter b, unsigned int zmin, unsigned in
 template<typename Iter, typename F>
 inline
 std::tuple<Iter,Iter,Iter> bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax, F f ) {
-  auto e = b;
-  while( (a<b) && ( f(*(b-1)) >= zmin )  ) {
+ while( (a<b) && ( f(*(b-1)) >= zmin )  ) {
     auto p = a+(b-a)/2;
     if ( f(*p)<zmin ) a=p;
     else if( f(*p)>zmax) b=p;
     else return std::make_tuple(p,a,b);
   }
-  return std::make_tuple(e,e,e);
+  return std::make_tuple(b,b,b);
 }
 
 
@@ -227,33 +226,33 @@ void testBisect() {
 
   
   std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
-  assert(p==v.end());
+  assert(p==b);
 
   v = {1};
   std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
-  assert(p==v.end());
+  assert(p==b);
 
   v = {1,2};
   std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
-  assert(p==v.end());
-
+  assert(p==b);
 
   v = {1,9};
   std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
-  assert(p==v.end());
+  assert(p==b);
+
   v = {1,2,9,12};
   std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
-  assert(p==v.end());
+  assert(p==b);
 
   
   v = {9};
   std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
-  assert(p==v.end());
+  assert(p==b);
 
 
   v = {9,11};
   std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
-  assert(p==v.end());
+  assert(p==b);
 
   
   v = {5};
@@ -280,7 +279,7 @@ void testBisect() {
 
   v = {4,5};
   std::tie(p,a,b) = bisect(v.begin(),v.end(),3,7);
-  assert(p!=v.end());
+  assert(p!=b);
 
   
 }
