@@ -1,6 +1,20 @@
 #include<algorithm>
 #include<iostream>
+#include<utility>
 #include<tuple>
+
+
+template<typename F, std::size_t... Is>
+constexpr auto make_impl(F f, std::index_sequence<Is...>)->std::array<unsigned int,std::index_sequence<Is...>::size()>  {
+  return std::array<unsigned int,std::index_sequence<Is...>::size()>{{f(Is)...}};
+}
+
+
+template< std::size_t N, typename F, typename Indices = std::make_index_sequence<N> >
+constexpr std::array<unsigned int,N> make(F f) {
+  return make_impl(f,Indices());
+}
+ 
 
 
 constexpr unsigned int B[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF};
@@ -50,12 +64,18 @@ constexpr unsigned int  FULL = 0xffffffff;
 
 constexpr unsigned int  BITMAX = 31;
 
+constexpr unsigned int mask1(unsigned int p) { return (MASK >> (BITMAX-p)) & (~(FULL << p));}
+constexpr unsigned int mask2(unsigned int p) { return  ~(MASK >> (BITMAX-p));}
+
 constexpr unsigned int  setbits(unsigned int p, unsigned int v) {
-  auto mask = (MASK >> (BITMAX-p)) & (~(FULL << p)); // & FULL);
-  return  (v | mask) & ~(1 << p); // & FULL;
+  // constexpr auto mask  = make<BITMAX+1>(mask1);
+  //constexpr auto mask  = make<BITMAX+1>( [](auto p){ return (MASK >> (BITMAX-p)) & (~(FULL << p));} );
+  auto mask = (MASK >> (BITMAX-p)); // & (~(FULL << p)); // & FULL);
+  return  (v | mask ) & ~(1 << p); // & FULL;
 }
 
 constexpr unsigned int unsetbits(unsigned int p, unsigned int v) {
+  // constexpr auto mask  = make<BITMAX+1>(mask2);
   auto mask = ~(MASK >> (BITMAX-p)); // & FULL;
   return  (v & mask) | (1 << p);
 }
@@ -66,7 +86,7 @@ std::tuple<unsigned int,unsigned int> bigmin(unsigned int minz, unsigned int max
   auto bigmin = maxz;
   auto litmax = minz;
   unsigned int bmx = __builtin_clz(((zcode^maxz)|(zcode^minz)));
-  for (auto k=bmx; k<=BITMAX; k++) {
+  for (auto k=bmx; k<=BITMAX; k= __builtin_clz(((zcode^maxz)|(zcode^minz)))  ) { // k++) {
     auto p = BITMAX-k;
     auto mask = 1 << p;
     auto v = _000_;
@@ -166,6 +186,9 @@ public:
     if (p==b) return;
     if (range(ex(*p))) {
       f(*p); // report
+      search(a,p,zmin,zmax);
+      search(p+1,b,zmin,zmax);
+    } else if ( (b-a) < 128) {
       search(a,p,zmin,zmax);
       search(p+1,b,zmin,zmax);
     } else {
