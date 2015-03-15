@@ -95,7 +95,8 @@ std::tuple<unsigned int,unsigned int> bigmin(unsigned int minz, unsigned int max
     if (maxz & mask)  v |= _001_;
 
     // std::cout << "cb " << p<< ' '<< v<< ' '<<minz<< ' '<<maxz<< ' ' << litmax << ' '<<bigmin << std::endl;
-    
+
+    /*
     if (v == _001_) {
       bigmin = unsetbits(p, minz);
       maxz = setbits(p, maxz);
@@ -107,6 +108,19 @@ std::tuple<unsigned int,unsigned int> bigmin(unsigned int minz, unsigned int max
       litmax = setbits(p, maxz);
       minz = unsetbits(p, minz);
     }
+    */
+    if (v == _011_)
+      return std::make_tuple(litmax,minz);
+    if (v == _100_)
+      return std::make_tuple(maxz,bigmin);
+    if (v == _001_) {
+      bigmin = unsetbits(p, minz);
+      maxz = setbits(p, maxz);
+    } else if (v == _101_) {
+      litmax = setbits(p, maxz);
+      minz = unsetbits(p, minz);
+    }
+    
   }  
   return std::make_tuple(litmax,bigmin);
 }
