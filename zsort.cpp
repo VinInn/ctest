@@ -121,8 +121,8 @@ std::tuple<Iter,Iter,Iter> bisect(Iter a, Iter b, unsigned int zmin, unsigned in
 template<typename Iter, typename F>
 inline
 std::tuple<Iter,Iter,Iter> bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax, F f ) {
- while( (a<b) && ( f(*(b-1)) >= zmin )  ) {
-    auto p = a+(b-a)/2;
+  while( (b-a)>1 || ( (b-a)==1 && ( f(*(b-1)) >= zmin ) ) ) {
+    auto  p = a+(b-a)/2;
     if ( f(*p)<zmin ) a=p;
     else if( f(*p)>zmax) b=p;
     else return std::make_tuple(p,a,b);
