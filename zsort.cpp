@@ -116,7 +116,7 @@ std::tuple<unsigned int,unsigned int> bigmin(unsigned int minz, unsigned int max
     if (v == _001_) {
       bigmin = unsetbits(p, minz);
       maxz = setbits(p, maxz);
-    } else if (v == _101_) {
+    } else { //  if (v == _101_) {
       litmax = setbits(p, maxz);
       minz = unsetbits(p, minz);
     }
