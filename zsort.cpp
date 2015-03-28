@@ -2,7 +2,7 @@
 #include<iostream>
 #include<utility>
 #include<tuple>
-
+#include<cassert>
 
 template<typename F, std::size_t... Is>
 constexpr auto make_impl(F f, std::index_sequence<Is...>)->std::array<unsigned int,std::index_sequence<Is...>::size()>  {
@@ -135,12 +135,13 @@ std::tuple<Iter,Iter,Iter> bisect(Iter a, Iter b, unsigned int zmin, unsigned in
 template<typename Iter, typename F>
 inline
 std::tuple<Iter,Iter,Iter> bisect(Iter a, Iter b, unsigned int zmin, unsigned int zmax, F f ) {
-  while( (b-a)>1 || ( (b-a)==1 && ( f(*(b-1)) >= zmin ) ) ) {
+  while( (b-a)>32) {      // 1 || ( (b-a)==1 && ( f(*(b-1)) >= zmin ) ) ) {
     auto  p = a+(b-a)/2;
     if ( f(*p)<zmin ) a=p;
     else if( f(*p)>zmax) b=p;
     else return std::make_tuple(p,a,b);
   }
+  for (auto p=a; p!=b; ++p) { if( f(*p)>zmax) break; if (f(*p)>=zmin) return std::make_tuple(p,p,b);  }
   return std::make_tuple(b,b,b);
 }
 
@@ -207,6 +208,8 @@ public:
       search(p+1,b,zmin,zmax);
     } else {
       auto mxmn = bigmin(ozmin, ozmax, ex(*p));
+      // assert(std::get<0>(mxmn)<=zmax);
+      // assert(std::get<1>(mxmn)>=zmin);
       // std::cout << "cont " << ex(*p) << " " << zmin << ',' << std::get<0>(mxmn) << ' ' <<  std::get<1>(mxmn)  << ',' << zmax << std::endl;
       search(a,p,zmin,std::get<0>(mxmn));
       search(p+1,b,std::get<1>(mxmn),zmax);
