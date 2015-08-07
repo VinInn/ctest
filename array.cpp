@@ -1,5 +1,6 @@
 #include <typeinfo>
 #include<iostream>
+#include<cstring>
 
 #include "cxxabi.h"
 
