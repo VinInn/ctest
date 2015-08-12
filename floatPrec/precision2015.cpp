@@ -46,6 +46,17 @@ int main() {
 
   nf(0.1f,0.2f); 
   nf(1000.f,2000.f);
+
+  float x1=0;
+  for (float y=0;y<=1000000; ++y)x1+=y;
+  print (x1);
+  float x2=0;
+  for (float y=1000000;y>0; --y)x2+=y;
+  print (x2);
+  print (x2-x1); print ((x2-x1)/x1);
+
+  return 0;
+
 }
 
 
