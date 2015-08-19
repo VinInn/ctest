@@ -22,61 +22,63 @@
 */
 
 #define private public
+template<typename T>
 class FastCircle {
 
 public:
 
   FastCircle(){}
-  FastCircle(double x1, double y1,
-	     double x2, double y2,
-	     double x3, double y3) { 
+  FastCircle(T x1, T y1,
+	     T x2, T y2,
+	     T x3, T y3) { 
     compute(x1,y1,x2,y2,x3,y3);
   }
 
-  void compute(double x1, double y1,
-	       double x2, double y2,
-	       double x3, double y3);
-
+  void compute(T x1, T y1,
+	       T x2, T y2,
+	       T x3, T y3);
+  
 private:
 
-  double m_xp;
-  double m_yp;
-  double m_c;
-  double m_alpha;
-  double m_beta;
+  T m_xp;
+  T m_yp;
+  T m_c;
+  T m_alpha;
+  T m_beta;
 
 };
 
 #undef private
 
-void FastCircle::compute(double x1, double y1,
-			 double x2, double y2,
-			 double x3, double y3) {
-  bool flip = fabs(x3-x1) > fabs(y3-y1);
+template<typename T>
+void FastCircle<T>::compute(T x1, T y1,
+			    T x2, T y2,
+			    T x3, T y3) {
+  bool flip = std::abs(x3-x1) > std::abs(y3-y1);
    
-  double x1p = x1-x2;
-  double y1p = y1-y2;
-  double d12 = x1p*x1p + y1p*y1p;
-  double x3p = x3-x2;
-  double y3p = y3-y2;
-  double d32 = x3p*x3p + y3p*y3p;
+  auto x1p = x1-x2;
+  auto y1p = y1-y2;
+  auto d12 = x1p*x1p + y1p*y1p;
+  auto x3p = x3-x2;
+  auto y3p = y3-y2;
+  auto d32 = x3p*x3p + y3p*y3p;
 
   if (flip) {
     std::swap(x1p,y1p);
     std::swap(x3p,y3p);
   }
 
-  double num = x1p*y3p-y1p*x3p;  // num also gives correct sign for CT
-  double det = d12*y3p-d32*y1p;
-  if( std::fabs(det)==0 ) {
+  auto num = x1p*y3p-y1p*x3p;  // num also gives correct sign for CT
+  auto det = d12*y3p-d32*y1p;
+  if( std::abs(det)==0 ) {
     // and why we flip????
   }
-  double ct  = num/det;
-  double sn  = det>0 ? 1 : -1;  
-  double st2 = (d12*x3p-d32*x1p)/det;
-  double seq = 1. +st2*st2;
-  double al2 = sn/sqrt(seq);
-  double be2 = -st2*al2;
+  auto ct  = num/det;
+  auto sn  = det>0 ? 1 : -1;  
+  auto st2 = (d12*x3p-d32*x1p)/det;
+  auto seq = 1. +st2*st2;
+  auto al2 = sn/sqrt(seq);
+  auto be2 = -st2*al2;
   ct *= 2.*al2;
   
   if (flip) {
@@ -96,10 +98,11 @@ void FastCircle::compute(double x1, double y1,
 }
 
 #include<iostream>
-void verify(double x1, double y1,
-	    double x2, double y2,
-	    double x3, double y3) {
-  FastCircle c;
+template<typename T>
+void verify(T x1, T y1,
+	    T x2, T y2,
+	    T x3, T y3) {
+  FastCircle<T> c;
   c.compute(x1,y1,x2,y2,x3,y3);
   std::cout << c.m_xp <<"," << c.m_yp
 	    << " ; " << c.m_c
@@ -107,13 +110,14 @@ void verify(double x1, double y1,
 	    << std::endl;
 }
 
-
-bool equal(double a, double b) {
+template<typename T>
+bool equal(T a, T b) {
   //  return float(a-b)==0;
-  return abs(float(a-b))<1.e-15;
+  return std::abs(float(a-b))<1.e-10;
 }
 
-bool equal(FastCircle const & a, FastCircle const & b) {
+template<typename T>
+bool equal(FastCircle<T> const & a, FastCircle<T> const & b) {
   return equal(a.m_xp,b.m_xp) &&
     equal(a.m_yp,b.m_yp) &&
     equal(a.m_c,b.m_c) &&
@@ -122,60 +126,76 @@ bool equal(FastCircle const & a, FastCircle const & b) {
 
 } 
 
-int main() {
+template<typename T>
+void go() {
 
-  std::cout << std::numeric_limits<double>::max() << std::endl;
-  std::cout << std::numeric_limits<double>::min() << std::endl;
-  std::cout << fabs(float(std::numeric_limits<double>::min())) << std::endl;
-  std::cout << std::numeric_limits<float>::max() << std::endl;
-  std::cout << std::numeric_limits<float>::min() << std::endl;
+  T one = 1.0, zero=0., c4 = cos(4.), s4 = sin(4.), c1 = cos(0.1), s1 = sin(0.1);
+    
+    verify(one,zero,c4,s4,zero,one);
+  verify(one,zero,one,zero,c4,s4);
+  verify(one,zero,c4,s4,c1,s1);
+  verify(one,zero,c1,s1,c4,s4);
 
-  verify(1.,0.,cos(4.),sin(4),0.,1.);
-  verify(1.,0.,0.,1.,cos(4.),sin(4));
-  verify(1.,0.,cos(4.),sin(4.),cos(0.1),sin(0.1));
-  verify(1.,0.,cos(0.1),sin(0.1),cos(4.),sin(4.));
-
-  for (double phi=0; phi<6.28; phi+=0.05*M_PI) {
-    double x1 = cos(phi), y1 = sin(phi);
+  for (T phi=0; phi<6.28; phi+=0.05*M_PI) {
+    T x1 = cos(phi), y1 = sin(phi);
     {
-      double x2 = cos(phi+0.1), y2 = sin(phi+0.1);
-      double x3 = cos(phi+0.2), y3 = sin(phi+0.2);
+      T x2 = cos(phi+0.1), y2 = sin(phi+0.1);
+      T x3 = cos(phi+0.2), y3 = sin(phi+0.2);
       verify (x1,y1,x2,y2,x3,y3);
       verify (x1,y1,x3,y3,x2,y2);
     }
     {
-      double x2 = cos(phi-0.1), y2 = sin(phi-0.1);
-      double x3 = cos(phi-0.2), y3 = sin(phi-0.2);
+      T x2 = cos(phi-0.1), y2 = sin(phi-0.1);
+      T x3 = cos(phi-0.2), y3 = sin(phi-0.2);
       verify (x1,y1,x2,y2,x3,y3);
     }
   }
 
-  double phi=0;
-  double x1 = cos(phi), y1 = sin(phi);
-  double d=0.01;
-  double x2 = cos(phi+d), y2 = sin(phi+d);
-  double x3 = cos(phi+0.2), y3 = sin(phi+0.2);
-  FastCircle c1(x1,y1,x2,y2,x3,y3);
-  FastCircle c2;
+  T phi=0;
+  T x1 = cos(phi), y1 = sin(phi);
+  T d=0.01;
+  T x2 = cos(phi+d), y2 = sin(phi+d);
+  T x3 = cos(phi+0.2), y3 = sin(phi+0.2);
+  FastCircle<T> ca(x1,y1,x2,y2,x3,y3);
+  FastCircle<T> cb;
   do {
-    d*=0.1;
+    d*=T(0.1);
     x2 = cos(phi+d), y2 = sin(phi+d);
-    c2.compute(x1,y1,x2,y2,x3,y3);
-  } while(equal(c1.m_c,c2.m_c));
+    cb.compute(x1,y1,x2,y2,x3,y3);
+  } while(equal(ca.m_c,cb.m_c));
   std::cout << d << std::endl;
   verify(x1,y1,x2,y2,x3,y3);
 	 
-  d=0.1;
+  d=0.1; long long n=0;
   do {
-    d *= 0.1;
-    c1.compute(0.,1.,d,0.,0.,-1.);
-  }while (c1.m_c!=0.);
-  std::cout << d << std::endl;
-  verify(0.,1.,d,0.,0.,-1.);
-  verify(0.,1.,std::numeric_limits<double>::min(),0.,0.,-1.);
-  verify(0.,1.,-std::numeric_limits<double>::min(),0.,0.,-1.);
+    ++n;
+    d *= T(0.1);
+    ca.compute(d,zero,zero,one,zero,-one);
+  }while (ca.m_c!=0);
+  std::cout << n << "  " << d << std::endl;
+  verify(zero,one,d,zero,zero,-one);
+  verify(zero,one,std::numeric_limits<T>::min(),zero,zero,-one);
+  verify(zero,one,-std::numeric_limits<T>::min(),zero,zero,-one);
 
-  verify(0.,0.,1.,1.,2.,2.);
+  verify(zero,zero,one,one,T(2.),T(2.));
+
+}
+
+int main() {
+
+  std::cout << std::numeric_limits<double>::max() << std::endl;
+  std::cout << std::numeric_limits<double>::min() << std::endl;
+  std::cout << std::abs(float(std::numeric_limits<double>::min())) << std::endl;
+  std::cout << std::numeric_limits<float>::max() << std::endl;
+  std::cout << std::numeric_limits<float>::min() << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+
+  go<double>();
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+  go<float>();
 
   return 0;
 };
