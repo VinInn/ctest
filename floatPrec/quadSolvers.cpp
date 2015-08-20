@@ -31,6 +31,13 @@ inline std::tuple<T,T> quadSolverOpt(T a, T b, T c) {
 #include<iostream>
 #include<iomanip>
 
+
+template<typename T> 
+void print(T x) {
+  std::cout<< std::hexfloat << x <<' ' <<  std::scientific << std::setprecision(std::numeric_limits<T>::digits10+3) << x << std::endl;
+}
+
+
 template<typename T>
 void go() {
   std::cout <<' '<< std::endl;
@@ -42,6 +49,44 @@ void go() {
   std::cout << std::endl;
 }
 
+
+template<typename T>
+void circle() {
+  std::cout <<' '<< std::endl;
+
+  constexpr T micron = 1.e-3;
+  constexpr T one = 1000.;
+  constexpr T halfChord = one/2;
+
+  
+  T x1 = std::sqrt(77.);
+  std::cout << "x1 "; print(x1);
+
+  for (auto sagita = T(10.); sagita>micron; sagita*=T(0.5)) {
+    std::cout << "sagita ";print(sagita);
+    auto radius = (sagita*sagita+halfChord*halfChord)/(T(2)*sagita);
+    std::cout << "radius ";print(radius);
+    auto x0 = x1 + radius - sagita;
+    auto xm = x1-sagita;
+
+    std::cout << "x0 "; print(x0);
+    std::cout << "xm "; print(xm);
+    std::cout << "x0-r "; print(x0-radius);    
+    std::cout << "x0^2-r^2 "; print(x0*x0-radius*radius);
+    std::cout << "r^2-h^2 "; print(radius*radius-halfChord*halfChord);
+
+    print(x0-std::sqrt(radius*radius-halfChord*halfChord));
+    print(x1-(x0-std::sqrt(radius*radius-halfChord*halfChord)));
+    auto s1 = quadSolverOpt(T(1),-radius, halfChord*halfChord);
+    print(xm+std::get<1>(s1));
+    print(x1-(xm+std::get<1>(s1)));
+    
+    std::cout << std::endl;
+  }
+  
+    std::cout << std::endl;
+}
+
 int main(){
 
 
@@ -49,6 +94,10 @@ int main(){
   go<double>();
   // go<__float128>();
 
+  circle<float>();
+  circle<double>();
+
+  
   return 0;
 
 }
