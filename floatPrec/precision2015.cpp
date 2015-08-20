@@ -96,11 +96,18 @@ int main() {
   for (float y=0;y<=1000000; ++y)x1+=y;
   print (x1);
 
+  float result = 0.5*1000000 *(1000000+1);
+
+  
   float x2=0;
   for (float y=1000000;y>0; --y)x2+=y;
   print (x2);
   print (x2-x1); print ((x2-x1)/x1);
 
+  std::cout << std::scientific << (result-x1)/result << std::endl;
+  std::cout << std::scientific << (result-x2)/result << std::endl;
+
+  
   float x3=0;
   for(int i=0; i<10000;++i) x3+=tenth;
   print(x3);

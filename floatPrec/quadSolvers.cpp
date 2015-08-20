@@ -1,6 +1,6 @@
 #include<cmath>
 #include<tuple>
-
+#include<limits>
 
 template<typename T>
 inline T det(T a, T b, T c) {
@@ -36,9 +36,9 @@ void go() {
   std::cout <<' '<< std::endl;
   T a=1., b=-0.5*1.786737601482363, c=2.054360090947453e-8;
   auto s1 = quadSolverNaive(a,b,c);
-  std::cout << "Naive Solution "<<  std::scientific << std::setprecision(16) << std::get<0>(s1) << ' ' << std::get<1>(s1) << std::endl;
+  std::cout << "Naive Solution "<<  std::scientific << std::setprecision(std::numeric_limits<T>::digits10+3) << std::get<0>(s1) << ' ' << std::get<1>(s1) << std::endl;
   auto s2 = quadSolverOpt(a,b,c);
-  std::cout <<  "Opt  Solution "<<  std::scientific << std::setprecision(16) << std::get<0>(s2) << ' ' << std::get<1>(s2) << std::endl;
+  std::cout <<  "Opt  Solution "<<  std::scientific << std::setprecision(std::numeric_limits<T>::digits10+3) << std::get<0>(s2) << ' ' << std::get<1>(s2) << std::endl;
   std::cout << std::endl;
 }
 
