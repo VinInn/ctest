@@ -187,11 +187,13 @@ inline float unsafe_expf_impl(float x) {
 
 #ifndef NO_APPROX_MATH
 
+#pragma omp declare simd notinbranch
 template<int DEGREE>
 inline float unsafe_expf(float x) {
  return  unsafe_expf_impl<DEGREE>(x); 
 }
 
+#pragma omp declare simd notinbranch
 template<int DEGREE>
 inline float approx_expf(float x) {
 
