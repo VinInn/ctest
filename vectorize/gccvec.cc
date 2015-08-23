@@ -10,7 +10,7 @@ float v3[1024];
 // extern "C" float expf(float);
 
 #pragma omp declare simd notinbranch
-extern "C" void sincosf(float,float&,float&);
+extern "C" void sincosf(float,float * s,float* c);
 
 
 void cexp() {
@@ -33,7 +33,7 @@ void rot() {
   #pragma omp simd
   for(int i=0; i<1024; ++i) {
 //    v1[i] = 0.5f*sinf(v2[i]) -0.5f*cosf(v2[i]);
-    float c,s; sincosf(v2[i],s,c);
+    float c,s; sincosf(v2[i],&s,&c);
     v1[i] = 0.5f*s -0.5f*c;
 
   }
