@@ -22,7 +22,7 @@ T sig(T x) {
 
 template<typename T, int N>
 struct Neuron {
-  std::array<T,N> w; 
+  std::array<float,N> w; 
   T operator()(std::array<T,N> const & x) const {
     T res=zero8;
     for (int i=0; i<N; ++i) res+=w[i]*x[i];
@@ -84,13 +84,13 @@ void go() {
   std::uniform_real_distribution<float> rgen(0.,1.);
   std::uniform_real_distribution<float> wgen(-1.,1.);
 
-  auto vgen = [&]()->float32x8_t { return float32x8_t{wgen(eng),wgen(eng),wgen(eng),wgen(eng), wgen(eng),wgen(eng),wgen(eng),wgen(eng)}; };
+  // auto vgen = [&]()->float32x8_t { return float32x8_t{wgen(eng),wgen(eng),wgen(eng),wgen(eng), wgen(eng),wgen(eng),wgen(eng),wgen(eng)}; };
 
   NeuNet<float32x8_t,NX,MNodes> net;
 
-  for (auto & w: net.output.w) w=vgen();
-  for (auto & n: net.middle.neurons) for (auto & w: n.w) w=vgen();
-  for (auto & n: net.input.neurons) for (auto & w: n.w) w=vgen();
+  for (auto & w: net.output.w) w=wgen(eng);
+  for (auto & n: net.middle.neurons) for (auto & w: n.w) w=wgen(eng);
+  for (auto & n: net.input.neurons) for (auto & w: n.w) w=wgen(eng);
   
 
   float32x8_t res=zero8;
