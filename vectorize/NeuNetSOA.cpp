@@ -10,10 +10,12 @@
 
 #include "../floatPrec/approx_vexp.h"
 
+constexpr approx_math::float32x8_t zero8{0,0,0,0,0,0,0,0};
+
 
 template<typename T>
 T sig(T x) {
-  return T(1)/(T(1)+unsafe_expf<T,3,true>(x));
+  return 1.f/(1.f+unsafe_expf<T,3,true>(x));
   //  return T(1)/(T(1)+std::exp(-x));
 }
 
@@ -22,13 +24,13 @@ template<typename T, int N>
 struct Neuron {
   std::array<T,N> w; 
   T operator()(std::array<T,N> const & x) const {
-    T res=0;
+    T res=zero8;
     for (int i=0; i<N; ++i) res+=w[i]*x[i];
     return sig(res);
   }
   
   T sum(std::array<T,N> const & x) const {
-    T res=0;
+    T res=zero8;
     for (int i=0; i<N; ++i) res+=w[i]*x[i];
     return res;
   }
@@ -73,6 +75,7 @@ inline unsigned long long rdtscp() {
 template<int NX, int MNodes>
 void go() {
 
+  using namespace approx_math;
 
   long long Nentries = 1024*1000;
   
@@ -81,37 +84,41 @@ void go() {
   std::uniform_real_distribution<float> rgen(0.,1.);
   std::uniform_real_distribution<float> wgen(-1.,1.);
 
+  auto vgen = [&]()->float32x8_t { return float32x8_t{wgen(eng),wgen(eng),wgen(eng),wgen(eng), wgen(eng),wgen(eng),wgen(eng),wgen(eng)}; };
 
-  NeuNet<float,NX,MNodes> net;
+  NeuNet<float32x8_t,NX,MNodes> net;
 
-  for (auto & w: net.output.w) w=wgen(eng);
-  for (auto & n: net.middle.neurons) for (auto & w: n.w) w=wgen(eng);
-  for (auto & n: net.input.neurons) for (auto & w: n.w) w=wgen(eng);
+  for (auto & w: net.output.w) w=vgen();
+  for (auto & n: net.middle.neurons) for (auto & w: n.w) w=vgen();
+  for (auto & n: net.input.neurons) for (auto & w: n.w) w=vgen();
   
 
-  using Data = std::array<float,NX>; 
-  
-
-  float res=0;
+  float32x8_t res=zero8;
   double count=0;
 
   long long t=0;
+  constexpr int vsize=8;
   constexpr unsigned int bufSize=1024;
-  std::vector<Data> buffer(bufSize);
+  using Data = std::array<std::vector<float>,NX>; 
+  Data buffer; for ( auto & b : buffer) b.resize(bufSize);
+
   for (int kk=0; kk<Nentries; kk+=bufSize) {
     for ( auto & b : buffer) for (auto & e : b) e=rgen(eng);
     t -= rdtscp();
-    for ( auto & b : buffer) {
+    for (int j=0; j<bufSize; j+=vsize) {
+      std::array<float32x8_t, NX> b;
+      for(int k=0;k<NX;++k) for (int i=0; i<vsize; ++i) b[k][i] = buffer[k][j+i];
       res += net(b);
-      ++count;
+      count+=vsize;
     }
     t +=rdtscp();
 
   }
-    
+
+  float rr = 0; for (int i=0; i<vsize; ++i) rr+=res[i];
   std::cout << "\nInput Size " << NX << " layer size " << MNodes << std::endl;
   std::cout << "total time " << double(t)*1.e-9 << std::endl;
-  std::cout << "final result " << res/count << std::endl;
+  std::cout << "final result " << rr/count << std::endl;
 }
 
 int main() {
