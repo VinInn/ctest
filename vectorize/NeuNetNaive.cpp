@@ -28,7 +28,7 @@ struct Neuron {
   }
   
   T sum(std::array<T,N> const & x) const {
-    T res=0;
+    T res= w[N];
     for (int i=0; i<N; ++i) res+=w[i]*x[i];
     return res;
   }
@@ -74,7 +74,7 @@ template<int NX, int MNodes>
 void go() {
 
 
-  long long Nentries = 1024*1000;
+  long long Nentries = 1024*10000;
   
 
   std::mt19937 eng;
