@@ -1,3 +1,5 @@
+namespace vdt {
+
 #pragma omp declare simd notinbranch
  double simd_asin(double x);
 #pragma omp declare simd notinbranch
@@ -23,13 +25,13 @@
 #pragma omp declare simd notinbranch
  float simd_expf(float initial_x);
 #pragma omp declare simd notinbranch
- double simd_inv_general(double x, const uint32_t isqrt_iterations);
+ double simd_inv_general(double x, unsigned int isqrt_iterations);
 #pragma omp declare simd notinbranch
  double simd_inv(double x);
 #pragma omp declare simd notinbranch
  double simd_approx_inv(double x);
 #pragma omp declare simd notinbranch
- float simd_invf_general(float x, const uint32_t isqrt_iterations);
+ float simd_invf_general(float x, unsigned int isqrt_iterations);
 #pragma omp declare simd notinbranch
  float simd_invf(float x);
 #pragma omp declare simd notinbranch
@@ -51,13 +53,13 @@
 #pragma omp declare simd notinbranch
  void simd_sincosf( const float xx, float & s, float &c );
 #pragma omp declare simd notinbranch
- double simd_isqrt_general(double x, const uint32_t ISQRT_ITERATIONS);
+ double simd_isqrt_general(double x, unsigned int ISQRT_ITERATIONS);
 #pragma omp declare simd notinbranch
  double simd_isqrt(double x);
 #pragma omp declare simd notinbranch
  double simd_approx_isqrt(double x);
 #pragma omp declare simd notinbranch
- float simd_isqrtf_general(float x, const uint32_t ISQRT_ITERATIONS);
+ float simd_isqrtf_general(float x, unsigned int ISQRT_ITERATIONS);
 #pragma omp declare simd notinbranch
  float simd_isqrtf(float x);
 #pragma omp declare simd notinbranch
@@ -66,3 +68,6 @@
  double simd_tan(double x);
 #pragma omp declare simd notinbranch
  float simd_tanf(float x);
+
+
+}
