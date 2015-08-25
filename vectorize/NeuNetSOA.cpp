@@ -22,9 +22,9 @@ T sig(T x) {
 
 template<typename T, int N>
 struct Neuron {
-  std::array<float,N> w; 
+  std::array<float,N+1> w; 
   T operator()(std::array<T,N> const & x) const {
-    T res=zero8;
+    T res=zero8 +w[N];
     for (int i=0; i<N; ++i) res+=w[i]*x[i];
     return sig(res);
   }
