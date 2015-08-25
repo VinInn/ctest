@@ -4,8 +4,9 @@
 
 #include "vdtMath.h"
 
-namespace vdt {
+// namespace vdt {
 
+  using namespace vdt;
   using namespace details;
 
 #pragma omp declare simd notinbranch
@@ -32,18 +33,24 @@ namespace vdt {
  double simd_exp(double x) { return fast_exp(x);}
 #pragma omp declare simd notinbranch
  float simd_expf(float x) { return fast_expf(x);}
-#pragma omp declare simd notinbranch uniform(isqrt_iterations)
- double simd_inv_general(double x, uint32_t isqrt_iterations) { return fast_inv_general(x,isqrt_iterations);}
-#pragma omp declare simd notinbranch
- double simd_inv(double x) { return fast_inv(x);}
-#pragma omp declare simd notinbranch
- double simd_approx_inv(double x) { return fast_inv(x);}
-#pragma omp declare simd notinbranch uniform(isqrt_iterations)
- float simd_invf_general(float x, uint32_t isqrt_iterations) { return fast_invf_general(x,isqrt_iterations);}
-#pragma omp declare simd notinbranch
- float simd_invf(float x) { return fast_invf(x);}
-#pragma omp declare simd notinbranch
- float simd_approx_invf(float x) { return fast_invf(x);}
+
+// #pragma omp declare simd notinbranch uniform(isqrt_iterations)
+// double simd_inv_general(double x, uint32_t isqrt_iterations) { return fast_inv_general(x,isqrt_iterations);}
+
+//#pragma omp declare simd notinbranch
+// double simd_inv(double x) { return fast_inv(x);}
+//#pragma omp declare simd notinbranch
+// double simd_approx_inv(double x) { return fast_approx_inv(x);}
+
+// #pragma omp declare simd notinbranch uniform(isqrt_iterations)
+// float simd_invf_general(float x, uint32_t isqrt_iterations) { return fast_invf_general(x,isqrt_iterations);}
+
+// #pragma omp declare simd notinbranch
+// float simd_invf(float x) { return fast_invf(x);}
+
+
+// #pragma omp declare simd notinbranch
+//  float simd_approx_invf(float x) { return fast_approx_invf(x);}
 #pragma omp declare simd notinbranch
  double simd_log(double x) { return fast_log(x);}
 #pragma omp declare simd notinbranch
@@ -52,6 +59,8 @@ namespace vdt {
  double simd_sin(double x) { return fast_sin(x);}
 #pragma omp declare simd notinbranch
  float simd_sinf(float x) { return fast_sinf(x);}
+
+/*
 #pragma omp declare simd notinbranch
  void simd_sincos_m45_45( const double z, double & s, double &c ) { return fast_sincos_m45_45(z,s,c);}
 #pragma omp declare simd notinbranch
@@ -60,13 +69,13 @@ namespace vdt {
  void simd_sincosf_m45_45( const float x, float & s, float &c ) { return fast_sincosf_m45_45(x,s,c);}
 #pragma omp declare simd notinbranch
  void simd_sincosf( const float xx, float & s, float &c ) { return fast_sincosf(xx,s,c);}
-#pragma omp declare simd notinbranch uniform(ISQRT_ITERATIONS)
+// #pragma omp declare simd notinbranch uniform(ISQRT_ITERATIONS)
  double simd_isqrt_general(double x, uint32_t ISQRT_ITERATIONS) { return fast_isqrt_general(x,ISQRT_ITERATIONS);}
 #pragma omp declare simd notinbranch
  double simd_isqrt(double x) { return fast_isqrt(x);}
 #pragma omp declare simd notinbranch
  double simd_approx_isqrt(double x) { return fast_isqrt(x);}
-#pragma omp declare simd notinbranch uniform(ISQRT_ITERATIONS)
+// #pragma omp declare simd notinbranch uniform(ISQRT_ITERATIONS)
  float simd_isqrtf_general(float x, uint32_t ISQRT_ITERATIONS) { return fast_isqrtf_general(x,ISQRT_ITERATIONS);}
 #pragma omp declare simd notinbranch
  float simd_isqrtf(float x) { return fast_isqrtf(x);}
@@ -77,6 +86,7 @@ namespace vdt {
 #pragma omp declare simd notinbranch
  float simd_tanf(float x) { return fast_tanf(x);}
 
+*/
 
-}
+// }
 
