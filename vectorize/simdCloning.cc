@@ -1,3 +1,9 @@
+#pragma omp declare simd notinbranch
+float fma(float x,float y, float z) {
+   return x+y*z;
+}
+
+/*
 #define N 100
 // #pragma omp declare simd notinbranch
 #pragma omp declare simd simdlen(4) notinbranch
@@ -30,7 +36,7 @@ int bar(float c1, float c2)
   return res;
 }
 
- 
+*/ 
 
 /*
 #pragma omp declare simd simdlen(8) notinbranch

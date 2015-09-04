@@ -12,7 +12,7 @@
 
 
 template<typename T>
-T sig(T x) {
+T sigmoid(T x) {
   return T(1)/(T(1)+unsafe_expf<T,3,true>(x));
   //  return T(1)/(T(1)+std::exp(-x));
 }
@@ -24,42 +24,29 @@ struct Neuron {
   T operator()(std::array<T,N> const & x) const {
     T res=w[N];
     for (int i=0; i<N; ++i) res+=w[i]*x[i];
-    return sig(res);
-  }
-  
-  T sum(std::array<T,N> const & x) const {
-    T res= w[N];
-    for (int i=0; i<N; ++i) res+=w[i]*x[i];
-    return res;
+    return sigmoid(res);
   }
 };
+
 template<typename T, int N, int M>
 struct Layer {
   std::array<Neuron<T,N>,M> neurons;
   using Output = std::array<T,M>;
   Output operator()(std::array<T,N> const & x) const {
     Output res;
-    //    for (int i=0; i<M; ++i) res[i] = neurons[i](x);
-    for (int i=0; i<M; ++i) res[i] = neurons[i].sum(x);
-    for (int i=0; i<M; ++i) res[i] = sig(res[i]);
-
+    for (int i=0; i<M; ++i) res[i] = neurons[i](x);
     return res;
   }
-
 };
-
-
-
 
 template<typename T, int N, int M>
 struct NeuNet {
-  Layer<T,N,M> input;
-  Layer<T,M,M> middle;
+  Layer<T,N,M> hidden1;
+  Layer<T,M,M> hidden2;
   Neuron<T,M> output;
   T operator()(std::array<T,N> const & x) {
-    return output(middle(input(x)));
+    return output(hidden2(hidden1(x)));
   }
-
 };
 
 #include <x86intrin.h>
@@ -84,25 +71,29 @@ void go() {
 
   NeuNet<float,NX,MNodes> net;
 
+  // random ...
   for (auto & w: net.output.w) w=wgen(eng);
-  for (auto & n: net.middle.neurons) for (auto & w: n.w) w=wgen(eng);
-  for (auto & n: net.input.neurons) for (auto & w: n.w) w=wgen(eng);
+  for (auto & n: net.hidden2.neurons) for (auto & w: n.w) w=wgen(eng);
+  for (auto & n: net.hidden1.neurons) for (auto & w: n.w) w=wgen(eng);
   
 
   using Data = std::array<float,NX>; 
   
 
-  float res=0;
   double count=0;
+  double pass=0;
+
+  float cut = 0.4;
 
   long long t=0;
   constexpr unsigned int bufSize=1024;
   std::vector<Data> buffer(bufSize);
   for (int kk=0; kk<Nentries; kk+=bufSize) {
+    // random instead of reading
     for ( auto & b : buffer) for (auto & e : b) e=rgen(eng);
     t -= rdtscp();
     for ( auto & b : buffer) {
-      res += net(b);
+      if (net(b)>cut) ++pass;
       ++count;
     }
     t +=rdtscp();
@@ -111,7 +102,7 @@ void go() {
     
   std::cout << "\nInput Size " << NX << " layer size " << MNodes << std::endl;
   std::cout << "total time " << double(t)*1.e-9 << std::endl;
-  std::cout << "final result " << res/count << std::endl;
+  std::cout << "final result " << pass/count << std::endl;
 }
 
 int main() {
