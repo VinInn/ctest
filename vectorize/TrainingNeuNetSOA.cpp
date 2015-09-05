@@ -110,6 +110,25 @@ inline unsigned long long rdtscp() {
 }
 
 
+template<typename Buffer>
+struct Reader {
+  explicit Reader(long long iread) : toRead(iread){}
+  
+  long long operator()(Buffer & buffer) {
+    auto bufSize = buffer[0].size();
+    for ( auto & b : buffer) for (auto & e : b) e=rgen(eng); // background
+    for (int j=0; j<bufSize; j+=4)
+      buffer[4][j] = buffer[3][j] = buffer[2][j] = buffer[0][j];  //signal...
+
+    toRead -= bufSize;
+    return toRead;
+  }
+private:
+  long long toRead;
+  std::mt19937 eng;
+  std::uniform_real_distribution<float> rgen = std::uniform_real_distribution<float>(0.,1.);
+
+};
 
 
 #include<iostream>
@@ -144,12 +163,8 @@ void go() {
   Data buffer; for ( auto & b : buffer) b.resize(bufSize);
 
   // train
-  for (int iter=0; iter<1; ++iter)
-  for (int kk=0; kk<Nentries/4; kk+=bufSize) {
-    int ll=0;
-    for ( auto & b : buffer) for (auto & e : b) e=rgen(eng); // background
-    for (int j=0; j<bufSize; j+=4)
-      buffer[4][j] = buffer[3][j] = buffer[2][j] = buffer[0][j];  //signal...
+  Reader<Data> reader1(Nentries/4);
+  while(reader1(buffer)>=0) {
     tt -= rdtscp();
     for (int j=0; j<bufSize; j+=vsize) {
       std::array<FVect, NX> b; FVect t=vzero; t[0]=1.f; if (vsize>4) t[4]=1.f;
@@ -158,12 +173,11 @@ void go() {
     }
    tt +=rdtscp();
   }
-  
-  for (int kk=0; kk<Nentries; kk+=bufSize) {
-    int ll=0;
-    for ( auto & b : buffer) for (auto & e : b) e=rgen(eng); // background
-    for (int j=0; j<bufSize; j+=4)
-      buffer[4][j] = buffer[3][j] = buffer[2][j] = buffer[0][j];  //signal... 
+
+
+  // classifiy
+  Reader<Data> reader2(Nentries);
+  while(reader2(buffer)>=0) {
     tc -= rdtscp();
     for (int j=0; j<bufSize; j+=vsize) {
       std::array<FVect, NX> b;  
@@ -172,7 +186,6 @@ void go() {
       count+=vsize;
     }
     tc +=rdtscp();
-
   }
 
   float rr = 0; for (int i=0; i<vsize; ++i) rr+=res[i];
