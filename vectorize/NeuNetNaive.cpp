@@ -15,7 +15,7 @@
 
 template<typename T>
 T sigmoid(T x) {
-  return T(1)/(T(1)+unsafe_expf<T,3,true>(-x));
+  return T(1)/(T(1)+unsafe_expf<T,5,true>(-x));
   //  return T(1)/(T(1)+std::exp(-x));
 }
 
