@@ -9,7 +9,7 @@
 #include <omp.h>
 
 
-#define SCALAR
+// #define SCALAR
 #include "../floatPrec/approx_vexp.h"
 
 
@@ -25,7 +25,7 @@ struct Neuron {
   std::array<float,N+1> w; 
   T operator()(std::array<T,N> const & x) const {
     input = x;
-    T res=vzero +w[N];
+    T res = w[N];
     for (int i=0; i<N; ++i) res+=w[i]*x[i];
     return result=sigmoid(res);
   }
@@ -152,7 +152,7 @@ void go() {
     int ll=4;
     for (auto & b : buffer) {
       float t=0.f;
-      if (4==ll) { t=1.f; ll=0;} // signal (see reader)
+      if (4==ll) { t=1.f; ll=1;} // signal (see reader)
       else ++ll;
       net.train(b,t,0.02f);
     }
