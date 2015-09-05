@@ -7,7 +7,7 @@
 // --param max-completely-peel-times=1 
 
 #include <omp.h>
-
+#include <cstdlib>
 
 #include "../floatPrec/approx_vexp.h"
 
@@ -114,9 +114,8 @@ template<typename Buffer>
 struct Reader {
   explicit Reader(long long iread) : toRead(iread){}
   
-  long long operator()(Buffer & buffer) {
-    auto bufSize = buffer[0].size();
-    for ( auto & b : buffer) for (auto & e : b) e=rgen(eng); // background
+  long long operator()(Buffer & buffer, int bufSize) {
+    for ( auto & b : buffer) for (int j=0; j<bufSize; j++) b[j]=rgen(eng); // background
     for (int j=0; j<bufSize; j+=4)
       buffer[4][j] = buffer[3][j] = buffer[2][j] = buffer[0][j];  //signal...
 
@@ -160,16 +159,17 @@ void go() {
   constexpr int vsize=VSIZE;
   constexpr unsigned int bufSize=1024;
   // "Struct of Arrays"
-  using Data = std::array<std::vector<float>,NX>;   // NX columns
-  Data buffer; for ( auto & b : buffer) b.resize(bufSize);  
+  using Data = std::array<float * ,NX>;   // NX columns
+  Data buffer; for ( auto & b : buffer) posix_memalign((void**)(&b),sizeof(FVect), sizeof(float)*bufSize); 
+//aligned_alloc(sizeof(FVect), sizeof(float)*bufSize);  // yes, leaks...
 
   // train
   Reader<Data> reader1(Nentries/4);
-  while(reader1(buffer)>=0) {
+  while(reader1(buffer,bufSize)>=0) {
     tt -= rdtscp();
     for (int j=0; j<bufSize; j+=vsize) {
       std::array<FVect, NX> b; FVect t=vzero; t[0]=1.f; if (vsize>4) t[4]=1.f;
-      for(int k=0;k<NX;++k) for (int i=0; i<vsize; ++i) b[k][i] = buffer[k][j+i];      
+      for(int k=0;k<NX;++k)  b[k] = ((FVect const&)(buffer[k][j]));      
       net.train(b,t,0.02f);
     }
    tt +=rdtscp();
@@ -178,11 +178,11 @@ void go() {
 
   // classifiy
   Reader<Data> reader2(Nentries);
-  while(reader2(buffer)>=0) {
+  while(reader2(buffer,bufSize)>=0) {
     tc -= rdtscp();
     for (int j=0; j<bufSize; j+=vsize) {
       std::array<FVect, NX> b;  
-      for(int k=0;k<NX;++k) for (int i=0; i<vsize; ++i) b[k][i] = buffer[k][j+i];
+      for(int k=0;k<NX;++k)  b[k] = ((FVect const&)(buffer[k][j]));
       res += (net(b)>0.5f) ? vuno : vzero;
       count+=vsize;
     }

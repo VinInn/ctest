@@ -141,9 +141,10 @@ void go() {
   long long tt=0, tc=0;
 
   
-  using Data = std::array<float,NX>; 
+  using Data = std::array<float,NX>; // one row
   constexpr unsigned int bufSize=1024;
-  std::vector<Data> buffer(bufSize);
+  // "array of struct"
+  std::vector<Data> buffer(bufSize);  // an "array" of rows
 
   // train
   Reader<Data> reader1(Nentries/4);
