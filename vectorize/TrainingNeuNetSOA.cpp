@@ -17,8 +17,8 @@ constexpr FVect vuno = vzero +1.f;
 template<typename T>
 T sig(T x) {
   T res =  1.f/(1.f+unsafe_expf<T,3,true>(-x));
-  //  res = (res > 8.f) ? vuno : res;  
-  //  res = (res < -8.f) ? vzero : res;
+  // res = (res > 8.f) ? vuno : res;  
+  // res = (res < -8.f) ? vzero : res;
   return res;
   //  return T(1)/(T(1)+std::exp(-x));
 }
@@ -98,14 +98,16 @@ struct NeuNet {
 
 };
 
+
+
+
+
+
 #include <x86intrin.h>
 unsigned int taux=0;
 inline unsigned long long rdtscp() {
  return __rdtscp(&taux);
 }
-
-
-
 
 
 
@@ -150,7 +152,7 @@ void go() {
       buffer[4][j] = buffer[3][j] = buffer[2][j] = buffer[0][j];  //signal...
     tt -= rdtscp();
     for (int j=0; j<bufSize; j+=vsize) {
-      std::array<FVect, NX> b; FVect t=vzero; t[0]=1.f; t[4]=1.f;
+      std::array<FVect, NX> b; FVect t=vzero; t[0]=1.f; if (vsize>4) t[4]=1.f;
       for(int k=0;k<NX;++k) for (int i=0; i<vsize; ++i) b[k][i] = buffer[k][j+i];      
       net.train(b,t,0.02f);
     }

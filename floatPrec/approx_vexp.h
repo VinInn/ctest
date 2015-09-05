@@ -46,6 +46,7 @@ Not sure it makes that much sense in the vector context.
 #define APPROX_MATH_N
 namespace approx_math {
 
+  typedef float __attribute__( ( vector_size(  4 ) ) ) float32x1_t;
   typedef float __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
   typedef float __attribute__( ( vector_size( 32 ) ) ) float32x8_t;
   typedef float __attribute__( ( vector_size( 64 ) ) ) float32x16_t;
@@ -88,7 +89,7 @@ namespace approx_math {
     static itype impl(VF f) { itype i; for (int j=0;j<N;++j) i[j]=f[j]; return i;}
   };
 
-    // to be specialized for 2,4,8,16 float and double
+  // to be specialized for 2,4,8,16 float and double
   template<>
   struct ConvertVector<float32x4_t> {
     using VF = float32x4_t;
@@ -100,6 +101,7 @@ namespace approx_math {
     static itype impl(VF f) { return itype(_mm_cvttps_epi32(__m128(f)));}
   };
 
+  
 #ifdef __AVX__
   template<>
   struct ConvertVector<float32x8_t> {
@@ -108,11 +110,11 @@ namespace approx_math {
     using F =  decltype(VType<VF>::elem(VF()));
     static constexpr int N = NV/sizeof(F);
     typedef typename IntType<F>::type __attribute__( ( vector_size(NV) ) ) itype;
-    static VF impl(itype i) { return VF(_mm256_castsi256_ps(__m256i(i)));}
-    static itype impl(VF f) { return itype(_mm256_castps_si256(__m256(f)));}
+    static VF impl(itype i) { return VF(_mm256_cvtepi32_ps(__m256i(i)));}
+    static itype impl(VF f) { return itype(_mm256_cvtps_epi32(__m256(f)));}
   };
 #endif
-
+  
 
 
   
@@ -168,6 +170,13 @@ namespace approx_math {
   }
 }
 
+
+#ifdef SCALAR
+constexpr int VSIZE = 1;
+// using FVect = approx_math::float32x1_t;
+using FVect = float;
+constexpr FVect vzero={0};
+#else
 #ifdef __AVX__
 constexpr int VSIZE = 8;
 using FVect = approx_math::float32x8_t;
@@ -178,8 +187,10 @@ using FVect = approx_math::float32x4_t;
 constexpr approx_math::float32x4_t vzero{0,0,0,0};
 #endif
 
+#endif  // scalar
 
-#endif
+
+#endif  // approx math
 
 
 template<typename Float, int DEGREE>
