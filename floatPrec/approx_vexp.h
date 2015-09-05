@@ -100,7 +100,22 @@ namespace approx_math {
     static itype impl(VF f) { return itype(_mm_cvttps_epi32(__m128(f)));}
   };
 
+#ifdef __AVX__
+  template<>
+  struct ConvertVector<float32x8_t> {
+    using VF = float32x8_t;
+    static constexpr int NV = sizeof(VF);
+    using F =  decltype(VType<VF>::elem(VF()));
+    static constexpr int N = NV/sizeof(F);
+    typedef typename IntType<F>::type __attribute__( ( vector_size(NV) ) ) itype;
+    static VF impl(itype i) { return VF(_mm256_castsi256_ps(__m256i(i)));}
+    static itype impl(VF f) { return itype(_mm256_castps_si256(__m256(f)));}
+  };
+#endif
 
+
+
+  
   template<typename VF>
   struct toIF {
     // VF is a float type vect
@@ -151,11 +166,19 @@ namespace approx_math {
   V1 abs(V1 a) {
     return (a>0) ? a : -a;
   }
-
-
-
-
 }
+
+#ifdef __AVX__
+constexpr int VSIZE = 8;
+using FVect = approx_math::float32x8_t;
+constexpr approx_math::float32x8_t vzero{0,0,0,0,0,0,0,0};
+#else
+constexpr int VSIZE = 4;
+using FVect = approx_math::float32x4_t;
+constexpr approx_math::float32x4_t vzero{0,0,0,0};
+#endif
+
+
 #endif
 
 
