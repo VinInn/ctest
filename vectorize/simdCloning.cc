@@ -1,12 +1,20 @@
+int whoamI;
+
+#pragma omp declare simd notinbranch
+float fma(float x,float y, float z);
+
+
 #pragma omp declare simd notinbranch
 float __attribute__ ((__target__ ("default")))
 fma(float x,float y, float z) {
+     whoamI=1;
    return x+y*z;
 }
 
 #pragma omp declare simd notinbranch
 float __attribute__ ((__target__ ("arch=haswell")))
 fma(float x,float y, float z) {
+   whoamI=2;
    return x+y*z;
 }
 #pragma omp declare simd notinbranch
