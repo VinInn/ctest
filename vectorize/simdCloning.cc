@@ -1,7 +1,20 @@
 #pragma omp declare simd notinbranch
-float fma(float x,float y, float z) {
+float __attribute__ ((__target__ ("default")))
+fma(float x,float y, float z) {
    return x+y*z;
 }
+
+#pragma omp declare simd notinbranch
+float __attribute__ ((__target__ ("arch=haswell")))
+fma(float x,float y, float z) {
+   return x+y*z;
+}
+#pragma omp declare simd notinbranch
+float __attribute__ ((__target__ ("arch=bdver1")))
+fma(float x,float y, float z) {
+   return x+y*z;
+}
+
 
 /*
 #define N 100
