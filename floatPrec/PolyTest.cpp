@@ -57,8 +57,12 @@ int main() {
   init(a,size,1.3458f);
   init(b,size,2.467f);
 
-   for (int j=0; j<3000; ++j) {
+   float cc=0;
+   for (int j=0; j<10000; ++j) {
      a[j] = 3.14f;
      comp(c,a,size);
+     cc+=c[j];
    }
+ 
+  return int(cc);
 }

@@ -1,2 +1,2 @@
-perf stat -e cycles -e cache-references -e cache-misses -e instructions -e stalled-cycles-frontend -e stalled-cycles-backend -e L1-dcache-loads -e L1-dcache-load-misses  ./a.out
+perf stat -e cycles -e cache-references -e cache-misses -e instructions -e stalled-cycles-frontend -e stalled-cycles-backend -e L1-dcache-loads -e L1-dcache-load-misses  -e branch-instructions -e branch-misses ./a.out
 

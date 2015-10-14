@@ -71,9 +71,9 @@ int main() {
   init(a,size,1.3458f);
   init(b,size,2.467f);
 
-// mmult2(a,b,c,N);
+   mmult2(a,b,c,N);
 
-// mdiv2(a,b,c,N);
+   // mdiv2(a,b,c,N);
 
 }
 
