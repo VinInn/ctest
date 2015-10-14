@@ -5,7 +5,7 @@ inline float approx_expf_P(float p);
 // degree =  6   => absolute accuracy is  27 bits
 template<>
 inline float approx_expf_P<6>(float y) {
-constexpr p[] = {float(0x2.p0),float(0x2.p0),float(0x1.p0),float(0x5.55523p-4),float(0x1.5554dcp-4),float(0x4.48f41p-8),float(0xb.6ad4p-12)}
+constexpr float p[] = {float(0x2.p0),float(0x2.p0),float(0x1.p0),float(0x5.55523p-4),float(0x1.5554dcp-4),float(0x4.48f41p-8),float(0xb.6ad4p-12)}
 #ifndef ESTRIN  // HORNER 
   float p =  p[0] + 
         y * (p[1] + 
