@@ -34,6 +34,17 @@ for ( int i = 0; i < N; ++i ) {
 
 }
 
+void mdiv2(float const * a, float const * b, float * c, int N) {
+for ( int i = 0; i < N; ++i ) {
+                for ( int k = 0; k < N; ++k ) {
+        for ( int j = 0; j < N; ++j ) {
+                        c[ i * N + j ]  +=   a[ i * N + k ]  /  b[ k * N + j ];
+                }
+        }
+}
+
+}
+
 
 
 void init(float * x, int N, float y) {
@@ -60,7 +71,9 @@ int main() {
   init(a,size,1.3458f);
   init(b,size,2.467f);
 
- mmult2(a,b,c,N);
+// mmult2(a,b,c,N);
+
+// mdiv2(a,b,c,N);
 
 }
 
