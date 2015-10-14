@@ -50,6 +50,8 @@ int main() {
   init(a,size,1.3458f);
   init(b,size,2.467f);
 
-  comp(c,a,size);
-
+   for (int j=0; j<10000; ++j) {
+     a[j] = 3.14f;
+     comp(c,a,size);
+   }
 }
