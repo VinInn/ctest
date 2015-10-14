@@ -7,7 +7,7 @@ template<>
 inline float approx_expf_P<6>(float y) {
 constexpr float p[] = {float(0x2.p0),float(0x2.p0),float(0x1.p0),float(0x5.55523p-4),float(0x1.5554dcp-4),float(0x4.48f41p-8),float(0xb.6ad4p-12)}
 #ifndef ESTRIN  // HORNER 
-  float p =  p[0] + 
+  float r =  p[0] + 
         y * (p[1] + 
              y * (p[2] + 
                   y * (p[3] + 
@@ -21,9 +21,9 @@ constexpr float p[] = {float(0x2.p0),float(0x2.p0),float(0x1.p0),float(0x5.55523
   float p12 = p[1] + y; // By chance we save one operation here! Funny.
   float p36 = p34 + y2*p56;
   float p16 = p12 + y2*p36;
-  float p =  p[0] + y*p16;
+  float r =  p[0] + y*p16;
 #endif
-  return p;
+  return r;
 }
 
 
