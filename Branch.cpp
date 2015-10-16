@@ -18,10 +18,16 @@ inline float branchless(float x, float y, float z) {
      );
 }
 
+inline float branchless2(float x, float y, float z) {
+   auto r1 = (x>y) & (z<y) ? z : 0;
+   auto r2 = (y>0) | (z>2.f) ? y : r1;
+   return   (x<0) & (y<0) & (z<0) ?  x : r2;
+}
+
 
 void init(float * x, int N, float y) {
-   for ( int i = 0; i < N; ++i ) x[i]=y+i-float(N/2);
-   std::random_shuffle(x,x+N);
+   for ( int i = 0; i < N; ++i ) x[i]=y+i-float(N/2); // try to remove -float(N/2) 
+   std::random_shuffle(x,x+N);                       // and or this
 }
 
 
@@ -31,6 +37,7 @@ float * alloc(int N) {
 }
 
 
+#include<iostream>
 int main() {
 
    int N = 1000;
@@ -47,9 +54,10 @@ int main() {
 
   double r=0;
   for (int i=0; i<1000; ++i) {
-    for(int j=0;j<size; ++j) r+=branchless(a[j],b[j],c[j]);
+    for(int j=0;j<size; ++j) r+=branchless2(a[j],b[j],c[j]);
   }
 
+  std::cout<<r<<std::endl;
   return r;
 
 }
