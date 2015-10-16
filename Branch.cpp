@@ -1,3 +1,4 @@
+// c++-52 -std=c++14 -Ofast -Wall Branch.cpp -Wvector-operation-performance -fopt-info-vec
 #include<algorithm>
 
 
