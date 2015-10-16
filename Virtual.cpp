@@ -5,11 +5,13 @@ struct Base {
   virtual double comp() const=0;
 };
 
-#ifndef FINAL
-#define final
+#ifndef MAKEF
+#define FINAL final
+#else
+#define FINAL
 #endif
 
-struct A final : public Base {
+struct A FINAL : public Base {
   A(){}
   explicit A(double ix) : x(ix){}
   ~A(){}
@@ -27,7 +29,7 @@ int main() {
   int size=1000*10;
 
   std::vector<A> va(size,A(3.14));
-  std::vector<A const *> pa; pa.reserve(size);
+  std::vector<B const *> pa; pa.reserve(size);
   for (auto const & a : va) pa.push_back(&a);
 
   double c=0;
