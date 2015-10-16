@@ -11,16 +11,16 @@ inline float branch(float x, float y, float z) {
 
 
 inline float branchless(float x, float y, float z) {
-   float ret=0;
-   if ( (x<0) & (y<0) & (z<0))  ret=x;
-   else if((y>0) | (z>2.f)) ret+=y;
-   else if((x>y) & (z<y)) ret-=z;
-   return ret;
+   return
+      (x<0) & (y<0) & (z<0) ?  x : 
+     (  (y>0) | (z>2.f) ? y :
+        ( (x>y) & (z<y) ? z : 0 )
+     );
 }
 
 
 void init(float * x, int N, float y) {
-   for ( int i = 0; i < N; ++i ) x[i]=y+i;
+   for ( int i = 0; i < N; ++i ) x[i]=y+i-float(N/2);
    std::random_shuffle(x,x+N);
 }
 
