@@ -26,13 +26,13 @@ int main() {
 
   int size=1000*10;
 
-  std::vector<std::unique_ptr<A>> va(size);
-
-  for (auto & a : va) a = std::make_unique<A>(3.14);
+  std::vector<A> va(size,A(3.14));
+  std::vector<A const *> pa; pa.reserve(size);
+  for (auto const & a : va) pa.push_back(&a);
 
   double c=0;
   for (int i=0; i<10000; ++i) {
-    for (auto const & a : va) c += a->comp();
+    for (auto const & p : pa) c += p->comp();
   }
 
  return int(c);
