@@ -15,7 +15,7 @@ struct A FINAL : public Base {
   A(){}
   explicit A(double ix) : x(ix){}
   ~A(){}
-   double comp() const override { return std::sqrt(x);}
+   double comp() const override { return x;}
    
   double x;
 };
@@ -24,7 +24,7 @@ struct B FINAL : public Base {
   B(){}
   explicit B(double ix) : x(ix){}
   ~B(){}
-   double comp() const override { return std::sqrt(x);}
+   double comp() const override { return x;}
 
   double x;
 };
