@@ -1,15 +1,27 @@
+#include<algorithm>
 
 
 inline float branch(float x, float y, float z) {
    float ret=0;
    if (x<0 && y<0 && z<0)  ret=x;
-   else if(y>0 || z>2.) ret+=y;
+   else if(y>0 || z>2.f) ret+=y;
    else if(x>y && z<y) ret-=z;
    return ret;
 }
 
+
+inline float branchless(float x, float y, float z) {
+   float ret=0;
+   if ( (x<0) & (y<0) & (z<0))  ret=x;
+   else if((y>0) | (z>2.f)) ret+=y;
+   else if((x>y) & (z<y)) ret-=z;
+   return ret;
+}
+
+
 void init(float * x, int N, float y) {
-   for ( int i = 0; i < N; ++i ) x[i]=y;
+   for ( int i = 0; i < N; ++i ) x[i]=y+i;
+   std::random_shuffle(x,x+N);
 }
 
 
@@ -35,7 +47,7 @@ int main() {
 
   double r=0;
   for (int i=0; i<1000; ++i) {
-    for(int j=0;j<size; ++j) r+=branch(a[j],b[j],c[j]);
+    for(int j=0;j<size; ++j) r+=branchless(a[j],b[j],c[j]);
   }
 
   return r;
