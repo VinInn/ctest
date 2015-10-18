@@ -1,4 +1,4 @@
-// c++-52 -std=c++14 -Ofast -Wall Branch.cpp -Wvector-operation-performance -fopt-info-vec
+// c++-52 -std=c++14 -O3 -Wall Branch.cpp  -fopt-info-vec
 #include<algorithm>
 
 
@@ -47,19 +47,21 @@ int main() {
    float * a = alloc(size);
    float * b = alloc(size);
    float * c = alloc(size);
+   float * r = alloc(size);
 
   init(c,size,0.f);
   init(a,size,1.3458f);
   init(b,size,2.467f);
 
 
-  double r=0;
+  double s=0;
   for (int i=0; i<1000; ++i) {
-    for(int j=0;j<size; ++j) r+=branchless2(a[j],b[j],c[j]);
+    for(int j=0;j<size; ++j) r[j]=branchless2(a[j],b[j],c[j]);
+    s+=r[i];
   }
 
-  std::cout<<r<<std::endl;
-  return r;
+  std::cout<<s<<std::endl;
+  return s;
 
 }
 
