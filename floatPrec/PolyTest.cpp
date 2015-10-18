@@ -1,10 +1,15 @@
+//
+// compile with
+//  c++-52 -std=c++14 -O2 -Wall matmul.cpp -fopt-info-vec
+//  change -O2 in -O3 then in -Ofast
+//  add -funroll-loops
+//  add -DESTRIN to switch to ESTRIN evaluation 
+//
 
-template<int DEGREE>
-inline float approx_expf_P(float p);
 
-// degree =  6   => absolute accuracy is  27 bits
-template<>
-inline float approx_expf_P<6>(float y) {
+
+// degree 6 polynomial (from "exp" expansion) 
+inline float poly6(float y) {
 constexpr float p[] = {float(0x2.p0),float(0x2.p0),float(0x1.p0),float(0x5.55523p-4),float(0x1.5554dcp-4),float(0x4.48f41p-8),float(0xb.6ad4p-12)};
 #ifndef ESTRIN  // HORNER 
   float r =  p[0] + 
@@ -27,11 +32,11 @@ constexpr float p[] = {float(0x2.p0),float(0x2.p0),float(0x1.p0),float(0x5.55523
 }
 
 
-  void comp(float * b, float const * a, int N) {
-    for (int i=0; i<N; ++i) {
-      b[i] = approx_expf_P<6>(a[i]);
-    }
+void comp(float * b, float const * a, int N) {
+  for (int i=0; i<N; ++i) {
+    b[i] = poly6(a[i]);
   }
+}
 
 void init(float * x, int N, float y) {
    for ( int i = 0; i < N; ++i ) x[i]=y;
@@ -50,19 +55,16 @@ int main() {
 
    int size = N*N;
    float * a = alloc(size);
-   float * b = alloc(size);
-   float * c = alloc(size);
+   float * r = alloc(size);
 
-  init(c,size,0.f);
-  init(a,size,1.3458f);
-  init(b,size,2.467f);
+   init(a,size,1.3458f);
 
-   float cc=0;
+   float s=0;
    for (int j=0; j<10000; ++j) {
      a[j] = 3.14f;
-     comp(c,a,size);
-     cc+=c[j];
+     comp(r,a,size);
+     s+=r[j];
    }
  
-  return int(cc);
+  return int(s);
 }

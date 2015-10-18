@@ -1,17 +1,26 @@
+//
+// compile with
+//  c++-52 -std=c++14 -O2 -Wall matmul.cpp -fopt-info-vec
+//
+//  comment out the random_shuffle
+//  try to change the "pattern" in the vector of pointers
+//
+//  change -O2 in -Ofast
+//  add -funroll-loops  ??
+
+
 #include <cmath>
 
+
+// base class
 struct Base {
   virtual ~Base(){}
   virtual double comp() const=0;
 };
 
-#ifndef MAKEF
-#define FINAL final
-#else
-#define FINAL
-#endif
 
-struct A FINAL : public Base {
+// derived classes
+struct A : public Base {
   A(){}
   explicit A(double ix) : x(ix){}
   ~A(){}
@@ -20,13 +29,21 @@ struct A FINAL : public Base {
   double x;
 };
 
-struct B FINAL : public Base {
+struct B final : public Base {
   B(){}
   explicit B(double ix) : x(ix){}
   ~B(){}
    double comp() const override { return x;}
 
   double x;
+};
+
+struct C final : public A {
+  C (){}
+  explicit C(double ix) : A(ix){}
+  ~C(){}
+  double comp() const override { return x;}
+
 };
 
 
