@@ -1,3 +1,6 @@
-../pmu-tools/ocperf.py stat -e arith.cycles_div_busy  -e uops_issued.stall_cycles -e uops_retired.stall_cycles -e uops_decoded.stall_cycles -e resource_stalls.any \
+../pmu-tools/ocperf.py stat -e arith.cycles_div_busy  -e uops_issued.stall_cycles -e uops_retired.stall_cycles -e uops_decoded.stall_cycles \
+ -e uops_executed.port015_stall_cycles -e uops_retired.retire_slots -e uops_retired.any -e uops_issued.any -e uops_executed.port015 \
+ -e resource_stalls.any \
  -e task-clock -e cycles -e cache-references -e cache-misses -e instructions -e idle-cycles-frontend -e stalled-cycles-backend -e L1-dcache-loads -e L1-dcache-load-misses  -e branch-instructions -e branch-misses -e LLC-loads -e LLC-loads-misses -e LLC-stores -e LLC-stores-misses -e ssex_uops_retired.packed_single -e ssex_uops_retired.scalar_single \
  ./a.out
+
