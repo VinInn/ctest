@@ -235,7 +235,7 @@ struct A2 : public B {
 };
 
 #include<typeinfo>
-
+#include<vector>
 int main() {
 
   using namespace any_details;
@@ -265,6 +265,10 @@ int main() {
   auto z2 = BuildAnyOf<Z,A2>::build(2.2);
   std::cout<< sizeof(z1) << " " << typeid(z1.get<A1>()).name() <<  std::endl;
   std::cout<< sizeof(z2) << " " << typeid(z2.get<A2>()).name()  << std::endl;
+
+  std::vector<Z> zs;
+  zs.emplace_back(BuildAnyOf<Z,A1>::build(1));
+  zs.emplace_back(BuildAnyOf<Z,A2>::build(2.2));
 
   return 0;
 }

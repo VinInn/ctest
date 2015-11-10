@@ -1,6 +1,6 @@
 //
 // compile with
-//  c++-52 -std=c++14 -O2 -Wall matmul.cpp -fopt-info-vec
+//  c++-52 -std=c++14 -O2 -Wall Virtual.cpp -fopt-info-vec
 //
 //  comment out the random_shuffle
 //  try to change the "pattern" in the vector of pointers
