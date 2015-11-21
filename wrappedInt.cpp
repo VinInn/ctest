@@ -1,6 +1,69 @@
-#include<iostream>
 #include<limits>
+#include<cmath>
 #include<iomanip>
+#include<iostream>
+
+
+template<typename T, int Numerator, int Denominator>
+class WrappedInt {
+public:
+  using value_type=T;
+  usign self=WrappedInt<T, Numerator,Denominator>;
+  
+  static constepxr double dmax = double(Numerator)/double(Denominator);
+  static constepxr float abin = std::numeric_limits<value_type>::max()/dmax;
+  static constepxr float scale = dmax/std::numeric_limits<value_type>::max();
+  static constexpr value_type f2i(float x) { return std::round(x*abin);}
+  static constexpr float i2f(T x) { return x*scale;}
+
+  WrappedInt(float x) : m_value(ftoi(x)){}
+
+  float tof() const { return i2f(m_value);}
+
+  value_type value() const { return m_value;}
+
+  self & operator-=(WrappedInt<T,N,D> x) {
+    m_value-=x;
+    return self;
+  }
+
+  self & operator+=(WrappedInt<T,N,D> x) {
+    m_value+=x;
+    return self;
+  }
+
+
+  
+private:
+  value_type m_value;
+};
+
+template<typename T, int N, int D>
+WrappedInt<T,N,D> 
+operator-(WrappedInt<T,N,D> a, WrappedInt<T,N,D> b) {
+  return a-=b;
+}
+	  
+template<typename T, int N, int D>
+WrappedInt<T,N,D> 
+operator+(WrappedInt<T,N,D> a, WrappedInt<T,N,D> b) {
+  return a+=b;
+}
+
+template<typename T, int N, int D>
+bool
+operator<(WrappedInt<T,N,D> a, WrappedInt<T,N,D> b) {
+  return a.value()<b.value();
+}
+
+template<typename T, int N, int D>
+bool
+operator==(WrappedInt<T,N,D> a, WrappedInt<T,N,D> b) {
+  return a.value()==b.value();
+}
+
+
+
 
 int main() {
 
