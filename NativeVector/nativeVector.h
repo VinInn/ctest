@@ -22,6 +22,14 @@ namespace nativeVector {
   typedef int __attribute__( ( vector_size( 32 ) ) ) int32x8_t;
   typedef int __attribute__( ( vector_size( 64 ) ) ) int32x16_t;
 
+  typedef short __attribute__( ( vector_size(  2 ) ) ) int16x1_t;
+  typedef short __attribute__( ( vector_size(  4 ) ) ) int16x2_t;
+  typedef short __attribute__( ( vector_size(  8 ) ) ) int16x4_t;
+  typedef short __attribute__( ( vector_size( 16 ) ) ) int16x8_t;
+  typedef short __attribute__( ( vector_size( 32 ) ) ) int16x16_t;
+  typedef short __attribute__( ( vector_size( 64 ) ) ) int16x32_t;
+
+
 
   template<typename T>
   struct IntType { using type = T; };
@@ -47,6 +55,14 @@ namespace nativeVector {
   template<>
   struct VType<double> {
     static constexpr auto elem(double x) -> double { return x;}	      
+  };
+  template<>
+  struct VType<int> {
+    static constexpr auto elem(int x) -> int { return x;}	      
+  };
+  template<>
+  struct VType<short> {
+    static constexpr auto elem(short x) -> short { return x;}	      
   };
 
   
@@ -162,10 +178,12 @@ bool testz(int32x4_t const t) {
 #ifdef __AVX__
   constexpr unsigned int VSIZE = 8;
   using FVect = float32x8_t;
+  using SVect = int16x16_t;
   constexpr FVect vzero{0,0,0,0,0,0,0,0};
 #else
   constexpr unsigned int VSIZE = 4;
   using FVect = float32x4_t;
+  using SVect = int16x8_t;
   constexpr FVect vzero{0,0,0,0};
 #endif
 #endif  // scalar
@@ -185,6 +203,12 @@ std::ostream& operator<<(std::ostream& co, nativeVector::FVect const& v) {
 }
 inline
 std::ostream& operator<<(std::ostream& co, nativeVector::IVect const& v) {
+  co << '('<< v[0];
+  for (unsigned int i=1;  i<nativeVector::VSIZE; ++i) co <<','<<v[i];
+  return co <<')';
+}
+inline
+std::ostream& operator<<(std::ostream& co, nativeVector::SVect const& v) {
   co << '('<< v[0];
   for (unsigned int i=1;  i<nativeVector::VSIZE; ++i) co <<','<<v[i];
   return co <<')';
