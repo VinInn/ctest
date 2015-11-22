@@ -4,17 +4,14 @@
 #include<tuple>
 #include<array>
 
-template<typename T>
-struct Less {
-  auto operator()(T x, T y)->decltype(x<y) { return x<y;}
-};
 
-template<typename T>
+
 class DecisionNode {
 public:
   using index_type = unsigned short; 
-  using S =  decltype(nativeVector::VType<T>::elem(T()));
-  using B = typename std::result_of<Less<T>(T,T)>::type;
+  using S = short;
+  using B = nativeVector::SVect;
+  using T = nativeVector::SVect;
   using return_type = std::array<B,2>;
 
 
@@ -39,22 +36,23 @@ public:
 
 
 
-template<typename T, int N>
-class DecisionTree {
+template<int N>
+class DecisionTreeImpl {
 public:
   
-  using Node = DecisionNode<T>;
-  using index_type = typename Node::index_type;
-  using B = typename Node::B;
-  using S = typename Node::S;
-  using SubTree=DecisionTree<T,N-1>;
+  using Node = DecisionNode;
+  using index_type = Node::index_type;
+  using B = Node::B;
+  using S = Node::S;
+  using T = Node::T;
+  using SubTree=DecisionTreeImpl<N-1>;
   
   static constexpr unsigned int ret_size=2*SubTree::ret_size;
   using return_type = std::array<B,ret_size>;
   static constexpr unsigned int size=1+2*SubTree::size;
 
 
-  DecisionTree(S const * ic, index_type const * ii) :
+  DecisionTreeImpl(S const * ic, index_type const * ii) :
     node(ic[0],ii[0]),
     left(ic+1,ii+1),
     right(ic+1+SubTree::size,ii+1+SubTree::size)
@@ -80,12 +78,13 @@ public:
 };
 
 
-template<typename T>
-class DecisionTree<T,1> {
+template<>
+class DecisionTreeImpl<1> {
 public:
-  using Node = DecisionNode<T>;
-  using B = typename Node::B;
-  using S = typename Node::S;
+  using Node = DecisionNode;
+  using B = Node::B;
+  using S = Node::S;
+  using T = Node::T;
   using index_type = typename Node::index_type;
 
   static constexpr unsigned int ret_size=2;
@@ -93,7 +92,7 @@ public:
   static constexpr unsigned int size=1;
 
 
-  DecisionTree(S const * ic, index_type const * ii) : node(ic[0],ii[0]){}
+  DecisionTreeImpl(S const * ic, index_type const * ii) : node(ic[0],ii[0]){}
   
   void operator()(T const * x, B prev, B * ret) const {
     node(x,prev,ret);
@@ -103,29 +102,46 @@ public:
   }
   
 private:
-  DecisionNode<T> node;
+  DecisionNode node;
 
 };
 
 
-template<typename T>
-class DecisionTree<T,0> {
+template<int N>
+class DecisionTree {
 public:
-  using Node = DecisionNode<T>;
-  using B = typename Node::B;
-  using S = typename Node::S;
-  using index_type = typename Node::index_type;
-
-  static constexpr unsigned int ret_size=1;
-  static constexpr unsigned int size=0;
-
-
-  DecisionTree(S const *, index_type const *) {}
   
-  void operator()(T const *, B, B *) const {}
+  using DT = DecisionTreeImpl<N>;
+  using Node = DecisionNode;
+  using index_type = Node::index_type;
+  using B = Node::B;
+  using S = Node::S;
+  using T = Node::T;
+
+  static constexpr unsigned int ret_size= DT::ret_size;
+  static constexpr unsigned int size= DT::size;
+
+
+  
+  DecisionTree(S const * ic, index_type const * ii, S const * iw) :
+    dt(ic,ii){std::copy(iw, iw+DT::ret_size, w);}
+
+  T operator()(T const * x) const {
+    T res={0};
+    auto v = dt(x);
+    int i=0; for ( auto & b : v ) b&=w[i++];
+    for ( auto b : v) res|=b;
+    return res;
+  }
+  
+private:
+  
+
+  DT dt;
+
+  S w[DT::ret_size];
   
 };
-  
 
 
 #include<iostream>
@@ -134,24 +150,18 @@ int main() {
 
   using namespace nativeVector;
 
-  auto ts = DecisionTree<int, 4>::size;
-  auto rs = DecisionTree<int, 4>::ret_size;
-  using index_type = DecisionTree<int, 4>::index_type;
+  auto ts = DecisionTree<4>::size;
+  auto rs = DecisionTree<4>::ret_size;
+  using index_type = DecisionTree<4>::index_type;
 
   index_type ind[ts]={0};
-  int cuts[ts];
-  
-  DecisionTree<int, 4> tree(cuts,ind);
 
-  int val[1]={4};
-  auto c = tree(val);
-
-  for ( auto b : c) std::cout << b;
-  std::cout << std::endl;
   
   short scuts[ts];
-  DecisionTree<SVect, 4> treev(scuts,ind);
+  DecisionTreeImpl<4> treev(scuts,ind);
   short w[rs]; w[0]=1; for (auto i=rs-rs+1; i<rs; ++i) w[i]=w[i-1]+1;
+  DecisionTree<4> dtree(scuts,ind,w);
+
   
   std::cout << "dt size " << sizeof(treev) << std::endl;
 
@@ -167,6 +177,8 @@ int main() {
   for ( auto b : v) res|=b;
   std::cout << res << std::endl;
   
+  std::cout << dtree(sv) << std::endl;
 
+  
   return 0;
 }
