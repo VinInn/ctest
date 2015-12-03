@@ -161,25 +161,36 @@ end;
 I=[-0.99;0.99];
 
 
-f= asin(x)/x;
+f= asin(x);
 I=[-0.7;0.7];
 filename="asin.txt";
 print("") > filename;
+L = [||];
 for deg from 3 to 11 by 2 do begin
-  p = fpminimax(f, deg,[|1,23...|],I, floating, absolute); 
+  L = L:.deg;
+  print(L);
+  p = fpminimax(f, L,[|23...|],I, floating, absolute,0+x); 
   display=decimal;
   acc=floor(-log2(sup(supnorm(p, f, I, absolute, 2^(-20)))));
   print( "   // degree = ", deg, 
          "  => absolute accuracy is ",  acc, "bits" ) >> filename;
-  print("template<> inline float approx_atan2f_P<", deg, ">(float x){") >> filename;
+  print("template<> inline float approx_asin_P<", deg, ">(float x){") >> filename;
   display=decimal;
   print(" return ", horner(p) , ";") >> filename;
   print("}") >> filename;
 end;
 
 
+p =  fpminimax(asin(sqrt(x))/sqrt(x),3,[|23...|],[0.0,0.5],floating, absolute,1+x);  
 
-p =  fpminimax(asin(x),[|3,5,7|],[|23...|],[-0.7,0.7],floating, absolute,0+x);
+p =  fpminimax(asin(x)/x-1,[|2,4,6|],[|23...|],[-0.7,0.7],floating, absolute);
+
+p =  fpminimax(asin(x),[|3,5,7,9,11|],[|23...|],[-0.7,0.7],floating, absolute,0+x);
+p =  fpminimax(asin(x),[|3,5|],[|23...|],[-0.7,0.7],floating, absolute,0+x);
+acc=floor(-log2(sup(supnorm(p, asin(x),[-0.7,0.7], absolute, 2^(-20)))));
+print(acc);
+
+
 p =  fpminimax(asin(x),7,[|23...|],[-0.7,0.7],floating, absolute);
 acc=floor(-log2(sup(supnorm(p, asin(x),[-0.7,0.7], absolute, 2^(-20)))));
 
