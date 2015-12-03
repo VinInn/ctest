@@ -1,3 +1,7 @@
+#ifndef approx_asin_h
+#define approx_asin_h
+
+#include<cmath>
 template<int DEGREE>
 inline float approx_asin_P(float z);
 
@@ -25,7 +29,14 @@ template<> inline float approx_asin_P< 11 >(float z){
 
 template<int DEGREE>
 inline float unsafe_asin(float x) {
-  z=x*x;
+  auto z=x*x;
   return x*approx_asin_P<DEGREE>(z);
 }
 
+template<int DEGREE>
+inline float unsafe_acos(float x) {
+  constexpr float pihalf = M_PI/2; 
+  return  pihalf - unsafe_asin<DEGREE>(x);
+}
+
+#endif
