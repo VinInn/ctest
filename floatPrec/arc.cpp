@@ -23,13 +23,15 @@ int main() {
      std::cout << c << " "  
      << 2.*asin(0.5*double(c)*double(d))/double(c) << " "
      << 2.f*std::asin(0.5f*c*d)/c << " "
-     << 2.f*unsafe_asin<5>(0.5f*c*d)/c << " "
+     << 2.f*unsafe_asin07<5>(0.5f*c*d)/c << " "
       << arc(c,d) << std::endl;
 
    for (float c=-3.15; c<3.15; c+=0.1)
      std::cout << c << " " << std::sin(c) << ' ' << std::cos(c) << ' '
-      << unsafe_asin<5>(std::sin(c)) << ' '
-      << unsafe_acos<5>(std::cos(c)) << ' ' 
+      << unsafe_asin07<5>(std::sin(c)) << ' '
+      << unsafe_acos07<5>(std::cos(c)) << ' '
+      << unsafe_asin71<5>(std::sin(c)) << ' '
+      << unsafe_acos71<5>(std::cos(c)) << ' '
       << std::endl;
 
    return 0;

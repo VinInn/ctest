@@ -162,7 +162,7 @@ I=[-0.99;0.99];
 
 
 f= asin(x);
-I=[-0.7;0.7];
+I=[-0.71;0.71];
 filename="asin.txt";
 print("") > filename;
 L = [||];
