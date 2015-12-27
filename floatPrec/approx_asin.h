@@ -69,8 +69,10 @@ inline float unsafe_acos07(float x) {
 // for |x|> 0.71 use slower
 template<int DEGREE>
 inline float unsafe_acos71(float x) {
+  constexpr float pi = M_PI;
   auto z=1.f-x*x;
-  return std::copysign(std::sqrt(z),x)*approx_asin_P<DEGREE>(z);
+  z= std::sqrt(z)*approx_asin_P<DEGREE>(z);
+  return x>0 ? z : pi-z;
 }
  
 template<int DEGREE>
@@ -79,6 +81,14 @@ inline float unsafe_asin71(float x) {
   return  pihalf - unsafe_acos71<DEGREE>(x);
 }
 
+template<int DEGREE>
+inline float unsafe_asin(float x) {
+  return (std::abs(x)<0.71f) ? unsafe_asin07<DEGREE>(x) : unsafe_asin71<DEGREE>(x);
+}
 
+template<int DEGREE>
+inline float unsafe_acos(float x) {
+  return (std::abs(x)<0.71f) ? unsafe_acos07<DEGREE>(x) : unsafe_acos71<DEGREE>(x);
+}
 
 #endif
