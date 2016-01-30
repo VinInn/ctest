@@ -39,7 +39,12 @@ int main() {
   std::cout << approx_logf<FVect,6>(a) << std::endl;
   std::cout << approx_logf<FVect,6>(approx_expf<FVect,4,false>(x)) << std::endl;
   std::cout << approx_expf<FVect,4,false>(approx_logf<FVect,6>(a)) << std::endl;
-  
+
+  float v[30]; for(int i=0;i<30;++i) v[i]=i+0.01f*i;
+  IVect ind={0,3,4,2,15,6,6,3};
+  FVect g = gather(v,ind);
+
+  std::cout << "gather " << ind << ' ' << g << std::endl;
   
   return 0;
 };

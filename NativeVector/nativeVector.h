@@ -115,6 +115,19 @@ bool testz(int32x4_t const t) {
    return _mm256_testz_si256(__m256i(t),__m256i(mask));
   }
 
+
+  inline
+  int32x8_t gather(int const * v,  int32x8_t i) {
+    return  int32x8_t(_mm256_i32gather_epi32(v,__m256i(i),4));
+  }
+
+  inline
+  float32x8_t gather(float const * v,  int32x8_t i) {
+    return  float32x8_t(_mm256_i32gather_epi32((int const *)(v),__m256i(i),4));
+  }
+
+
+  
 #endif
   
 
