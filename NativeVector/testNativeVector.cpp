@@ -32,9 +32,16 @@ int main() {
   FVect x{-1.f,0.f,.34f,2.3};
   FVect a{1.f,123.f,31.f,1000.f};
 
-  std::cout << x << " " << a << ' ' << (x>a) << std::endl; 
-  if (testz(x>a)) std::cout << "all greater" << std::endl;
-  
+  std::cout << x << " " << a << ' ' << (x>a) << std::endl;
+  if (testz(x>a)) std::cout << "all greater equal" << std::endl;
+  a[3]=-a[3];
+  std::cout << x << " " << a << ' ' << (x>a) << std::endl;
+ if (!testz(x>a)) std::cout << "not all greater equal" << std::endl;
+  a[3]=x[3];
+  std::cout << x << " " << a << ' ' << (x>a) << std::endl;
+ if (testz(x>a)) std::cout << "all greater equal 2" << std::endl;
+
+
   std::cout << approx_expf<FVect,4,false>(x) << std::endl;
   std::cout << approx_logf<FVect,6>(a) << std::endl;
   std::cout << approx_logf<FVect,6>(approx_expf<FVect,4,false>(x)) << std::endl;
