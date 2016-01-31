@@ -121,11 +121,20 @@ bool testz(int32x4_t const t) {
     return  int32x8_t(_mm256_i32gather_epi32(v,__m256i(i),4));
   }
 
+  inline 
+  int32x8_t mask_gather(int32x8_t d,  int const * v, int32x8_t i, int32x8_t m) {
+         return  int32x8_t(_mm256_mask_i32gather_epi32(__m256i(d),v,__m256i(i),__m256i(m),4));
+  }
+
   inline
   float32x8_t gather(float const * v,  int32x8_t i) {
     return  float32x8_t(_mm256_i32gather_epi32((int const *)(v),__m256i(i),4));
   }
 
+  inline 
+  float32x8_t mask_gather(float32x8_t d,  float const * v, int32x8_t i, int32x8_t m) {
+   return float32x8_t(_mm256_mask_i32gather_epi32(__m256i(d),(int const *)(v),__m256i(i),__m256i(m),4));
+  }
 
   
 #endif
