@@ -1,6 +1,6 @@
 #include <cstring>
 
-enum class Num { zero, one, two, tree };
+enum class Num { zero, one, two, three };
 
 Num conv1(int const i) {
   Num res; memcpy(&res,&i,sizeof(i)); return res;
@@ -19,6 +19,9 @@ int main() {
   std::cout << static_cast<int>(conv2(0)) << ' ' << static_cast<int>(conv2(5)) << std::endl;
 
   switch (num) {
+    case Num::three :
+       std::cout<< "three" << std::endl;
+       break;
     case Num::zero : 
        std::cout<< "zero" << std::endl;
        break;
