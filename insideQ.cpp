@@ -2,6 +2,9 @@
 #include<cmath>
 
 bool inside(float px, float py, float const * x, float const * y) {
+
+   // bilinear interpolation of non-regular mesh: outside if does not map [0,1]
+
    auto C = (y[0] - py) * (x[3] - px) - (x[0] - px) * (y[3] - py);
    auto B = (y[0] - py) * (x[2] - px) + (y[1] - y[0]) * (x[3] - px) - 
             (x[0] - px) * (y[2] - y[3]) -(x[1] - x[0]) * (y[3] - py);
