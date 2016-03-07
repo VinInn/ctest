@@ -10,16 +10,25 @@ bool inside(float px, float py, float const * x, float const * y) {
    auto D = B * B - 4 * A * C;
    if (D<0) return false;
 
-   auto u = (-B - std::sqrt(D)) / (2.f * A);
-   if (u<0 | u>1) return false;
+   // auto u = (-B - std::sqrt(D)) / (2.f * A);
+   // if ( (u<0) | (u>1) ) return false;
+
+  
+  auto u = (-B - std::sqrt(D));
+  auto d = 2.f*A;
+
+  if (std::abs(u)>std::abs(d)) return false;
+  u /=d;
+  if (u<0) return false;
+  
 
    auto p1x = x[0] + (x[1] - x[0]) * u;
    auto p2x = x[3] + (x[2] - x[3]) * u;
 			
-   //auto v = (px - p1x) / (p2x - p1x);
-   // return v>=0 & v<=1;
+  //  auto v = (px - p1x) / (p2x - p1x);
+   // return (v>=0) & (v<=1);
 
-   return ( (px - p1x) <= (p2x - p1x) || (px - p1x)*(p2x - p1x) >=0 );
+  return ( std::abs(px - p1x) <= std::abs(p2x - p1x) && (px - p1x)*(p2x - p1x) >=0 );
 }
 
 
@@ -40,6 +49,6 @@ int main() {
    };
 
    go(0,0,false); go(.55,.65,true), go(.51,.58,false);go(0.78,0.9,false);go(0.78,0.7,true);  
-
+   go(1,1,false);
 
 }
