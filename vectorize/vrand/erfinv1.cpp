@@ -1,3 +1,4 @@
+#include <x86intrin.h>
 #include "vrandom.h"
 #include "gaussian_ziggurat.h"
 #include <cstdint>
