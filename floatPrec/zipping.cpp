@@ -1,3 +1,22 @@
+/*
+vinmacscreen:floatPrec innocent$ c++ -O3 zipping.cpp 
+vinmacscreen:floatPrec innocent$ rm *.bz2
+vinmacscreen:floatPrec innocent$ ./a.out 
+-2.29036553073156 -2.29036545753479 -2.29036553073156 -2.29036553064361 -2.29036545753479
+-0x1.252ab29d3059p+1 -0x1.252ab2p+1 -0x1.252ab29d3059p+1 -0x1.252ab29dp+1 -0x1.252ab2p+1
+vinmacscreen:floatPrec innocent$ ls -l *.dat
+-rw-r--r--+ 1 innocent  staff  320000 Oct  3 14:52 d24.dat
+-rw-r--r--+ 1 innocent  staff  320000 Oct  3 14:52 d32.dat
+-rw-r--r--+ 1 innocent  staff  160000 Oct  3 14:52 floats.dat
+-rw-r--r--+ 1 innocent  staff  320000 Oct  3 14:52 native.dat
+vinmacscreen:floatPrec innocent$ bzip2 -6 *.dat
+vinmacscreen:floatPrec innocent$ ls -l *.bz2
+-rw-r--r--+ 1 innocent  staff  165610 Oct  3 14:58 d24.dat.bz2
+-rw-r--r--+ 1 innocent  staff  210757 Oct  3 14:58 d32.dat.bz2
+-rw-r--r--+ 1 innocent  staff  154380 Oct  3 14:58 floats.dat.bz2
+-rw-r--r--+ 1 innocent  staff  312814 Oct  3 14:58 native.dat.bz2
+*/
+
 #include<random>
 #include<iostream>
 #include<fstream>
