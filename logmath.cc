@@ -57,11 +57,12 @@ int e = std::fetestexcept(FE_ALL_EXCEPT);
 
 int main(void) {
 
-//  feenableexcept( FE_DIVBYZERO );
-//  feenableexcept( FE_INVALID );
-//  feenableexcept( FE_OVERFLOW );
-//  feenableexcept( FE_UNDERFLOW );
-
+/*
+  feenableexcept( FE_DIVBYZERO );
+  feenableexcept( FE_INVALID );
+  feenableexcept( FE_OVERFLOW );
+  feenableexcept( FE_UNDERFLOW );
+*/
   testEx();
 
   sigset_t *def_set;
@@ -83,6 +84,6 @@ int main(void) {
 
   testEx();
 
-      return 0;
+  return 0;
 }
 
