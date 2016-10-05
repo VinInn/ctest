@@ -50,11 +50,12 @@ int main(void) {
   termaction.sa_flags=0;
   sigaction(SIGFPE, &termaction,&oldaction);
 
-  std::cout << log(0.) << " " << exp(log(0.)) << std::endl;
+  std::cout << log(0.) << " " << exp(log(0.)) << ' ' << sqrt(-1.) << std::endl;
 
   ::printf("test(4, 6, 0) = %f\n", test(4,6,0));
   ::printf("test(0, 2, 0) = %f\n", test(0,2,0));
   ::printf("test(-2, 3, 0) = %f\n", test(-2,3,0));
+  ::printf("nan is  = %f\n", test(0, 2, 0) + test(-2,3,0));
       return 0;
 }
 
