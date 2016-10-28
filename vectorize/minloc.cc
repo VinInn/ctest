@@ -1,5 +1,7 @@
 #include <x86intrin.h>
-#ifdef __AVX__
+#ifdef __AVX512F__
+#define NATIVE_VECT_LENGH 64
+#elif __AVX__
 #define NATIVE_VECT_LENGH 32
 #else
 #define NATIVE_VECT_LENGH 16
@@ -64,16 +66,17 @@ inline unsigned long long rdtscp() {
 int main() {
 
    std::cout << "NATIVE_VECT_LENGH " << NATIVE_VECT_LENGH << std::endl;
-
-  float x[1024];
-  for (int i=0; i<1024; ++i) x[i]= i%2 ? i : -i;
+  
+  int N = 1024*4;
+  float x[N];
+  for (int i=0; i<N; ++i) x[i]= i%2 ? i : -i;
   for (int i = 0; i<10; ++i) {
-   std::random_shuffle(x,x+1024);
+   std::random_shuffle(x,x+N);
    long long ts = -rdtscp();
-   int l1 = std::min_element(x+i,x+1024) - (x+i);
+   int l1 = std::min_element(x+i,x+N) - (x+i);
    ts +=rdtscp();
    long long tv = -rdtscp();	
-   int l2 = minloc(x+i,1024-i);
+   int l2 = minloc(x+i,N-i);
    tv +=rdtscp();
 
     std::cout << "min is at " << l1 << ' ' << ts << std::endl;
