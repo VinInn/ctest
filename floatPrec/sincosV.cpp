@@ -40,10 +40,17 @@ inline void simpleSincos( float x, float & s, float &c ) {
 
   sincosf0(xx,ls,lc);
 
+  /*
+  // duplicate twice
   auto ss = 2.f*ls*lc;
   auto cc = lc*lc - ls*ls;
   s = 2.f*ss*cc;
   c = cc*cc - ss*ss;
+  */
+  // use poly expansion
+  auto ss= ls*ls;
+  s = 4.f*lc*ls*(1.f-2.f*ss);
+  c = 1.f+8.f*ss*(ss-1.f);
 
 }
 
