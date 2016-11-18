@@ -35,31 +35,23 @@ inline void simpleSincos( float x, float & s, float &c ) {
    xx = g2 ? xx-pi2 : xx;
    */
 
-   constexpr float pi  = M_PI;
-   constexpr float pi4 = M_PI/4.;
-   constexpr float pi34 = 3.*M_PI/4.;
-   constexpr float pi2 = M_PI/2.;
-   auto g0 = x > 0;
-   auto ax = g0 ? x : -x;
-   auto g1 = ax > pi4;
-   auto xx = g1 ? ax-pi2 : ax;
-   auto g2 = ax > pi34;
-   xx = g2 ? ax-pi : xx;
- 
+  auto xx = 0.25f*x; 
   float ls,lc;
 
   sincosf0(xx,ls,lc);
 
-  auto sw =  g1 & (!g2);
-  auto ss = sw ? lc : ls;
-  auto cc = sw ? -ls : lc;
-  cc = g2 ? -cc : cc;
-  ss = g2 ? -ss : ss;
+  /*
+  // duplicate twice
+  auto ss = 2.f*ls*lc;
+  auto cc = lc*lc - ls*ls;
+  s = 2.f*ss*cc;
+  c = cc*cc - ss*ss;
+  */
+  // use poly expansion
+  auto ss= ls*ls;
+  s = 4.f*lc*ls*(1.f-2.f*ss);
+  c = 1.f+8.f*ss*(ss-1.f);
 
-  // cc = g0 ? cc : -cc;
-  ss = g0 ? ss : -ss;
- 
-  c = cc; s = ss;
 }
 
 
@@ -67,7 +59,7 @@ inline void simpleSincos( float x, float & s, float &c ) {
 
 
 int main() {
-   constexpr float pi4 = M_PI/4.;
+//   constexpr float pi4 = M_PI/4.;
 //   constexpr float pi8 = M_PI/16.;
 
    for (float x=-M_PI; x<(M_PI+0.01); x+=0.01) {
