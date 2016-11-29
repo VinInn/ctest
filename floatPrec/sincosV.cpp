@@ -63,14 +63,29 @@ int main() {
 //   constexpr float pi4 = M_PI/4.;
 //   constexpr float pi8 = M_PI/16.;
 
+{
    float mc=0., ms=0;
-   for (float x=-M_PI; x<(M_PI+0.01); x+=0.01f) {
+   for (double xd=-M_PI; xd<(M_PI+0.01); xd+=0.01) {
+     float x = xd;
      float s,c;  simpleSincos(x,s,c);
-     mc = std::max(mc,std::abs(c-std::cos(x)));
-     ms = std::max(ms,std::abs(s-std::sin(x)));
+     mc = std::max(mc,std::abs(c-float(std::cos(xd))));
+     ms = std::max(ms,std::abs(s-float(std::sin(xd))));
      if ( std::abs(s-std::sin(x))>1.e-5f  || std::abs(c-std::cos(x))> 1.e-5f ) std::cout << x << ' ' << x/M_PI << ' ' << s << '/' << c << ' ' << std::sin(x) << '/' << std::cos(x) << std::endl;
    }
-   std::cout << "max diff " << mc << ' ' << ms << "   " << std::numeric_limits<float>::epsilon() << std::endl;
+   std::cout << "max diff w/r/t double " << mc << ' ' << ms << "   " << std::numeric_limits<float>::epsilon() << std::endl;
+}
+
+{
+   float mc=0., ms=0;
+   for (float xd=-M_PI; xd<(M_PI+0.01); xd+=0.01f) {
+     float x = xd;
+     float s,c;  simpleSincos(x,s,c);
+     mc = std::max(mc,std::abs(c-float(std::cos(xd))));
+     ms = std::max(ms,std::abs(s-float(std::sin(xd))));
+     if ( std::abs(s-std::sin(x))>1.e-5f  || std::abs(c-std::cos(x))> 1.e-5f ) std::cout << x << ' ' << x/M_PI << ' ' << s << '/' << c << ' ' << std::sin(x) << '/' << std::cos(x) << std::endl;
+   }                                                                                        
+   std::cout << "max diff w/r/t float " << mc << ' ' << ms << "   " << std::numeric_limits<float>::epsilon() << std::endl;
+}
 
 
   float x[1024], s[1024];
