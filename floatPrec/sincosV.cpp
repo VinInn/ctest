@@ -88,6 +88,18 @@ int main() {
 }
 
 
+{
+   float mc=0., ms=0;
+   for (double xd=-M_PI; xd<(M_PI+0.01); xd+=0.01) {
+     float x = xd;
+     float s=std::sin(x),c=std::cos(x);
+     mc = std::max(mc,std::abs(c-float(std::cos(xd))));
+     ms = std::max(ms,std::abs(s-float(std::sin(xd))));
+     if ( std::abs(s-std::sin(x))>1.e-5f  || std::abs(c-std::cos(x))> 1.e-5f ) std::cout << x << ' ' << x/M_PI << ' ' << s << '/' << c << ' ' << std::sin(x) << '/' << std::cos(x) << std::endl;
+   }
+   std::cout << "max diff float double " << mc << ' ' << ms << "   " << std::numeric_limits<float>::epsilon() << std::endl;
+}
+
   float x[1024], s[1024];
   for (int i=0; i<1024; ++i)  x[i] = (M_PI*i)/1024;
 
