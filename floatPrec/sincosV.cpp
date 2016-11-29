@@ -1,4 +1,5 @@
 #include <cmath>
+#include<limits>
 
 // only for  -45deg < x < 45deg
 inline void sincosf0( float x, float & s, float &c ) {
@@ -62,10 +63,14 @@ int main() {
 //   constexpr float pi4 = M_PI/4.;
 //   constexpr float pi8 = M_PI/16.;
 
-   for (float x=-M_PI; x<(M_PI+0.01); x+=0.01) {
+   float mc=0., ms=0;
+   for (float x=-M_PI; x<(M_PI+0.01); x+=0.01f) {
      float s,c;  simpleSincos(x,s,c);
-     if ( std::abs(s-std::sin(x))>1.e-5  || std::abs(c-std::cos(x))> 1.e-5 ) std::cout << x << ' ' << x/M_PI << ' ' << s << '/' << c << ' ' << std::sin(x) << '/' << std::cos(x) << std::endl;
+     mc = std::max(mc,std::abs(c-std::cos(x)));
+     ms = std::max(ms,std::abs(s-std::sin(x)));
+     if ( std::abs(s-std::sin(x))>1.e-5f  || std::abs(c-std::cos(x))> 1.e-5f ) std::cout << x << ' ' << x/M_PI << ' ' << s << '/' << c << ' ' << std::sin(x) << '/' << std::cos(x) << std::endl;
    }
+   std::cout << "max diff " << mc << ' ' << ms << "   " << std::numeric_limits<float>::epsilon() << std::endl;
 
 
   float x[1024], s[1024];
