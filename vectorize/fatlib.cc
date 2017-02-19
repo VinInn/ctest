@@ -18,7 +18,7 @@ FATHALLO("arch=bdver1")
 FATHALLO("arch=core-avx2")
 // FATHALLO("avx2","fma")
 FATHALLO("arch=corei7-avx")
-// FATHALLO("avx512f")
+FATHALLO("avx512f")
 // FATHALLO()
 
 extern "C" {
