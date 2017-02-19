@@ -21,18 +21,17 @@ mySum(float vx, float vy) {
   return vx+vy;
 }
 
-float __attribute__ ((__target__ ("fma")))
+float __attribute__ ((__target__ ("avx2","fma")))
 mySum(float vx, float vy) {
   return vx+vy;
 }
 
 
-/*
 float __attribute__ ((__target__ ("avx512f")))
 mySum(float vx, float vy) {
   return vx+vy;
 }
-*/
+
 
 float32x4_t __attribute__ ((__target__ ("default")))
 mySum(float32x4_t vx, float32x4_t vy) {
