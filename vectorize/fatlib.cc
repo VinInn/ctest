@@ -1,5 +1,5 @@
 #include<iostream>
-#include<stream>
+#include<string>
 
 typedef float __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
 typedef float __attribute__( ( vector_size( 32 ) ) ) float32x8_t;
@@ -140,7 +140,7 @@ mySum(float32x16_t vx, float32x16_t vy) {
 
 #ifdef MAIN
 int main() {
-  std::cout fathello() << std::endl;
+  std::cout << fathello() << std::endl;
   
   float a=1, b=-1, c=4.5;
   float e= mySum(a,b);
