@@ -42,7 +42,7 @@ float theFMA (float x, float y, float z) { return x+y*z;}
 FATLIB(FATFMARETURN,FATFMA)
 
 extern "C" {
-  float myfmaCPP(float x, float y, float z) { return myfma(x,y,z);} 
+  float myfma(float x, float y, float z) { return myfmaCPP(x,y,z);} 
 }
 
 
