@@ -1,13 +1,14 @@
 #include<iostream>
-
+#include<stream>
 
 typedef float __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
 typedef float __attribute__( ( vector_size( 32 ) ) ) float32x8_t;
 typedef float __attribute__( ( vector_size( 64 ) ) ) float32x16_t;
 
+static std::string fathi;
 
-#define FATHALLO(...) void __attribute__ ((__target__ (__VA_ARGS__))) \
-  fathelloCPP() { std::cout << "targer is " << __VA_ARGS__ << std::endl;}
+#define FATHALLO(...) char const * __attribute__ ((__target__ (__VA_ARGS__))) \
+  fathelloCPP() { fathi = std::string("targer is ")+__VA_ARGS__; return fathi.c_str();}
 
 
 FATHALLO("default")
@@ -17,12 +18,13 @@ FATHALLO("arch=bdver1")
 FATHALLO("arch=core-avx2")
 // FATHALLO("avx2","fma")
 FATHALLO("arch=corei7-avx")
-FATHALLO("avx512f")
+// FATHALLO("avx512f")
 // FATHALLO()
 
 extern "C" {
-  void fathello() { return fathelloCPP();}
+  char const * fathello() { return fathelloCPP();}
 }
+
 
 #define FATLIB(RET,FUN) RET __attribute__ ((__target__ ("default"))) FUN \
 RET __attribute__ ((__target__ ("sse3"))) FUN \
@@ -138,7 +140,7 @@ mySum(float32x16_t vx, float32x16_t vy) {
 
 #ifdef MAIN
 int main() {
-  fathello();
+  std::cout fathello() << std::endl;
   
   float a=1, b=-1, c=4.5;
   float e= mySum(a,b);
