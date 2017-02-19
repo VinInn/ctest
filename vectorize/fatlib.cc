@@ -33,7 +33,7 @@ RET __attribute__ ((__target__ ("arch=corei7-avx"))) FUN \
 RET __attribute__ ((__target__ ("avx512f"))) FUN
 
 
-
+inline
 float theFMA (float x, float y, float z) { return x+y*z;}
 
 #define FATFMA myfmaCPP(float x, float y, float z) { return theFMA(x,y,z);} 
@@ -136,7 +136,7 @@ mySum(float32x16_t vx, float32x16_t vy) {
 */
 
 
-
+#ifdef MAIN
 int main() {
   fathello();
   
@@ -151,3 +151,4 @@ int main() {
 
   return d*z[0]>e;
 }
+#endif
