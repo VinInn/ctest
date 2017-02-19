@@ -1,3 +1,6 @@
+#include<iostream>
+
+
 typedef float __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
 typedef float __attribute__( ( vector_size( 32 ) ) ) float32x8_t;
 typedef float __attribute__( ( vector_size( 64 ) ) ) float32x16_t;
@@ -6,6 +9,8 @@ typedef float __attribute__( ( vector_size( 64 ) ) ) float32x16_t;
 #define FATHALLO(...) void __attribute__ ((__target__ (__VA_ARGS__))) \
   fathello() { std::cout << "targer is " << __VA_ARGS__ << std::endl;}
 
+
+FATHALLO("default")
 FATHALLO("sse3")
 FATHALLO("arch=corei7")
 FATHALLO("arch=bdver1")
@@ -126,7 +131,7 @@ mySum(float32x16_t vx, float32x16_t vy) {
 int main() {
   fathello();
   
-  float a=1, b=-1; c=4.5;
+  float a=1, b=-1, c=4.5;
   float e= mySum(a,b);
   float d=myfma(a,b,c);
 
