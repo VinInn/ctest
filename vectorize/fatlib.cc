@@ -7,9 +7,8 @@ typedef float __attribute__( ( vector_size( 64 ) ) ) float32x16_t;
 
 
 #define FATHALLO(...) void __attribute__ ((__target__ (__VA_ARGS__))) \
-  fathello() { std::cout << "targer is " << __VA_ARGS__ << std::endl;}
+  fathelloCPP() { std::cout << "targer is " << __VA_ARGS__ << std::endl;}
 
-extern "C" {
 
 FATHALLO("default")
 FATHALLO("sse3")
@@ -21,6 +20,8 @@ FATHALLO("arch=corei7-avx")
 FATHALLO("avx512f")
 // FATHALLO()
 
+extern "C" {
+  void fathello() { return fathelloCPP();}
 }
 
 #define FATLIB(RET,FUN) RET __attribute__ ((__target__ ("default"))) FUN \
@@ -32,14 +33,18 @@ RET __attribute__ ((__target__ ("arch=corei7-avx"))) FUN \
 RET __attribute__ ((__target__ ("avx512f"))) FUN
 
 
+
 float theFMA (float x, float y, float z) { return x+y*z;}
 
-#define FATFMA myfma(float x, float y, float z) { return theFMA(x,y,z);} 
+#define FATFMA myfmaCPP(float x, float y, float z) { return theFMA(x,y,z);} 
 #define FATFMARETURN float
 
-extern "C" {
 FATLIB(FATFMARETURN,FATFMA)
+
+extern "C" {
+  float myfmaCPP(float x, float y, float z) { return myfma(x,y,z);} 
 }
+
 
 float __attribute__ ((__target__ ("default")))
 mySum(float vx, float vy) {
