@@ -1,7 +1,9 @@
 cat /proc/cpuinfo | grep name | head -n 1
-gcc -v | tail -n 1
+gcc -v
+echo "gcc -O2 fullMC.c -g" 
 gcc -O2 fullMC.c -g ; time ./a.out
 perf stat -e task-clock -e cycles -e instructions -e branches -e branch-misses ./a.out
+echo "gcc -O3 fullMC.c -g"
 gcc -O3 fullMC.c -g ; time ./a.out
 perf stat -e task-clock -e cycles -e instructions -e branches -e branch-misses ./a.out
 

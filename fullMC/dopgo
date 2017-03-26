@@ -1,5 +1,5 @@
 cat /proc/cpuinfo | grep name | head -n 1
-gcc -v | tail -n 1
+gcc -v
 rm -rf pgo/*;gcc -O2 fullMC.c -g -fprofile-generate=pgo; ./a.out
 gcc -O2 fullMC.c -g -fprofile-use=pgo; ./a.out
 perf stat -e task-clock -e cycles -e instructions -e branches -e branch-misses ./a.out
