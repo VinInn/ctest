@@ -26,7 +26,7 @@
             }
     }
 
-    int  kernel_measureSparseMatMult(int N, int nz)
+    int  kernel_measureSparseMatMult(int N, int nz, int cycles)
     {
         /* initialize vector multipliers and storage for result */
         /* y = A*y;  */
@@ -86,10 +86,12 @@
                 
         }
 
-
+        int res=0;
+         for (int i=0; i<cycles;++i) {
             SparseCompRow_matmult(N, y, val, row, col, x);
             for (r=0; r<N; r++) y[0]+=y[r];
-            int res = y[0]/10000000.;
+            res+= y[0]/10000000.;
+         }
 
         free(row);
         free(col);
@@ -102,9 +104,16 @@
 
 
     int main() {
+    /*
+    //  const  int SPARSE_SIZE_M = 1000;
+    //  const  int SPARSE_SIZE_nz = 5000;
+   //   const  int LG_SPARSE_SIZE_M = 100000;
+   //  const  int LG_SPARSE_SIZE_nz =1000000;
+   */
 
-     int N=10000; int nz=100;
-
-     return  kernel_measureSparseMatMult(N,nz);
+     int N=1000; int nz=5000;
+     int cycles=100000;
+     
+     return  kernel_measureSparseMatMult(N,nz,cycles);
 
     }
