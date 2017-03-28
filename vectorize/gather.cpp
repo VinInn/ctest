@@ -109,3 +109,51 @@ void foo(float3 ipos, int dis, int j, int i) {
   
  }
 }
+
+
+#include <iostream>
+#include <chrono>
+#include<algorithm>
+
+void  time3(float3 const * ipos, int M, int dis, int j, int i) {
+
+  // wakeup cpu
+  for (int k=0; k<M; ++k) bar2(ipos[k], dis, j, i);
+  
+  auto start = std::chrono::high_resolution_clock::now();
+  for (int k=0; k<M; ++k) bar(ipos[k], dis, j, i);
+  auto end = std::chrono::high_resolution_clock::now();
+  auto delta1 = std::chrono::duration_cast<std::chrono::microseconds>( end - start ).count();
+
+  start = std::chrono::high_resolution_clock::now();
+  for (int k=0; k<M; ++k) bar2(ipos[k], dis, j, i);
+  end = std::chrono::high_resolution_clock::now();
+  auto delta2 = std::chrono::duration_cast<std::chrono::microseconds>( end - start ).count();
+
+  start = std::chrono::high_resolution_clock::now();
+  for (int k=0; k<M; ++k) foo(ipos[k], dis, j, i);
+  end = std::chrono::high_resolution_clock::now();
+  auto delta3 = std::chrono::duration_cast<std::chrono::microseconds>( end - start ).count();
+
+  std::cout << "for dis " << dis << ' ' << delta1 << ' ' << delta2 << ' ' << delta3 << std::endl;
+
+}
+
+
+int main() {
+  int M = 100000;
+  float3 ipos[M];
+
+  std::cout << "tivially sequential" << std::endl;
+  for (int i=0; i<N; ++i) 
+     neighList[i] = i;
+  for (int dis=2; dis<N; dis*=2) 
+     time3(ipos,M,dis,0,0);
+
+  std::cout << "random" << std::endl;
+  std::random_shuffle(neighList,neighList+N);  
+  for (int dis=2; dis<N; dis*=2)
+     time3(ipos,M,dis,0,0);
+
+  return 0;
+}
