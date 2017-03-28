@@ -62,6 +62,7 @@ int neighList[N];
 int maxNeighbors;
 
 float r2inv[N];
+volatile float res;
 
 void bar(float3 ipos, int dis, int j, int i) {
 
@@ -74,6 +75,7 @@ void bar(float3 ipos, int dis, int j, int i) {
     float delz = ipos.y -jpos.z;
     r2inv[k] = delx*delx + dely*dely + delz*delz;
  }
+ res = r2inv[dis-1];
 }
 
 // use gather instructions
@@ -88,6 +90,7 @@ void bar2(float3 ipos, int dis, int j, int i) {
     float delz = ipos.z - jp[3*in+2];
     r2inv[k] = delx*delx + dely*dely + delz*delz;
   }
+  res = r2inv[dis-1];
 }
 
 
@@ -105,9 +108,9 @@ void foo(float3 ipos, int dis, int j, int i) {
     float delx = ipos.x - jposx;
     float dely = ipos.y - jposy;
     float delz = ipos.z - jposz;
-    r2inv[k] = delx*delx + dely*dely + delz*delz;
-  
+    r2inv[k] = delx*delx + dely*dely + delz*delz;  
  }
+ res = r2inv[dis-1];
 }
 
 
