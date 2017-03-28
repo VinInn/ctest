@@ -64,6 +64,21 @@ int maxNeighbors;
 float r2inv[N];
 volatile float res;
 
+void seq(float3 ipos, int dis, int j, int i) {
+  float * jp = &(position[0].x);
+  
+  for (int k=0; k<dis; k++){
+    auto in = k;
+    // auto in = j*dis + k + maxNeighbors * i;
+    float delx = ipos.x -jp[3*in];
+    float dely = ipos.y - jp[3*in+1];
+    float delz = ipos.z - jp[3*in+2];
+    r2inv[k] = delx*delx + dely*dely + delz*delz;
+  }
+  res = r2inv[dis-1];
+}
+
+
 void bar(float3 ipos, int dis, int j, int i) {
 
   for (int k=0; k<dis; k++){
@@ -122,10 +137,17 @@ void  time3(float3 const * ipos, int M, int dis, int j, int i) {
 
   // wakeup cpu
   for (int k=0; k<M; ++k) bar2(ipos[k], dis, j, i);
-  
+
+
   auto start = std::chrono::high_resolution_clock::now();
-  for (int k=0; k<M; ++k) bar(ipos[k], dis, j, i);
+  for (int k=0; k<M; ++k) seq(ipos[k], dis, j, i);
   auto end = std::chrono::high_resolution_clock::now();
+  auto delta0 = std::chrono::duration_cast<std::chrono::microseconds>( end - start ).count();
+
+  
+  start = std::chrono::high_resolution_clock::now();
+  for (int k=0; k<M; ++k) bar(ipos[k], dis, j, i);
+  end = std::chrono::high_resolution_clock::now();
   auto delta1 = std::chrono::duration_cast<std::chrono::microseconds>( end - start ).count();
 
   start = std::chrono::high_resolution_clock::now();
@@ -138,7 +160,7 @@ void  time3(float3 const * ipos, int M, int dis, int j, int i) {
   end = std::chrono::high_resolution_clock::now();
   auto delta3 = std::chrono::duration_cast<std::chrono::microseconds>( end - start ).count();
 
-  std::cout << "for dis " << dis << ' ' << delta1 << ' ' << delta2 << ' ' << delta3 << std::endl;
+  std::cout << "for dis " << dis << ' ' << delta0 << ' ' << delta1 << ' ' << delta2 << ' ' << delta3 << std::endl;
 
 }
 
@@ -152,6 +174,19 @@ int main() {
      neighList[i] = i;
   for (int dis=2; dis<N; dis*=2) 
      time3(ipos,M,dis,0,0);
+
+  std::cout << "small stride" << std::endl;
+  for (int i=0; i<N; ++i)
+     neighList[i] = (2*i)%N;
+  for (int dis=2; dis<N; dis*=2)
+     time3(ipos,M,dis,0,0);
+
+  std::cout << "big stride" << std::endl;
+  for (int i=0; i<N; ++i)
+     neighList[i] = (32*i)%N;
+  for (int dis=2; dis<N; dis*=2)
+     time3(ipos,M,dis,0,0);
+
 
   std::cout << "random" << std::endl;
   std::random_shuffle(neighList,neighList+N);  
