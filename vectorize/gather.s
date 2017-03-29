@@ -5,12 +5,12 @@
 	.weak	_ZNKSt5ctypeIcE8do_widenEc
 	.type	_ZNKSt5ctypeIcE8do_widenEc, @function
 _ZNKSt5ctypeIcE8do_widenEc:
-.LFB1279:
+.LFB1280:
 	.cfi_startproc
 	movl	%esi, %eax
 	ret
 	.cfi_endproc
-.LFE1279:
+.LFE1280:
 	.size	_ZNKSt5ctypeIcE8do_widenEc, .-_ZNKSt5ctypeIcE8do_widenEc
 	.section	.rodata.str1.1,"aMS",@progbits,1
 .LC14:
@@ -24,7 +24,11 @@ _Z5time3PK6float3iiii.constprop.3:
 	leaq	8(%rsp), %r10
 	.cfi_def_cfa 10, 0
 	andq	$-32, %rsp
+	leal	-1(%rsi), %eax
+	movl	%esi, %r8d
 	pushq	-8(%r10)
+	andl	$-8, %r8d
+	movl	%eax, %ecx
 	pushq	%rbp
 	.cfi_escape 0x10,0x6,0x2,0x76,0
 	movq	%rsp, %rbp
@@ -36,34 +40,32 @@ _Z5time3PK6float3iiii.constprop.3:
 	movq	%rdi, %r14
 	pushq	%r13
 	pushq	%r12
-	pushq	%r10
-	.cfi_escape 0xf,0x3,0x76,0x58,0x6
 	.cfi_escape 0x10,0xd,0x2,0x76,0x68
 	.cfi_escape 0x10,0xc,0x2,0x76,0x60
-	leal	-1(%rsi), %r10d
+	movl	%esi, %r12d
+	pushq	%r10
+	.cfi_escape 0xf,0x3,0x76,0x58,0x6
+	shrl	$3, %r12d
 	pushq	%rbx
 	.cfi_escape 0x10,0x3,0x2,0x76,0x50
 	movl	%esi, %ebx
-	movslq	%r10d, %r8
-	leaq	1200000(%rdi), %rsi
-	movl	%ebx, %r12d
-	movl	%ebx, %r9d
-	shrl	$3, %r12d
-	andl	$-8, %r9d
-	subq	$64, %rsp
-	movq	%rdi, -72(%rbp)
+	movslq	%eax, %rsi
+	subq	$96, %rsp
+	movl	%eax, -80(%rbp)
 	vmovdqa	.LC0(%rip), %ymm10
 	vmovaps	.LC1(%rip), %ymm6
+	movq	%rdi, -88(%rbp)
+	leaq	1200000(%rdi), %rdi
 	.p2align 4,,10
 	.p2align 3
 .L8:
-	vmovss	(%r15), %xmm4
-	vmovss	4(%r15), %xmm9
-	vmovss	8(%r15), %xmm11
+	vmovss	(%r14), %xmm4
+	vmovss	4(%r14), %xmm9
+	vmovss	8(%r14), %xmm11
 	testl	%ebx, %ebx
 	jle	.L4
-	cmpl	$6, %r10d
-	jbe	.L28
+	cmpl	$6, %ecx
+	jbe	.L33
 	vbroadcastss	%xmm4, %ymm8
 	vbroadcastss	%xmm9, %ymm7
 	xorl	%eax, %eax
@@ -90,12 +92,12 @@ _Z5time3PK6float3iiii.constprop.3:
 	vmovaps	%ymm0, r2inv-32(%rax)
 	cmpl	%edx, %r12d
 	ja	.L6
-	cmpl	%ebx, %r9d
+	cmpl	%ebx, %r8d
 	je	.L4
-	movl	%r9d, %eax
+	movl	%r8d, %eax
 .L5:
-	movslq	%eax, %rcx
-	movl	neighList(,%rcx,4), %edx
+	movslq	%eax, %r9
+	movl	neighList(,%r9,4), %edx
 	leal	(%rdx,%rdx,2), %edx
 	movslq	%edx, %rdx
 	vsubss	position(,%rdx,4), %xmm4, %xmm0
@@ -105,12 +107,12 @@ _Z5time3PK6float3iiii.constprop.3:
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	1(%rax), %ecx
-	cmpl	%ecx, %ebx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	1(%rax), %r9d
+	cmpl	%r9d, %ebx
 	jle	.L4
-	movslq	%ecx, %rcx
-	movl	neighList(,%rcx,4), %edx
+	movslq	%r9d, %r9
+	movl	neighList(,%r9,4), %edx
 	leal	(%rdx,%rdx,2), %edx
 	movslq	%edx, %rdx
 	vsubss	position(,%rdx,4), %xmm4, %xmm0
@@ -120,12 +122,12 @@ _Z5time3PK6float3iiii.constprop.3:
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	2(%rax), %ecx
-	cmpl	%ecx, %ebx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	2(%rax), %r9d
+	cmpl	%r9d, %ebx
 	jle	.L4
-	movslq	%ecx, %rcx
-	movl	neighList(,%rcx,4), %edx
+	movslq	%r9d, %r9
+	movl	neighList(,%r9,4), %edx
 	leal	(%rdx,%rdx,2), %edx
 	movslq	%edx, %rdx
 	vsubss	position(,%rdx,4), %xmm4, %xmm0
@@ -135,12 +137,12 @@ _Z5time3PK6float3iiii.constprop.3:
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	3(%rax), %ecx
-	cmpl	%ecx, %ebx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	3(%rax), %r9d
+	cmpl	%r9d, %ebx
 	jle	.L4
-	movslq	%ecx, %rcx
-	movl	neighList(,%rcx,4), %edx
+	movslq	%r9d, %r9
+	movl	neighList(,%r9,4), %edx
 	leal	(%rdx,%rdx,2), %edx
 	movslq	%edx, %rdx
 	vsubss	position(,%rdx,4), %xmm4, %xmm0
@@ -150,12 +152,12 @@ _Z5time3PK6float3iiii.constprop.3:
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	4(%rax), %ecx
-	cmpl	%ecx, %ebx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	4(%rax), %r9d
+	cmpl	%r9d, %ebx
 	jle	.L4
-	movslq	%ecx, %rcx
-	movl	neighList(,%rcx,4), %edx
+	movslq	%r9d, %r9
+	movl	neighList(,%r9,4), %edx
 	leal	(%rdx,%rdx,2), %edx
 	movslq	%edx, %rdx
 	vsubss	position(,%rdx,4), %xmm4, %xmm0
@@ -165,13 +167,13 @@ _Z5time3PK6float3iiii.constprop.3:
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	5(%rax), %ecx
-	cmpl	%ecx, %ebx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	5(%rax), %r9d
+	cmpl	%r9d, %ebx
 	jle	.L4
-	movslq	%ecx, %rcx
+	movslq	%r9d, %r9
 	addl	$6, %eax
-	movl	neighList(,%rcx,4), %edx
+	movl	neighList(,%r9,4), %edx
 	leal	(%rdx,%rdx,2), %edx
 	movslq	%edx, %rdx
 	vsubss	position(,%rdx,4), %xmm4, %xmm0
@@ -181,7 +183,7 @@ _Z5time3PK6float3iiii.constprop.3:
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
+	vmovss	%xmm0, r2inv(,%r9,4)
 	cmpl	%eax, %ebx
 	jle	.L4
 	cltq
@@ -197,215 +199,201 @@ _Z5time3PK6float3iiii.constprop.3:
 	vfmadd132ss	%xmm4, %xmm9, %xmm4
 	vmovss	%xmm4, r2inv(,%rax,4)
 .L4:
-	vmovss	r2inv(,%r8,4), %xmm0
-	addq	$12, %r15
+	vmovss	r2inv(,%rsi,4), %xmm0
+	addq	$12, %r14
 	vmovss	%xmm0, res(%rip)
-	cmpq	%rsi, %r15
+	cmpq	%rdi, %r14
 	jne	.L8
-	movl	%r9d, -104(%rbp)
-	movl	%r10d, -96(%rbp)
-	movq	%r8, -88(%rbp)
+	movl	%r8d, -104(%rbp)
+	movq	%rsi, -72(%rbp)
 	vzeroupper
 	call	_ZNSt6chrono3_V212system_clock3nowEv
-	movq	-72(%rbp), %r13
+	movq	-88(%rbp), %r13
+	movl	-80(%rbp), %edx
+	movq	%rax, -96(%rbp)
 	vmovdqa	.LC2(%rip), %ymm15
 	vmovdqa	.LC3(%rip), %ymm14
-	movl	-104(%rbp), %r9d
-	movq	%rax, -80(%rbp)
 	vmovdqa	.LC5(%rip), %ymm13
 	vmovdqa	.LC9(%rip), %ymm12
-	movl	-96(%rbp), %r10d
-	movq	-88(%rbp), %r8
+	movl	-104(%rbp), %r8d
+	movq	-72(%rbp), %rsi
 	.p2align 4,,10
 	.p2align 3
 .L13:
-	movl	0(%r13), %esi
+	vmovss	8(%r13), %xmm5
+	movl	0(%r13), %ecx
 	movl	4(%r13), %edi
-	movl	8(%r13), %r11d
+	vmovss	%xmm5, -72(%rbp)
 	testl	%ebx, %ebx
 	jle	.L9
-	cmpl	$6, %r10d
-	jbe	.L29
-	vmovd	%esi, %xmm7
-	movl	$r2inv, %ecx
+	cmpl	$6, %edx
+	jbe	.L34
+	vmovd	%ecx, %xmm7
+	vmovdqa	.LC12(%rip), %ymm6
 	movl	$position, %eax
-	xorl	%edx, %edx
+	xorl	%r9d, %r9d
 	vbroadcastss	%xmm7, %ymm9
 	vmovd	%edi, %xmm7
-	vmovdqa	.LC12(%rip), %ymm6
-	vmovdqa	.LC13(%rip), %ymm5
+	movl	$r2inv, %r10d
 	vbroadcastss	%xmm7, %ymm8
-	vmovd	%r11d, %xmm7
-	vbroadcastss	%xmm7, %ymm7
+	vbroadcastss	%xmm5, %ymm7
+	vmovdqa	.LC13(%rip), %ymm5
 	.p2align 4,,10
 	.p2align 3
 .L11:
 	vmovaps	(%rax), %ymm0
-	vmovaps	32(%rax), %ymm11
-	addl	$1, %edx
-	addq	$32, %rcx
-	vmovaps	64(%rax), %ymm10
+	addl	$1, %r9d
+	addq	$32, %r10
 	addq	$96, %rax
-	vpshufb	%ymm15, %ymm0, %ymm1
-	vpshufb	%ymm14, %ymm0, %ymm2
-	vpshufb	.LC4(%rip), %ymm11, %ymm4
-	vpshufb	.LC7(%rip), %ymm0, %ymm3
-	vpermq	$78, %ymm1, %ymm1
-	vpor	%ymm1, %ymm2, %ymm1
-	vpshufb	.LC6(%rip), %ymm0, %ymm2
-	vpor	%ymm4, %ymm1, %ymm1
-	vpermd	%ymm10, %ymm13, %ymm4
-	vpermq	$78, %ymm2, %ymm2
-	vblendps	$192, %ymm4, %ymm1, %ymm1
-	vpor	%ymm2, %ymm3, %ymm2
-	vpshufb	.LC10(%rip), %ymm0, %ymm3
-	vsubps	%ymm1, %ymm9, %ymm4
-	vpshufb	.LC8(%rip), %ymm11, %ymm1
-	vpshufb	%ymm6, %ymm11, %ymm11
-	vpor	%ymm1, %ymm2, %ymm2
-	vpermd	%ymm10, %ymm12, %ymm1
-	vblendps	$224, %ymm1, %ymm2, %ymm2
+	vmovaps	-64(%rax), %ymm10
+	vmovaps	-32(%rax), %ymm4
+	vpshufb	.LC7(%rip), %ymm0, %ymm11
+	vpshufb	%ymm15, %ymm0, %ymm3
+	vpshufb	.LC4(%rip), %ymm10, %ymm2
 	vpermq	$78, %ymm3, %ymm1
-	vpshufb	.LC11(%rip), %ymm0, %ymm3
-	vsubps	%ymm2, %ymm8, %ymm2
+	vpshufb	%ymm14, %ymm0, %ymm3
 	vpor	%ymm1, %ymm3, %ymm3
-	vpermd	%ymm10, %ymm5, %ymm1
-	vpor	%ymm11, %ymm3, %ymm3
-	vblendps	$224, %ymm1, %ymm3, %ymm3
+	vpshufb	.LC8(%rip), %ymm10, %ymm1
+	vpshufb	%ymm6, %ymm10, %ymm10
+	vpor	%ymm2, %ymm3, %ymm3
+	vpermd	%ymm4, %ymm13, %ymm2
+	vblendps	$192, %ymm2, %ymm3, %ymm3
+	vpshufb	.LC6(%rip), %ymm0, %ymm2
+	vpermq	$78, %ymm2, %ymm2
+	vsubps	%ymm3, %ymm9, %ymm3
+	vpor	%ymm2, %ymm11, %ymm2
+	vpor	%ymm1, %ymm2, %ymm2
+	vpermd	%ymm4, %ymm12, %ymm1
+	vblendps	$224, %ymm1, %ymm2, %ymm2
+	vpshufb	.LC10(%rip), %ymm0, %ymm1
+	vpshufb	.LC11(%rip), %ymm0, %ymm0
+	vsubps	%ymm2, %ymm8, %ymm2
+	vpermq	$78, %ymm1, %ymm1
+	vpor	%ymm1, %ymm0, %ymm1
+	vpermd	%ymm4, %ymm5, %ymm0
+	vpor	%ymm10, %ymm1, %ymm1
 	vmulps	%ymm2, %ymm2, %ymm2
-	vsubps	%ymm3, %ymm7, %ymm0
-	vfmadd132ps	%ymm4, %ymm2, %ymm4
-	vfmadd132ps	%ymm0, %ymm4, %ymm0
-	vmovaps	%ymm0, -32(%rcx)
-	cmpl	%edx, %r12d
+	vblendps	$224, %ymm0, %ymm1, %ymm1
+	vsubps	%ymm1, %ymm7, %ymm0
+	vfmadd132ps	%ymm3, %ymm2, %ymm3
+	vfmadd132ps	%ymm0, %ymm3, %ymm0
+	vmovaps	%ymm0, -32(%r10)
+	cmpl	%r9d, %r12d
 	ja	.L11
-	cmpl	%ebx, %r9d
+	cmpl	%ebx, %r8d
 	je	.L9
-	movl	%r9d, %eax
+	vmovss	-72(%rbp), %xmm7
+	movl	%r8d, %eax
 .L10:
-	leal	(%rax,%rax,2), %edx
-	vmovd	%esi, %xmm7
-	leal	1(%rax), %ecx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm7, %xmm0
-	addq	$1, %rdx
-	vmovd	%edi, %xmm7
-	vsubss	position(,%rdx,4), %xmm7, %xmm1
-	vmovd	%r11d, %xmm7
-	vsubss	position+4(,%rdx,4), %xmm7, %xmm2
-	movslq	%eax, %rdx
-	vmulss	%xmm2, %xmm2, %xmm2
-	vfmadd132ss	%xmm1, %xmm2, %xmm1
-	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rdx,4)
-	cmpl	%ecx, %ebx
-	jle	.L9
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%esi, %xmm7
+	movslq	%eax, %r9
+	vmovd	%ecx, %xmm5
+	leaq	(%r9,%r9,2), %r11
+	leaq	position(,%r11,4), %r10
+	vsubss	position(,%r11,4), %xmm5, %xmm1
 	vmovd	%edi, %xmm5
-	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm7, %xmm0
-	addq	$1, %rdx
-	vmovd	%r11d, %xmm7
-	vsubss	position+4(,%rdx,4), %xmm7, %xmm2
-	vsubss	position(,%rdx,4), %xmm5, %xmm1
+	vsubss	4(%r10), %xmm5, %xmm2
+	vsubss	8(%r10), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	2(%rax), %ecx
-	cmpl	%ecx, %ebx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	1(%rax), %r9d
+	cmpl	%r9d, %ebx
 	jle	.L9
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%esi, %xmm5
-	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm5, %xmm0
-	addq	$1, %rdx
+	movslq	%r9d, %r9
+	vmovd	%edi, %xmm6
+	vmovd	%ecx, %xmm5
+	leaq	(%r9,%r9,2), %r11
+	leaq	position(,%r11,4), %r10
+	vsubss	position(,%r11,4), %xmm5, %xmm1
+	vsubss	4(%r10), %xmm6, %xmm2
+	vsubss	8(%r10), %xmm7, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	2(%rax), %r9d
+	cmpl	%r9d, %ebx
+	jle	.L9
+	movslq	%r9d, %r9
+	leaq	(%r9,%r9,2), %r11
+	leaq	position(,%r11,4), %r10
+	vsubss	position(,%r11,4), %xmm5, %xmm1
+	vsubss	4(%r10), %xmm6, %xmm2
+	vsubss	8(%r10), %xmm7, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	3(%rax), %r9d
+	cmpl	%r9d, %ebx
+	jle	.L9
+	movslq	%r9d, %r9
+	leaq	(%r9,%r9,2), %r11
+	leaq	position(,%r11,4), %r10
+	vsubss	position(,%r11,4), %xmm5, %xmm1
 	vmovd	%edi, %xmm5
-	vsubss	position+4(,%rdx,4), %xmm7, %xmm2
-	vsubss	position(,%rdx,4), %xmm5, %xmm1
+	vsubss	4(%r10), %xmm6, %xmm2
+	vsubss	8(%r10), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	3(%rax), %ecx
-	cmpl	%ecx, %ebx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	4(%rax), %r9d
+	cmpl	%r9d, %ebx
 	jle	.L9
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%esi, %xmm5
-	vmovd	%edi, %xmm7
-	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm5, %xmm0
-	addq	$1, %rdx
-	vmovd	%r11d, %xmm5
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm7, %xmm1
+	movslq	%r9d, %r9
+	vmovd	%ecx, %xmm6
+	leaq	(%r9,%r9,2), %r11
+	leaq	position(,%r11,4), %r10
+	vsubss	position(,%r11,4), %xmm6, %xmm1
+	vmovd	%edi, %xmm6
+	vsubss	4(%r10), %xmm5, %xmm2
+	vsubss	8(%r10), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	4(%rax), %ecx
-	cmpl	%ecx, %ebx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	5(%rax), %r9d
+	cmpl	%r9d, %ebx
 	jle	.L9
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%esi, %xmm7
-	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm7, %xmm0
-	addq	$1, %rdx
-	vmovd	%edi, %xmm7
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm7, %xmm1
-	vmulss	%xmm2, %xmm2, %xmm2
-	vfmadd132ss	%xmm1, %xmm2, %xmm1
-	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	5(%rax), %ecx
-	cmpl	%ecx, %ebx
-	jle	.L9
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%esi, %xmm7
-	vmovd	%r11d, %xmm6
-	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vmovd	%edi, %xmm5
+	movslq	%r9d, %r9
+	vmovd	%ecx, %xmm5
 	addl	$6, %eax
-	vsubss	position(,%rdx,4), %xmm7, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm6, %xmm2
-	vsubss	position(,%rdx,4), %xmm5, %xmm1
+	leaq	(%r9,%r9,2), %r11
+	leaq	position(,%r11,4), %r10
+	vsubss	position(,%r11,4), %xmm5, %xmm1
+	vmovd	%edi, %xmm5
+	vsubss	4(%r10), %xmm6, %xmm2
+	vsubss	8(%r10), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
+	vmovss	%xmm0, r2inv(,%r9,4)
 	cmpl	%eax, %ebx
 	jle	.L9
-	leal	(%rax,%rax,2), %edx
 	cltq
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm7, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm6, %xmm2
-	vsubss	position(,%rdx,4), %xmm5, %xmm1
+	vmovd	%ecx, %xmm6
+	leaq	(%rax,%rax,2), %r10
+	leaq	position(,%r10,4), %r9
+	vsubss	position(,%r10,4), %xmm6, %xmm1
+	vsubss	4(%r9), %xmm5, %xmm2
+	vsubss	8(%r9), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
 	vmovss	%xmm0, r2inv(,%rax,4)
 .L9:
-	vmovss	r2inv(,%r8,4), %xmm0
+	vmovss	r2inv(,%rsi,4), %xmm0
 	addq	$12, %r13
 	vmovss	%xmm0, res(%rip)
-	cmpq	%r15, %r13
+	cmpq	%r14, %r13
 	jne	.L13
-	movl	%r9d, -104(%rbp)
-	movl	%r10d, -96(%rbp)
-	movq	%r8, -88(%rbp)
+	movl	%r8d, -112(%rbp)
+	movq	%rsi, -104(%rbp)
 	vzeroupper
 	call	_ZNSt6chrono3_V212system_clock3nowEv
-	subq	-80(%rbp), %rax
+	subq	-96(%rbp), %rax
 	movabsq	$2361183241434822607, %rdx
 	movq	%rax, %rcx
 	imulq	%rdx
@@ -413,31 +401,175 @@ _Z5time3PK6float3iiii.constprop.3:
 	sarq	$63, %rax
 	sarq	$7, %rdx
 	subq	%rax, %rdx
-	movq	%rdx, -80(%rbp)
+	movq	%rdx, -72(%rbp)
 	call	_ZNSt6chrono3_V212system_clock3nowEv
-	movq	-72(%rbp), %rdi
-	movl	-104(%rbp), %r9d
-	movq	%rax, %r15
-	movl	-96(%rbp), %eax
-	movq	-88(%rbp), %r8
-	movq	%rax, %r10
-	leaq	4(,%rax,4), %rcx
+	movq	-88(%rbp), %rdx
+	vmovaps	.LC1(%rip), %ymm6
+	movl	-112(%rbp), %r8d
+	movl	-80(%rbp), %edi
+	movq	%rax, %r14
+	movq	-104(%rbp), %rsi
+	.p2align 4,,10
+	.p2align 3
+.L18:
+	vmovss	(%rdx), %xmm7
+	vmovss	4(%rdx), %xmm4
+	testl	%ebx, %ebx
+	jle	.L14
+	cmpl	$6, %edi
+	jbe	.L35
+	vbroadcastss	%xmm7, %ymm8
+	vbroadcastss	%xmm4, %ymm5
+	xorl	%eax, %eax
+	xorl	%ecx, %ecx
 	.p2align 4,,10
 	.p2align 3
 .L16:
-	vmovss	(%rdi), %xmm4
-	vmovss	4(%rdi), %xmm3
-	testl	%ebx, %ebx
+	vmovaps	%ymm6, %ymm2
+	vmovaps	%ymm6, %ymm0
+	vmovaps	%ymm6, %ymm13
+	addl	$1, %ecx
+	vmovdqa	neighList(%rax), %ymm3
+	addq	$32, %rax
+	vgatherdps	%ymm2, fx(,%ymm3,4), %ymm1
+	vgatherdps	%ymm0, fy(,%ymm3,4), %ymm2
+	vgatherdps	%ymm13, fz(,%ymm3,4), %ymm0
+	vsubps	%ymm2, %ymm5, %ymm2
+	vsubps	%ymm1, %ymm8, %ymm1
+	vsubps	%ymm0, %ymm5, %ymm0
+	vmulps	%ymm2, %ymm2, %ymm2
+	vfmadd132ps	%ymm1, %ymm2, %ymm1
+	vfmadd132ps	%ymm0, %ymm1, %ymm0
+	vmovaps	%ymm0, r2inv-32(%rax)
+	cmpl	%ecx, %r12d
+	ja	.L16
+	cmpl	%ebx, %r8d
+	je	.L14
+	movl	%r8d, %eax
+.L15:
+	movslq	%eax, %rcx
+	movslq	neighList(,%rcx,4), %r9
+	vsubss	fy(,%r9,4), %xmm4, %xmm2
+	vsubss	fx(,%r9,4), %xmm7, %xmm1
+	vsubss	fz(,%r9,4), %xmm4, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	leal	1(%rax), %ecx
+	cmpl	%ecx, %ebx
 	jle	.L14
+	movslq	%ecx, %rcx
+	movslq	neighList(,%rcx,4), %r9
+	vsubss	fy(,%r9,4), %xmm4, %xmm2
+	vsubss	fx(,%r9,4), %xmm7, %xmm1
+	vsubss	fz(,%r9,4), %xmm4, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	leal	2(%rax), %ecx
+	cmpl	%ecx, %ebx
+	jle	.L14
+	movslq	%ecx, %rcx
+	movslq	neighList(,%rcx,4), %r9
+	vsubss	fy(,%r9,4), %xmm4, %xmm2
+	vsubss	fx(,%r9,4), %xmm7, %xmm1
+	vsubss	fz(,%r9,4), %xmm4, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	leal	3(%rax), %ecx
+	cmpl	%ecx, %ebx
+	jle	.L14
+	movslq	%ecx, %rcx
+	movslq	neighList(,%rcx,4), %r9
+	vsubss	fy(,%r9,4), %xmm4, %xmm2
+	vsubss	fx(,%r9,4), %xmm7, %xmm1
+	vsubss	fz(,%r9,4), %xmm4, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	leal	4(%rax), %ecx
+	cmpl	%ecx, %ebx
+	jle	.L14
+	movslq	%ecx, %rcx
+	movslq	neighList(,%rcx,4), %r9
+	vsubss	fy(,%r9,4), %xmm4, %xmm2
+	vsubss	fx(,%r9,4), %xmm7, %xmm1
+	vsubss	fz(,%r9,4), %xmm4, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	leal	5(%rax), %ecx
+	cmpl	%ecx, %ebx
+	jle	.L14
+	movslq	%ecx, %rcx
+	addl	$6, %eax
+	movslq	neighList(,%rcx,4), %r9
+	vsubss	fy(,%r9,4), %xmm4, %xmm2
+	vsubss	fx(,%r9,4), %xmm7, %xmm1
+	vsubss	fz(,%r9,4), %xmm4, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	cmpl	%eax, %ebx
+	jle	.L14
+	cltq
+	movslq	neighList(,%rax,4), %rcx
+	vsubss	fy(,%rcx,4), %xmm4, %xmm0
+	vsubss	fx(,%rcx,4), %xmm7, %xmm7
+	vsubss	fz(,%rcx,4), %xmm4, %xmm4
+	vmulss	%xmm0, %xmm0, %xmm0
+	vfmadd132ss	%xmm7, %xmm0, %xmm7
+	vfmadd132ss	%xmm4, %xmm7, %xmm4
+	vmovss	%xmm4, r2inv(,%rax,4)
+.L14:
+	vmovss	r2inv(,%rsi,4), %xmm0
+	addq	$12, %rdx
+	vmovss	%xmm0, res(%rip)
+	cmpq	%r13, %rdx
+	jne	.L18
+	movl	%r8d, -112(%rbp)
+	movq	%rsi, -104(%rbp)
+	vzeroupper
+	call	_ZNSt6chrono3_V212system_clock3nowEv
+	movabsq	$2361183241434822607, %rdx
+	subq	%r14, %rax
+	movq	%rax, %rcx
+	imulq	%rdx
+	movq	%rcx, %rax
+	sarq	$63, %rax
+	sarq	$7, %rdx
+	subq	%rax, %rdx
+	movq	%rdx, -96(%rbp)
+	call	_ZNSt6chrono3_V212system_clock3nowEv
+	movq	-88(%rbp), %r9
+	movl	-112(%rbp), %r8d
+	movq	%rax, %r14
+	movl	-80(%rbp), %eax
+	movq	-104(%rbp), %rsi
+	leaq	4(,%rax,4), %rcx
+	.p2align 4,,10
+	.p2align 3
+.L21:
+	vmovss	(%r9), %xmm4
+	vmovss	4(%r9), %xmm3
+	testl	%ebx, %ebx
+	jle	.L19
 	xorl	%eax, %eax
 	.p2align 4,,10
 	.p2align 3
-.L15:
+.L20:
 	movslq	neighList(%rax), %rdx
 	addq	$4, %rax
-	leaq	(%rdx,%rdx,2), %rsi
-	leaq	position(,%rsi,4), %rdx
-	vsubss	position(,%rsi,4), %xmm4, %xmm1
+	leaq	(%rdx,%rdx,2), %rdi
+	leaq	position(,%rdi,4), %rdx
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vsubss	4(%rdx), %xmm3, %xmm2
 	vsubss	8(%rdx), %xmm3, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
@@ -445,218 +577,217 @@ _Z5time3PK6float3iiii.constprop.3:
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
 	vmovss	%xmm0, r2inv-4(%rax)
 	cmpq	%rcx, %rax
-	jne	.L15
-.L14:
-	vmovss	r2inv(,%r8,4), %xmm0
-	addq	$12, %rdi
+	jne	.L20
+.L19:
+	vmovss	r2inv(,%rsi,4), %xmm0
+	addq	$12, %r9
 	vmovss	%xmm0, res(%rip)
-	cmpq	%r13, %rdi
-	jne	.L16
-	movl	%r9d, -112(%rbp)
-	movl	%r10d, -108(%rbp)
-	movq	%rcx, -104(%rbp)
-	movq	%r8, -96(%rbp)
+	cmpq	%r13, %r9
+	jne	.L21
+	movl	%r8d, -124(%rbp)
+	movq	%rcx, -120(%rbp)
+	movq	%rsi, -112(%rbp)
 	call	_ZNSt6chrono3_V212system_clock3nowEv
 	movabsq	$2361183241434822607, %rdx
-	subq	%r15, %rax
-	movq	%rax, %rsi
+	subq	%r14, %rax
+	movq	%rax, %rdi
 	imulq	%rdx
-	movq	%rsi, %rax
+	movq	%rdi, %rax
 	sarq	$63, %rax
 	sarq	$7, %rdx
 	subq	%rax, %rdx
-	movq	%rdx, -88(%rbp)
+	movq	%rdx, -104(%rbp)
 	call	_ZNSt6chrono3_V212system_clock3nowEv
-	movq	-72(%rbp), %rdi
-	movl	-112(%rbp), %r9d
+	movq	-88(%rbp), %rdx
+	movl	-124(%rbp), %r8d
 	vmovdqa	.LC0(%rip), %ymm10
 	vmovaps	.LC1(%rip), %ymm6
-	movq	%rax, %r15
-	movl	-108(%rbp), %r10d
-	movq	-104(%rbp), %rcx
-	movq	-96(%rbp), %r8
+	movq	%rax, %r14
+	movl	-80(%rbp), %r9d
+	movq	-120(%rbp), %rcx
+	movq	-112(%rbp), %rsi
 	.p2align 4,,10
 	.p2align 3
-.L21:
-	vmovss	(%rdi), %xmm3
-	vmovss	4(%rdi), %xmm4
-	vmovss	8(%rdi), %xmm5
+.L26:
+	vmovss	(%rdx), %xmm3
+	vmovss	4(%rdx), %xmm4
+	vmovss	8(%rdx), %xmm5
 	testl	%ebx, %ebx
-	jle	.L17
-	cmpl	$6, %r10d
-	jbe	.L30
+	jle	.L22
+	cmpl	$6, %r9d
+	jbe	.L36
 	vbroadcastss	%xmm3, %ymm9
 	vbroadcastss	%xmm4, %ymm8
 	xorl	%eax, %eax
-	xorl	%edx, %edx
+	xorl	%edi, %edi
 	vbroadcastss	%xmm5, %ymm7
 	.p2align 4,,10
 	.p2align 3
-.L19:
+.L24:
+	vmovaps	%ymm6, %ymm2
 	vmovaps	%ymm6, %ymm0
-	vmovaps	%ymm6, %ymm13
-	addl	$1, %edx
+	vmovaps	%ymm6, %ymm14
+	addl	$1, %edi
+	vpmulld	neighList(%rax), %ymm10, %ymm11
 	addq	$32, %rax
-	vpmulld	neighList-32(%rax), %ymm10, %ymm11
-	vgatherdps	%ymm0, position(,%ymm11,4), %ymm1
-	vmovaps	%ymm6, %ymm0
+	vgatherdps	%ymm2, position(,%ymm11,4), %ymm1
 	vgatherdps	%ymm0, position+4(,%ymm11,4), %ymm2
-	vsubps	%ymm1, %ymm9, %ymm1
-	vgatherdps	%ymm13, position+8(,%ymm11,4), %ymm0
 	vsubps	%ymm2, %ymm8, %ymm2
+	vsubps	%ymm1, %ymm9, %ymm1
+	vgatherdps	%ymm14, position+8(,%ymm11,4), %ymm0
 	vsubps	%ymm0, %ymm7, %ymm0
 	vmulps	%ymm2, %ymm2, %ymm2
 	vfmadd132ps	%ymm1, %ymm2, %ymm1
 	vfmadd132ps	%ymm0, %ymm1, %ymm0
 	vmovaps	%ymm0, r2inv-32(%rax)
-	cmpl	%edx, %r12d
-	ja	.L19
-	cmpl	%ebx, %r9d
-	je	.L17
-	movl	%r9d, %eax
-.L18:
-	movslq	%eax, %rsi
-	movl	neighList(,%rsi,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm4, %xmm1
+	cmpl	%edi, %r12d
+	ja	.L24
+	cmpl	%ebx, %r8d
+	je	.L22
+	movl	%r8d, %eax
+.L23:
+	movslq	%eax, %r10
+	movl	neighList(,%r10,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm0
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm2
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rsi,4)
-	leal	1(%rax), %esi
-	cmpl	%esi, %ebx
-	jle	.L17
-	movslq	%esi, %rsi
-	movl	neighList(,%rsi,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm4, %xmm1
+	vmovss	%xmm0, r2inv(,%r10,4)
+	leal	1(%rax), %r10d
+	cmpl	%r10d, %ebx
+	jle	.L22
+	movslq	%r10d, %r10
+	movl	neighList(,%r10,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm0
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm2
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rsi,4)
-	leal	2(%rax), %esi
-	cmpl	%esi, %ebx
-	jle	.L17
-	movslq	%esi, %rsi
-	movl	neighList(,%rsi,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm4, %xmm1
+	vmovss	%xmm0, r2inv(,%r10,4)
+	leal	2(%rax), %r10d
+	cmpl	%r10d, %ebx
+	jle	.L22
+	movslq	%r10d, %r10
+	movl	neighList(,%r10,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm0
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm2
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rsi,4)
-	leal	3(%rax), %esi
-	cmpl	%esi, %ebx
-	jle	.L17
-	movslq	%esi, %rsi
-	movl	neighList(,%rsi,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm4, %xmm1
+	vmovss	%xmm0, r2inv(,%r10,4)
+	leal	3(%rax), %r10d
+	cmpl	%r10d, %ebx
+	jle	.L22
+	movslq	%r10d, %r10
+	movl	neighList(,%r10,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm0
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm2
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rsi,4)
-	leal	4(%rax), %esi
-	cmpl	%esi, %ebx
-	jle	.L17
-	movslq	%esi, %rsi
-	movl	neighList(,%rsi,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm4, %xmm1
+	vmovss	%xmm0, r2inv(,%r10,4)
+	leal	4(%rax), %r10d
+	cmpl	%r10d, %ebx
+	jle	.L22
+	movslq	%r10d, %r10
+	movl	neighList(,%r10,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm0
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm2
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rsi,4)
-	leal	5(%rax), %esi
-	cmpl	%esi, %ebx
-	jle	.L17
-	movslq	%esi, %rsi
+	vmovss	%xmm0, r2inv(,%r10,4)
+	leal	5(%rax), %r10d
+	cmpl	%r10d, %ebx
+	jle	.L22
+	movslq	%r10d, %r10
 	addl	$6, %eax
-	movl	neighList(,%rsi,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm4, %xmm1
+	movl	neighList(,%r10,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm0
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm2
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rsi,4)
+	vmovss	%xmm0, r2inv(,%r10,4)
 	cmpl	%eax, %ebx
-	jle	.L17
+	jle	.L22
 	cltq
-	movl	neighList(,%rax,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm3
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm5
-	vsubss	position(,%rdx,4), %xmm4, %xmm4
+	movl	neighList(,%rax,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm3
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm5
+	vsubss	position(,%rdi,4), %xmm4, %xmm4
 	vmulss	%xmm5, %xmm5, %xmm5
 	vfmadd132ss	%xmm4, %xmm5, %xmm4
 	vfmadd132ss	%xmm3, %xmm4, %xmm3
 	vmovss	%xmm3, r2inv(,%rax,4)
-.L17:
-	vmovss	r2inv(,%r8,4), %xmm0
-	addq	$12, %rdi
+.L22:
+	vmovss	r2inv(,%rsi,4), %xmm0
+	addq	$12, %rdx
 	vmovss	%xmm0, res(%rip)
-	cmpq	%r13, %rdi
-	jne	.L21
-	movq	%rcx, -96(%rbp)
-	movq	%r8, -72(%rbp)
+	cmpq	%r13, %rdx
+	jne	.L26
+	movq	%rcx, -88(%rbp)
+	movq	%rsi, -80(%rbp)
 	vzeroupper
 	call	_ZNSt6chrono3_V212system_clock3nowEv
 	movabsq	$2361183241434822607, %rdx
-	subq	%r15, %rax
-	movq	%rax, %rsi
+	subq	%r14, %rax
+	movq	%rax, %rdi
 	imulq	%rdx
-	movq	%rsi, %rax
+	movq	%rdi, %rax
 	sarq	$63, %rax
 	sarq	$7, %rdx
 	movq	%rdx, %r12
 	subq	%rax, %r12
 	call	_ZNSt6chrono3_V212system_clock3nowEv
-	movq	-96(%rbp), %rcx
-	movq	-72(%rbp), %r8
-	movq	%rax, %r15
+	movq	-88(%rbp), %rcx
+	movq	-80(%rbp), %rsi
+	movq	%rax, %r14
 	.p2align 4,,10
 	.p2align 3
-.L24:
-	vmovss	(%r14), %xmm3
-	vmovss	4(%r14), %xmm4
-	vmovss	8(%r14), %xmm5
+.L29:
+	vmovss	(%r15), %xmm3
+	vmovss	4(%r15), %xmm4
+	vmovss	8(%r15), %xmm5
 	testl	%ebx, %ebx
-	jle	.L22
+	jle	.L27
 	xorl	%eax, %eax
 	.p2align 4,,10
 	.p2align 3
-.L23:
+.L28:
 	movslq	neighList(%rax), %rdx
 	addq	$4, %rax
-	leaq	(%rdx,%rdx,2), %rsi
-	leaq	position(,%rsi,4), %rdx
-	vsubss	position(,%rsi,4), %xmm3, %xmm1
+	leaq	(%rdx,%rdx,2), %rdi
+	leaq	position(,%rdi,4), %rdx
+	vsubss	position(,%rdi,4), %xmm3, %xmm1
 	vsubss	4(%rdx), %xmm4, %xmm2
 	vsubss	8(%rdx), %xmm5, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
@@ -664,18 +795,18 @@ _Z5time3PK6float3iiii.constprop.3:
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
 	vmovss	%xmm0, r2inv-4(%rax)
 	cmpq	%rcx, %rax
-	jne	.L23
-.L22:
-	vmovss	r2inv(,%r8,4), %xmm0
-	addq	$12, %r14
+	jne	.L28
+.L27:
+	vmovss	r2inv(,%rsi,4), %xmm0
+	addq	$12, %r15
 	vmovss	%xmm0, res(%rip)
-	cmpq	%r13, %r14
-	jne	.L24
+	cmpq	%r13, %r15
+	jne	.L29
 	call	_ZNSt6chrono3_V212system_clock3nowEv
 	movl	$.LC14, %esi
 	movl	$_ZSt4cout, %edi
 	movabsq	$2361183241434822607, %rdx
-	subq	%r15, %rax
+	subq	%r14, %rax
 	movq	%rax, %rcx
 	imulq	%rdx
 	movq	%rcx, %rax
@@ -693,7 +824,7 @@ _Z5time3PK6float3iiii.constprop.3:
 	movb	$32, -49(%rbp)
 	movq	%rax, %rdi
 	call	_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l
-	movq	-80(%rbp), %rsi
+	movq	-72(%rbp), %rsi
 	movq	%rax, %rdi
 	call	_ZNSo9_M_insertIlEERSoT_
 	movl	$1, %edx
@@ -701,7 +832,7 @@ _Z5time3PK6float3iiii.constprop.3:
 	movb	$32, -50(%rbp)
 	movq	%rax, %rdi
 	call	_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l
-	movq	-88(%rbp), %rsi
+	movq	-96(%rbp), %rsi
 	movq	%rax, %rdi
 	call	_ZNSo9_M_insertIlEERSoT_
 	movl	$1, %edx
@@ -709,12 +840,20 @@ _Z5time3PK6float3iiii.constprop.3:
 	movb	$32, -51(%rbp)
 	movq	%rax, %rdi
 	call	_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l
-	movq	%r12, %rsi
+	movq	-104(%rbp), %rsi
 	movq	%rax, %rdi
 	call	_ZNSo9_M_insertIlEERSoT_
 	movl	$1, %edx
 	leaq	-52(%rbp), %rsi
 	movb	$32, -52(%rbp)
+	movq	%rax, %rdi
+	call	_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l
+	movq	%r12, %rsi
+	movq	%rax, %rdi
+	call	_ZNSo9_M_insertIlEERSoT_
+	movl	$1, %edx
+	leaq	-53(%rbp), %rsi
+	movb	$32, -53(%rbp)
 	movq	%rax, %rdi
 	call	_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l
 	movq	%r13, %rsi
@@ -725,16 +864,16 @@ _Z5time3PK6float3iiii.constprop.3:
 	movq	-24(%rax), %rax
 	movq	240(%r12,%rax), %rbx
 	testq	%rbx, %rbx
-	je	.L44
+	je	.L52
 	cmpb	$0, 56(%rbx)
-	je	.L26
+	je	.L31
 	movsbl	67(%rbx), %esi
-.L27:
+.L32:
 	movq	%r12, %rdi
 	call	_ZNSo3putEc
 	movq	%rax, %rdi
 	call	_ZNSo5flushEv
-	addq	$64, %rsp
+	addq	$96, %rsp
 	popq	%rbx
 	popq	%r10
 	.cfi_remember_state
@@ -749,35 +888,41 @@ _Z5time3PK6float3iiii.constprop.3:
 	ret
 	.p2align 4,,10
 	.p2align 3
-.L28:
+.L33:
 	.cfi_restore_state
 	xorl	%eax, %eax
 	jmp	.L5
 	.p2align 4,,10
 	.p2align 3
-.L30:
+.L36:
 	xorl	%eax, %eax
-	jmp	.L18
+	jmp	.L23
 	.p2align 4,,10
 	.p2align 3
-.L29:
+.L35:
 	xorl	%eax, %eax
+	jmp	.L15
+	.p2align 4,,10
+	.p2align 3
+.L34:
+	xorl	%eax, %eax
+	vmovaps	%xmm5, %xmm7
 	jmp	.L10
 	.p2align 4,,10
 	.p2align 3
-.L26:
+.L31:
 	movq	%rbx, %rdi
 	call	_ZNKSt5ctypeIcE13_M_widen_initEv
 	movq	(%rbx), %rax
 	movl	$10, %esi
 	movq	48(%rax), %rax
 	cmpq	$_ZNKSt5ctypeIcE8do_widenEc, %rax
-	je	.L27
+	je	.L32
 	movq	%rbx, %rdi
 	call	*%rax
 	movsbl	%al, %esi
-	jmp	.L27
-.L44:
+	jmp	.L32
+.L52:
 	call	_ZSt16__throw_bad_castv
 	.cfi_endproc
 .LFE2610:
@@ -792,7 +937,7 @@ _Z3f20v:
 	xorl	%eax, %eax
 	.p2align 4,,10
 	.p2align 3
-.L46:
+.L54:
 	vmovaps	%ymm2, %ymm5
 	vmovaps	%ymm2, %ymm6
 	vmovaps	%ymm2, %ymm7
@@ -805,7 +950,7 @@ _Z3f20v:
 	vaddps	%ymm3, %ymm0, %ymm0
 	vmovaps	%ymm0, g-32(%rax)
 	cmpq	$4096, %rax
-	jne	.L46
+	jne	.L54
 	vzeroupper
 	ret
 	.cfi_endproc
@@ -824,7 +969,7 @@ _Z3f21v:
 	vmovdqa	.LC16(%rip), %ymm5
 	.p2align 4,,10
 	.p2align 3
-.L49:
+.L57:
 	vmovaps	%ymm2, %ymm3
 	vmovaps	%ymm2, %ymm8
 	vmovaps	%ymm2, %ymm9
@@ -839,7 +984,7 @@ _Z3f21v:
 	vaddps	%ymm3, %ymm0, %ymm0
 	vmovaps	%ymm0, g-32(%rax)
 	cmpq	$4096, %rax
-	jne	.L49
+	jne	.L57
 	vzeroupper
 	ret
 	.cfi_endproc
@@ -854,7 +999,7 @@ _Z4f21bv:
 	xorl	%edx, %edx
 	.p2align 4,,10
 	.p2align 3
-.L52:
+.L60:
 	movl	k(%rdx), %eax
 	addq	$4, %rdx
 	leal	(%rax,%rax,2), %eax
@@ -864,7 +1009,7 @@ _Z4f21bv:
 	vaddss	ff+8(,%rax,4), %xmm0, %xmm0
 	vmovss	%xmm0, g-4(%rdx)
 	cmpq	$4096, %rdx
-	jne	.L52
+	jne	.L60
 	ret
 	.cfi_endproc
 .LFE2:
@@ -878,7 +1023,7 @@ _Z3f22v:
 	xorl	%eax, %eax
 	.p2align 4,,10
 	.p2align 3
-.L55:
+.L63:
 	movslq	k(%rax), %rdx
 	addq	$4, %rax
 	leaq	(%rdx,%rdx,2), %rdx
@@ -887,7 +1032,7 @@ _Z3f22v:
 	vaddss	f3+8(,%rdx,4), %xmm0, %xmm0
 	vmovss	%xmm0, g-4(%rax)
 	cmpq	$4096, %rax
-	jne	.L55
+	jne	.L63
 	ret
 	.cfi_endproc
 .LFE3:
@@ -910,13 +1055,13 @@ _Z3seq6float3iii:
 	leal	-1(%rdi), %r10d
 	vmovq	%xmm0, -32(%rbp)
 	testl	%edi, %edi
-	jle	.L58
+	jle	.L66
 	leal	-1(%rdi), %r10d
 	vmovd	%xmm1, %esi
 	movl	-32(%rbp), %r8d
 	movl	-28(%rbp), %r9d
 	cmpl	$6, %r10d
-	jbe	.L62
+	jbe	.L70
 	vmovd	%r8d, %xmm7
 	movl	%edi, %r11d
 	vmovdqa	.LC2(%rip), %ymm13
@@ -936,7 +1081,7 @@ _Z3seq6float3iii:
 	vmovdqa	.LC13(%rip), %ymm8
 	.p2align 4,,10
 	.p2align 3
-.L60:
+.L68:
 	vmovaps	(%rax), %ymm0
 	vmovaps	32(%rax), %ymm6
 	addl	$1, %edx
@@ -975,124 +1120,114 @@ _Z3seq6float3iii:
 	vfmadd132ps	%ymm0, %ymm3, %ymm0
 	vmovaps	%ymm0, -32(%rcx)
 	cmpl	%edx, %r11d
-	ja	.L60
+	ja	.L68
 	movl	%edi, %eax
 	andl	$-8, %eax
 	cmpl	%edi, %eax
-	je	.L68
+	je	.L76
 	vzeroupper
-.L59:
-	leal	(%rax,%rax,2), %edx
+.L67:
+	movslq	%eax, %rcx
 	vmovd	%r8d, %xmm7
-	leal	1(%rax), %ecx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm7, %xmm0
-	addq	$1, %rdx
+	leaq	(%rcx,%rcx,2), %rdx
+	salq	$2, %rdx
+	vsubss	position(%rdx), %xmm7, %xmm1
 	vmovd	%r9d, %xmm7
-	vsubss	position(,%rdx,4), %xmm7, %xmm1
+	vsubss	position+4(%rdx), %xmm7, %xmm2
 	vmovd	%esi, %xmm7
-	vsubss	position+4(,%rdx,4), %xmm7, %xmm2
-	movslq	%eax, %rdx
+	vsubss	position+8(%rdx), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rdx,4)
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	leal	1(%rax), %ecx
 	cmpl	%ecx, %edi
-	jle	.L58
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%r8d, %xmm7
-	vmovd	%r9d, %xmm5
+	jle	.L66
 	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm7, %xmm0
-	addq	$1, %rdx
+	vmovd	%r9d, %xmm5
+	vmovd	%r8d, %xmm7
+	leaq	(%rcx,%rcx,2), %rdx
+	salq	$2, %rdx
+	vsubss	position+4(%rdx), %xmm5, %xmm2
+	vsubss	position(%rdx), %xmm7, %xmm1
 	vmovd	%esi, %xmm7
-	vsubss	position+4(,%rdx,4), %xmm7, %xmm2
-	vsubss	position(,%rdx,4), %xmm5, %xmm1
+	vsubss	position+8(%rdx), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
 	vmovss	%xmm0, r2inv(,%rcx,4)
 	leal	2(%rax), %ecx
 	cmpl	%ecx, %edi
-	jle	.L58
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%r8d, %xmm5
+	jle	.L66
 	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm5, %xmm0
-	addq	$1, %rdx
+	vmovd	%r8d, %xmm5
+	leaq	(%rcx,%rcx,2), %rdx
+	salq	$2, %rdx
+	vsubss	position(%rdx), %xmm5, %xmm1
 	vmovd	%r9d, %xmm5
-	vsubss	position+4(,%rdx,4), %xmm7, %xmm2
-	vsubss	position(,%rdx,4), %xmm5, %xmm1
+	vsubss	position+4(%rdx), %xmm5, %xmm2
+	vsubss	position+8(%rdx), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
 	vmovss	%xmm0, r2inv(,%rcx,4)
 	leal	3(%rax), %ecx
 	cmpl	%ecx, %edi
-	jle	.L58
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%r8d, %xmm5
-	vmovd	%r9d, %xmm7
+	jle	.L66
 	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm5, %xmm0
-	addq	$1, %rdx
-	vmovd	%esi, %xmm5
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm7, %xmm1
+	vmovd	%r8d, %xmm1
+	leaq	(%rcx,%rcx,2), %rdx
+	salq	$2, %rdx
+	vsubss	position+4(%rdx), %xmm5, %xmm2
+	vsubss	position(%rdx), %xmm1, %xmm1
+	vsubss	position+8(%rdx), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
 	vmovss	%xmm0, r2inv(,%rcx,4)
 	leal	4(%rax), %ecx
 	cmpl	%ecx, %edi
-	jle	.L58
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%r8d, %xmm1
+	jle	.L66
 	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm1, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm7, %xmm1
+	vmovd	%r8d, %xmm1
+	leaq	(%rcx,%rcx,2), %rdx
+	salq	$2, %rdx
+	vsubss	position+4(%rdx), %xmm5, %xmm2
+	vsubss	position(%rdx), %xmm1, %xmm1
+	vsubss	position+8(%rdx), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
 	vmovss	%xmm0, r2inv(,%rcx,4)
 	leal	5(%rax), %ecx
 	cmpl	%ecx, %edi
-	jle	.L58
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%r8d, %xmm1
-	vmovd	%r9d, %xmm7
+	jle	.L66
 	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
+	vmovd	%r8d, %xmm1
 	addl	$6, %eax
-	vsubss	position(,%rdx,4), %xmm1, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm7, %xmm1
+	leaq	(%rcx,%rcx,2), %rdx
+	salq	$2, %rdx
+	vsubss	position+4(%rdx), %xmm5, %xmm2
+	vsubss	position(%rdx), %xmm1, %xmm1
+	vsubss	position+8(%rdx), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
 	vmovss	%xmm0, r2inv(,%rcx,4)
 	cmpl	%eax, %edi
-	jle	.L58
-	leal	(%rax,%rax,2), %edx
-	vmovd	%r8d, %xmm1
+	jle	.L66
 	cltq
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm1, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm1
-	vsubss	position(,%rdx,4), %xmm7, %xmm2
-	vmulss	%xmm1, %xmm1, %xmm1
-	vfmadd231ss	%xmm2, %xmm2, %xmm1
-	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rax,4)
-.L58:
+	vmovd	%r8d, %xmm1
+	leaq	(%rax,%rax,2), %rdx
+	salq	$2, %rdx
+	vsubss	position+4(%rdx), %xmm5, %xmm2
+	vsubss	position(%rdx), %xmm1, %xmm0
+	vsubss	position+8(%rdx), %xmm7, %xmm1
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm0, %xmm2, %xmm0
+	vfmadd132ss	%xmm1, %xmm0, %xmm1
+	vmovss	%xmm1, r2inv(,%rax,4)
+.L66:
 	movslq	%r10d, %r10
 	vmovss	r2inv(,%r10,4), %xmm0
 	vmovss	%xmm0, res(%rip)
@@ -1105,28 +1240,193 @@ _Z3seq6float3iii:
 	ret
 	.p2align 4,,10
 	.p2align 3
-.L68:
+.L76:
 	.cfi_restore_state
 	vzeroupper
-	jmp	.L58
+	jmp	.L66
 	.p2align 4,,10
 	.p2align 3
-.L62:
+.L70:
 	xorl	%eax, %eax
-	jmp	.L59
+	jmp	.L67
 	.cfi_endproc
 .LFE4:
 	.size	_Z3seq6float3iii, .-_Z3seq6float3iii
 	.p2align 4,,15
+	.globl	_Z3soa6float3iii
+	.type	_Z3soa6float3iii, @function
+_Z3soa6float3iii:
+.LFB5:
+	.cfi_startproc
+	leaq	8(%rsp), %r10
+	.cfi_def_cfa 10, 0
+	andq	$-32, %rsp
+	leal	-1(%rdi), %esi
+	pushq	-8(%r10)
+	pushq	%rbp
+	.cfi_escape 0x10,0x6,0x2,0x76,0
+	movq	%rsp, %rbp
+	pushq	%r10
+	.cfi_escape 0xf,0x3,0x76,0x78,0x6
+	vmovq	%xmm0, -32(%rbp)
+	vmovss	%xmm1, -24(%rbp)
+	vmovss	-28(%rbp), %xmm5
+	testl	%edi, %edi
+	jle	.L78
+	leal	-1(%rdi), %esi
+	vmovss	-32(%rbp), %xmm7
+	cmpl	$6, %esi
+	jbe	.L82
+	movl	%edi, %ecx
+	vmovaps	.LC1(%rip), %ymm4
+	xorl	%eax, %eax
+	xorl	%edx, %edx
+	shrl	$3, %ecx
+	vbroadcastss	%xmm7, %ymm8
+	vbroadcastss	%xmm5, %ymm6
+	.p2align 4,,10
+	.p2align 3
+.L80:
+	vmovaps	%ymm4, %ymm1
+	vmovaps	%ymm4, %ymm9
+	addl	$1, %edx
+	addq	$32, %rax
+	vmovdqa	neighList-32(%rax), %ymm0
+	vgatherdps	%ymm1, fx(,%ymm0,4), %ymm2
+	vmovaps	%ymm4, %ymm1
+	vgatherdps	%ymm1, fy(,%ymm0,4), %ymm3
+	vsubps	%ymm2, %ymm8, %ymm2
+	vgatherdps	%ymm9, fz(,%ymm0,4), %ymm1
+	vsubps	%ymm3, %ymm6, %ymm3
+	vsubps	%ymm1, %ymm6, %ymm0
+	vmulps	%ymm3, %ymm3, %ymm3
+	vfmadd132ps	%ymm2, %ymm3, %ymm2
+	vfmadd132ps	%ymm0, %ymm2, %ymm0
+	vmovaps	%ymm0, r2inv-32(%rax)
+	cmpl	%edx, %ecx
+	ja	.L80
+	movl	%edi, %eax
+	andl	$-8, %eax
+	cmpl	%edi, %eax
+	je	.L88
+	vzeroupper
+.L79:
+	movslq	%eax, %rcx
+	movslq	neighList(,%rcx,4), %rdx
+	vsubss	fy(,%rdx,4), %xmm5, %xmm2
+	vsubss	fx(,%rdx,4), %xmm7, %xmm1
+	vsubss	fz(,%rdx,4), %xmm5, %xmm0
+	leal	1(%rax), %edx
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	cmpl	%edx, %edi
+	jle	.L78
+	movslq	%edx, %rdx
+	movslq	neighList(,%rdx,4), %rcx
+	vsubss	fy(,%rcx,4), %xmm5, %xmm2
+	vsubss	fx(,%rcx,4), %xmm7, %xmm1
+	vsubss	fz(,%rcx,4), %xmm5, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rdx,4)
+	leal	2(%rax), %edx
+	cmpl	%edx, %edi
+	jle	.L78
+	movslq	%edx, %rdx
+	movslq	neighList(,%rdx,4), %rcx
+	vsubss	fy(,%rcx,4), %xmm5, %xmm2
+	vsubss	fx(,%rcx,4), %xmm7, %xmm1
+	vsubss	fz(,%rcx,4), %xmm5, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rdx,4)
+	leal	3(%rax), %edx
+	cmpl	%edx, %edi
+	jle	.L78
+	movslq	%edx, %rdx
+	movslq	neighList(,%rdx,4), %rcx
+	vsubss	fy(,%rcx,4), %xmm5, %xmm2
+	vsubss	fx(,%rcx,4), %xmm7, %xmm1
+	vsubss	fz(,%rcx,4), %xmm5, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rdx,4)
+	leal	4(%rax), %edx
+	cmpl	%edx, %edi
+	jle	.L78
+	movslq	%edx, %rdx
+	movslq	neighList(,%rdx,4), %rcx
+	vsubss	fy(,%rcx,4), %xmm5, %xmm2
+	vsubss	fx(,%rcx,4), %xmm7, %xmm1
+	vsubss	fz(,%rcx,4), %xmm5, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rdx,4)
+	leal	5(%rax), %edx
+	cmpl	%edx, %edi
+	jle	.L78
+	movslq	%edx, %rdx
+	addl	$6, %eax
+	movslq	neighList(,%rdx,4), %rcx
+	vsubss	fy(,%rcx,4), %xmm5, %xmm2
+	vsubss	fx(,%rcx,4), %xmm7, %xmm1
+	vsubss	fz(,%rcx,4), %xmm5, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rdx,4)
+	cmpl	%eax, %edi
+	jle	.L78
+	cltq
+	movslq	neighList(,%rax,4), %rdx
+	vsubss	fy(,%rdx,4), %xmm5, %xmm0
+	vsubss	fx(,%rdx,4), %xmm7, %xmm7
+	vsubss	fz(,%rdx,4), %xmm5, %xmm5
+	vmulss	%xmm0, %xmm0, %xmm0
+	vfmadd132ss	%xmm7, %xmm0, %xmm7
+	vfmadd132ss	%xmm5, %xmm7, %xmm5
+	vmovss	%xmm5, r2inv(,%rax,4)
+.L78:
+	movslq	%esi, %rsi
+	vmovss	r2inv(,%rsi,4), %xmm0
+	vmovss	%xmm0, res(%rip)
+	popq	%r10
+	.cfi_remember_state
+	.cfi_def_cfa 10, 0
+	popq	%rbp
+	leaq	-8(%r10), %rsp
+	.cfi_def_cfa 7, 8
+	ret
+	.p2align 4,,10
+	.p2align 3
+.L88:
+	.cfi_restore_state
+	vzeroupper
+	jmp	.L78
+	.p2align 4,,10
+	.p2align 3
+.L82:
+	xorl	%eax, %eax
+	jmp	.L79
+	.cfi_endproc
+.LFE5:
+	.size	_Z3soa6float3iii, .-_Z3soa6float3iii
+	.p2align 4,,15
 	.globl	_Z3bar6float3iii
 	.type	_Z3bar6float3iii, @function
 _Z3bar6float3iii:
-.LFB5:
+.LFB6:
 	.cfi_startproc
 	vmovq	%xmm0, -16(%rsp)
 	vmovss	-12(%rsp), %xmm3
 	testl	%edi, %edi
-	jle	.L75
+	jle	.L95
 	leal	-1(%rdi), %eax
 	vmovss	-16(%rsp), %xmm4
 	movq	%rax, %rdi
@@ -1134,7 +1434,7 @@ _Z3bar6float3iii:
 	xorl	%eax, %eax
 	.p2align 4,,10
 	.p2align 3
-.L71:
+.L91:
 	movslq	neighList(%rax), %rdx
 	addq	$4, %rax
 	leaq	(%rdx,%rdx,2), %rcx
@@ -1147,25 +1447,25 @@ _Z3bar6float3iii:
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
 	vmovss	%xmm0, r2inv-4(%rax)
 	cmpq	%rax, %rsi
-	jne	.L71
-.L70:
+	jne	.L91
+.L90:
 	movslq	%edi, %rdi
 	vmovss	r2inv(,%rdi,4), %xmm0
 	vmovss	%xmm0, res(%rip)
 	ret
 	.p2align 4,,10
 	.p2align 3
-.L75:
+.L95:
 	subl	$1, %edi
-	jmp	.L70
+	jmp	.L90
 	.cfi_endproc
-.LFE5:
+.LFE6:
 	.size	_Z3bar6float3iii, .-_Z3bar6float3iii
 	.p2align 4,,15
 	.globl	_Z4bar26float3iii
 	.type	_Z4bar26float3iii, @function
 _Z4bar26float3iii:
-.LFB6:
+.LFB7:
 	.cfi_startproc
 	leaq	8(%rsp), %r10
 	.cfi_def_cfa 10, 0
@@ -1180,12 +1480,12 @@ _Z4bar26float3iii:
 	vmovq	%xmm0, -32(%rbp)
 	vmovss	%xmm1, -24(%rbp)
 	testl	%edi, %edi
-	jle	.L77
+	jle	.L97
 	leal	-1(%rdi), %ecx
 	vmovss	-32(%rbp), %xmm10
 	vmovss	-28(%rbp), %xmm11
 	cmpl	$6, %ecx
-	jbe	.L81
+	jbe	.L101
 	movl	%edi, %esi
 	vmovdqa	.LC0(%rip), %ymm6
 	xorl	%eax, %eax
@@ -1197,7 +1497,7 @@ _Z4bar26float3iii:
 	vbroadcastss	%xmm1, %ymm7
 	.p2align 4,,10
 	.p2align 3
-.L79:
+.L99:
 	vmovaps	%ymm5, %ymm2
 	vmovaps	%ymm5, %ymm12
 	addl	$1, %edx
@@ -1215,13 +1515,13 @@ _Z4bar26float3iii:
 	vfmadd132ps	%ymm0, %ymm3, %ymm0
 	vmovaps	%ymm0, r2inv-32(%rax)
 	cmpl	%edx, %esi
-	ja	.L79
+	ja	.L99
 	movl	%edi, %eax
 	andl	$-8, %eax
 	cmpl	%edi, %eax
-	je	.L87
+	je	.L107
 	vzeroupper
-.L78:
+.L98:
 	movslq	%eax, %rsi
 	movl	neighList(,%rsi,4), %edx
 	leal	(%rdx,%rdx,2), %edx
@@ -1236,7 +1536,7 @@ _Z4bar26float3iii:
 	vfmadd132ss	%xmm0, %xmm2, %xmm0
 	vmovss	%xmm0, r2inv(,%rsi,4)
 	cmpl	%edx, %edi
-	jle	.L77
+	jle	.L97
 	movslq	%edx, %rsi
 	movl	neighList(,%rsi,4), %edx
 	leal	(%rdx,%rdx,2), %edx
@@ -1251,7 +1551,7 @@ _Z4bar26float3iii:
 	vfmadd132ss	%xmm0, %xmm2, %xmm0
 	vmovss	%xmm0, r2inv(,%rsi,4)
 	cmpl	%edx, %edi
-	jle	.L77
+	jle	.L97
 	movslq	%edx, %rsi
 	movl	neighList(,%rsi,4), %edx
 	leal	(%rdx,%rdx,2), %edx
@@ -1266,7 +1566,7 @@ _Z4bar26float3iii:
 	vfmadd132ss	%xmm0, %xmm2, %xmm0
 	vmovss	%xmm0, r2inv(,%rsi,4)
 	cmpl	%edx, %edi
-	jle	.L77
+	jle	.L97
 	movslq	%edx, %rsi
 	movl	neighList(,%rsi,4), %edx
 	leal	(%rdx,%rdx,2), %edx
@@ -1281,7 +1581,7 @@ _Z4bar26float3iii:
 	vfmadd132ss	%xmm0, %xmm2, %xmm0
 	vmovss	%xmm0, r2inv(,%rsi,4)
 	cmpl	%edx, %edi
-	jle	.L77
+	jle	.L97
 	movslq	%edx, %rsi
 	movl	neighList(,%rsi,4), %edx
 	leal	(%rdx,%rdx,2), %edx
@@ -1296,7 +1596,7 @@ _Z4bar26float3iii:
 	vfmadd132ss	%xmm0, %xmm2, %xmm0
 	vmovss	%xmm0, r2inv(,%rsi,4)
 	cmpl	%edx, %edi
-	jle	.L77
+	jle	.L97
 	movslq	%edx, %rsi
 	addl	$6, %eax
 	movl	neighList(,%rsi,4), %edx
@@ -1311,7 +1611,7 @@ _Z4bar26float3iii:
 	vfmadd132ss	%xmm0, %xmm2, %xmm0
 	vmovss	%xmm0, r2inv(,%rsi,4)
 	cmpl	%eax, %edi
-	jle	.L77
+	jle	.L97
 	cltq
 	movl	neighList(,%rax,4), %edx
 	leal	(%rdx,%rdx,2), %edx
@@ -1324,7 +1624,7 @@ _Z4bar26float3iii:
 	vfmadd132ss	%xmm11, %xmm1, %xmm11
 	vfmadd132ss	%xmm10, %xmm11, %xmm10
 	vmovss	%xmm10, r2inv(,%rax,4)
-.L77:
+.L97:
 	movslq	%ecx, %rcx
 	vmovss	r2inv(,%rcx,4), %xmm0
 	vmovss	%xmm0, res(%rip)
@@ -1337,27 +1637,27 @@ _Z4bar26float3iii:
 	ret
 	.p2align 4,,10
 	.p2align 3
-.L87:
+.L107:
 	.cfi_restore_state
 	vzeroupper
-	jmp	.L77
+	jmp	.L97
 	.p2align 4,,10
 	.p2align 3
-.L81:
+.L101:
 	xorl	%eax, %eax
-	jmp	.L78
+	jmp	.L98
 	.cfi_endproc
-.LFE6:
+.LFE7:
 	.size	_Z4bar26float3iii, .-_Z4bar26float3iii
 	.p2align 4,,15
 	.globl	_Z3foo6float3iii
 	.type	_Z3foo6float3iii, @function
 _Z3foo6float3iii:
-.LFB7:
+.LFB8:
 	.cfi_startproc
 	vmovq	%xmm0, -16(%rsp)
 	testl	%edi, %edi
-	jle	.L94
+	jle	.L114
 	leal	-1(%rdi), %eax
 	vmovss	-16(%rsp), %xmm5
 	vmovss	-12(%rsp), %xmm4
@@ -1366,7 +1666,7 @@ _Z3foo6float3iii:
 	xorl	%eax, %eax
 	.p2align 4,,10
 	.p2align 3
-.L90:
+.L110:
 	movslq	neighList(%rax), %rdx
 	addq	$4, %rax
 	leaq	(%rdx,%rdx,2), %rcx
@@ -1379,25 +1679,25 @@ _Z3foo6float3iii:
 	vfmadd132ss	%xmm0, %xmm2, %xmm0
 	vmovss	%xmm0, r2inv-4(%rax)
 	cmpq	%rax, %rsi
-	jne	.L90
-.L89:
+	jne	.L110
+.L109:
 	movslq	%edi, %rdi
 	vmovss	r2inv(,%rdi,4), %xmm0
 	vmovss	%xmm0, res(%rip)
 	ret
 	.p2align 4,,10
 	.p2align 3
-.L94:
+.L114:
 	subl	$1, %edi
-	jmp	.L89
+	jmp	.L109
 	.cfi_endproc
-.LFE7:
+.LFE8:
 	.size	_Z3foo6float3iii, .-_Z3foo6float3iii
 	.p2align 4,,15
 	.globl	_Z5time3PK6float3iiii
 	.type	_Z5time3PK6float3iiii, @function
 _Z5time3PK6float3iiii:
-.LFB2099:
+.LFB2100:
 	.cfi_startproc
 	leaq	8(%rsp), %r10
 	.cfi_def_cfa 10, 0
@@ -1420,32 +1720,33 @@ _Z5time3PK6float3iiii:
 	.cfi_escape 0x10,0x3,0x2,0x76,0x50
 	movl	%edx, %ebx
 	subq	$96, %rsp
-	movq	%rdi, -72(%rbp)
+	movq	%rdi, -80(%rbp)
 	testl	%esi, %esi
-	jle	.L96
+	jle	.L116
+	leal	-1(%rdx), %ecx
 	leal	-1(%rsi), %eax
-	leal	-1(%rdx), %r10d
 	movl	%edx, %r12d
-	movl	%edx, %r9d
+	movl	%edx, %r8d
+	movl	%ecx, -88(%rbp)
 	leaq	3(%rax,%rax,2), %rax
-	movq	%rdi, %r15
 	movq	%rdi, %r14
+	movq	%rdi, %r15
 	shrl	$3, %r12d
+	leaq	(%rdi,%rax,4), %rdi
+	andl	$-8, %r8d
+	movslq	%ecx, %rsi
 	vmovdqa	.LC0(%rip), %ymm10
-	leaq	(%rdi,%rax,4), %rsi
-	andl	$-8, %r9d
-	movslq	%r10d, %r8
 	vmovaps	.LC1(%rip), %ymm6
 	.p2align 4,,10
 	.p2align 3
-.L101:
-	vmovss	(%r15), %xmm4
-	vmovss	4(%r15), %xmm9
-	vmovss	8(%r15), %xmm11
+.L121:
+	vmovss	(%r14), %xmm4
+	vmovss	4(%r14), %xmm9
+	vmovss	8(%r14), %xmm11
 	testl	%ebx, %ebx
-	jle	.L97
-	cmpl	$6, %r10d
-	jbe	.L126
+	jle	.L117
+	cmpl	$6, %ecx
+	jbe	.L152
 	vbroadcastss	%xmm4, %ymm8
 	vbroadcastss	%xmm9, %ymm7
 	xorl	%eax, %eax
@@ -1453,7 +1754,7 @@ _Z5time3PK6float3iiii:
 	vbroadcastss	%xmm11, %ymm5
 	.p2align 4,,10
 	.p2align 3
-.L99:
+.L119:
 	vmovaps	%ymm6, %ymm3
 	vmovaps	%ymm6, %ymm1
 	vmovaps	%ymm6, %ymm12
@@ -1471,13 +1772,13 @@ _Z5time3PK6float3iiii:
 	vfmadd132ps	%ymm0, %ymm2, %ymm0
 	vmovaps	%ymm0, r2inv-32(%rax)
 	cmpl	%edx, %r12d
-	ja	.L99
-	cmpl	%ebx, %r9d
-	je	.L97
-	movl	%r9d, %eax
-.L98:
-	movslq	%eax, %rcx
-	movl	neighList(,%rcx,4), %edx
+	ja	.L119
+	cmpl	%ebx, %r8d
+	je	.L117
+	movl	%r8d, %eax
+.L118:
+	movslq	%eax, %r9
+	movl	neighList(,%r9,4), %edx
 	leal	(%rdx,%rdx,2), %edx
 	movslq	%edx, %rdx
 	vsubss	position(,%rdx,4), %xmm4, %xmm0
@@ -1487,12 +1788,12 @@ _Z5time3PK6float3iiii:
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	1(%rax), %ecx
-	cmpl	%ecx, %ebx
-	jle	.L97
-	movslq	%ecx, %rcx
-	movl	neighList(,%rcx,4), %edx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	1(%rax), %r9d
+	cmpl	%r9d, %ebx
+	jle	.L117
+	movslq	%r9d, %r9
+	movl	neighList(,%r9,4), %edx
 	leal	(%rdx,%rdx,2), %edx
 	movslq	%edx, %rdx
 	vsubss	position(,%rdx,4), %xmm4, %xmm0
@@ -1502,12 +1803,12 @@ _Z5time3PK6float3iiii:
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	2(%rax), %ecx
-	cmpl	%ecx, %ebx
-	jle	.L97
-	movslq	%ecx, %rcx
-	movl	neighList(,%rcx,4), %edx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	2(%rax), %r9d
+	cmpl	%r9d, %ebx
+	jle	.L117
+	movslq	%r9d, %r9
+	movl	neighList(,%r9,4), %edx
 	leal	(%rdx,%rdx,2), %edx
 	movslq	%edx, %rdx
 	vsubss	position(,%rdx,4), %xmm4, %xmm0
@@ -1517,12 +1818,12 @@ _Z5time3PK6float3iiii:
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	3(%rax), %ecx
-	cmpl	%ecx, %ebx
-	jle	.L97
-	movslq	%ecx, %rcx
-	movl	neighList(,%rcx,4), %edx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	3(%rax), %r9d
+	cmpl	%r9d, %ebx
+	jle	.L117
+	movslq	%r9d, %r9
+	movl	neighList(,%r9,4), %edx
 	leal	(%rdx,%rdx,2), %edx
 	movslq	%edx, %rdx
 	vsubss	position(,%rdx,4), %xmm4, %xmm0
@@ -1532,12 +1833,12 @@ _Z5time3PK6float3iiii:
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	4(%rax), %ecx
-	cmpl	%ecx, %ebx
-	jle	.L97
-	movslq	%ecx, %rcx
-	movl	neighList(,%rcx,4), %edx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	4(%rax), %r9d
+	cmpl	%r9d, %ebx
+	jle	.L117
+	movslq	%r9d, %r9
+	movl	neighList(,%r9,4), %edx
 	leal	(%rdx,%rdx,2), %edx
 	movslq	%edx, %rdx
 	vsubss	position(,%rdx,4), %xmm4, %xmm0
@@ -1547,13 +1848,13 @@ _Z5time3PK6float3iiii:
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	5(%rax), %ecx
-	cmpl	%ecx, %ebx
-	jle	.L97
-	movslq	%ecx, %rcx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	5(%rax), %r9d
+	cmpl	%r9d, %ebx
+	jle	.L117
+	movslq	%r9d, %r9
 	addl	$6, %eax
-	movl	neighList(,%rcx,4), %edx
+	movl	neighList(,%r9,4), %edx
 	leal	(%rdx,%rdx,2), %edx
 	movslq	%edx, %rdx
 	vsubss	position(,%rdx,4), %xmm4, %xmm0
@@ -1563,9 +1864,9 @@ _Z5time3PK6float3iiii:
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
+	vmovss	%xmm0, r2inv(,%r9,4)
 	cmpl	%eax, %ebx
-	jle	.L97
+	jle	.L117
 	cltq
 	movl	neighList(,%rax,4), %edx
 	leal	(%rdx,%rdx,2), %edx
@@ -1578,216 +1879,202 @@ _Z5time3PK6float3iiii:
 	vfmadd132ss	%xmm9, %xmm11, %xmm9
 	vfmadd132ss	%xmm4, %xmm9, %xmm4
 	vmovss	%xmm4, r2inv(,%rax,4)
-.L97:
-	vmovss	r2inv(,%r8,4), %xmm0
-	addq	$12, %r15
+.L117:
+	vmovss	r2inv(,%rsi,4), %xmm0
+	addq	$12, %r14
 	vmovss	%xmm0, res(%rip)
-	cmpq	%rsi, %r15
-	jne	.L101
-	movq	%r8, -104(%rbp)
-	movl	%r10d, -96(%rbp)
-	movl	%r9d, -88(%rbp)
+	cmpq	%rdi, %r14
+	jne	.L121
+	movq	%rsi, -104(%rbp)
+	movl	%r8d, -72(%rbp)
 	vzeroupper
 	call	_ZNSt6chrono3_V212system_clock3nowEv
-	movq	-72(%rbp), %r13
+	movq	-80(%rbp), %r13
+	movl	-88(%rbp), %edx
+	movq	%rax, -96(%rbp)
 	vmovdqa	.LC2(%rip), %ymm15
 	vmovdqa	.LC3(%rip), %ymm14
-	movl	-88(%rbp), %r9d
-	movq	%rax, -80(%rbp)
 	vmovdqa	.LC5(%rip), %ymm13
 	vmovdqa	.LC9(%rip), %ymm12
-	movl	-96(%rbp), %r10d
-	movq	-104(%rbp), %r8
+	movl	-72(%rbp), %r8d
+	movq	-104(%rbp), %rsi
 	.p2align 4,,10
 	.p2align 3
-.L107:
-	movl	0(%r13), %esi
+.L127:
+	vmovss	8(%r13), %xmm5
+	movl	0(%r13), %ecx
 	movl	4(%r13), %edi
-	movl	8(%r13), %r11d
+	vmovss	%xmm5, -72(%rbp)
 	testl	%ebx, %ebx
-	jle	.L103
-	cmpl	$6, %r10d
-	jbe	.L127
-	vmovd	%esi, %xmm7
-	movl	$r2inv, %ecx
+	jle	.L123
+	cmpl	$6, %edx
+	jbe	.L153
+	vmovd	%ecx, %xmm7
+	vmovdqa	.LC12(%rip), %ymm6
 	movl	$position, %eax
-	xorl	%edx, %edx
+	xorl	%r9d, %r9d
 	vbroadcastss	%xmm7, %ymm9
 	vmovd	%edi, %xmm7
-	vmovdqa	.LC12(%rip), %ymm6
-	vmovdqa	.LC13(%rip), %ymm5
+	movl	$r2inv, %r10d
 	vbroadcastss	%xmm7, %ymm8
-	vmovd	%r11d, %xmm7
-	vbroadcastss	%xmm7, %ymm7
+	vbroadcastss	%xmm5, %ymm7
+	vmovdqa	.LC13(%rip), %ymm5
 	.p2align 4,,10
 	.p2align 3
-.L105:
+.L125:
 	vmovaps	(%rax), %ymm0
-	vmovaps	32(%rax), %ymm11
-	addl	$1, %edx
-	addq	$32, %rcx
-	vmovaps	64(%rax), %ymm10
+	addl	$1, %r9d
+	addq	$32, %r10
 	addq	$96, %rax
-	vpshufb	%ymm15, %ymm0, %ymm1
-	vpshufb	%ymm14, %ymm0, %ymm2
-	vpshufb	.LC4(%rip), %ymm11, %ymm4
-	vpshufb	.LC7(%rip), %ymm0, %ymm3
-	vpermq	$78, %ymm1, %ymm1
-	vpor	%ymm1, %ymm2, %ymm1
-	vpshufb	.LC6(%rip), %ymm0, %ymm2
-	vpor	%ymm4, %ymm1, %ymm1
-	vpermd	%ymm10, %ymm13, %ymm4
-	vpermq	$78, %ymm2, %ymm2
-	vblendps	$192, %ymm4, %ymm1, %ymm1
-	vpor	%ymm2, %ymm3, %ymm2
-	vpshufb	.LC10(%rip), %ymm0, %ymm3
-	vsubps	%ymm1, %ymm9, %ymm4
-	vpshufb	.LC8(%rip), %ymm11, %ymm1
-	vpshufb	%ymm6, %ymm11, %ymm11
-	vpor	%ymm1, %ymm2, %ymm2
-	vpermd	%ymm10, %ymm12, %ymm1
-	vblendps	$224, %ymm1, %ymm2, %ymm2
+	vmovaps	-64(%rax), %ymm10
+	vmovaps	-32(%rax), %ymm4
+	vpshufb	.LC7(%rip), %ymm0, %ymm11
+	vpshufb	%ymm15, %ymm0, %ymm3
+	vpshufb	.LC4(%rip), %ymm10, %ymm2
 	vpermq	$78, %ymm3, %ymm1
-	vpshufb	.LC11(%rip), %ymm0, %ymm3
-	vsubps	%ymm2, %ymm8, %ymm2
+	vpshufb	%ymm14, %ymm0, %ymm3
 	vpor	%ymm1, %ymm3, %ymm3
-	vpermd	%ymm10, %ymm5, %ymm1
-	vpor	%ymm11, %ymm3, %ymm3
-	vblendps	$224, %ymm1, %ymm3, %ymm3
+	vpshufb	.LC8(%rip), %ymm10, %ymm1
+	vpshufb	%ymm6, %ymm10, %ymm10
+	vpor	%ymm2, %ymm3, %ymm3
+	vpermd	%ymm4, %ymm13, %ymm2
+	vblendps	$192, %ymm2, %ymm3, %ymm3
+	vpshufb	.LC6(%rip), %ymm0, %ymm2
+	vpermq	$78, %ymm2, %ymm2
+	vsubps	%ymm3, %ymm9, %ymm3
+	vpor	%ymm2, %ymm11, %ymm2
+	vpor	%ymm1, %ymm2, %ymm2
+	vpermd	%ymm4, %ymm12, %ymm1
+	vblendps	$224, %ymm1, %ymm2, %ymm2
+	vpshufb	.LC10(%rip), %ymm0, %ymm1
+	vpshufb	.LC11(%rip), %ymm0, %ymm0
+	vsubps	%ymm2, %ymm8, %ymm2
+	vpermq	$78, %ymm1, %ymm1
+	vpor	%ymm1, %ymm0, %ymm1
+	vpermd	%ymm4, %ymm5, %ymm0
+	vpor	%ymm10, %ymm1, %ymm1
 	vmulps	%ymm2, %ymm2, %ymm2
-	vsubps	%ymm3, %ymm7, %ymm0
-	vfmadd132ps	%ymm4, %ymm2, %ymm4
-	vfmadd132ps	%ymm0, %ymm4, %ymm0
-	vmovaps	%ymm0, -32(%rcx)
-	cmpl	%edx, %r12d
-	ja	.L105
-	cmpl	%ebx, %r9d
-	je	.L103
-	movl	%r9d, %eax
-.L104:
-	leal	(%rax,%rax,2), %edx
-	vmovd	%esi, %xmm7
-	leal	1(%rax), %ecx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm7, %xmm0
-	addq	$1, %rdx
-	vmovd	%edi, %xmm7
-	vsubss	position(,%rdx,4), %xmm7, %xmm1
-	vmovd	%r11d, %xmm7
-	vsubss	position+4(,%rdx,4), %xmm7, %xmm2
-	movslq	%eax, %rdx
-	vmulss	%xmm2, %xmm2, %xmm2
-	vfmadd132ss	%xmm1, %xmm2, %xmm1
-	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rdx,4)
-	cmpl	%ecx, %ebx
-	jle	.L103
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%esi, %xmm7
+	vblendps	$224, %ymm0, %ymm1, %ymm1
+	vsubps	%ymm1, %ymm7, %ymm0
+	vfmadd132ps	%ymm3, %ymm2, %ymm3
+	vfmadd132ps	%ymm0, %ymm3, %ymm0
+	vmovaps	%ymm0, -32(%r10)
+	cmpl	%r9d, %r12d
+	ja	.L125
+	cmpl	%ebx, %r8d
+	je	.L123
+	vmovss	-72(%rbp), %xmm7
+	movl	%r8d, %eax
+.L124:
+	movslq	%eax, %r9
+	vmovd	%ecx, %xmm5
+	leaq	(%r9,%r9,2), %r11
+	leaq	position(,%r11,4), %r10
+	vsubss	position(,%r11,4), %xmm5, %xmm1
 	vmovd	%edi, %xmm5
-	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm7, %xmm0
-	addq	$1, %rdx
-	vmovd	%r11d, %xmm7
-	vsubss	position+4(,%rdx,4), %xmm7, %xmm2
-	vsubss	position(,%rdx,4), %xmm5, %xmm1
+	vsubss	4(%r10), %xmm5, %xmm2
+	vsubss	8(%r10), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	2(%rax), %ecx
-	cmpl	%ecx, %ebx
-	jle	.L103
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%esi, %xmm5
-	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm5, %xmm0
-	addq	$1, %rdx
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	1(%rax), %r9d
+	cmpl	%r9d, %ebx
+	jle	.L123
+	movslq	%r9d, %r9
+	vmovd	%edi, %xmm6
+	vmovd	%ecx, %xmm5
+	leaq	(%r9,%r9,2), %r11
+	leaq	position(,%r11,4), %r10
+	vsubss	position(,%r11,4), %xmm5, %xmm1
+	vsubss	4(%r10), %xmm6, %xmm2
+	vsubss	8(%r10), %xmm7, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	2(%rax), %r9d
+	cmpl	%r9d, %ebx
+	jle	.L123
+	movslq	%r9d, %r9
+	leaq	(%r9,%r9,2), %r11
+	leaq	position(,%r11,4), %r10
+	vsubss	position(,%r11,4), %xmm5, %xmm1
+	vsubss	4(%r10), %xmm6, %xmm2
+	vsubss	8(%r10), %xmm7, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	3(%rax), %r9d
+	cmpl	%r9d, %ebx
+	jle	.L123
+	movslq	%r9d, %r9
+	leaq	(%r9,%r9,2), %r11
+	leaq	position(,%r11,4), %r10
+	vsubss	position(,%r11,4), %xmm5, %xmm1
 	vmovd	%edi, %xmm5
-	vsubss	position+4(,%rdx,4), %xmm7, %xmm2
-	vsubss	position(,%rdx,4), %xmm5, %xmm1
+	vsubss	4(%r10), %xmm6, %xmm2
+	vsubss	8(%r10), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	3(%rax), %ecx
-	cmpl	%ecx, %ebx
-	jle	.L103
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%esi, %xmm5
-	vmovd	%edi, %xmm7
-	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm5, %xmm0
-	addq	$1, %rdx
-	vmovd	%r11d, %xmm5
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm7, %xmm1
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	4(%rax), %r9d
+	cmpl	%r9d, %ebx
+	jle	.L123
+	movslq	%r9d, %r9
+	vmovd	%ecx, %xmm6
+	leaq	(%r9,%r9,2), %r11
+	leaq	position(,%r11,4), %r10
+	vsubss	position(,%r11,4), %xmm6, %xmm1
+	vmovd	%edi, %xmm6
+	vsubss	4(%r10), %xmm5, %xmm2
+	vsubss	8(%r10), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	4(%rax), %ecx
-	cmpl	%ecx, %ebx
-	jle	.L103
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%esi, %xmm7
-	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm7, %xmm0
-	addq	$1, %rdx
-	vmovd	%edi, %xmm7
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm7, %xmm1
-	vmulss	%xmm2, %xmm2, %xmm2
-	vfmadd132ss	%xmm1, %xmm2, %xmm1
-	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
-	leal	5(%rax), %ecx
-	cmpl	%ecx, %ebx
-	jle	.L103
-	leal	(%rcx,%rcx,2), %edx
-	vmovd	%esi, %xmm7
-	vmovd	%r11d, %xmm6
-	movslq	%ecx, %rcx
-	movslq	%edx, %rdx
-	vmovd	%edi, %xmm5
+	vmovss	%xmm0, r2inv(,%r9,4)
+	leal	5(%rax), %r9d
+	cmpl	%r9d, %ebx
+	jle	.L123
+	movslq	%r9d, %r9
+	vmovd	%ecx, %xmm5
 	addl	$6, %eax
-	vsubss	position(,%rdx,4), %xmm7, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm6, %xmm2
-	vsubss	position(,%rdx,4), %xmm5, %xmm1
+	leaq	(%r9,%r9,2), %r11
+	leaq	position(,%r11,4), %r10
+	vsubss	position(,%r11,4), %xmm5, %xmm1
+	vmovd	%edi, %xmm5
+	vsubss	4(%r10), %xmm6, %xmm2
+	vsubss	8(%r10), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rcx,4)
+	vmovss	%xmm0, r2inv(,%r9,4)
 	cmpl	%eax, %ebx
-	jle	.L103
-	leal	(%rax,%rax,2), %edx
+	jle	.L123
 	cltq
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm7, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm6, %xmm2
-	vsubss	position(,%rdx,4), %xmm5, %xmm1
+	vmovd	%ecx, %xmm6
+	leaq	(%rax,%rax,2), %r10
+	leaq	position(,%r10,4), %r9
+	vsubss	position(,%r10,4), %xmm6, %xmm1
+	vsubss	4(%r9), %xmm5, %xmm2
+	vsubss	8(%r9), %xmm7, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
 	vmovss	%xmm0, r2inv(,%rax,4)
-.L103:
-	vmovss	r2inv(,%r8,4), %xmm0
+.L123:
+	vmovss	r2inv(,%rsi,4), %xmm0
 	addq	$12, %r13
 	vmovss	%xmm0, res(%rip)
-	cmpq	%r15, %r13
-	jne	.L107
-	movq	%r8, -104(%rbp)
-	movl	%r10d, -96(%rbp)
-	movl	%r9d, -88(%rbp)
+	cmpq	%r14, %r13
+	jne	.L127
+	movq	%rsi, -112(%rbp)
+	movl	%r8d, -104(%rbp)
 	vzeroupper
 	call	_ZNSt6chrono3_V212system_clock3nowEv
-	subq	-80(%rbp), %rax
+	subq	-96(%rbp), %rax
 	movabsq	$2361183241434822607, %rdx
 	movq	%rax, %rcx
 	imulq	%rdx
@@ -1795,31 +2082,175 @@ _Z5time3PK6float3iiii:
 	sarq	$63, %rax
 	sarq	$7, %rdx
 	subq	%rax, %rdx
-	movq	%rdx, -80(%rbp)
+	movq	%rdx, -72(%rbp)
 	call	_ZNSt6chrono3_V212system_clock3nowEv
-	movq	-72(%rbp), %rdi
-	movl	-88(%rbp), %r9d
-	movq	%rax, %r15
-	movl	-96(%rbp), %eax
-	movq	-104(%rbp), %r8
-	movq	%rax, %r10
+	movq	-80(%rbp), %rdx
+	vmovaps	.LC1(%rip), %ymm6
+	movl	-104(%rbp), %r8d
+	movl	-88(%rbp), %edi
+	movq	%rax, %r14
+	movq	-112(%rbp), %rsi
+	.p2align 4,,10
+	.p2align 3
+.L133:
+	vmovss	(%rdx), %xmm7
+	vmovss	4(%rdx), %xmm4
+	testl	%ebx, %ebx
+	jle	.L129
+	cmpl	$6, %edi
+	jbe	.L154
+	vbroadcastss	%xmm7, %ymm8
+	vbroadcastss	%xmm4, %ymm5
+	xorl	%eax, %eax
+	xorl	%ecx, %ecx
+	.p2align 4,,10
+	.p2align 3
+.L131:
+	vmovaps	%ymm6, %ymm2
+	vmovaps	%ymm6, %ymm0
+	vmovaps	%ymm6, %ymm13
+	addl	$1, %ecx
+	vmovdqa	neighList(%rax), %ymm3
+	addq	$32, %rax
+	vgatherdps	%ymm2, fx(,%ymm3,4), %ymm1
+	vgatherdps	%ymm0, fy(,%ymm3,4), %ymm2
+	vgatherdps	%ymm13, fz(,%ymm3,4), %ymm0
+	vsubps	%ymm2, %ymm5, %ymm2
+	vsubps	%ymm1, %ymm8, %ymm1
+	vsubps	%ymm0, %ymm5, %ymm0
+	vmulps	%ymm2, %ymm2, %ymm2
+	vfmadd132ps	%ymm1, %ymm2, %ymm1
+	vfmadd132ps	%ymm0, %ymm1, %ymm0
+	vmovaps	%ymm0, r2inv-32(%rax)
+	cmpl	%ecx, %r12d
+	ja	.L131
+	cmpl	%ebx, %r8d
+	je	.L129
+	movl	%r8d, %eax
+.L130:
+	movslq	%eax, %rcx
+	movslq	neighList(,%rcx,4), %r9
+	vsubss	fy(,%r9,4), %xmm4, %xmm2
+	vsubss	fx(,%r9,4), %xmm7, %xmm1
+	vsubss	fz(,%r9,4), %xmm4, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	leal	1(%rax), %ecx
+	cmpl	%ecx, %ebx
+	jle	.L129
+	movslq	%ecx, %rcx
+	movslq	neighList(,%rcx,4), %r9
+	vsubss	fy(,%r9,4), %xmm4, %xmm2
+	vsubss	fx(,%r9,4), %xmm7, %xmm1
+	vsubss	fz(,%r9,4), %xmm4, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	leal	2(%rax), %ecx
+	cmpl	%ecx, %ebx
+	jle	.L129
+	movslq	%ecx, %rcx
+	movslq	neighList(,%rcx,4), %r9
+	vsubss	fy(,%r9,4), %xmm4, %xmm2
+	vsubss	fx(,%r9,4), %xmm7, %xmm1
+	vsubss	fz(,%r9,4), %xmm4, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	leal	3(%rax), %ecx
+	cmpl	%ecx, %ebx
+	jle	.L129
+	movslq	%ecx, %rcx
+	movslq	neighList(,%rcx,4), %r9
+	vsubss	fy(,%r9,4), %xmm4, %xmm2
+	vsubss	fx(,%r9,4), %xmm7, %xmm1
+	vsubss	fz(,%r9,4), %xmm4, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	leal	4(%rax), %ecx
+	cmpl	%ecx, %ebx
+	jle	.L129
+	movslq	%ecx, %rcx
+	movslq	neighList(,%rcx,4), %r9
+	vsubss	fy(,%r9,4), %xmm4, %xmm2
+	vsubss	fx(,%r9,4), %xmm7, %xmm1
+	vsubss	fz(,%r9,4), %xmm4, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	leal	5(%rax), %ecx
+	cmpl	%ecx, %ebx
+	jle	.L129
+	movslq	%ecx, %rcx
+	addl	$6, %eax
+	movslq	neighList(,%rcx,4), %r9
+	vsubss	fy(,%r9,4), %xmm4, %xmm2
+	vsubss	fx(,%r9,4), %xmm7, %xmm1
+	vsubss	fz(,%r9,4), %xmm4, %xmm0
+	vmulss	%xmm2, %xmm2, %xmm2
+	vfmadd132ss	%xmm1, %xmm2, %xmm1
+	vfmadd132ss	%xmm0, %xmm1, %xmm0
+	vmovss	%xmm0, r2inv(,%rcx,4)
+	cmpl	%eax, %ebx
+	jle	.L129
+	cltq
+	movslq	neighList(,%rax,4), %rcx
+	vsubss	fy(,%rcx,4), %xmm4, %xmm0
+	vsubss	fx(,%rcx,4), %xmm7, %xmm7
+	vsubss	fz(,%rcx,4), %xmm4, %xmm4
+	vmulss	%xmm0, %xmm0, %xmm0
+	vfmadd132ss	%xmm7, %xmm0, %xmm7
+	vfmadd132ss	%xmm4, %xmm7, %xmm4
+	vmovss	%xmm4, r2inv(,%rax,4)
+.L129:
+	vmovss	r2inv(,%rsi,4), %xmm0
+	addq	$12, %rdx
+	vmovss	%xmm0, res(%rip)
+	cmpq	%r13, %rdx
+	jne	.L133
+	movq	%rsi, -112(%rbp)
+	movl	%r8d, -104(%rbp)
+	vzeroupper
+	call	_ZNSt6chrono3_V212system_clock3nowEv
+	movabsq	$2361183241434822607, %rdx
+	subq	%r14, %rax
+	movq	%rax, %rcx
+	imulq	%rdx
+	movq	%rcx, %rax
+	sarq	$63, %rax
+	sarq	$7, %rdx
+	subq	%rax, %rdx
+	movq	%rdx, -96(%rbp)
+	call	_ZNSt6chrono3_V212system_clock3nowEv
+	movq	-80(%rbp), %r9
+	movl	-104(%rbp), %r8d
+	movq	%rax, %r14
+	movl	-88(%rbp), %eax
+	movq	-112(%rbp), %rsi
 	leaq	4(,%rax,4), %rcx
 	.p2align 4,,10
 	.p2align 3
-.L111:
-	vmovss	(%rdi), %xmm4
-	vmovss	4(%rdi), %xmm3
+.L137:
+	vmovss	(%r9), %xmm4
+	vmovss	4(%r9), %xmm3
 	testl	%ebx, %ebx
-	jle	.L109
+	jle	.L135
 	xorl	%eax, %eax
 	.p2align 4,,10
 	.p2align 3
-.L110:
+.L136:
 	movslq	neighList(%rax), %rdx
 	addq	$4, %rax
-	leaq	(%rdx,%rdx,2), %rsi
-	leaq	position(,%rsi,4), %rdx
-	vsubss	position(,%rsi,4), %xmm4, %xmm1
+	leaq	(%rdx,%rdx,2), %rdi
+	leaq	position(,%rdi,4), %rdx
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vsubss	4(%rdx), %xmm3, %xmm2
 	vsubss	8(%rdx), %xmm3, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
@@ -1827,238 +2258,237 @@ _Z5time3PK6float3iiii:
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
 	vmovss	%xmm0, r2inv-4(%rax)
 	cmpq	%rcx, %rax
-	jne	.L110
-.L109:
-	vmovss	r2inv(,%r8,4), %xmm0
-	addq	$12, %rdi
+	jne	.L136
+.L135:
+	vmovss	r2inv(,%rsi,4), %xmm0
+	addq	$12, %r9
 	vmovss	%xmm0, res(%rip)
-	cmpq	%r13, %rdi
-	jne	.L111
-	movq	%r8, -120(%rbp)
-	movq	%rcx, -112(%rbp)
-	movl	%r10d, -104(%rbp)
-	movl	%r9d, -96(%rbp)
+	cmpq	%r13, %r9
+	jne	.L137
+	movq	%rsi, -128(%rbp)
+	movq	%rcx, -120(%rbp)
+	movl	%r8d, -112(%rbp)
 	call	_ZNSt6chrono3_V212system_clock3nowEv
 	movabsq	$2361183241434822607, %rdx
-	subq	%r15, %rax
-	movq	%rax, %rsi
+	subq	%r14, %rax
+	movq	%rax, %rdi
 	imulq	%rdx
-	movq	%rsi, %rax
+	movq	%rdi, %rax
 	sarq	$63, %rax
 	sarq	$7, %rdx
 	subq	%rax, %rdx
-	movq	%rdx, -88(%rbp)
+	movq	%rdx, -104(%rbp)
 	call	_ZNSt6chrono3_V212system_clock3nowEv
-	movq	-72(%rbp), %rdi
-	movl	-96(%rbp), %r9d
+	movq	-80(%rbp), %rdx
+	movl	-112(%rbp), %r8d
 	vmovdqa	.LC0(%rip), %ymm10
 	vmovaps	.LC1(%rip), %ymm6
-	movq	%rax, %r15
-	movl	-104(%rbp), %r10d
-	movq	-112(%rbp), %rcx
-	movq	-120(%rbp), %r8
+	movq	%rax, %r14
+	movl	-88(%rbp), %r9d
+	movq	-120(%rbp), %rcx
+	movq	-128(%rbp), %rsi
 	.p2align 4,,10
 	.p2align 3
-.L117:
-	vmovss	(%rdi), %xmm3
-	vmovss	4(%rdi), %xmm4
-	vmovss	8(%rdi), %xmm5
+.L143:
+	vmovss	(%rdx), %xmm3
+	vmovss	4(%rdx), %xmm4
+	vmovss	8(%rdx), %xmm5
 	testl	%ebx, %ebx
-	jle	.L113
-	cmpl	$6, %r10d
-	jbe	.L128
+	jle	.L139
+	cmpl	$6, %r9d
+	jbe	.L155
 	vbroadcastss	%xmm3, %ymm9
 	vbroadcastss	%xmm4, %ymm8
 	xorl	%eax, %eax
-	xorl	%edx, %edx
+	xorl	%edi, %edi
 	vbroadcastss	%xmm5, %ymm7
 	.p2align 4,,10
 	.p2align 3
-.L115:
+.L141:
+	vmovaps	%ymm6, %ymm2
 	vmovaps	%ymm6, %ymm0
-	vmovaps	%ymm6, %ymm13
-	addl	$1, %edx
+	vmovaps	%ymm6, %ymm14
+	addl	$1, %edi
+	vpmulld	neighList(%rax), %ymm10, %ymm11
 	addq	$32, %rax
-	vpmulld	neighList-32(%rax), %ymm10, %ymm11
-	vgatherdps	%ymm0, position(,%ymm11,4), %ymm1
-	vmovaps	%ymm6, %ymm0
+	vgatherdps	%ymm2, position(,%ymm11,4), %ymm1
 	vgatherdps	%ymm0, position+4(,%ymm11,4), %ymm2
-	vsubps	%ymm1, %ymm9, %ymm1
-	vgatherdps	%ymm13, position+8(,%ymm11,4), %ymm0
 	vsubps	%ymm2, %ymm8, %ymm2
+	vsubps	%ymm1, %ymm9, %ymm1
+	vgatherdps	%ymm14, position+8(,%ymm11,4), %ymm0
 	vsubps	%ymm0, %ymm7, %ymm0
 	vmulps	%ymm2, %ymm2, %ymm2
 	vfmadd132ps	%ymm1, %ymm2, %ymm1
 	vfmadd132ps	%ymm0, %ymm1, %ymm0
 	vmovaps	%ymm0, r2inv-32(%rax)
-	cmpl	%edx, %r12d
-	ja	.L115
-	cmpl	%ebx, %r9d
-	je	.L113
-	movl	%r9d, %eax
-.L114:
-	movslq	%eax, %rsi
-	movl	neighList(,%rsi,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm4, %xmm1
+	cmpl	%edi, %r12d
+	ja	.L141
+	cmpl	%ebx, %r8d
+	je	.L139
+	movl	%r8d, %eax
+.L140:
+	movslq	%eax, %r10
+	movl	neighList(,%r10,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm0
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm2
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rsi,4)
-	leal	1(%rax), %esi
-	cmpl	%esi, %ebx
-	jle	.L113
-	movslq	%esi, %rsi
-	movl	neighList(,%rsi,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm4, %xmm1
+	vmovss	%xmm0, r2inv(,%r10,4)
+	leal	1(%rax), %r10d
+	cmpl	%r10d, %ebx
+	jle	.L139
+	movslq	%r10d, %r10
+	movl	neighList(,%r10,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm0
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm2
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rsi,4)
-	leal	2(%rax), %esi
-	cmpl	%esi, %ebx
-	jle	.L113
-	movslq	%esi, %rsi
-	movl	neighList(,%rsi,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm4, %xmm1
+	vmovss	%xmm0, r2inv(,%r10,4)
+	leal	2(%rax), %r10d
+	cmpl	%r10d, %ebx
+	jle	.L139
+	movslq	%r10d, %r10
+	movl	neighList(,%r10,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm0
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm2
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rsi,4)
-	leal	3(%rax), %esi
-	cmpl	%esi, %ebx
-	jle	.L113
-	movslq	%esi, %rsi
-	movl	neighList(,%rsi,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm4, %xmm1
+	vmovss	%xmm0, r2inv(,%r10,4)
+	leal	3(%rax), %r10d
+	cmpl	%r10d, %ebx
+	jle	.L139
+	movslq	%r10d, %r10
+	movl	neighList(,%r10,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm0
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm2
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rsi,4)
-	leal	4(%rax), %esi
-	cmpl	%esi, %ebx
-	jle	.L113
-	movslq	%esi, %rsi
-	movl	neighList(,%rsi,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm4, %xmm1
+	vmovss	%xmm0, r2inv(,%r10,4)
+	leal	4(%rax), %r10d
+	cmpl	%r10d, %ebx
+	jle	.L139
+	movslq	%r10d, %r10
+	movl	neighList(,%r10,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm0
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm2
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rsi,4)
-	leal	5(%rax), %esi
-	cmpl	%esi, %ebx
-	jle	.L113
-	movslq	%esi, %rsi
+	vmovss	%xmm0, r2inv(,%r10,4)
+	leal	5(%rax), %r10d
+	cmpl	%ebx, %r10d
+	jge	.L139
+	movslq	%r10d, %r10
 	addl	$6, %eax
-	movl	neighList(,%rsi,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm0
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm2
-	vsubss	position(,%rdx,4), %xmm4, %xmm1
+	movl	neighList(,%r10,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm0
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm2
+	vsubss	position(,%rdi,4), %xmm4, %xmm1
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
-	vmovss	%xmm0, r2inv(,%rsi,4)
+	vmovss	%xmm0, r2inv(,%r10,4)
 	cmpl	%eax, %ebx
-	jle	.L113
+	jle	.L139
 	cltq
-	movl	neighList(,%rax,4), %edx
-	leal	(%rdx,%rdx,2), %edx
-	movslq	%edx, %rdx
-	vsubss	position(,%rdx,4), %xmm3, %xmm3
-	addq	$1, %rdx
-	vsubss	position+4(,%rdx,4), %xmm5, %xmm5
-	vsubss	position(,%rdx,4), %xmm4, %xmm4
+	movl	neighList(,%rax,4), %edi
+	leal	(%rdi,%rdi,2), %edi
+	movslq	%edi, %rdi
+	vsubss	position(,%rdi,4), %xmm3, %xmm3
+	addq	$1, %rdi
+	vsubss	position+4(,%rdi,4), %xmm5, %xmm5
+	vsubss	position(,%rdi,4), %xmm4, %xmm4
 	vmulss	%xmm5, %xmm5, %xmm5
 	vfmadd132ss	%xmm4, %xmm5, %xmm4
 	vfmadd132ss	%xmm3, %xmm4, %xmm3
 	vmovss	%xmm3, r2inv(,%rax,4)
-.L113:
-	vmovss	r2inv(,%r8,4), %xmm0
-	addq	$12, %rdi
+.L139:
+	vmovss	r2inv(,%rsi,4), %xmm0
+	addq	$12, %rdx
 	vmovss	%xmm0, res(%rip)
-	cmpq	%r13, %rdi
-	jne	.L117
-	movq	%r8, -96(%rbp)
-	movq	%rcx, -72(%rbp)
+	cmpq	%r13, %rdx
+	jne	.L143
+	movq	%rsi, -88(%rbp)
+	movq	%rcx, -80(%rbp)
 	vzeroupper
 	call	_ZNSt6chrono3_V212system_clock3nowEv
 	movabsq	$2361183241434822607, %rdx
-	subq	%r15, %rax
-	movq	%rax, %rsi
+	subq	%r14, %rax
+	movq	%rax, %rdi
 	imulq	%rdx
-	movq	%rsi, %rax
+	movq	%rdi, %rax
 	sarq	$63, %rax
 	sarq	$7, %rdx
 	movq	%rdx, %r12
 	subq	%rax, %r12
 	call	_ZNSt6chrono3_V212system_clock3nowEv
-	movq	-72(%rbp), %rcx
-	movq	-96(%rbp), %r8
-	movq	%rax, %r15
+	movq	-80(%rbp), %rcx
+	movq	-88(%rbp), %rsi
+	movq	%rax, %r14
 	.p2align 4,,10
 	.p2align 3
-.L121:
-	vmovss	(%r14), %xmm3
-	vmovss	4(%r14), %xmm5
-	vmovss	8(%r14), %xmm4
+.L147:
+	vmovss	(%r15), %xmm5
+	vmovss	4(%r15), %xmm4
+	vmovss	8(%r15), %xmm3
 	testl	%ebx, %ebx
-	jle	.L119
+	jle	.L145
 	xorl	%eax, %eax
 	.p2align 4,,10
 	.p2align 3
-.L120:
+.L146:
 	movslq	neighList(%rax), %rdx
 	addq	$4, %rax
-	leaq	(%rdx,%rdx,2), %rsi
-	leaq	position(,%rsi,4), %rdx
-	vsubss	position(,%rsi,4), %xmm3, %xmm1
-	vsubss	4(%rdx), %xmm5, %xmm2
-	vsubss	8(%rdx), %xmm4, %xmm0
+	leaq	(%rdx,%rdx,2), %rdi
+	leaq	position(,%rdi,4), %rdx
+	vsubss	position(,%rdi,4), %xmm5, %xmm1
+	vsubss	4(%rdx), %xmm4, %xmm2
+	vsubss	8(%rdx), %xmm3, %xmm0
 	vmulss	%xmm2, %xmm2, %xmm2
 	vfmadd132ss	%xmm1, %xmm2, %xmm1
 	vfmadd132ss	%xmm0, %xmm1, %xmm0
 	vmovss	%xmm0, r2inv-4(%rax)
 	cmpq	%rcx, %rax
-	jne	.L120
-.L119:
-	vmovss	r2inv(,%r8,4), %xmm0
-	addq	$12, %r14
+	jne	.L146
+.L145:
+	vmovss	r2inv(,%rsi,4), %xmm0
+	addq	$12, %r15
 	vmovss	%xmm0, res(%rip)
-	cmpq	%r13, %r14
-	jne	.L121
-.L125:
+	cmpq	%r13, %r15
+	jne	.L147
+.L151:
 	call	_ZNSt6chrono3_V212system_clock3nowEv
 	movl	$.LC14, %esi
 	movl	$_ZSt4cout, %edi
 	movabsq	$2361183241434822607, %rdx
-	subq	%r15, %rax
+	subq	%r14, %rax
 	movq	%rax, %rcx
 	imulq	%rdx
 	movq	%rcx, %rax
@@ -2072,11 +2502,19 @@ _Z5time3PK6float3iiii:
 	movl	$_ZSt4cout, %edi
 	call	_ZNSolsEi
 	movl	$1, %edx
+	leaq	-53(%rbp), %rsi
+	movb	$32, -53(%rbp)
+	movq	%rax, %rdi
+	call	_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l
+	movq	-72(%rbp), %rsi
+	movq	%rax, %rdi
+	call	_ZNSo9_M_insertIlEERSoT_
+	movl	$1, %edx
 	leaq	-52(%rbp), %rsi
 	movb	$32, -52(%rbp)
 	movq	%rax, %rdi
 	call	_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l
-	movq	-80(%rbp), %rsi
+	movq	-96(%rbp), %rsi
 	movq	%rax, %rdi
 	call	_ZNSo9_M_insertIlEERSoT_
 	movl	$1, %edx
@@ -2084,7 +2522,7 @@ _Z5time3PK6float3iiii:
 	movb	$32, -51(%rbp)
 	movq	%rax, %rdi
 	call	_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l
-	movq	-88(%rbp), %rsi
+	movq	-104(%rbp), %rsi
 	movq	%rax, %rdi
 	call	_ZNSo9_M_insertIlEERSoT_
 	movl	$1, %edx
@@ -2108,11 +2546,11 @@ _Z5time3PK6float3iiii:
 	movq	-24(%rax), %rax
 	movq	240(%r12,%rax), %rbx
 	testq	%rbx, %rbx
-	je	.L148
+	je	.L178
 	cmpb	$0, 56(%rbx)
-	je	.L123
+	je	.L149
 	movsbl	67(%rbx), %esi
-.L124:
+.L150:
 	movq	%r12, %rdi
 	call	_ZNSo3putEc
 	movq	%rax, %rdi
@@ -2132,35 +2570,41 @@ _Z5time3PK6float3iiii:
 	ret
 	.p2align 4,,10
 	.p2align 3
-.L126:
+.L152:
 	.cfi_restore_state
 	xorl	%eax, %eax
-	jmp	.L98
+	jmp	.L118
 	.p2align 4,,10
 	.p2align 3
-.L128:
+.L155:
 	xorl	%eax, %eax
-	jmp	.L114
+	jmp	.L140
 	.p2align 4,,10
 	.p2align 3
-.L127:
+.L154:
 	xorl	%eax, %eax
-	jmp	.L104
+	jmp	.L130
 	.p2align 4,,10
 	.p2align 3
-.L123:
+.L153:
+	xorl	%eax, %eax
+	vmovaps	%xmm5, %xmm7
+	jmp	.L124
+	.p2align 4,,10
+	.p2align 3
+.L149:
 	movq	%rbx, %rdi
 	call	_ZNKSt5ctypeIcE13_M_widen_initEv
 	movq	(%rbx), %rax
 	movl	$10, %esi
 	movq	48(%rax), %rax
 	cmpq	$_ZNKSt5ctypeIcE8do_widenEc, %rax
-	je	.L124
+	je	.L150
 	movq	%rbx, %rdi
 	call	*%rax
 	movsbl	%al, %esi
-	jmp	.L124
-.L96:
+	jmp	.L150
+.L116:
 	call	_ZNSt6chrono3_V212system_clock3nowEv
 	movabsq	$2361183241434822607, %r12
 	movq	%rax, %r13
@@ -2172,7 +2616,7 @@ _Z5time3PK6float3iiii:
 	sarq	$63, %rax
 	sarq	$7, %rdx
 	subq	%rax, %rdx
-	movq	%rdx, -80(%rbp)
+	movq	%rdx, -72(%rbp)
 	call	_ZNSt6chrono3_V212system_clock3nowEv
 	movq	%rax, %r13
 	call	_ZNSt6chrono3_V212system_clock3nowEv
@@ -2183,7 +2627,18 @@ _Z5time3PK6float3iiii:
 	sarq	$63, %rax
 	sarq	$7, %rdx
 	subq	%rax, %rdx
-	movq	%rdx, -88(%rbp)
+	movq	%rdx, -96(%rbp)
+	call	_ZNSt6chrono3_V212system_clock3nowEv
+	movq	%rax, %r13
+	call	_ZNSt6chrono3_V212system_clock3nowEv
+	subq	%r13, %rax
+	movq	%rax, %rcx
+	imulq	%r12
+	movq	%rcx, %rax
+	sarq	$63, %rax
+	sarq	$7, %rdx
+	subq	%rax, %rdx
+	movq	%rdx, -104(%rbp)
 	call	_ZNSt6chrono3_V212system_clock3nowEv
 	movq	%rax, %r13
 	call	_ZNSt6chrono3_V212system_clock3nowEv
@@ -2196,24 +2651,28 @@ _Z5time3PK6float3iiii:
 	movq	%rdx, %r12
 	subq	%rax, %r12
 	call	_ZNSt6chrono3_V212system_clock3nowEv
-	movq	%rax, %r15
-	jmp	.L125
-.L148:
+	movq	%rax, %r14
+	jmp	.L151
+.L178:
 	call	_ZSt16__throw_bad_castv
 	.cfi_endproc
-.LFE2099:
+.LFE2100:
 	.size	_Z5time3PK6float3iiii, .-_Z5time3PK6float3iiii
 	.section	.rodata.str1.1
 .LC18:
 	.string	"tivially sequential"
 .LC20:
+	.string	"small stride"
+.LC22:
+	.string	"big stride"
+.LC23:
 	.string	"random"
 	.section	.text.startup,"ax",@progbits
 	.p2align 4,,15
 	.globl	main
 	.type	main, @function
 main:
-.LFB2108:
+.LFB2109:
 	.cfi_startproc
 	leaq	8(%rsp), %r10
 	.cfi_def_cfa 10, 0
@@ -2225,61 +2684,126 @@ main:
 	pushq	%rbp
 	.cfi_escape 0x10,0x6,0x2,0x76,0
 	movq	%rsp, %rbp
+	pushq	%r15
 	pushq	%r14
+	.cfi_escape 0x10,0xf,0x2,0x76,0x78
+	.cfi_escape 0x10,0xe,0x2,0x76,0x70
+	movl	$neighList, %r14d
 	pushq	%r13
 	pushq	%r12
+	.cfi_escape 0x10,0xd,0x2,0x76,0x68
+	.cfi_escape 0x10,0xc,0x2,0x76,0x60
+	movq	%r14, %r12
 	pushq	%r10
-	.cfi_escape 0xf,0x3,0x76,0x60,0x6
-	.cfi_escape 0x10,0xe,0x2,0x76,0x78
-	.cfi_escape 0x10,0xd,0x2,0x76,0x70
-	.cfi_escape 0x10,0xc,0x2,0x76,0x68
+	.cfi_escape 0xf,0x3,0x76,0x58,0x6
 	pushq	%rbx
-	.cfi_escape 0x10,0x3,0x2,0x76,0x58
-	movl	$neighList, %ebx
-	subq	$1200024, %rsp
+	subq	$1200048, %rsp
+	.cfi_escape 0x10,0x3,0x2,0x76,0x50
 	call	_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l
 	movl	$_ZSt4cout, %edi
-	movq	%rsp, %r12
+	movq	%rsp, %r13
 	call	_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_
 	vmovdqa	.LC17(%rip), %ymm0
-	movl	$neighList+4096, %eax
-	vmovdqa	.LC19(%rip), %ymm1
 	.p2align 4,,10
 	.p2align 3
-.L150:
-	vmovdqa	%ymm0, (%rbx)
-	addq	$32, %rbx
-	vpaddd	%ymm1, %ymm0, %ymm0
-	cmpq	%rbx, %rax
-	jne	.L150
-	movl	$9, %r14d
-	movl	$2, %r13d
+.L180:
+	vmovdqa	%ymm0, (%r12)
+	addq	$32, %r12
+	vpaddd	.LC19(%rip), %ymm0, %ymm0
+	cmpq	$neighList+4096, %r12
+	jne	.L180
+	movl	$9, %r15d
+	movl	$2, %ebx
 	vzeroupper
 	.p2align 4,,10
 	.p2align 3
-.L151:
-	movl	%r13d, %esi
-	movq	%r12, %rdi
-	addl	%r13d, %r13d
+.L181:
+	movl	%ebx, %esi
+	movq	%r13, %rdi
+	addl	%ebx, %ebx
+	call	_Z5time3PK6float3iiii.constprop.3
+	subl	$1, %r15d
+	jne	.L181
+	movl	$12, %edx
+	movl	$.LC20, %esi
+	movl	$_ZSt4cout, %edi
+	movl	$neighList, %ebx
+	call	_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l
+	movl	$_ZSt4cout, %edi
+	call	_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_
+	vmovdqa	.LC17(%rip), %ymm1
+	vmovdqa	.LC21(%rip), %ymm2
+	.p2align 4,,10
+	.p2align 3
+.L182:
+	vpslld	$1, %ymm1, %ymm0
+	addq	$32, %rbx
+	vpaddd	.LC19(%rip), %ymm1, %ymm1
+	vpand	%ymm2, %ymm0, %ymm0
+	vmovdqa	%ymm0, -32(%rbx)
+	cmpq	%rbx, %r12
+	jne	.L182
+	movl	$9, %r15d
+	movl	$2, %r12d
+	.p2align 4,,10
+	.p2align 3
+.L183:
+	movl	%r12d, %esi
+	movq	%r13, %rdi
+	vmovdqa	%ymm2, -80(%rbp)
+	vzeroupper
+	call	_Z5time3PK6float3iiii.constprop.3
+	addl	%r12d, %r12d
+	subl	$1, %r15d
+	vmovdqa	-80(%rbp), %ymm2
+	jne	.L183
+	movl	$10, %edx
+	movl	$.LC22, %esi
+	movl	$_ZSt4cout, %edi
+	vzeroupper
+	call	_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l
+	movl	$_ZSt4cout, %edi
+	call	_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_
+	vmovdqa	.LC17(%rip), %ymm1
+	vmovdqa	-80(%rbp), %ymm2
+	.p2align 4,,10
+	.p2align 3
+.L184:
+	vpslld	$5, %ymm1, %ymm0
+	addq	$32, %r14
+	vpaddd	.LC19(%rip), %ymm1, %ymm1
+	vpand	%ymm2, %ymm0, %ymm0
+	vmovdqa	%ymm0, -32(%r14)
+	cmpq	%rbx, %r14
+	jne	.L184
+	movl	$9, %r14d
+	movl	$2, %r12d
+	vzeroupper
+	.p2align 4,,10
+	.p2align 3
+.L185:
+	movl	%r12d, %esi
+	movq	%r13, %rdi
+	addl	%r12d, %r12d
 	call	_Z5time3PK6float3iiii.constprop.3
 	subl	$1, %r14d
-	jne	.L151
+	jne	.L185
 	movl	$6, %edx
-	movl	$.LC20, %esi
+	movl	$.LC23, %esi
 	movl	$_ZSt4cout, %edi
 	subq	$neighList+8, %rbx
 	call	_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l
 	movl	$_ZSt4cout, %edi
-	movl	$neighList+4, %r13d
+	movl	$neighList+4, %r12d
 	call	_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_
 	movq	%rbx, %rax
 	shrq	$2, %rax
 	leaq	neighList+8(,%rax,4), %rbx
 	.p2align 4,,10
 	.p2align 3
-.L152:
+.L186:
 	call	rand
-	movq	%r13, %rcx
+	movq	%r12, %rcx
 	subq	$neighList, %rcx
 	cltq
 	sarq	$2, %rcx
@@ -2287,28 +2811,28 @@ main:
 	addq	$1, %rcx
 	idivq	%rcx
 	leaq	neighList(,%rdx,4), %rax
-	cmpq	%r13, %rax
-	je	.L153
+	cmpq	%r12, %rax
+	je	.L187
 	movl	neighList(,%rdx,4), %ecx
-	movl	0(%r13), %eax
-	addq	$4, %r13
-	movl	%ecx, -4(%r13)
+	movl	(%r12), %eax
+	addq	$4, %r12
+	movl	%ecx, -4(%r12)
 	movl	%eax, neighList(,%rdx,4)
-	cmpq	%r13, %rbx
-	jne	.L152
-.L155:
-	movl	$9, %r13d
+	cmpq	%r12, %rbx
+	jne	.L186
+.L189:
+	movl	$9, %r12d
 	movl	$2, %ebx
 	.p2align 4,,10
 	.p2align 3
-.L156:
+.L190:
 	movl	%ebx, %esi
-	movq	%r12, %rdi
+	movq	%r13, %rdi
 	addl	%ebx, %ebx
 	call	_Z5time3PK6float3iiii.constprop.3
-	subl	$1, %r13d
-	jne	.L156
-	leaq	-40(%rbp), %rsp
+	subl	$1, %r12d
+	jne	.L190
+	leaq	-48(%rbp), %rsp
 	xorl	%eax, %eax
 	popq	%rbx
 	popq	%r10
@@ -2317,25 +2841,26 @@ main:
 	popq	%r12
 	popq	%r13
 	popq	%r14
+	popq	%r15
 	popq	%rbp
 	leaq	-8(%r10), %rsp
 	.cfi_def_cfa 7, 8
 	ret
 	.p2align 4,,10
 	.p2align 3
-.L153:
+.L187:
 	.cfi_restore_state
-	addq	$4, %r13
-	cmpq	%rbx, %r13
-	jne	.L152
-	jmp	.L155
+	addq	$4, %r12
+	cmpq	%r12, %rbx
+	jne	.L186
+	jmp	.L189
 	.cfi_endproc
-.LFE2108:
+.LFE2109:
 	.size	main, .-main
 	.p2align 4,,15
 	.type	_GLOBAL__sub_I_fx, @function
 _GLOBAL__sub_I_fx:
-.LFB2603:
+.LFB2604:
 	.cfi_startproc
 	subq	$8, %rsp
 	.cfi_def_cfa_offset 16
@@ -2348,7 +2873,7 @@ _GLOBAL__sub_I_fx:
 	.cfi_def_cfa_offset 8
 	jmp	__cxa_atexit
 	.cfi_endproc
-.LFE2603:
+.LFE2604:
 	.size	_GLOBAL__sub_I_fx, .-_GLOBAL__sub_I_fx
 	.section	.init_array,"aw"
 	.align 8
@@ -2825,6 +3350,16 @@ fx:
 	.long	8
 	.long	8
 	.long	8
+	.align 32
+.LC21:
+	.long	1023
+	.long	1023
+	.long	1023
+	.long	1023
+	.long	1023
+	.long	1023
+	.long	1023
+	.long	1023
 	.hidden	__dso_handle
 	.ident	"GCC: (GNU) 7.0.1 20170326 (experimental) [trunk revision 246485]"
 	.section	.note.GNU-stack,"",@progbits
