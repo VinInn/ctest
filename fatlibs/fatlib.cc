@@ -9,16 +9,15 @@ namespace {
 static std::string fathi;
 }
 #define FATHALLO(...) char const * __attribute__ ((__target__ (__VA_ARGS__))) \
-  fathelloCPP() { fathi = std::string("targer is ")+__VA_ARGS__; return fathi.c_str();}
+  fathelloCPP() { fathi = std::string("targer is ")+#__VA_ARGS__; return fathi.c_str();}
 
 namespace {
 FATHALLO("default")
 FATHALLO("sse3")
 FATHALLO("arch=corei7")
 FATHALLO("arch=bdver1")
-FATHALLO("arch=core-avx2")
-// FATHALLO("avx2","fma")
-FATHALLO("arch=corei7-avx")
+FATHALLO("avx2","fma")
+FATHALLO("avx")
 FATHALLO("avx512f")
 // FATHALLO()
 }
@@ -27,12 +26,13 @@ extern "C" {
   char const * fathello() { return fathelloCPP();}
 }
 
-#define FATLIB(RET,FUN) RET __attribute__ ((__target__ ("default"))) FUN \
+#define FATLIB(RET,FUN) \
+RET __attribute__ ((__target__ ("default"))) FUN \
 RET __attribute__ ((__target__ ("sse3"))) FUN \
 RET __attribute__ ((__target__ ("arch=corei7"))) FUN \
 RET __attribute__ ((__target__ ("arch=bdver1"))) FUN \
 RET __attribute__ ((__target__ ("avx2","fma"))) FUN \
-RET __attribute__ ((__target__ ("arch=corei7-avx"))) FUN \
+RET __attribute__ ((__target__ ("avx"))) FUN \
 RET __attribute__ ((__target__ ("avx512f"))) FUN
 
 
