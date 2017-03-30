@@ -19,7 +19,7 @@ print "bhe"
 fma = lib.myfma
 fma.restype = ctypes.c_float
 fma.argtypes = [ctypes.c_float,ctypes.c_float,ctypes.c_float]
-fma(1,2,3)
+print fma(1,2,3)
 
 
 # In[ ]:
