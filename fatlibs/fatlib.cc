@@ -18,7 +18,7 @@ FATHALLO("arch=bdver1")
 FATHALLO("arch=core-avx2")
 // FATHALLO("avx2","fma")
 FATHALLO("arch=corei7-avx")
-// FATHALLO("avx512f")
+FATHALLO("avx512f")
 // FATHALLO()
 
 extern "C" {
@@ -30,9 +30,8 @@ RET __attribute__ ((__target__ ("sse3"))) FUN \
 RET __attribute__ ((__target__ ("arch=corei7"))) FUN \
 RET __attribute__ ((__target__ ("arch=bdver1"))) FUN \
 RET __attribute__ ((__target__ ("avx2","fma"))) FUN \
-RET __attribute__ ((__target__ ("arch=corei7-avx"))) FUN
-
-//RET __attribute__ ((__target__ ("avx512f"))) FUN
+RET __attribute__ ((__target__ ("arch=corei7-avx"))) FUN \
+RET __attribute__ ((__target__ ("avx512f"))) FUN
 
 
 inline

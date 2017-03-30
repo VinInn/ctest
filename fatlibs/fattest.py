@@ -9,7 +9,7 @@ import subprocess
 print "bha"
 print subprocess.check_output("echo here am",stderr=subprocess.STDOUT,shell=True)
 print subprocess.check_output("c++ -v; exit 0",stderr=subprocess.STDOUT,shell=True)
-print subprocess.check_output("ls -l;c++ fatlib.cc -fPIC -shared -o fatlibHere.dylib; exit 0",stderr=subprocess.STDOUT,shell=True)
+print subprocess.check_output("ls -l;c++ fatlib.cc -fPIC -shared -o fatlibHere.so; exit 0",stderr=subprocess.STDOUT,shell=True)
 print "bho"
 lib = numpy.ctypeslib.load_library('fatlibHere','.')
 hello = lib.fathello
