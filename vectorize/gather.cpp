@@ -78,11 +78,11 @@ void aos2(float3 ipos, int dis, int j, int i) {
   float * jp = &(position[0].x);
   
   for (int k=0; k<dis; k++){
-    auto in = neighList[k];
+    auto in = 3*neighList[k];
     // auto in = neighList[j*dis + k + maxNeighbors * i];
-    float delx = ipos.x -jp[3*in];
-    float dely = ipos.y - jp[3*in+1];
-    float delz = ipos.z - jp[3*in+2];
+    float delx = ipos.x -jp[in];
+    float dely = ipos.y - jp[in+1];
+    float delz = ipos.z - jp[in+2];
     r2inv[k] = delx*delx + dely*dely + delz*delz;
   }
   res = r2inv[dis-1];
