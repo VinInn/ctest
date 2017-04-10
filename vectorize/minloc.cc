@@ -82,27 +82,32 @@ inline unsigned long long rdtscp() {
  return __rdtscp(&taux);
 }
 
-
+#include<cassert>
 template<typename T>
 int go() {
   using namespace minlocDetails;
 
   std::cout << "NATIVE_VECT_LENGH " << NATIVE_VECT_LENGH << std::endl;
-  
-  int N = 1024*4+3;
-  float x[N];
-  for (int i=0; i<N; ++i) x[i]= i%2 ? i : -i;
-  for (int i = 0; i<10; ++i) {
-   std::random_shuffle(x,x+N);
-   long long ts = -rdtscp();
-   int l1 = std::min_element(x+i,x+N) - (x+i);
-   ts +=rdtscp();
-   long long tv = -rdtscp();	
-   int l2 = minloc(x+i,N-i);
-   tv +=rdtscp();
 
-    std::cout << "min is at " << l1 << ' ' << ts << std::endl;
-    std::cout << "minloc " << l2 << ' ' << tv << std::endl;
+  int N = 1024*4+3;
+  T x[N];
+  for (int kk=0;kk<3;++kk) {
+    for (int i=0; i<N; ++i) x[i]= i%2 ? i : -i;
+    for (int i = kk; i<10+kk; ++i) {
+      std::random_shuffle(x,x+N);
+      long long ts = -rdtscp();
+      int l1 = std::min_element(x+i,x+N) - (x+i);
+      ts +=rdtscp();
+      long long tv = -rdtscp();	
+      int l2 = minloc(x+i,N-i);
+      tv +=rdtscp();
+      
+      if(kk==2) {
+	std::cout << "min is at " << l1 << ' ' << ts << std::endl;
+	std::cout << "minloc " << l2 << ' ' << tv << std::endl;
+      }
+      if(l1!=l2) std::cout << x[l1] << ' ' << x[l2] << std::endl;
+    }
   }
   return N;
 
