@@ -111,8 +111,11 @@
    //  const  int LG_SPARSE_SIZE_nz =1000000;
    */
 
+
      int N=1000; int nz=5000;
      int cycles=100000;
+//     int N=100000; int nz=1000000;
+//     int cycles=1000;
      
      return  kernel_measureSparseMatMult(N,nz,cycles);
 
