@@ -60,13 +60,15 @@ int minloc(T const * x, int N) {
   vint_t j;  for (int i=0;i<WIDTH; ++i) j[i]=i;  // can be done better
   for (int i=0; i<M; i+=WIDTH) {
     decltype(auto) v = load(x+i);
+#ifdef DOTESTZ // not faster
     auto mask = v<v0;
-#ifdef DOTESTZ
     if (!testz(mask))
 #endif 
     {
-      index =  mask ? j : index;
-      v0 = mask ? v : v0;
+      index =  (v<v0) ? j : index;
+      v0 = (v<v0) ? v : v0;
+      // index =  mask ? j : index;
+      // v0 = mask ? v : v0;
     }
     j+=WIDTH;
   }
@@ -121,8 +123,16 @@ std::tuple<int,T> closestloc(T const * x, T const * y, int N, C c) {
     decltype(auto) vx = load(x+i);
     decltype(auto) vy = load(y+i);
     auto v = c(vx,vy);
-    index =  (v<v0) ? j : index;
-    v0 = (v<v0) ? v : v0;
+#ifdef DOTESTZ  // not faster
+    auto mask = v<v0;
+    if (!testz(mask))
+#endif
+    {
+      index =  (v<v0) ? j : index;
+      v0 = (v<v0) ? v : v0;
+      // index =  mask ? j : index;
+      // v0 = mask ? v : v0;
+    }
     j+=WIDTH;
   }
   auto k = 0;
