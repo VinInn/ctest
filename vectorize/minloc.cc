@@ -24,6 +24,11 @@ namespace minlocDetails {
     typedef double __attribute__( ( vector_size( NATIVE_VECT_LENGH ) , aligned(8) ) ) vfloatAN_t;
     typedef long long __attribute__( ( vector_size( NATIVE_VECT_LENGH ) ) ) vint_t;
   };
+
+  template<typename V>
+  bool testz(V const t) {
+   return _mm256_testz_si256(__m256i(t),__m256i(t));
+  }
   
   template<typename T>
   inline
@@ -55,8 +60,14 @@ int minloc(T const * x, int N) {
   vint_t j;  for (int i=0;i<WIDTH; ++i) j[i]=i;  // can be done better
   for (int i=0; i<M; i+=WIDTH) {
     decltype(auto) v = load(x+i);
-    index =  (v<v0) ? j : index;
-    v0 = (v<v0) ? v : v0;
+    auto mask = v<v0;
+#ifdef DOTESTZ
+    if (!testz(mask))
+#endif 
+    {
+      index =  mask ? j : index;
+      v0 = mask ? v : v0;
+    }
     j+=WIDTH;
   }
   auto k = 0;
@@ -151,6 +162,7 @@ int go() {
 
   std::cout << "NATIVE_VECT_LENGH " << NATIVE_VECT_LENGH << std::endl;
 
+  long long tt[4]={0};
   int N = 1024*4+3;
   T x[N],y[N];
   for (int kk=0;kk<3;++kk) {
@@ -181,7 +193,7 @@ int go() {
       tvn +=rdtscp();
 
       
-      
+      if (kk!=0) { tt[0]+=ts; tt[1]+=tv;  tt[2]+=tsn; tt[3]+=tvn;}
       if(kk==2) {
 	std::cout << "min is at " << l1 << ' ' << ts << std::endl;
 	std::cout << "minloc " << l2 << ' ' << tv << std::endl;
@@ -192,6 +204,7 @@ int go() {
       if(l3!=l4) std::cout << std::get<1>(l3) << ' ' << std::get<1>(l4) << std::endl;
     }
   }
+  std::cout << "times " << tt[0] << ' ' << tt[1] << ' ' << tt[2] << ' ' << tt[3] << ' ' << std::endl;
   return N;
 
 }
