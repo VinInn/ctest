@@ -1,3 +1,4 @@
+#include <x86intrin.h>
 #include <cstdint>
 #include <cmath>
 #include <limits>
@@ -112,7 +113,7 @@ inline float erfinv(float x) {
   return p*x;
 }
 
-
+/*
 template<int N>
 inline void erfinv(std::array<float,N> & r) {
   bool t[N];
@@ -124,13 +125,13 @@ inline void erfinv(std::array<float,N> & r) {
   
   for (int i=0;i!=NN;++i) {
     if(t[i]) {
-      float w = -  unsafe_logf<8>((1.0f-a[i])*(1.0f+a[i]));
+      float w = -  unsafe_logf<8>((1.0f-r[i])*(1.0f+r[i]));
       b[i]=std::sqrt(2.f)*a[i]*erfinv_unlike(w);
     }
   }
 }
+*/
 
-}
 
 /*
 inline float erfinv(float x) {
@@ -236,13 +237,18 @@ Vec apply(Vec v, F f) {
 }
 
 
+  template<typename V>
+  bool testz(V const t) {
+   return _mm_testz_si128(__m128i(t),__m128i(t));
+  }
+
 inline
 void computeOne(int i) {
   float32x4_t v = (1.0f-va[i])*(1.0f+va[i]);
   float32x4_t w = - apply(v,unsafe_logf<8>);
-  float32x4_t t = w > 5.000000f;
+  auto t = w > 5.000000f;
   //    if likely(_mm256_movemask_ps(mask) == 255) {
-  if (_mm_movemask_ps(t) == 0) {
+  if (testz(t)) {
     vb[i]=std::sqrt(2.f)*va[i]*apply(w,erfinv_like);
   } else {
     vb[i]=std::sqrt(2.f)*apply(va[i],erfinv);
