@@ -12,11 +12,11 @@ print subprocess.check_output("c++ -v; exit 0",stderr=subprocess.STDOUT,shell=Tr
 print subprocess.check_output("ls -l;c++ -O2 fatlib.cc -fPIC -shared -o fatlibHere.so; exit 0",stderr=subprocess.STDOUT,shell=True)
 print "bho"
 lib = numpy.ctypeslib.load_library('fatlibHere','.')
-hello = lib.fathello
+hello = lib.vdt_arch
 hello.restype = ctypes.c_char_p
 print hello()
 print "bhe"
-fma = lib.myfma
+fma = lib.myfmaF
 fma.restype = ctypes.c_float
 fma.argtypes = [ctypes.c_float,ctypes.c_float,ctypes.c_float]
 print fma(1,2,3)

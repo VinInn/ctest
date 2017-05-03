@@ -15,14 +15,17 @@ double bar(double a, double b) {
 }
 
 #include<iostream>
-
-int main() {
+#include <cstdlib>
+int main(int argc, char** argv) {
   // double x = 0x1.3333333333333p+0;
   double x =  884279719003555.0; // 1.2;
-  auto s = foo(x,x);
+  double y=x;
+  if (argc>1) x=atof(argv[1]);
+  if (argc>2) y=atof(argv[2]);
+  auto s = foo(x,y);
   std::cout << std::hexfloat << s << std::endl;
-  std::cout << std::hexfloat << foo2(x,x) << std::endl;
-  std::cout << bar(x,x) << std::endl;
+  std::cout << std::hexfloat << foo2(x,y) << std::endl;
+  std::cout << bar(x,y) << std::endl;
 
 }
 
