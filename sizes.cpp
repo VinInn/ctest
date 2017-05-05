@@ -98,7 +98,9 @@ struct H3 : public H {
 };
 
 
+#ifndef offsetof
 #define offsetof(type, member)  __builtin_offsetof (type, member)
+#endif
 
 struct MxAling {} __attribute__((__aligned__));
 
