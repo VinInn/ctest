@@ -100,8 +100,12 @@ struct H3 : public H {
 
 #define offsetof(type, member)  __builtin_offsetof (type, member)
 
+struct MxAling {} __attribute__((__aligned__));
+
 int main() {
-  
+
+   std::cout << sizeof(MxAling) << " " << alignof(MxAling) << std::endl;
+
   std::cout << sizeof(Z) << " " << alignof(Z) << std::endl;
   std::cout << sizeof(xyz) << " " << alignof(xyz) << std::endl;
   std::cout << sizeof(xyzw) << " " << alignof(xyzw) << std::endl;
