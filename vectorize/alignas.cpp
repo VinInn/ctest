@@ -1,5 +1,6 @@
 #include<iostream>
-
+#include<memory>
+#include<cstdlib>
 
 int main() {
 
@@ -18,15 +19,26 @@ int main() {
   AlDouble v3[4]={0,};
 
 
-  std::cout << sizeof(d) << " " << &d << std::endl;
-  std::cout <<  long(&v[4]) - long(&v[0]) << " " << v   << std::endl;
-  std::cout << sizeof(d2) << " " << &d2 << std::endl;
-  //std::cout <<  long(&v2[4]) - long(&v2[0]) << " " << v2   << std::endl;
-  std::cout << sizeof(d3) << " " << &d3 << std::endl;
-  std::cout <<  long(&v3[4]) - long(&v3[0]) << " " << v3   << std::endl;
+  std::cout << sizeof(d) << " " << (long(&d)&127) << std::endl;
+  std::cout <<  long(&v[4]) - long(&v[0]) << " " << (long(v)&127)   << std::endl;
+  std::cout << sizeof(d2) << " " << (long(&d2)&127) << std::endl;
+  //std::cout <<  long(&v2[4]) - long(&v2[0]) << " " << (long(v2)&127)   << std::endl;
+  std::cout << sizeof(d3) << " " << (long(&d3)&127) << std::endl;
+  std::cout <<  long(&v3[4]) - long(&v3[0]) << " " << (long(v3)&127)   << std::endl;
 
 
-  std::cout << sizeof(aligned_block) << " " << &al << std::endl;
+  std::cout << sizeof(aligned_block) << " " << alignof(aligned_block)<< ' ' << (long(&al)&127) << std::endl;
+
+  auto k = new float;
+  std::cout << (long(k)&127) << std::endl;
+  k = new float;
+  std::cout << (long(k)&127) << std::endl;
+
+  auto p = new aligned_block;
+  std::cout << (long(p)&127) << std::endl;
+  p = std::aligned_alloc(alignof(aligned_block),sizeof(aligned_block)));
+  std::cout << (long(p)&127) << std::endl;
+
 
 
   return 0;
