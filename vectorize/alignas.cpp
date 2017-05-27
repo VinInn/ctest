@@ -33,10 +33,12 @@ int main() {
   std::cout << (long(k)&127) << std::endl;
   k = new float;
   std::cout << (long(k)&127) << std::endl;
+  k = new float[4];
+  std::cout << (long(k)&127) << std::endl;
 
   auto p = new aligned_block;
   std::cout << (long(p)&127) << std::endl;
-  p = std::aligned_alloc(alignof(aligned_block),sizeof(aligned_block)));
+  p = (float*)aligned_alloc(alignof(aligned_block),sizeof(aligned_block));
   std::cout << (long(p)&127) << std::endl;
 
 
