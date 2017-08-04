@@ -1,3 +1,5 @@
+# c++ -march=native -Ofast testList.cpp -DHTMEM -pthread
+# c++ -march=native -Ofast testList.cpp -fgnu-tm
 #include <vector>
 #include <cmath>
 #include <limits>
@@ -9,7 +11,7 @@
 #include <immintrin.h>
 
 // convert gcc to c0xx
-#define thread_local __thread;
+// #define thread_local __thread;
 
 typedef std::thread Thread;
 typedef std::vector<std::thread> ThreadGroup;
@@ -23,7 +25,20 @@ typedef std::lock_guard<std::mutex> Lock;
 #endif
 
 #ifdef HTMEM
-#define __transaction_atomic unsigned int status; if ((status = _xbegin ()) == _XBEGIN_STARTED)
+
+inline
+unsigned int spin() {
+  unsigned int status = _XABORT_EXPLICIT;
+  for (int n_tries = 0; n_tries < 1000; ++n_tries) 
+  {
+    status = _xbegin ();
+    if (status == _XBEGIN_STARTED || !(status & _XABORT_RETRY))
+      break;
+  }
+  return status;
+}
+
+#define __transaction_atomic unsigned int status=spin(); if (status == _XBEGIN_STARTED)
 #else
 void _xend (){}
 #endif
@@ -154,6 +169,7 @@ void act() {
     // not really needed atomic will be enough
     static int nt=0;
     me = nt++;
+    _xend();
   }  
 
   {
@@ -177,7 +193,7 @@ void act() {
 
   {
     Lock a(outLock);
-    std::cout << me << " " << wrong << std::endl;
+    std::cout << "over " << me << " " << wrong << std::endl;
   }
 
 }

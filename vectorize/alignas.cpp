@@ -38,10 +38,12 @@ int main() {
 
   auto p = new aligned_block;
   std::cout << (long(p)&127) << std::endl;
-  p = (float*)aligned_alloc(alignof(aligned_block),sizeof(aligned_block));
+  p = new(aligned_alloc(alignof(aligned_block),sizeof(aligned_block))) aligned_block;
   std::cout << (long(p)&127) << std::endl;
-
-
+  delete p;
+  p = new(aligned_alloc(alignof(aligned_block),sizeof(aligned_block))) aligned_block;
+  std::cout << (long(p)&127) << std::endl;
+  delete p;
 
   return 0;
 };
