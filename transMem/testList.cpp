@@ -1,5 +1,5 @@
-# c++ -march=native -Ofast testList.cpp -DHTMEM -pthread
-# c++ -march=native -Ofast testList.cpp -fgnu-tm
+// c++ -march=native -Ofast testList.cpp -DHTMEM -pthread -mrtm
+// c++ -march=native -Ofast testList.cpp -fgnu-tm
 #include <vector>
 #include <cmath>
 #include <limits>
@@ -158,6 +158,11 @@ void stopper() {
   }
 
   stop=true;
+  {
+    Lock a(outLock);
+    std::cout << "stop sent " << std::endl;
+  }
+
 }
 
 
