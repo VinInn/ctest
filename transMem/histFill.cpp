@@ -72,17 +72,24 @@ std::array<float,NBINS> err = {{0}};
 };
 
 
-inline
-float addf(std::atomic<float> &f, float d){
-      float old = f.load(std::memory_order_consume);
-      float desired = old + d;
-      while (!f.compare_exchange_weak(old, desired,
-           std::memory_order_release, std::memory_order_consume))
-      {
-           desired = old + d;
-      }
-      return desired;
- }
+
+template <typename T>
+struct identity {
+  using type = T;
+};
+template <typename T>
+using identity_t = typename identity<T>::type;
+
+template<typename BinaryOp, typename T>
+T atomicOp(std::atomic<T> &f, identity_t<T> const d, BinaryOp op = BinaryOp{})
+{
+  T old = f;
+  T desired;
+  do {
+    desired = op(old, d);
+  } while ( !f.compare_exchange_weak(old, desired) );
+  return desired;
+}
 
 struct Ahist {
 
@@ -93,8 +100,8 @@ int tot() const { return std::accumulate(bins.begin(),bins.end(),0);}
 
 void fill(int i,float w) {
        ++bins[i];
-       addf(ws[i],w);   
-       addf(err[i],w*w);
+       atomicOp<std::plus<>>(ws[i],w);   
+       atomicOp<std::plus<>>(err[i],w*w);
 }
 
 std::array<std::atomic<int>,NBINS> bins;
