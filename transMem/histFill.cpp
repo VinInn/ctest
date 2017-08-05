@@ -87,8 +87,11 @@ std::array<std::atomic<int>,100> bins;
 // control cout....
 Mutex outLock;
 
+#ifdef NOTRANS
+Ahist hist;
+#else
 Hist hist;
-
+#endif
 
 bool stop=false;
 bool working=true;
@@ -120,7 +123,7 @@ void act() {
 
 
   std::default_random_engine generator;
-  std::uniform_int_distribution<unsigned int> distribution(0,100);
+  std::uniform_int_distribution<unsigned int> distribution(0,99);
   auto pos = std::bind ( distribution, generator );
 
   __transaction_atomic {
