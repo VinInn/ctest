@@ -9,6 +9,7 @@
 #include <functional>
 #include <algorithm>
 #include <immintrin.h>
+#include<atomic>
 
 // convert gcc to c0xx
 // #define thread_local __thread;
@@ -24,6 +25,8 @@ typedef std::lock_guard<std::mutex> Lock;
 #define __transaction_atomic
 #endif
 
+std::atomic<long long> nfail(0);
+
 #ifdef HTMEM
 
 inline
@@ -38,7 +41,7 @@ unsigned int spin() {
   return status;
 }
 
-#define __transaction_atomic unsigned int status=spin(); if (status == _XBEGIN_STARTED)
+#define __transaction_atomic unsigned int status=spin(); if (status != _XBEGIN_STARTED) {++nfail;} else
 #else
 void _xend (){}
 #endif
@@ -152,9 +155,14 @@ void stopper() {
 
   //  char s;
   //std::cin >> s;
+  long long old=0;
   while (nullptr==theSet.head.next || theSet.head.next->val > -1.e6) {
     std::chrono::milliseconds dura( 2000 );
     std::this_thread::sleep_for( dura );
+    if (nfail>old) {
+        std::cout << "failed " << nfail << std::endl;
+        old = nfail;
+    }
   }
 
   stop=true;
@@ -177,16 +185,19 @@ void act() {
     _xend();
   }  
 
-  {
-    Lock a(outLock);
-    std::cout << "starting " <<  me << std::endl;
-  }
   int wrong=0;
 
   float n=me*100+0.01*me;
   float oldN=0;
   bool back = (0==(me&1));
   if (!back) n = -n;
+
+  {
+    Lock a(outLock);
+    std::cout << "starting " <<  me << ' ' << n << std::endl;
+  }
+
+  int oldw=100;
   while(!stop) {
     
     n += back ? -1 : 1;
@@ -194,6 +205,12 @@ void act() {
     if (!theSet.contains(n)) wrong++;
     theSet.remove(oldN);
     oldN=n;
+    if (wrong>oldw) {
+      oldw=2*wrong;
+      Lock a(outLock);
+      std::cout << "wrong " <<  me << ' ' << n << ' ' << wrong << ' ' << (nullptr==theSet.head.next ? 0.0 : theSet.head.next->val) << std::endl;
+    }
+
   }
 
   {
