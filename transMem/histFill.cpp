@@ -50,6 +50,7 @@ void _xend (){}
 #endif
 
 
+constexpr unsigned int NBINS = 256;
 
 struct Hist {
 
@@ -57,14 +58,16 @@ int tot() const { return std::accumulate(bins.begin(),bins.end(),0);}
 
 void fill(int i,float w) {
    __transaction_atomic {
-       bins[i]+=w;
+       ++bins[i];
+       ws[i]+=w;
        err[i]+=w*w;
       _xend ();
    }  
 }
 
-std::array<float,100> bins = {{0}};
-std::array<float,100> err = {{0}};
+std::array<int,NBINS> bins = {{0}};
+std::array<float,NBINS> ws = {{0}};
+std::array<float,NBINS> err = {{0}};
 
 };
 
@@ -89,12 +92,14 @@ int tot() const { return std::accumulate(bins.begin(),bins.end(),0);}
 
 
 void fill(int i,float w) {
-       addf(bins[i],w);   
+       ++bins[i];
+       addf(ws[i],w);   
        addf(err[i],w*w);
 }
 
-std::array<std::atomic<float>,100> bins;
-std::array<std::atomic<float>,100> err;
+std::array<std::atomic<int>,NBINS> bins;
+std::array<std::atomic<float>,NBINS> ws;
+std::array<std::atomic<float>,NBINS> err;
 
 };
 
@@ -139,7 +144,7 @@ void act() {
 
 
   std::default_random_engine generator;
-  std::uniform_int_distribution<unsigned int> distribution(0,99);
+  std::uniform_int_distribution<unsigned int> distribution(0,NBINS-1);
   auto pos = std::bind ( distribution, generator );
 
   __transaction_atomic {
