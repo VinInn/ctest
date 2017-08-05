@@ -55,17 +55,31 @@ struct Hist {
 
 int tot() const { return std::accumulate(bins.begin(),bins.end(),0);}
 
-void fill(int i) {
+void fill(int i,float w) {
    __transaction_atomic {
-       ++bins[i];
+       bins[i]+=w;
+       err[i]+=w*w;
       _xend ();
    }  
 }
 
-std::array<int,100> bins = {{0}};
+std::array<float,100> bins = {{0}};
+std::array<float,100> err = {{0}};
 
 };
 
+
+inline
+float addf(std::atomic<float> &f, float d){
+      float old = f.load(std::memory_order_consume);
+      float desired = old + d;
+      while (!f.compare_exchange_weak(old, desired,
+           std::memory_order_release, std::memory_order_consume))
+      {
+           desired = old + d;
+      }
+      return desired;
+ }
 
 struct Ahist {
 
@@ -74,11 +88,13 @@ struct Ahist {
 int tot() const { return std::accumulate(bins.begin(),bins.end(),0);}
 
 
-void fill(int i) {
-       ++bins[i];
+void fill(int i,float w) {
+       addf(bins[i],w);   
+       addf(err[i],w*w);
 }
 
-std::array<std::atomic<int>,100> bins;
+std::array<std::atomic<float>,100> bins;
+std::array<std::atomic<float>,100> err;
 
 };
 
@@ -139,7 +155,7 @@ void act() {
   }
 
   for (int i=0; i<1000000;++i)
-    hist.fill(pos());
+    hist.fill(pos(),1.f);
 
 }
 
