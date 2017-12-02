@@ -23,7 +23,7 @@ int main(int,char**) {
 
    tbb::task_group g;
 
-  std::vector<mytask> tasks;
+  // not necessarely a good idea but works...
   for (int i=0;i<1000;++i)
     g.run(mytask(i));
   g.wait();
