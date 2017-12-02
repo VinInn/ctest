@@ -1,4 +1,4 @@
-#include "tbb/parallel_for.h"
+#include "tbb/task_group.h"
 #include "tbb/task_scheduler_init.h"
 #include <iostream>
 #include <vector>
@@ -21,16 +21,12 @@ int main(int,char**) {
   //tbb::task_scheduler_init init;  // Automatic number of threads
    tbb::task_scheduler_init init(tbb::task_scheduler_init::default_num_threads());  // Explicit number of threads
 
+   tbb::task_group g;
+
   std::vector<mytask> tasks;
   for (int i=0;i<1000;++i)
-    tasks.push_back(mytask(i));
-
-  tbb::parallel_for(
-    tbb::blocked_range<size_t>(0,tasks.size()),
-    [&tasks](const tbb::blocked_range<size_t>& r) {
-      for (size_t i=r.begin();i<r.end();++i) tasks[i]();
-    }
-  );
+    g.run(mytask(i));
+  g.wait();
 
   std::cerr << std::endl;
 
