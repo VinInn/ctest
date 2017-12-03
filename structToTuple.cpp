@@ -97,7 +97,7 @@ int main() {
 
 
       constexpr auto t2 = to_tuple(s{s::nested{}, 42, 87, nullptr});
-      static_assert(check_tuple(t2)); 
+      static_assert(!check_tuple(t2)); 
 
       assert(42 == std::get<1>(t2));
       assert(87 == std::get<2>(t2));
