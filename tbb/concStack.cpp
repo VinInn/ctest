@@ -1,0 +1,109 @@
+#include <array>
+#include <memory>
+#include <atomic>
+#include <cassert>
+
+template<typename T>
+class concurrent_stack {
+public:
+  
+
+  struct Node {
+    template<typename ...Arguments>
+    Node(Arguments&&...args) : t(args...),prev(nullptr){}
+    T t;
+    Node * prev;
+  };
+  
+  using NodePtr = std::unique_ptr<Node>;
+
+  concurrent_stack() : head(nullptr), nel(0){}
+
+  ~concurrent_stack() { while(pop()); assert(0==nel);}
+    
+  
+  NodePtr pop() {
+    Node * lhead = head;
+    if (!lhead) return NodePtr();
+    Node * prev = lhead->prev;
+    while (!head.compare_exchange_strong(lhead,prev)) { if (!lhead) return NodePtr(); prev = lhead->prev;}
+    if (lhead) {
+      lhead->prev=nullptr;
+      nel-=1;
+    }
+    return NodePtr(lhead);
+  }
+
+
+  void push(NodePtr && np) {
+    auto n = np.release();
+    Node * lhead = head;
+    n->prev = lhead;
+    while (!head.compare_exchange_strong(lhead,n)) n->prev = lhead;
+    nel+=1; 
+  }
+
+  unsigned int size() const { return nel;}
+
+  template<typename ...Arguments>
+  static NodePtr 
+    make(Arguments&&...args) { return std::make_unique<Node>(args...);}
+
+  std::atomic<Node *> head;
+  std::atomic<unsigned int> nel;
+
+
+  
+};
+
+
+namespace {
+  concurrent_stack<int> stack;
+}
+
+
+#include<iostream>
+#include "tbb/task_group.h"
+#include "tbb/task_scheduler_init.h"
+
+
+int main() {
+
+  concurrent_stack<int>::Node anode(0);
+
+  std::cout << stack.size() << std::endl;
+
+  stack.push(std::move(stack.make(1)));
+
+  std::cout << stack.size() << std::endl;
+
+  auto n = stack.pop();
+
+  std::cout << stack.size() << std::endl;
+
+  std::cerr << "default num of thread " << tbb::task_scheduler_init::default_num_threads() << std::endl;
+
+  //tbb::task_scheduler_init init;  // Automatic number of threads
+   tbb::task_scheduler_init init(tbb::task_scheduler_init::default_num_threads());  // Explicit number of threads
+
+   tbb::task_group g;
+ 
+  auto NTasks = 2000;
+  // not necessarely a good idea but works...
+  for (auto i=0;i<NTasks;++i) {
+    auto k=i;
+    g.run([&,k]{
+	auto a = stack.pop();
+	if (!a) a = stack.make(k);
+	assert(a.get());
+	stack.push(std::move(a));
+      }
+      );
+  }
+  g.wait();
+
+  std::cout << stack.size() << std::endl;
+
+  return 0;
+
+}
