@@ -12,7 +12,7 @@ namespace {
   struct Queue {
     Queue() : ave(0),ncall(0){}
     ~Queue() {
-      std::cout << ncall << ' ' << double(ave)/ncall << std::endl;
+      std::cout << "queue calls, ave-size " << ncall << ' ' << double(ave)/ncall << std::endl;
       for (auto p=me.unsafe_begin(); p!=me.unsafe_end(); ++p) std::cout << *(*p) <<'/';
       std::cout << std::endl;
 
@@ -54,6 +54,9 @@ int main() {
 
    tbb::task_group g;
 
+   queue1.push(std::make_unique<int>(0));
+   queue2.push(std::make_unique<int>(0));
+ 
   auto NTasks = 2000;
   // not necessarely a good idea but works...
   for (auto i=0;i<NTasks;++i) {
