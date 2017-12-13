@@ -29,6 +29,7 @@ public:
 
   ~concurrent_stack() {
     assert(ns==nel);
+    while(pop().ptr>=0); assert(nel==0);
   }
     
   
@@ -40,7 +41,7 @@ public:
     if (lhead.ptr>=0) {
       assert(node(lhead)->prev.ptr!=lhead.ptr);
       assert(node(lhead)->prev==prev);
-      node(lhead)->prev=NodePtr();
+      node(lhead)->prev=NodePtr(); // not needed
       nel-=1;
       assert(nel>=0);
     }
