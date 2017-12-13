@@ -13,7 +13,7 @@ public:
     Node(Arguments&&...args) : t(args...),prev(nullptr){}
     T & operator*() {return t;}
     T t;
-    Node * prev;
+    std::atomic<Node *> prev;
   };
   
   using NodePtr = std::unique_ptr<Node>;
@@ -27,10 +27,11 @@ public:
     Node * lhead = head;
     if (!lhead) return NodePtr();
     Node * prev = lhead->prev;
-    while (!head.compare_exchange_strong(lhead,prev)) { if (!lhead) return NodePtr(); prev = lhead->prev;}
+    while (!head.compare_exchange_weak(lhead,prev)) { if (!lhead) return NodePtr(); prev = lhead->prev;}
     if (lhead) {
       lhead->prev=nullptr;
       nel-=1;
+      assert(nel>=0);
     }
     return NodePtr(lhead);
   }
@@ -40,7 +41,7 @@ public:
     auto n = np.release();
     Node * lhead = head;
     n->prev = lhead;
-    while (!head.compare_exchange_strong(lhead,n)) n->prev = lhead;
+    while (!head.compare_exchange_weak(lhead,n)) n->prev = lhead;
     nel+=1; 
   }
 
@@ -51,7 +52,7 @@ public:
     make(Arguments&&...args) { return std::make_unique<Node>(args...);}
 
   std::atomic<Node *> head;
-  std::atomic<unsigned int> nel;
+  std::atomic<int> nel;
 
 
   
@@ -64,11 +65,11 @@ public:
 #include "tbb/concurrent_queue.h"
 
 
-
+std::atomic<unsigned int> ni(0);
 struct Stateful {
 
-  Stateful(int i) : id(i){}
-  ~Stateful() { std::cout << "Stateful " << id << '/'<<count << std::endl; }
+  Stateful(int i) : id(i){if (i>=0) ni+=1;}
+  ~Stateful() { std::cout << "Stateful " << id << '/'<<count << ' ' << ni << std::endl; }
 
 
   void operator()() { ++count;}
@@ -91,7 +92,7 @@ namespace {
 int main() {
 
   {
-  Stack::Node anode(0);
+  Stack::Node anode(-42);
 
   std::cout << stack.size() << std::endl;
 
@@ -112,7 +113,7 @@ int main() {
 
    tbb::task_group g;
  
-  auto NTasks = 2000;
+  auto NTasks = 1000*tbb::task_scheduler_init::default_num_threads();
   // not necessarely a good idea but works...
   for (auto i=0;i<NTasks;++i) {
     auto k=i;
