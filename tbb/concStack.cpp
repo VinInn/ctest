@@ -29,6 +29,7 @@ public:
     Node * prev = lhead->prev;
     while (!head.compare_exchange_weak(lhead,prev)) { if (!lhead) return NodePtr(); prev = lhead->prev;}
     if (lhead) {
+      assert(lhead->prev==prev);
       lhead->prev=nullptr;
       nel-=1;
       assert(nel>=0);
