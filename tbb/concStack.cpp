@@ -3,59 +3,78 @@
 #include <atomic>
 #include <cassert>
 
+
+struct NodePtr {
+  int aba=0;
+  int ptr=-1;
+};
+inline bool operator==(NodePtr a, NodePtr b) { return a.aba==b.aba && a.ptr==b.ptr; }
+
+
 template<typename T>
 class concurrent_stack {
 public:
   
-
+  
   struct Node {
     template<typename ...Arguments>
-    Node(Arguments&&...args) : t(args...),prev(nullptr){}
+    Node(Arguments&&...args) : t(args...){}
     T & operator*() {return t;}
     T t;
-    std::atomic<Node *> prev;
+    NodePtr prev;
   };
   
-  using NodePtr = std::unique_ptr<Node>;
+ 
+  concurrent_stack() : nel(0), ns(0) {}
 
-  concurrent_stack() : head(nullptr), nel(0){}
-
-  ~concurrent_stack() { while(pop()); assert(0==nel);}
+  ~concurrent_stack() {
+    assert(ns==nel);
+  }
     
   
   NodePtr pop() {
-    Node * lhead = head;
-    if (!lhead) return NodePtr();
-    Node * prev = lhead->prev;
-    while (!head.compare_exchange_weak(lhead,prev)) { if (!lhead) return NodePtr(); prev = lhead->prev;}
-    if (lhead) {
-      assert(lhead->prev==prev);
-      lhead->prev=nullptr;
+    NodePtr lhead = head;
+    if (lhead.ptr<0) return NodePtr();
+    NodePtr prev = node(lhead)->prev;
+    while (!head.compare_exchange_weak(lhead,prev)) { if(lhead.ptr<0) return NodePtr(); prev = node(lhead)->prev;}
+    if (lhead.ptr>=0) {
+      assert(node(lhead)->prev==prev);
+      node(lhead)->prev=NodePtr();
       nel-=1;
       assert(nel>=0);
     }
-    return NodePtr(lhead);
+    return lhead;
   }
 
+  Node * node(NodePtr p) const { return p.ptr>=0 ? nodes[p.ptr].get() : nullptr;}
 
-  void push(NodePtr && np) {
-    auto n = np.release();
-    Node * lhead = head;
+  void push(NodePtr np) {
+    auto n = node(np);
+    np.aba +=1;
+    NodePtr lhead = head;
     n->prev = lhead;
-    while (!head.compare_exchange_weak(lhead,n)) n->prev = lhead;
+    while (!head.compare_exchange_weak(lhead,np)) n->prev = lhead;
     nel+=1; 
   }
 
   unsigned int size() const { return nel;}
+  unsigned int nalloc() const { return ns;}
 
+  
   template<typename ...Arguments>
-  static NodePtr 
-    make(Arguments&&...args) { return std::make_unique<Node>(args...);}
+  NodePtr make(Arguments&&...args) {
+    int e = ns;
+    while (!ns.compare_exchange_weak(e,e+1));
+    nodes[e] = std::make_unique<Node>(args...);
+    return NodePtr{0,e};
+  }
 
-  std::atomic<Node *> head;
+  std::atomic<NodePtr> head;
   std::atomic<int> nel;
 
+  std::atomic<int> ns;
 
+  std::array<std::unique_ptr<Node>,1024> nodes;
   
 };
 
@@ -95,16 +114,21 @@ int main() {
   {
   Stack::Node anode(-42);
 
-  std::cout << stack.size() << std::endl;
+  std::cout << stack.size() << ' ' << stack.nalloc() << std::endl;
 
-  stack.push(std::move(stack.make(-99)));
+  stack.push(stack.make(-99));
 
-  std::cout << stack.size() << std::endl;
+  std::cout << stack.size() << ' ' << stack.nalloc() << std::endl;
 
   auto n = stack.pop();
 
-  std::cout << stack.size() << std::endl;
+  std::cout << stack.size() << ' ' << stack.nalloc() << std::endl;
 
+  stack.push(n);
+
+  std::cout << stack.size() << ' ' << stack.nalloc() << std::endl;
+
+  
   }
   
   std::cerr << "default num of thread " << tbb::task_scheduler_init::default_num_threads() << std::endl;
@@ -120,10 +144,11 @@ int main() {
     auto k=i;
     g.run([&,k]{
 	auto a = stack.pop();
-	if (!a) a = stack.make(k);
-	assert(a.get());
-	(**a)();
-	stack.push(std::move(a));
+	if (!stack.node(a)) a = stack.make(k);
+	auto n = stack.node(a);
+	assert(n);
+	(**n)();
+	stack.push(a);
 
         QItem q;
 	if (!queue.try_pop(q))
@@ -137,7 +162,7 @@ int main() {
   }
   g.wait();
 
-  std::cout << stack.size() << std::endl;
+  std::cout << stack.size() << ' ' << stack.nalloc() << std::endl;
 
   return 0;
 
