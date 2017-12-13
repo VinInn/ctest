@@ -61,6 +61,7 @@ public:
 #include<iostream>
 #include "tbb/task_group.h"
 #include "tbb/task_scheduler_init.h"
+#include "tbb/concurrent_queue.h"
 
 
 
@@ -79,6 +80,10 @@ struct Stateful {
 namespace {
   using Stack = concurrent_stack<Stateful>;
   Stack stack;
+
+  using QItem = std::unique_ptr<Stateful>;
+  using Queue = tbb::concurrent_queue<QItem>;
+  Queue queue;
 }
 
 
@@ -117,6 +122,14 @@ int main() {
 	assert(a.get());
 	(**a)();
 	stack.push(std::move(a));
+
+        QItem q;
+	if (!queue.try_pop(q))
+	  q = std::make_unique<Stateful>(-k);
+	assert(q.get());
+	(*q)();
+	queue.push(std::move(q));
+
       }
       );
   }
