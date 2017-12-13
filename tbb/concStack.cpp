@@ -50,7 +50,7 @@ public:
 
   void push(NodePtr np) {
     auto n = node(np);
-    np.aba +=1;
+    np.aba +=1;  // remove this to see aba in action!
     NodePtr lhead = head;
     n->prev = lhead;
     while (!head.compare_exchange_weak(lhead,np)) n->prev = lhead;
@@ -164,6 +164,8 @@ int main() {
 
   std::cout << stack.size() << ' ' << stack.nalloc() << std::endl;
 
+  std::cout << queue.unsafe_size() << std::endl;
+  
   return 0;
 
 }
