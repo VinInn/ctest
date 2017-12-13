@@ -38,6 +38,7 @@ public:
     NodePtr prev = node(lhead)->prev;
     while (!head.compare_exchange_weak(lhead,prev)) { if(lhead.ptr<0) return NodePtr(); prev = node(lhead)->prev;}
     if (lhead.ptr>=0) {
+      assert(node(lhead)->prev.ptr!=lhead.ptr);
       assert(node(lhead)->prev==prev);
       node(lhead)->prev=NodePtr();
       nel-=1;
