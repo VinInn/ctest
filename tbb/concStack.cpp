@@ -125,7 +125,7 @@ int main() {
 
         QItem q;
 	if (!queue.try_pop(q))
-	  q = std::make_unique<Stateful>(-k);
+	  q = std::make_unique<Stateful>(-k-1);
 	assert(q.get());
 	(*q)();
 	queue.push(std::move(q));
