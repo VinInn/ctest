@@ -44,6 +44,8 @@ public:
       node(lhead)->prev=NodePtr(); // not needed
       nel-=1;
       assert(nel>=0);
+      verify[lhead.ptr]-=1;
+      assert(0==verify[lhead.ptr]);
     }
     return lhead;
   }
@@ -51,12 +53,14 @@ public:
   Node * node(NodePtr p) const { return p.ptr>=0 ? nodes[p.ptr].get() : nullptr;}
 
   void push(NodePtr np) {
+    verify[np.ptr]+=1;
+    assert(1==verify[np.ptr]);
     auto n = node(np);
     np.aba +=1;  // remove this to see aba in action!
     NodePtr lhead = head;
     n->prev = lhead;
     while (!head.compare_exchange_weak(lhead,np)) n->prev = lhead;
-    nel+=1; 
+    nel+=1;
   }
 
   unsigned int size() const { return nel;}
@@ -68,6 +72,7 @@ public:
     int e = ns;
     while (!ns.compare_exchange_weak(e,e+1));
     nodes[e] = std::make_unique<Node>(args...);
+    verify[e]=0;
     return NodePtr{0,e};
   }
 
@@ -77,7 +82,9 @@ public:
   std::atomic<int> ns;
 
   std::array<std::unique_ptr<Node>,1024> nodes;
-  
+
+  std::array<std::atomic<int>,1024> verify;
+
 };
 
 
