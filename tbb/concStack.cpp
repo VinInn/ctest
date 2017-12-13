@@ -11,6 +11,7 @@ public:
   struct Node {
     template<typename ...Arguments>
     Node(Arguments&&...args) : t(args...),prev(nullptr){}
+    T & operator*() {return t;}
     T t;
     Node * prev;
   };
@@ -57,23 +58,39 @@ public:
 };
 
 
-namespace {
-  concurrent_stack<int> stack;
-}
-
-
 #include<iostream>
 #include "tbb/task_group.h"
 #include "tbb/task_scheduler_init.h"
 
 
+
+struct Stateful {
+
+  Stateful(int i) : id(i){}
+  ~Stateful() { std::cout << "Stateful " << id << '/'<<count << std::endl; }
+
+
+  void operator()() { ++count;}
+    
+  long long count=0;
+  int id=-1;
+};
+
+namespace {
+  using Stack = concurrent_stack<Stateful>;
+  Stack stack;
+}
+
+
+
 int main() {
 
-  concurrent_stack<int>::Node anode(0);
+  {
+  Stack::Node anode(0);
 
   std::cout << stack.size() << std::endl;
 
-  stack.push(std::move(stack.make(1)));
+  stack.push(std::move(stack.make(-99)));
 
   std::cout << stack.size() << std::endl;
 
@@ -81,6 +98,8 @@ int main() {
 
   std::cout << stack.size() << std::endl;
 
+  }
+  
   std::cerr << "default num of thread " << tbb::task_scheduler_init::default_num_threads() << std::endl;
 
   //tbb::task_scheduler_init init;  // Automatic number of threads
@@ -96,6 +115,7 @@ int main() {
 	auto a = stack.pop();
 	if (!a) a = stack.make(k);
 	assert(a.get());
+	(**a)();
 	stack.push(std::move(a));
       }
       );
