@@ -27,7 +27,7 @@ public:
  
   concurrent_stack() : nel(0), ns(0) {}
 
-  ~concurrent_stack() {
+  ~concurrent_stack() {    
     assert(ns==nel);
     while(pop().ptr>=0); assert(nel==0);
   }
@@ -39,13 +39,17 @@ public:
     NodePtr prev = node(lhead)->prev;
     while (!head.compare_exchange_weak(lhead,prev)) { if(lhead.ptr<0) return NodePtr(); prev = node(lhead)->prev;}
     if (lhead.ptr>=0) {
+#ifdef VICONC_DEBUG      
       assert(node(lhead)->prev.ptr!=lhead.ptr);
       assert(node(lhead)->prev==prev);
       node(lhead)->prev=NodePtr(); // not needed
+#endif
       nel-=1;
+#ifdef VICONC_DEBUG      
       assert(nel>=0);
       verify[lhead.ptr]-=1;
       assert(0==verify[lhead.ptr]);
+#endif
     }
     return lhead;
   }
@@ -53,8 +57,10 @@ public:
   Node * node(NodePtr p) const { return p.ptr>=0 ? nodes[p.ptr].get() : nullptr;}
 
   void push(NodePtr np) {
+#ifdef VICONC_DEBUG      
     verify[np.ptr]+=1;
     assert(1==verify[np.ptr]);
+#endif
     auto n = node(np);
     np.aba +=1;  // remove this to see aba in action!
     NodePtr lhead = head;
@@ -72,7 +78,9 @@ public:
     int e = ns;
     while (!ns.compare_exchange_weak(e,e+1));
     nodes[e] = std::make_unique<Node>(args...);
+#ifdef VICONC_DEBUG      
     verify[e]=0;
+#endif
     return NodePtr{0,e};
   }
 
@@ -80,11 +88,11 @@ public:
   std::atomic<int> nel;
 
   std::atomic<int> ns;
-
   std::array<std::unique_ptr<Node>,1024> nodes;
 
+#ifdef VICONC_DEBUG      
   std::array<int,1024> verify;
-
+#endif
 };
 
 
@@ -113,6 +121,7 @@ struct Stateful {
     assert(1==verify);
     --verify;
     assert(0==verify);
+
   }
     
   long long count=0;
