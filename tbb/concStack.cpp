@@ -35,13 +35,14 @@ public:
   
   NodePtr pop() {
     NodePtr lhead = head;
-    if (lhead.ptr<0) return NodePtr();
-    NodePtr prev = node(lhead)->prev;
-    while (!head.compare_exchange_weak(lhead,prev)) { if(lhead.ptr<0) return NodePtr(); prev = node(lhead)->prev;}
+    //if (lhead.ptr<0) return NodePtr();
+    //NodePtr prev = node(lhead)->prev;
+    //while (!head.compare_exchange_weak(lhead,prev)) { if(lhead.ptr<0) return NodePtr(); prev = node(lhead)->prev;}
+    while (lhead && !head.compare_exchange_weak(lhead,nodes[lhead.ptr]->prev));
     if (lhead.ptr>=0) {
 #ifdef VICONC_DEBUG      
       assert(node(lhead)->prev.ptr!=lhead.ptr);
-      assert(node(lhead)->prev==prev);
+      // assert(node(lhead)->prev==prev);  // usually fails in case of aba
       node(lhead)->prev=NodePtr(); // not needed
 #endif
       nel-=1;
@@ -51,6 +52,7 @@ public:
       assert(0==verify[lhead.ptr].v);
 #endif
     }
+    // lhead.aba+=1;
     return lhead;
   }
 
@@ -63,9 +65,8 @@ public:
 #endif
     auto n = node(np);
     np.aba +=1;  // remove this to see aba in action!
-    NodePtr lhead = head;
-    n->prev = lhead;
-    while (!head.compare_exchange_weak(lhead,np)) n->prev = lhead;
+    n->prev = head;
+    while (!head.compare_exchange_weak(n->prev,np));
     nel+=1;
   }
 
@@ -143,7 +144,10 @@ namespace {
 
 
 int main() {
-
+#ifdef VICONC_DEBUG
+  std::cout << "debug mode" << std::endl;
+#endif
+  
   {
   Stack::Node anode(-4242);
 
