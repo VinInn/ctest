@@ -83,7 +83,7 @@ public:
 
   std::array<std::unique_ptr<Node>,1024> nodes;
 
-  std::array<std::atomic<int>,1024> verify;
+  std::array<int,1024> verify;
 
 };
 
@@ -97,14 +97,28 @@ public:
 std::atomic<unsigned int> ni(0);
 struct Stateful {
 
-  Stateful(int i) : id(i){if (i>=0) ni+=1;}
+  Stateful(int i) : id(i) {if (i>=0) ni+=1;}
   ~Stateful() { std::cout << "Stateful " << id << '/'<<count << ' ' << ni << std::endl; }
 
 
-  void operator()() { ++count;}
+  void operator()() {
+    ++count;
+    
+    assert(0==verify);
+    ++verify;
+    assert(1==verify);
+    verify *=2;
+    assert(2==verify);
+    --verify;
+    assert(1==verify);
+    --verify;
+    assert(0==verify);
+  }
     
   long long count=0;
   int id=-1;
+
+  int verify=0;
 };
 
 namespace {
@@ -121,11 +135,11 @@ namespace {
 int main() {
 
   {
-  Stack::Node anode(-42);
+  Stack::Node anode(-4242);
 
   std::cout << stack.size() << ' ' << stack.nalloc() << std::endl;
 
-  stack.push(stack.make(-99));
+  stack.push(stack.make(4242));
 
   std::cout << stack.size() << ' ' << stack.nalloc() << std::endl;
 
