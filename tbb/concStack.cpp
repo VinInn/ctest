@@ -14,7 +14,7 @@ inline bool operator==(NodePtr a, NodePtr b) { return a.aba==b.aba && a.ptr==b.p
 template<typename T>
 class concurrent_stack {
 public:
-  
+  using Item=T;
   
   struct Node {
     template<typename ...Arguments>
@@ -47,12 +47,11 @@ public:
 #endif
       nel-=1;
 #ifdef VICONC_DEBUG      
-      assert(nel>=0);
+      // assert(nel>=0);  // may fail 
       verify[lhead.ptr].v-=1;
       assert(0==verify[lhead.ptr].v);
 #endif
     }
-    // lhead.aba+=1;
     return lhead;
   }
 
@@ -96,6 +95,35 @@ public:
   std::array<IntA64,1024> verify;
 #endif
 };
+
+template<typename T>
+struct NodePtrGard {
+  using Stack = T;
+  using Item = typename Stack::Item;
+  
+  NodePtrGard(Stack & s) : stack(s){
+    while(ptr=stack.pop());
+  }
+
+  template<typename ...Arguments>
+  NodePtrGard(Stack & s,
+	      Arguments&&...args
+	      ) : stack(s){
+    auto a = stack.pop();
+    if (!a) a = stack.make(args...);
+    assert(a);
+    ptr=a;
+  }
+
+  ~NodePtrGard() { stack.push(ptr); }
+
+  Item & operator*() {return **stack.node(ptr);}
+
+    
+  Stack & stack;
+  NodePtr ptr;
+};
+
 
 
 #include<iostream>
@@ -180,13 +208,19 @@ int main() {
   for (auto i=0;i<NTasks;++i) {
     auto k=i;
     g.run([&,k]{
-	auto a = stack.pop();
-	if (!a) a = stack.make(k);
-	auto n = stack.node(a);
-	assert(n);
-	(**n)();
-	stack.push(a);
-
+	{
+	  NodePtrGard<Stack> n(stack,k);
+	  (*n)();
+	}
+	  /*
+	    auto a = stack.pop();
+	    if (!a) a = stack.make(k);
+	    auto n = stack.node(a);
+	    assert(n);
+	    (**n)();
+	    stack.push(a);
+	  */
+	
         QItem q;
 	if (!queue.try_pop(q))
 	  q = std::make_unique<Stateful>(-k-1);
