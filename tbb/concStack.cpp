@@ -7,9 +7,9 @@
 struct NodePtr {
   int aba=0;
   int ptr=-1;
+  operator bool() const { return ptr>=0;}
 };
 inline bool operator==(NodePtr a, NodePtr b) { return a.aba==b.aba && a.ptr==b.ptr; }
-
 
 template<typename T>
 class concurrent_stack {
@@ -47,8 +47,8 @@ public:
       nel-=1;
 #ifdef VICONC_DEBUG      
       assert(nel>=0);
-      verify[lhead.ptr]-=1;
-      assert(0==verify[lhead.ptr]);
+      verify[lhead.ptr].v-=1;
+      assert(0==verify[lhead.ptr].v);
 #endif
     }
     return lhead;
@@ -58,8 +58,8 @@ public:
 
   void push(NodePtr np) {
 #ifdef VICONC_DEBUG      
-    verify[np.ptr]+=1;
-    assert(1==verify[np.ptr]);
+    verify[np.ptr].v+=1;
+    assert(1==verify[np.ptr].v);
 #endif
     auto n = node(np);
     np.aba +=1;  // remove this to see aba in action!
@@ -79,7 +79,7 @@ public:
     while (!ns.compare_exchange_weak(e,e+1));
     nodes[e] = std::make_unique<Node>(args...);
 #ifdef VICONC_DEBUG      
-    verify[e]=0;
+    verify[e].v=0;
 #endif
     return NodePtr{0,e};
   }
@@ -90,8 +90,9 @@ public:
   std::atomic<int> ns;
   std::array<std::unique_ptr<Node>,1024> nodes;
 
-#ifdef VICONC_DEBUG      
-  std::array<int,1024> verify;
+#ifdef VICONC_DEBUG
+  struct alignas(64) IntA64 { int v;};
+  std::array<IntA64,1024> verify;
 #endif
 };
 
@@ -176,7 +177,7 @@ int main() {
     auto k=i;
     g.run([&,k]{
 	auto a = stack.pop();
-	if (!stack.node(a)) a = stack.make(k);
+	if (!a) a = stack.make(k);
 	auto n = stack.node(a);
 	assert(n);
 	(**n)();
