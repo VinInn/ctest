@@ -15,7 +15,10 @@ constexpr approx_math::float32x8_t zero8{0,0,0,0,0,0,0,0};
 
 template<typename T>
 T sig(T x) {
-  return 1.f/(1.f+unsafe_expf<T,3,true>(x));
+ //x = 0.5f*(x+1.f);
+ //x = x>0 ? x : 0;
+ //return x<1.f ? x : 1.f;
+ return 1.f/(1.f+unsafe_expf<T,3,true>(x));
   //  return T(1)/(T(1)+std::exp(-x));
 }
 
@@ -123,6 +126,7 @@ void go() {
 
 int main() {
 
+  go<22,50>();
   go<10,14>();
   go<10,7>();
 
