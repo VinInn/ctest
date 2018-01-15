@@ -175,7 +175,8 @@ int main() {
 #ifdef VICONC_DEBUG
   std::cout << "debug mode" << std::endl;
 #endif
-  
+
+/*  
   {
   Stack::Node anode(-4242);
 
@@ -195,7 +196,7 @@ int main() {
 
   
   }
-  
+*/  
   std::cerr << "default num of thread " << tbb::task_scheduler_init::default_num_threads() << std::endl;
 
   //tbb::task_scheduler_init init;  // Automatic number of threads
@@ -208,7 +209,7 @@ int main() {
   for (auto i=0;i<NTasks;++i) {
     auto k=i;
     g.run([&,k]{
-	{
+       {   	
 	  NodePtrGard<Stack> n(stack,k);
 	  (*n)();
 	}
