@@ -125,7 +125,9 @@ int main() {
 	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
               << " ms" << std::endl;
   double deltaS = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count();
-  
+
+
+/*  
   delta = start - start;
   delta = start - start;
   for (auto kk=0; kk<100; ++kk)
@@ -147,5 +149,6 @@ int main() {
 
   std::cout << "f/s " << deltaF/deltaS << std::endl;
   
+*/
   return 0;
 }
