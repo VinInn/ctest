@@ -41,6 +41,7 @@ float cw(float x) {
   constexpr float log2H = float(0xb.172p-4);
   constexpr float log2L = float(0x1.7f7d1cp-20);
   // This is doing round(x*inv_log2f) to the nearest integer
+  // float z = std::round(x*inv_log2f);
   float z = std::floor((x*inv_log2f) +0.5f);
   float y;
   // Cody-and-Waite accurate range reduction. FMA-safe.
