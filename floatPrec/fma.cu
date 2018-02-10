@@ -28,6 +28,13 @@ float myxyp(float x, float y, float z) {
   return (x*y) + (y*z);
 }
 
+__device__ 
+float logP(float y) {
+  return  y * (float(0xf.fff14p-4) + y * (-float(0x7.ff4bfp-4) 
+  + y * (float(0x5.582f6p-4) + y * (-float(0x4.1dcf2p-4) + y * (float(0x3.3863f8p-4) + y * (-float(0x1.9288d4p-4)))))));
+
+}
+
 
 
 __global__
@@ -42,6 +49,9 @@ void go(float * x, float * y, float * z, float * r) {
   r[3] = myxyn(x[3],y[3],z[3]);
 
   r[4] = myxyp(x[4],y[4],z[4]);
+
+  r[5] = logP(x[5]);
+
 
 
 }
