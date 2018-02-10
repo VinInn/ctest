@@ -35,6 +35,22 @@ float logP(float y) {
 
 }
 
+__device__ 
+float cw(float x) {
+  constexpr float inv_log2f = float(0x1.715476p0);
+  constexpr float log2H = float(0xb.172p-4);
+  constexpr float log2L = float(0x1.7f7d1cp-20);
+  // This is doing round(x*inv_log2f) to the nearest integer
+  float z = std::floor((x*inv_log2f) +0.5f);
+  float y;
+  // Cody-and-Waite accurate range reduction. FMA-safe.
+  y = x;
+  y -= z*log2H;
+  y -= z*log2L;
+  return y;
+}
+
+
 
 
 __global__
@@ -51,6 +67,8 @@ void go(float * x, float * y, float * z, float * r) {
   r[4] = myxyp(x[4],y[4],z[4]);
 
   r[5] = logP(x[5]);
+
+  r[6] = cw(x[6]);
 
 
 
