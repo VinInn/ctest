@@ -2,6 +2,7 @@
 #include <cmath>
 #include <limits>
 #include <cstring>
+#include <quadmath.h>
 
 constexpr float roundF = 1.5*std::pow(2,23);//  (digits-1)
 constexpr double roundD = 1.5*std::pow(2,52);
@@ -38,7 +39,7 @@ template<typename T>
 void go() {
 
   
-  // std::cout << std::numeric_limits<T>::digits << std::endl;
+  std::cout << std::numeric_limits<T>::digits << std::endl;
 
   std::cout << rtr<T>::round << std::endl;
 
