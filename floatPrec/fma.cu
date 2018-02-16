@@ -1,0 +1,76 @@
+// nvcc -gencode arch=compute_61,code=sm_61 -fmad=false -O3 -ptx fma.cu -o fma.ptx -I/cvmfs/cms.cern.ch/slc7_amd64_gcc630/external/cuda/9.1.85-cms/include ; cat fma.ptx
+
+#include <cmath>
+
+__device__
+float myf(float x, float y, float z) {
+  return std::fma(x,-y,z);
+}
+
+__device__
+float myff(float x, float y, float z) {
+  return z+x*y;
+}
+
+__device__
+float myfn(float x, float y, float z) {
+  return x*y-z;
+}
+
+
+__device__
+float myxyn(float x, float y, float z) {
+  return (x*y) - (y*z);
+}
+
+__device__
+float myxyp(float x, float y, float z) {
+  return (x*y) + (y*z);
+}
+
+__device__ 
+float logP(float y) {
+  return  y * (float(0xf.fff14p-4) + y * (-float(0x7.ff4bfp-4) 
+  + y * (float(0x5.582f6p-4) + y * (-float(0x4.1dcf2p-4) + y * (float(0x3.3863f8p-4) + y * (-float(0x1.9288d4p-4)))))));
+
+}
+
+__device__ 
+float cw(float x) {
+  constexpr float inv_log2f = float(0x1.715476p0);
+  constexpr float log2H = float(0xb.172p-4);
+  constexpr float log2L = float(0x1.7f7d1cp-20);
+  // This is doing round(x*inv_log2f) to the nearest integer
+  // float z = std::round(x*inv_log2f);
+  float z = std::floor((x*inv_log2f) +0.5f);
+  float y;
+  // Cody-and-Waite accurate range reduction. FMA-safe.
+  y = x;
+  y -= z*log2H;
+  y -= z*log2L;
+  return y;
+}
+
+
+
+
+__global__
+void go(float * x, float * y, float * z, float * r) {
+
+  r[0] = myf(x[0],y[0],z[0]);
+
+  r[1] = myff(x[1],y[1],z[1]);
+
+  r[2] = myfn(x[2],y[2],z[2]);
+
+  r[3] = myxyn(x[3],y[3],z[3]);
+
+  r[4] = myxyp(x[4],y[4],z[4]);
+
+  r[5] = logP(x[5]);
+
+  r[6] = cw(x[6]);
+
+
+
+}
