@@ -14,7 +14,7 @@ return q + ((r + 3) >> 4);
 // this is for the ROC n<512 (upgrade 1024)
 inline
 uint16_t  divu13(uint16_t n) {
-unsigned q, r;
+uint16_t q, r;
 q = (n>>1) + (n>>4);
 q = q + (q>>4) + (q>>5); q = q >> 3;
 r = n - q*13;
@@ -25,7 +25,7 @@ return q + ((r + 3) >> 4);
 // this is for the ROC n<512 (upgrade 1024)
 inline
 uint16_t  divu52(uint16_t n) {
-unsigned q, r;
+uint16_t q, r;
 n = n>>2; 
 q = (n>>1) + (n>>4);
 q = q + (q>>4) + (q>>5); q = q >> 3;
