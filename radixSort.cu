@@ -133,13 +133,13 @@ int main() {
         );
 
 
+//  cuda::memory::copy(v, v_d.get(), 2*N);
+   cuda::memory::copy(ind, ind_d.get(), 4*N);
+
    delta += (std::chrono::high_resolution_clock::now()-start);
    std::cout <<"cuda computation took "
               << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
               << " ms" << std::endl;
-
-//  cuda::memory::copy(v, v_d.get(), 2*N);
- cuda::memory::copy(ind, ind_d.get(), 4*N);
 
  std::cout << v[ind[0]] << ' ' << v[ind[1]] << ' ' << v[ind[2]] << std::endl;
    std::cout << v[ind[3]] << ' ' << v[ind[10]] << ' ' << v[ind[N-1000]] << std::endl;
