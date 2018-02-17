@@ -3,8 +3,8 @@
 #include<cstdio>
 
 __global__  
-void radixSort(int16_t * v, uint32_t * ind, uint32_t size) {
-     
+void radixSort(int16_t * v, uint32_t * index, uint32_t * offsets, uint32_t totSize) {
+    
   constexpr int d = 8, w = 16;
   constexpr int sb = 1<<d;
 
@@ -14,18 +14,19 @@ void radixSort(int16_t * v, uint32_t * ind, uint32_t size) {
   __shared__ uint32_t firstNeg;    
   __shared__ bool go; 
 
-  assert(size<=MaxSize);  // for multiple blocks this is not correct
+  // later add offset
+  auto a = v+offsets[blockIdx.x];   
+  auto ind = index+offsets[blockIdx.x];;
+  auto size = offsets[blockIdx.x+1]-offsets[blockIdx.x];
+  
+  assert(size<=MaxSize); 
   assert(blockDim.x==sb);  
 
-  assert(blockIdx.x==0);
-  // int first = blockDim.x * blockIdx.x + threadIdx.x;
-
- bool debug = false; // threadIdx.x==0;
+  bool debug = false; // threadIdx.x==0 && blockIdx.x==5;
 
   firstNeg=0;
 
-  auto a = v; // later add offset
-  auto j = ind; // later add offset
+  auto j = ind;
   auto k = ind2;
 
   int32_t first = threadIdx.x;
@@ -69,12 +70,12 @@ void radixSort(int16_t * v, uint32_t * ind, uint32_t size) {
     */
     __syncthreads();
 
+   // fill only the max index so to keep the order
    while (go) {
      __syncthreads();
      go = false;
      ct[threadIdx.x]=-1;
      __syncthreads();
-//     for (int i=size-first-1; i>=0; i-=blockDim.x) {
      for (auto i=first; i<size; i+=blockDim.x) {
        auto bin = (a[j[i]] >> d*p)&(sb-1);
        if (i==cu[bin]) { k[--c[bin]] = j[i]; go=true;}
@@ -157,8 +158,9 @@ int main() {
 
         auto current_device = cuda::device::current::get(); 
 
-
-  constexpr int N=256*32;
+  constexpr int blocks=10;
+  constexpr int blockSize = 256*32;
+  constexpr int N=blockSize*blocks;
   int16_t v[N];
   uint32_t ind[N];
 
@@ -168,20 +170,28 @@ int main() {
     v[i]=i%32768; if(i%2) v[i]=-v[i];
   }
 
+  uint32_t offsets[blocks+1];
+  offsets[0]=0;
+  for (int i=1; i<blocks+1; ++i) offsets[i] = offsets[i-1]+blockSize;
+
   for (int i=0; i<50; ++i) {
 
   std::random_shuffle(v,v+N);
   auto v_d = cuda::memory::device::make_unique<int16_t[]>(current_device, N);
   auto ind_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, N);
+  auto off_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, blocks+1);
+
   cuda::memory::copy(v_d.get(), v, 2*N);
+  cuda::memory::copy(off_d.get(), offsets, 4*(blocks+1));
+
 
    int threadsPerBlock =256;
-   int blocksPerGrid = 1;
+   int blocksPerGrid = blocks;
    delta -= (std::chrono::high_resolution_clock::now()-start);
    cuda::launch(
                 radixSort,
                 { blocksPerGrid, threadsPerBlock },
-                v_d.get(),ind_d.get(),N
+                v_d.get(),ind_d.get(),off_d.get(),N
         );
 
 
@@ -190,14 +200,16 @@ int main() {
 
    delta += (std::chrono::high_resolution_clock::now()-start);
 
-   std::cout << v[ind[0]] << ' ' << v[ind[1]] << ' ' << v[ind[2]] << std::endl;
-   std::cout << v[ind[3]] << ' ' << v[ind[10]] << ' ' << v[ind[N-1000]] << std::endl;
-  std::cout << v[ind[N/2-1]] << ' ' << v[ind[N/2]] << ' ' << v[ind[N/2+1]] << std::endl;
-  for (int i = 1; i < N; i++) {
-   assert(!(v[ind[i]]<v[ind[i-1]]));
-   // if (v[ind[i]]<v[ind[i-1]])
-   //   std::cout << "not ordered at " << ind[i] << " : "
-  //		<< v[ind[i]] <<' '<< v[ind[i-1]] << std::endl;
+  std::cout << v[ind[0]] << ' ' << v[ind[1]] << ' ' << v[ind[2]] << std::endl;
+  std::cout << v[ind[3]] << ' ' << v[ind[10]] << ' ' << v[ind[blockSize-1000]] << std::endl;
+  std::cout << v[ind[blockSize/2-1]] << ' ' << v[ind[blockSize/2]] << ' ' << v[ind[blockSize/2+1]] << std::endl;
+  for (int ib=0; ib<blocks; ++ib)
+  for (int i = offsets[ib]+1; i < offsets[ib+1]; i++) {
+      auto a = v+offsets[ib];
+   // assert(!(a[ind[i]]<a[ind[i-1]]));
+     if (a[ind[i]]<a[ind[i-1]])
+      std::cout << ib << " not ordered at " << ind[i] << " : "
+  		<< a[ind[i]] <<' '<< a[ind[i-1]] << std::endl;
   }
  }  // 50 times
      std::cout <<"cuda computation took "
