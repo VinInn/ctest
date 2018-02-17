@@ -11,13 +11,13 @@ void radixSort(int16_t const * a, uint32_t * ind, uint32_t size) {
     int c[sb];
     for (int i = 0; i < sb; i++) c[i]=0;
     // the next three for loops implement counting-sort
-    for (int i = 0; i < size; i++)
+    for (uint32_t i = 0; i < size; i++)
       c[(a[j[i]] >> d*p)&(sb-1)]++;
     
     for (int i = 1; i < sb; i++)
       c[i] += c[i-1];
     
-    for (int i = size-1; i >= 0; i--)
+    for (int i = size-1; i >= 0; i--)  // not uint!
       k[--c[(a[j[i]] >> d*p)&(sb-1)]] = j[i];
     // swap
     auto t=j;j=k;k=t;
@@ -28,20 +28,20 @@ void radixSort(int16_t const * a, uint32_t * ind, uint32_t size) {
 
    // now move negative first...
   // find first negative
-  int firstNeg=0;
-  for (int i = 0; i < size-1; i++) {
+  uint32_t firstNeg=0;
+  for (uint32_t i = 0; i < size-1; i++) {
     //if ( (int(a[ind[i]])*int(a[ind[i+1]])) <0 ) firstNeg=i+1;
     if ( (a[ind[i]]^a[ind[i+1]]) < 0 ) firstNeg=i+1;
   }
-  assert(firstNeg>0);
+  assert(firstNeg>0 && firstNeg<size);
 
-  auto ii=0;
+  uint32_t ii=0;
   for (auto i=firstNeg; i<size; i++) ind2[ii++] = ind[i];
-  assert(ii = size-firstNeg);
-  for (auto i=0;i<firstNeg;i++)  ind2[ii++] = ind[i];
-  assert(ii=size);
+  assert(ii == (size-firstNeg));
+  for (uint32_t i=0;i<firstNeg;i++)  ind2[ii++] = ind[i];
+  assert(ii==size);
   
-  for (int i = 0; i < size; i++) ind[i]=ind2[i];
+  for (uint32_t i = 0; i < size; i++) ind[i]=ind2[i];
 }
 
 
