@@ -30,8 +30,8 @@ void radixSort(int16_t const * a, uint32_t * ind, uint32_t size) {
   // find first negative
   int firstNeg=0;
   for (int i = 0; i < size-1; i++) {
-    if ( (int(a[ind[i]])*int(a[ind[i+1]])) <0 ) firstNeg=i+1;
-    if ( (a[ind[i]]^a[ind[i+1]])&8000 == 0 ) firstNeg=i+1;
+    //if ( (int(a[ind[i]])*int(a[ind[i+1]])) <0 ) firstNeg=i+1;
+    if ( (a[ind[i]]^a[ind[i+1]]) < 0 ) firstNeg=i+1;
   }
   assert(firstNeg>0);
 
