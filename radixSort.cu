@@ -9,7 +9,7 @@ void radixSort(int16_t * v, uint32_t * ind, uint32_t size) {
 
   constexpr int MaxSize = 256*32;
   __shared__ uint32_t ind2[MaxSize];
-  __shared__ uint32_t c[sb];
+  __shared__ uint32_t c[sb], ct[sb];
   __shared__ uint32_t firstNeg;    
 
   assert(size<=MaxSize);  // for multiple blocks this is not correct
@@ -39,8 +39,23 @@ void radixSort(int16_t * v, uint32_t * ind, uint32_t size) {
     __syncthreads();
 
     // prefix scan to be optimized...
+    auto x = c[threadIdx.x];
+    auto laneId = threadIdx.x & 0x1f;
+    #pragma unroll
+    for( int offset = 1 ; offset < 32 ; offset <<= 1 ) {
+      auto y = __shfl_up_sync(0xffffffff,x, offset);
+      if(laneId >= offset) x += y;
+    }
+    ct[threadIdx.x] = x;
+    __syncthreads();
+    auto ss = (threadIdx.x/32)*32 -1;
+    c[threadIdx.x] = ct[threadIdx.x];
+    for(int i=ss; i>0; i-=32) c[threadIdx.x] +=ct[i]; 
+
+    /*
     if (threadIdx.x==0)
       for (int i = 1; i < sb; ++i) c[i] += c[i-1];
+    */
     __syncthreads();
 
     // broadcast
