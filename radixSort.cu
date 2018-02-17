@@ -2,7 +2,7 @@
 #include<cassert>
 
 __global__  
-void radixSort(int16_t * a, uint32_t * ind, uint32_t size) {
+void radixSort(int16_t * v, uint32_t * ind, uint32_t size) {
      
   constexpr int d = 8, w = 16;
   constexpr int sb = 1<<d;
@@ -10,46 +10,77 @@ void radixSort(int16_t * a, uint32_t * ind, uint32_t size) {
   constexpr int MaxSize = 256*32;
   __shared__ uint32_t ind2[MaxSize];
   __shared__ uint32_t c[sb];
-    
+  __shared__ uint32_t firstNeg;    
+
   assert(size<=MaxSize);  // for multiple blocks this is not correct
   assert(blockDim.x==sb);  
 
-  int first = blockDim.x * blockIdx.x + threadIdx.x;
-  
-  for (auto i=first; i<size; i+=blockDim.x)  ind[i]=i;
+  assert(blockIdx.x==0);
+  // int first = blockDim.x * blockIdx.x + threadIdx.x;
+
+  firstNeg=0;
+
+  auto a = v; // later add offset
+  auto j = ind; // later add offset
+  auto k = ind2;
+
+  int32_t first = threadIdx.x;
+  for (auto i=first; i<size; i+=blockDim.x)  j[i]=i;
   __syncthreads();
 
-  auto j = ind;
-  auto k = ind2;
-  for (int p = 0; p < w/d; p++) {
+
+  for (int p = 0; p < w/d; ++p) {
     c[threadIdx.x]=0;
-  __syncthreads();
+    __syncthreads();
 
     // fill bins
     for (auto i=first; i<size; i+=blockDim.x) 
       atomicAdd(&c[(a[j[i]] >> d*p)&(sb-1)],1);
+    __syncthreads();
 
-   __syncthreads();
-   // prefix scan to be optimized...
-   if (first==0)
-   for (int j = 1; j < sb; j++) c[j] += c[j-1];
-   __syncthreads();
+    // prefix scan to be optimized...
+    if (threadIdx.x==0)
+      for (int i = 1; i < sb; ++i) c[i] += c[i-1];
+    __syncthreads();
 
-   // broadcast
-   for (auto i=first; i<size; i+=blockDim.x) {
-     auto ik = atomicSub(&c[(a[j[i]] >> d*p)&(sb-1)],1);
-     k[ik-1] = j[i];
-   }
-   __syncthreads();
+    // broadcast
+    if (threadIdx.x==0)
+    for (int i=size-first-1; i>=0; i--) { // =blockDim.x) {
+      auto ik = atomicSub(&c[(a[j[i]] >> d*p)&(sb-1)],1);
+      k[ik-1] = j[i];
+    }
+    __syncthreads();
 
-   // swap (local, ok)
-   auto t=j;j=k;k=t;
+    // swap (local, ok)
+    auto t=j;j=k;k=t;
   }
 
+  // w/d is even so ind is correct
   assert(j==ind);
-  // not needed if w/d is even
-  // if (j!=ind)  for (auto i=first; i<size; i+=blockDim.x) ind[i]=j[i];
+  __syncthreads();
 
+  
+
+  // now move negative first...
+  // find first negative
+  for (auto i=first; i<size-1; i+=blockDim.x) {
+    // if ( (int(a[ind[i]])*int(a[ind[i+1]])) <0 ) firstNeg=i+1;
+   if ( (a[ind[i]]^a[ind[i+1]]) < 0 ) firstNeg=i+1; 
+  }
+  
+  __syncthreads();
+  assert(firstNeg>0);
+
+  auto ii=first;
+  for (auto i=firstNeg+threadIdx.x; i<size; i+=blockDim.x)  { ind2[ii] = ind[i]; ii+=blockDim.x; }
+  __syncthreads();
+  ii= size-firstNeg +threadIdx.x;
+  assert(ii>=0);
+  for (auto i=first;i<firstNeg;i+=blockDim.x)  { ind2[ii] = ind[i]; ii+=blockDim.x; }
+  __syncthreads();
+  for (auto i=first; i<size; i+=blockDim.x) ind[i]=ind2[i];
+
+  
 }
 
 
@@ -108,12 +139,15 @@ int main() {
               << " ms" << std::endl;
 
 //  cuda::memory::copy(v, v_d.get(), 2*N);
-  cuda::memory::copy(ind, ind_d.get(), 4*N);
+ cuda::memory::copy(ind, ind_d.get(), 4*N);
 
-  std::cout << v[ind[10]] << ' ' << v[ind[N-1000]] << std::endl;
+ std::cout << v[ind[0]] << ' ' << v[ind[1]] << ' ' << v[ind[2]] << std::endl;
+   std::cout << v[ind[3]] << ' ' << v[ind[10]] << ' ' << v[ind[N-1000]] << std::endl;
   std::cout << v[ind[N/2-1]] << ' ' << v[ind[N/2]] << ' ' << v[ind[N/2+1]] << std::endl;
-  for (int i = 1; i < N; i++) {
-    assert(v[ind[i]]>=v[ind[i-1]]);
-  }
+ for (int i = 1; i < N; i++) {
+    if (v[ind[i]]<v[ind[i-1]])
+      std::cout << "not ordered at " << ind[i] << " : "
+		<< v[ind[i]] <<' '<< v[ind[i-1]] << std::endl;
+ }
   return 0;
 }
