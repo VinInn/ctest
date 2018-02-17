@@ -1,5 +1,6 @@
 #include<cstdint>
 #include<cassert>
+#include<cstdio>
 
 __global__  
 void radixSort(int16_t * v, uint32_t * ind, uint32_t size) {
@@ -9,14 +10,17 @@ void radixSort(int16_t * v, uint32_t * ind, uint32_t size) {
 
   constexpr int MaxSize = 256*32;
   __shared__ uint32_t ind2[MaxSize];
-  __shared__ uint32_t c[sb], ct[sb];
+  __shared__ int32_t c[sb], ct[sb], cu[sb];
   __shared__ uint32_t firstNeg;    
+  __shared__ bool go; 
 
   assert(size<=MaxSize);  // for multiple blocks this is not correct
   assert(blockDim.x==sb);  
 
   assert(blockIdx.x==0);
   // int first = blockDim.x * blockIdx.x + threadIdx.x;
+
+ bool debug = false; // threadIdx.x==0;
 
   firstNeg=0;
 
@@ -31,12 +35,19 @@ void radixSort(int16_t * v, uint32_t * ind, uint32_t size) {
 
   for (int p = 0; p < w/d; ++p) {
     c[threadIdx.x]=0;
+    cu[threadIdx.x]=-1;
+    go = true;
     __syncthreads();
 
     // fill bins
-    for (auto i=first; i<size; i+=blockDim.x) 
-      atomicAdd(&c[(a[j[i]] >> d*p)&(sb-1)],1);
+    for (auto i=first; i<size; i+=blockDim.x) {
+      auto bin = (a[j[i]] >> d*p)&(sb-1);
+      atomicAdd(&c[bin],1);
+      atomicMax(&cu[bin],int(i));
+    }
     __syncthreads();
+
+   if (debug) printf("c/cu[0] %d/%d\n",c[0],cu[0]);
 
     // prefix scan "optimized"???...
     auto x = c[threadIdx.x];
@@ -58,13 +69,36 @@ void radixSort(int16_t * v, uint32_t * ind, uint32_t size) {
     */
     __syncthreads();
 
-    // broadcast
+   while (go) {
+     __syncthreads();
+     go = false;
+     ct[threadIdx.x]=-1;
+     __syncthreads();
+//     for (int i=size-first-1; i>=0; i-=blockDim.x) {
+     for (auto i=first; i<size; i+=blockDim.x) {
+       auto bin = (a[j[i]] >> d*p)&(sb-1);
+       if (i==cu[bin]) { k[--c[bin]] = j[i]; go=true;}
+       else if(i<cu[bin])  atomicMax(&ct[bin],int(i));
+     }
+     __syncthreads();
+    if (debug) printf("c/cu/ct[0] %d/%d\n",c[0],cu[0],ct[0]);
+
+     cu[threadIdx.x]=ct[threadIdx.x];
+     __syncthreads();
+   } 
+   
+
+    /*
+    // broadcast for the nulls
     if (threadIdx.x==0)
     for (int i=size-first-1; i>=0; i--) { // =blockDim.x) {
       auto ik = atomicSub(&c[(a[j[i]] >> d*p)&(sb-1)],1);
       k[ik-1] = j[i];
     }
+    */
     __syncthreads();
+    assert(c[0]==0);
+
 
     // swap (local, ok)
     auto t=j;j=k;k=t;
@@ -155,18 +189,20 @@ int main() {
    cuda::memory::copy(ind, ind_d.get(), 4*N);
 
    delta += (std::chrono::high_resolution_clock::now()-start);
-   std::cout <<"cuda computation took "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
-              << " ms" << std::endl;
 
    std::cout << v[ind[0]] << ' ' << v[ind[1]] << ' ' << v[ind[2]] << std::endl;
    std::cout << v[ind[3]] << ' ' << v[ind[10]] << ' ' << v[ind[N-1000]] << std::endl;
   std::cout << v[ind[N/2-1]] << ' ' << v[ind[N/2]] << ' ' << v[ind[N/2+1]] << std::endl;
   for (int i = 1; i < N; i++) {
-    if (v[ind[i]]<v[ind[i-1]])
-      std::cout << "not ordered at " << ind[i] << " : "
-		<< v[ind[i]] <<' '<< v[ind[i-1]] << std::endl;
+   assert(!(v[ind[i]]<v[ind[i-1]]));
+   // if (v[ind[i]]<v[ind[i-1]])
+   //   std::cout << "not ordered at " << ind[i] << " : "
+  //		<< v[ind[i]] <<' '<< v[ind[i-1]] << std::endl;
   }
  }  // 50 times
+     std::cout <<"cuda computation took "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/50.
+              << " ms" << std::endl;
+
   return 0;
 }
