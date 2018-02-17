@@ -38,7 +38,7 @@ void radixSort(int16_t * v, uint32_t * ind, uint32_t size) {
       atomicAdd(&c[(a[j[i]] >> d*p)&(sb-1)],1);
     __syncthreads();
 
-    // prefix scan to be optimized...
+    // prefix scan "optimized"???...
     auto x = c[threadIdx.x];
     auto laneId = threadIdx.x & 0x1f;
     #pragma unroll
@@ -52,7 +52,7 @@ void radixSort(int16_t * v, uint32_t * ind, uint32_t size) {
     c[threadIdx.x] = ct[threadIdx.x];
     for(int i=ss; i>0; i-=32) c[threadIdx.x] +=ct[i]; 
 
-    /*
+    /* prefix scan for the nulls
     if (threadIdx.x==0)
       for (int i = 1; i < sb; ++i) c[i] += c[i-1];
     */
@@ -134,6 +134,9 @@ int main() {
     v[i]=i%32768; if(i%2) v[i]=-v[i];
   }
 
+  for (int i=0; i<50; ++i) {
+
+  std::random_shuffle(v,v+N);
   auto v_d = cuda::memory::device::make_unique<int16_t[]>(current_device, N);
   auto ind_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, N);
   cuda::memory::copy(v_d.get(), v, 2*N);
@@ -156,13 +159,14 @@ int main() {
               << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
               << " ms" << std::endl;
 
- std::cout << v[ind[0]] << ' ' << v[ind[1]] << ' ' << v[ind[2]] << std::endl;
+   std::cout << v[ind[0]] << ' ' << v[ind[1]] << ' ' << v[ind[2]] << std::endl;
    std::cout << v[ind[3]] << ' ' << v[ind[10]] << ' ' << v[ind[N-1000]] << std::endl;
   std::cout << v[ind[N/2-1]] << ' ' << v[ind[N/2]] << ' ' << v[ind[N/2+1]] << std::endl;
- for (int i = 1; i < N; i++) {
+  for (int i = 1; i < N; i++) {
     if (v[ind[i]]<v[ind[i-1]])
       std::cout << "not ordered at " << ind[i] << " : "
 		<< v[ind[i]] <<' '<< v[ind[i-1]] << std::endl;
- }
+  }
+ }  // 50 times
   return 0;
 }
