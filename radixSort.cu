@@ -129,7 +129,7 @@ void radixSort(T * a, uint16_t * ind, uint32_t size) {
   }
   
   __syncthreads();
-  assert(firstNeg>0);
+  // assert(firstNeg>0); not necessary true if all positive !
 
   auto ii=first;
   for (auto i=firstNeg+threadIdx.x; i<size; i+=blockDim.x)  { ind2[ii] = ind[i]; ii+=blockDim.x; }
@@ -175,7 +175,7 @@ void go() {
 
 std::mt19937 eng;
 // std::mt19937 eng2;
-std::uniform_int_distribution<T> rgen;
+std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(),std::numeric_limits<T>::max());
 
 
   auto start = std::chrono::high_resolution_clock::now();
@@ -196,24 +196,24 @@ std::uniform_int_distribution<T> rgen;
 
   std::cout << "Will sort " << N << " 'ints' of size " << sizeof(T) << std::endl;
 
-  
-  // long long imax = std::numeric_limits<T>::max() +1LL;
-  long long imax = 255;
-  for (long long i = 0; i < N; i++) {
-    v[i]=(i%imax); if(i%2) v[i]=-v[i];
-  }
-  
 
-  // for (long long i = 0; i < N; i++) v[i]=rgen(eng);
- 
+  for (int i=0; i<50; ++i) {
 
-
+    if (i==49) { 
+        for (long long j = 0; j < N; j++) v[j]=0;
+    } else if (i>30) {
+    for (long long j = 0; j < N; j++) v[j]=rgen(eng);
+    } else {
+      long long imax = (i<15) ? std::numeric_limits<T>::max() +1LL : 255;
+      for (long long j = 0; j < N; j++) {
+        v[j]=(j%imax); if(j%2 && i%2) v[j]=-v[j];
+      }
+    }
 
   uint32_t offsets[blocks+1];
   offsets[0]=0;
   for (int i=1; i<blocks+1; ++i) offsets[i] = offsets[i-1]+blockSize;
 
-  for (int i=0; i<50; ++i) {
 
   std::random_shuffle(v,v+N);
   auto v_d = cuda::memory::device::make_unique<T[]>(current_device, N);
