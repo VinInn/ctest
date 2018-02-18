@@ -213,7 +213,7 @@ std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(),std::numeric
 
    delta += (std::chrono::high_resolution_clock::now()-start);
 
-  if (0==i) {
+  if (32==i) {
     std::cout << v[ind[0]] << ' ' << v[ind[1]] << ' ' << v[ind[2]] << std::endl;
     std::cout << v[ind[3]] << ' ' << v[ind[10]] << ' ' << v[ind[blockSize-1000]] << std::endl;
     std::cout << v[ind[blockSize/2-1]] << ' ' << v[ind[blockSize/2]] << ' ' << v[ind[blockSize/2+1]] << std::endl;
