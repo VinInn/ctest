@@ -2,10 +2,11 @@
 #include<cassert>
 #include<cstdio>
 
+template<typename T>
 __global__  
-void radixSort(int16_t * v, uint16_t * index, uint32_t * offsets) {
+void radixSort(T * v, uint16_t * index, uint32_t * offsets) {
     
-  constexpr int d = 8, w = 16;
+  constexpr int d = 8, w = 8*sizeof(T);
   constexpr int sb = 1<<d;
 
   constexpr int MaxSize = 256*32;
@@ -112,7 +113,7 @@ void radixSort(int16_t * v, uint16_t * index, uint32_t * offsets) {
   
 
   // now move negative first...
-  // find first negative
+  // find first negative  (for float ^ will not work...)
   for (auto i=first; i<size-1; i+=blockDim.x) {
     // if ( (int(a[ind[i]])*int(a[ind[i+1]])) <0 ) firstNeg=i+1;
    if ( (a[ind[i]]^a[ind[i+1]]) < 0 ) firstNeg=i+1; 
@@ -146,7 +147,8 @@ void radixSort(int16_t * v, uint16_t * index, uint32_t * offsets) {
 #include<cassert>
 #include<iostream>
 
-int main() {
+template<typename T>
+void go() {
 
   auto start = std::chrono::high_resolution_clock::now();
   auto delta = start - start;
@@ -161,10 +163,11 @@ int main() {
   constexpr int blocks=10;
   constexpr int blockSize = 256*32;
   constexpr int N=blockSize*blocks;
-  int16_t v[N];
+  T v[N];
   uint16_t ind[N];
 
-  std::cout << "Will sort " << N << " shorts" << std::endl;
+  std::cout << "Will sort " << N << " 'ints' of size " << sizeof(T) << std::endl;
+
 
   for (int i = 0; i < N; i++) {
     v[i]=i%32768; if(i%2) v[i]=-v[i];
@@ -177,11 +180,11 @@ int main() {
   for (int i=0; i<50; ++i) {
 
   std::random_shuffle(v,v+N);
-  auto v_d = cuda::memory::device::make_unique<int16_t[]>(current_device, N);
+  auto v_d = cuda::memory::device::make_unique<T[]>(current_device, N);
   auto ind_d = cuda::memory::device::make_unique<uint16_t[]>(current_device, N);
   auto off_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, blocks+1);
 
-  cuda::memory::copy(v_d.get(), v, 2*N);
+  cuda::memory::copy(v_d.get(), v, N*sizeof(T));
   cuda::memory::copy(off_d.get(), offsets, 4*(blocks+1));
 
 
@@ -189,7 +192,7 @@ int main() {
    int blocksPerGrid = blocks;
    delta -= (std::chrono::high_resolution_clock::now()-start);
    cuda::launch(
-                radixSort,
+                radixSort<T>,
                 { blocksPerGrid, threadsPerBlock },
                 v_d.get(),ind_d.get(),off_d.get()
         );
@@ -217,6 +220,12 @@ int main() {
      std::cout <<"cuda computation took "
               << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/50.
               << " ms" << std::endl;
+}
 
+
+int main() {
+
+  go<int16_t>();
+  go<int32_t>();
   return 0;
 }
