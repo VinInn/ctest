@@ -3,13 +3,13 @@
 #include<cstdio>
 
 __global__  
-void radixSort(int16_t * v, uint32_t * index, uint32_t * offsets, uint32_t totSize) {
+void radixSort(int16_t * v, uint16_t * index, uint32_t * offsets) {
     
   constexpr int d = 8, w = 16;
   constexpr int sb = 1<<d;
 
   constexpr int MaxSize = 256*32;
-  __shared__ uint32_t ind2[MaxSize];
+  __shared__ uint16_t ind2[MaxSize];
   __shared__ int32_t c[sb], ct[sb], cu[sb];
   __shared__ uint32_t firstNeg;    
   __shared__ bool go; 
@@ -162,7 +162,7 @@ int main() {
   constexpr int blockSize = 256*32;
   constexpr int N=blockSize*blocks;
   int16_t v[N];
-  uint32_t ind[N];
+  uint16_t ind[N];
 
   std::cout << "Will sort " << N << " shorts" << std::endl;
 
@@ -178,7 +178,7 @@ int main() {
 
   std::random_shuffle(v,v+N);
   auto v_d = cuda::memory::device::make_unique<int16_t[]>(current_device, N);
-  auto ind_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, N);
+  auto ind_d = cuda::memory::device::make_unique<uint16_t[]>(current_device, N);
   auto off_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, blocks+1);
 
   cuda::memory::copy(v_d.get(), v, 2*N);
@@ -191,18 +191,20 @@ int main() {
    cuda::launch(
                 radixSort,
                 { blocksPerGrid, threadsPerBlock },
-                v_d.get(),ind_d.get(),off_d.get(),N
+                v_d.get(),ind_d.get(),off_d.get()
         );
 
 
 //  cuda::memory::copy(v, v_d.get(), 2*N);
-   cuda::memory::copy(ind, ind_d.get(), 4*N);
+   cuda::memory::copy(ind, ind_d.get(), 2*N);
 
    delta += (std::chrono::high_resolution_clock::now()-start);
 
-  std::cout << v[ind[0]] << ' ' << v[ind[1]] << ' ' << v[ind[2]] << std::endl;
-  std::cout << v[ind[3]] << ' ' << v[ind[10]] << ' ' << v[ind[blockSize-1000]] << std::endl;
-  std::cout << v[ind[blockSize/2-1]] << ' ' << v[ind[blockSize/2]] << ' ' << v[ind[blockSize/2+1]] << std::endl;
+  if (0==i) {
+    std::cout << v[ind[0]] << ' ' << v[ind[1]] << ' ' << v[ind[2]] << std::endl;
+    std::cout << v[ind[3]] << ' ' << v[ind[10]] << ' ' << v[ind[blockSize-1000]] << std::endl;
+    std::cout << v[ind[blockSize/2-1]] << ' ' << v[ind[blockSize/2]] << ' ' << v[ind[blockSize/2+1]] << std::endl;
+  }
   for (int ib=0; ib<blocks; ++ib)
   for (int i = offsets[ib]+1; i < offsets[ib+1]; i++) {
       auto a = v+offsets[ib];
