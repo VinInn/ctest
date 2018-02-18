@@ -66,8 +66,19 @@ void radixSort(T * a, uint16_t * ind, uint32_t size) {
     */
     __syncthreads();
 
-   
 
+    for (int i=size-first-1; i>=0; i-=blockDim.x) {
+       cu[threadIdx.x]=-1;
+       auto bin = (a[j[i]] >> d*p)&(sb-1);
+       ct[threadIdx.x]=bin;
+       atomicMax(&cu[bin],int(i));
+       __syncthreads();
+       if (i==cu[bin]) 
+         for (int ii=threadIdx.x; ii<blockDim.x; ++ii) if (ct[ii]==bin) {auto oi = ii-threadIdx.x; k[--c[bin]] = j[i-oi]; }
+       __syncthreads();
+     }    
+ 
+   /* 
    // fill only the max index so to keep the order
    while (go) {
      __syncthreads();
@@ -85,7 +96,7 @@ void radixSort(T * a, uint16_t * ind, uint32_t size) {
      cu[threadIdx.x]=ct[threadIdx.x];
      __syncthreads();
    } 
-   
+   */
   
     /*  
     // broadcast for the nulls
@@ -185,17 +196,16 @@ std::uniform_int_distribution<T> rgen;
 
   std::cout << "Will sort " << N << " 'ints' of size " << sizeof(T) << std::endl;
 
-  /*
-  long long imax = std::numeric_limits<T>::max() +1LL;
-  //long long imax = 255;
+  
+  // long long imax = std::numeric_limits<T>::max() +1LL;
+  long long imax = 255;
   for (long long i = 0; i < N; i++) {
     v[i]=(i%imax); if(i%2) v[i]=-v[i];
   }
-  */
+  
 
-  for (long long i = 0; i < N; i++) {
-    v[i]=rgen(eng); if(i%2) v[i]=-v[i];
-  }
+  // for (long long i = 0; i < N; i++) v[i]=rgen(eng);
+ 
 
 
 
