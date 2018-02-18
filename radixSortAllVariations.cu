@@ -13,11 +13,12 @@ void radixSort(T * a, uint16_t * ind, uint32_t size) {
   __shared__ uint16_t ind2[MaxSize];
   __shared__ int32_t c[sb], ct[sb], cu[sb];
   __shared__ uint32_t firstNeg;    
+  __shared__ bool go; 
 
   assert(size<=MaxSize); 
   assert(blockDim.x==sb);  
 
-  // bool debug = false; // threadIdx.x==0 && blockIdx.x==5;
+  bool debug = false; // threadIdx.x==0 && blockIdx.x==5;
 
   firstNeg=0;
 
@@ -31,14 +32,19 @@ void radixSort(T * a, uint16_t * ind, uint32_t size) {
 
   for (int p = 0; p < w/d; ++p) {
     c[threadIdx.x]=0;
+    cu[threadIdx.x]=-1;
+    go = true;
     __syncthreads();
 
     // fill bins
     for (auto i=first; i<size; i+=blockDim.x) {
       auto bin = (a[j[i]] >> d*p)&(sb-1);
       atomicAdd(&c[bin],1);
+      atomicMax(&cu[bin],int(i));
     }
     __syncthreads();
+
+   if (debug) printf("c/cu[0] %d/%d\n",c[0],cu[0]);
 
     // prefix scan "optimized"???...
     auto x = c[threadIdx.x];
@@ -67,11 +73,31 @@ void radixSort(T * a, uint16_t * ind, uint32_t size) {
        ct[threadIdx.x]=bin;
        atomicMax(&cu[bin],int(i));
        __syncthreads();
-       if (i==cu[bin])  // ensure to keep them in order
+       if (i==cu[bin]) 
          for (int ii=threadIdx.x; ii<blockDim.x; ++ii) if (ct[ii]==bin) {auto oi = ii-threadIdx.x; k[--c[bin]] = j[i-oi]; }
        __syncthreads();
      }    
  
+   /* 
+   // fill only the max index so to keep the order
+   while (go) {
+     __syncthreads();
+     go = false;
+     ct[threadIdx.x]=-1;
+     __syncthreads();
+     for (auto i=first; i<size; i+=blockDim.x) {
+       auto bin = (a[j[i]] >> d*p)&(sb-1);
+       if (i==cu[bin]) { k[--c[bin]] = j[i]; go=true;}
+       else if(i<cu[bin])  atomicMax(&ct[bin],int(i));
+     }
+     __syncthreads();
+    if (debug) printf("c/cu/ct[0] %d/%d\n",c[0],cu[0],ct[0]);
+
+     cu[threadIdx.x]=ct[threadIdx.x];
+     __syncthreads();
+   } 
+   */
+  
     /*  
     // broadcast for the nulls
     if (threadIdx.x==0)
@@ -186,7 +212,7 @@ std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(),std::numeric
 
   uint32_t offsets[blocks+1];
   offsets[0]=0;
-  for (int j=1; j<blocks+1; ++j) offsets[j] = offsets[j-1]+blockSize;
+  for (int i=1; i<blocks+1; ++i) offsets[i] = offsets[i-1]+blockSize;
 
 
   std::random_shuffle(v,v+N);
