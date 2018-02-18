@@ -3,8 +3,8 @@
 #include<cstdio>
 
 template<typename T>
-__global__  
-void radixSort(T * v, uint16_t * index, uint32_t * offsets) {
+__device__  
+void radixSort(T * a, uint16_t * ind, uint32_t size) {
     
   constexpr int d = 8, w = 8*sizeof(T);
   constexpr int sb = 1<<d;
@@ -15,11 +15,6 @@ void radixSort(T * v, uint16_t * index, uint32_t * offsets) {
   __shared__ uint32_t firstNeg;    
   __shared__ bool go; 
 
-  // later add offset
-  auto a = v+offsets[blockIdx.x];   
-  auto ind = index+offsets[blockIdx.x];;
-  auto size = offsets[blockIdx.x+1]-offsets[blockIdx.x];
-  
   assert(size<=MaxSize); 
   assert(blockDim.x==sb);  
 
@@ -138,6 +133,18 @@ void radixSort(T * v, uint16_t * index, uint32_t * offsets) {
 }
 
 
+template<typename T>
+__global__
+void radixSortMulti(T * v, uint16_t * index, uint32_t * offsets) {
+
+  auto a = v+offsets[blockIdx.x];
+  auto ind = index+offsets[blockIdx.x];;
+  auto size = offsets[blockIdx.x+1]-offsets[blockIdx.x];
+
+  radixSort(a,ind,size);
+
+}
+
 #include "cuda/api_wrappers.h"
 
 #include <iomanip>
@@ -163,12 +170,12 @@ std::uniform_int_distribution<T> rgen;
   auto start = std::chrono::high_resolution_clock::now();
   auto delta = start - start;
 
-	if (cuda::device::count() == 0) {
-		std::cerr << "No CUDA devices on this system" << "\n";
-		exit(EXIT_FAILURE);
-	}
+  if (cuda::device::count() == 0) {
+	std::cerr << "No CUDA devices on this system" << "\n";
+	exit(EXIT_FAILURE);
+  }
 
-        auto current_device = cuda::device::current::get(); 
+  auto current_device = cuda::device::current::get(); 
 
   constexpr int blocks=10;
   constexpr int blockSize = 256*32;
@@ -211,7 +218,7 @@ std::uniform_int_distribution<T> rgen;
    int blocksPerGrid = blocks;
    delta -= (std::chrono::high_resolution_clock::now()-start);
    cuda::launch(
-                radixSort<T>,
+                radixSortMulti<T>,
                 { blocksPerGrid, threadsPerBlock },
                 v_d.get(),ind_d.get(),off_d.get()
         );
