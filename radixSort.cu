@@ -71,6 +71,8 @@ void radixSort(T * v, uint16_t * index, uint32_t * offsets) {
     */
     __syncthreads();
 
+   
+
    // fill only the max index so to keep the order
    while (go) {
      __syncthreads();
@@ -89,8 +91,8 @@ void radixSort(T * v, uint16_t * index, uint32_t * offsets) {
      __syncthreads();
    } 
    
-
-    /*
+  
+    /*  
     // broadcast for the nulls
     if (threadIdx.x==0)
     for (int i=size-first-1; i>=0; i--) { // =blockDim.x) {
@@ -98,6 +100,7 @@ void radixSort(T * v, uint16_t * index, uint32_t * offsets) {
       k[ik-1] = j[i];
     }
     */
+
     __syncthreads();
     assert(c[0]==0);
 
@@ -146,9 +149,16 @@ void radixSort(T * v, uint16_t * index, uint32_t * offsets) {
 
 #include<cassert>
 #include<iostream>
+#include<limits>
+
 
 template<typename T>
 void go() {
+
+std::mt19937 eng;
+// std::mt19937 eng2;
+std::uniform_int_distribution<T> rgen;
+
 
   auto start = std::chrono::high_resolution_clock::now();
   auto delta = start - start;
@@ -168,10 +178,19 @@ void go() {
 
   std::cout << "Will sort " << N << " 'ints' of size " << sizeof(T) << std::endl;
 
-
-  for (int i = 0; i < N; i++) {
-    v[i]=i%32768; if(i%2) v[i]=-v[i];
+  /*
+  long long imax = std::numeric_limits<T>::max() +1LL;
+  //long long imax = 255;
+  for (long long i = 0; i < N; i++) {
+    v[i]=(i%imax); if(i%2) v[i]=-v[i];
   }
+  */
+
+  for (long long i = 0; i < N; i++) {
+    v[i]=rgen(eng); if(i%2) v[i]=-v[i];
+  }
+
+
 
   uint32_t offsets[blocks+1];
   offsets[0]=0;
