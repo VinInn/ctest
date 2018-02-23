@@ -1,4 +1,6 @@
 // nvcc -gencode arch=compute_61,code=sm_61 -fmad=false -O3 -ptx fma.cu -o fma.ptx -I/cvmfs/cms.cern.ch/slc7_amd64_gcc630/external/cuda/9.1.85-cms/include ; cat fma.ptx
+// c++ -O3 -S -march=native -ffp-contract=off fma.cc ; cat fma.s
+
 
 #include <cmath>
 
