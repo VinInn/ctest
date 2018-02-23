@@ -2,40 +2,60 @@
 
 #include <cmath>
 
-__device__
+#ifdef __NVCC__
+#define inline __device__  __host__ inline
+#else
+#define __global__
+#endif
+
+#if defined(__x86_64__) && !defined(__FMA__)
+#warning nofma
+#define FMA(x,y,z) x*y+z
+#else
+#warning fma
+#define	FMA(x,y,z) std::fma(x,y,z)
+#endif
+
+inline
+float dofma(float x, float y, float z) {
+  return FMA(x,-y,z);
+}
+
+
+inline
 float myf(float x, float y, float z) {
   return std::fma(x,-y,z);
 }
 
-__device__
+inline
 float myff(float x, float y, float z) {
   return z+x*y;
 }
 
-__device__
+inline
 float myfn(float x, float y, float z) {
   return x*y-z;
 }
 
 
-__device__
+inline
 float myxyn(float x, float y, float z) {
   return (x*y) - (y*z);
 }
 
-__device__
+inline
 float myxyp(float x, float y, float z) {
   return (x*y) + (y*z);
 }
 
-__device__ 
+inline
 float logP(float y) {
   return  y * (float(0xf.fff14p-4) + y * (-float(0x7.ff4bfp-4) 
   + y * (float(0x5.582f6p-4) + y * (-float(0x4.1dcf2p-4) + y * (float(0x3.3863f8p-4) + y * (-float(0x1.9288d4p-4)))))));
 
 }
 
-__device__ 
+inline
 float cw(float x) {
   constexpr float inv_log2f = float(0x1.715476p0);
   constexpr float log2H = float(0xb.172p-4);
@@ -55,7 +75,9 @@ float cw(float x) {
 
 
 __global__
-void go(float * x, float * y, float * z, float * r) {
+void goGPU(float * x, float * y, float * z, float * r) {
+
+  r[9] = dofma(x[9],y[9],z[9]);
 
   r[0] = myf(x[0],y[0],z[0]);
 
@@ -74,3 +96,5 @@ void go(float * x, float * y, float * z, float * r) {
 
 
 }
+
+
