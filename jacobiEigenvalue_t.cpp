@@ -111,7 +111,7 @@ void test01 ( )
 
   it_max = 100;
 
-  jacobi_eigenvalue ( n, a, it_max, v, d, it_num, rot_num );
+  jacobi_eigenvalue<N> ( n, a, it_max, v, d, it_num, rot_num );
 
   cout << "\n";
   cout << "  Number of iterations = " << it_num << "\n";
@@ -181,7 +181,7 @@ void test02 ( )
 
   it_max = 100;
 
-  jacobi_eigenvalue ( n, a, it_max, v, d, it_num, rot_num );
+  jacobi_eigenvalue<N> ( n, a, it_max, v, d, it_num, rot_num );
 
   cout << "\n";
   cout << "  Number of iterations = " << it_num << "\n";
@@ -268,7 +268,7 @@ void test03 ( )
 
   it_max = 100;
 
-  jacobi_eigenvalue ( n, a, it_max, v, d, it_num, rot_num );
+  jacobi_eigenvalue<N> ( n, a, it_max, v, d, it_num, rot_num );
 
   cout << "\n";
   cout << "  Number of iterations = " << it_num << "\n";

@@ -261,9 +261,10 @@ double r8mat_is_eigen_right ( int n, int k, double a[], double x[],
   return error_frobenius;
 }
 //****************************************************************************80
+template<int n>
 inline
-void jacobi_eigenvalue ( int n, double a[], int it_max, double v[], 
-  double d[], int &it_num, int &rot_num )
+void jacobi_eigenvalue (int nn, double * a, int it_max, double * v, 
+  double * d, int &it_num, int &rot_num )
 
 //****************************************************************************80
 //
