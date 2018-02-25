@@ -507,6 +507,9 @@ void jacobi_eigenvalue (int nn, double * a, int it_max, double * v,
 }
 
 
+
+#ifndef __NVCC__
+
 # include <cstdlib>
 # include <iostream>
 # include <iomanip>
@@ -784,3 +787,5 @@ void timestamp ( )
   return;
 # undef TIME_SIZE
 }
+
+#endif
