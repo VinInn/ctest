@@ -172,7 +172,6 @@ double r8mat_norm_fro ( int m, int n, double a[] )
 }
 
 //****************************************************************************80
-inline
 double r8mat_is_eigen_right ( int n, int k, double a[], double x[],
 			      double lambda[] )
 
