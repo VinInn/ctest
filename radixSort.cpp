@@ -51,27 +51,44 @@ void radixSort(int16_t const * a, uint32_t * ind, uint32_t size) {
 #include<algorithm>
 #include<cassert>
 #include<iostream>
-int main() {
+#include<random>
+#include<limits>
 
+
+int main() {
+  std::mt19937 eng;
+  std::uniform_int_distribution<int16_t> rgen(std::numeric_limits<int16_t>::min(),std::numeric_limits<int16_t>::max());
+
+  
   constexpr int N=12000;
   int16_t v[N];
   uint32_t ind[N];
+
   
+  /*
   for (int i = 0; i < N; i++) {
     v[i]=i%32768; if(i%2) v[i]=-v[i];
   }
-  
+  std::random_shuffle(v,v+N);
+  */  
+
   for (int i=0; i<50; ++i) {
-    std::random_shuffle(v,v+N);
+    for (long long j = 0; j < N; j++) v[j]=rgen(eng);
+ 
     radixSort(v,ind,N);
+
     
-    std::cout << v[ind[10]] << ' ' << v[ind[11000]] << std::endl;
-    std::cout << v[ind[5999]] << ' ' << v[ind[6000]] << ' ' << v[ind[6001]] << std::endl;
+    //std::cout << v[ind[10]] << ' ' << v[ind[11000]] << std::endl;
+    //std::cout << v[ind[5999]] << ' ' << v[ind[6000]] << ' ' << v[ind[6001]] << std::endl;
     for (int i = 1; i < N; i++) {
       if (v[ind[i]]<v[ind[i-1]])
 	std::cout << "not ordered at " << ind[i] << " : "
 		  << v[ind[i]] <<' '<< v[ind[i-1]] << std::endl;
     }
+
+
+    
+    
   }
   return 0;
 }
