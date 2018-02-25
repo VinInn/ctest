@@ -1,6 +1,9 @@
 
 # include <cmath>
 
+#ifdef __NVCC__
+#define inline __host__ __device__ inline
+#endif
 
 //****************************************************************************80
 inline
@@ -505,10 +508,11 @@ void jacobi_eigenvalue (int nn, double * a, int it_max, double * v,
 
   return;
 }
+#ifdef __NVCC__
+#undef inline
+#endif
 
 
-
-#ifndef __NVCC__
 
 # include <cstdlib>
 # include <iostream>
@@ -788,4 +792,3 @@ void timestamp ( )
 # undef TIME_SIZE
 }
 
-#endif
