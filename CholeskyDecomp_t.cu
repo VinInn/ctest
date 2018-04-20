@@ -18,7 +18,7 @@ template<int N>
 __global__
 void invert (mTest::AMatrix<double,N> * mm) {
   using MX = mTest::AMatrix<double,N>;
-  MX & m = &mm;
+  MX & m = *mm;
   
   ROOT::Math::CholeskyDecomp<double,N> decomp(m);
   assert(decomp);
@@ -77,7 +77,7 @@ int main() {
    int threadsPerBlock =32;
    int blocksPerGrid = 1;
    cuda::launch(
-                invert<N>,
+                invert<4>,
                 { blocksPerGrid, threadsPerBlock },
                 m_d.get()
 		);
