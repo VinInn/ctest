@@ -33,6 +33,22 @@
 #define CMS_HOST_DEVICE
 #endif
 
+namespace mTest {
+
+  template<class F, unsigned N>
+  class AMatrix {
+  public:
+    CMS_HOST_DEVICE
+    F operator()(int i, int j) const { return m[i][j]; }
+    CMS_HOST_DEVICE
+    F & operator()(int i, int j) { return m[i][j]; }
+
+    F m[N][N];
+  };
+
+}
+
+
 
 namespace ROOT {
 
