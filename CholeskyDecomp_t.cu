@@ -130,7 +130,7 @@ int main() {
 		 );
     
     cuda::memory::copy(&mm, m_d.get(),SIZE*sizeof(MX));
-    delta2 += (std::chrono::high_resolution_clock::now()-start);
+    delta1 += (std::chrono::high_resolution_clock::now()-start);
     
     if (0==kk) std::cout << mm[SIZE/2](1,1) << std::endl;
     
@@ -149,8 +149,8 @@ int main() {
   
   std::cout <<"cuda/cudaSeq/x86 computation took "
 	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/100. << ' '
-	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/100.  << ' '
-	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/100.  << ' '
+	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta1).count()/100.  << ' '
+	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta2).count()/100.  << ' '
 	    << " ms" << std::endl;
   
   return 0;
