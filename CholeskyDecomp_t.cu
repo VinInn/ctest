@@ -103,7 +103,7 @@ int main() {
   cuda::launch(
 	       invert<4>,
 	       { blocksPerGrid, threadsPerBlock },
-	       m_d.get(),SIZE,
+	       m_d.get(),SIZE
 	       );
 
   cuda::memory::copy(&mm, m_d.get(),SIZE*sizeof(MX));
@@ -113,10 +113,10 @@ int main() {
   cuda::launch(
 	       invertSeq<4>,
 	       { blocksPerGrid, threadsPerBlock },
-	       m_d.get(),SIZE,
+	       m_d.get(),SIZE
 	       );
 
-  cuda::memory::copy(&m, m_d.get(),SIZE*sizeof(MX));
+  cuda::memory::copy(&mm, m_d.get(),SIZE*sizeof(MX));
   
   std::cout << mm[SIZE/2](1,1) << std::endl;
   
