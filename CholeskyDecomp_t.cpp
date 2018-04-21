@@ -39,7 +39,7 @@ void genMatrix(M  & m ) {
 
 int main() {
 
-  constexpr int SIZE=256;
+  constexpr int SIZE=1024;
   
   using MX = mTest::AMatrix<double,4>;
   MX mm[SIZE];
@@ -55,7 +55,7 @@ int main() {
     assert(decomp.Invert(m));
   }
   
-  std::cout << m[SIZE/2](1,1) << std::endl;
+  std::cout << mm[SIZE/2](1,1) << std::endl;
   
   return 0;
 }
