@@ -16,7 +16,7 @@
 
 template<int N>
 __global__
-void invert (mTest::AMatrix<double,N> * mm, int n) {
+void invert (mTest::AMatrix<double,N> * mm, unsigned int n) {
 
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   if (i>=n) return;
