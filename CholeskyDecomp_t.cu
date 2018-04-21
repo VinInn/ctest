@@ -33,7 +33,7 @@ void invert (mTest::AMatrix<double,N> * mm, unsigned int n) {
 
 template<int N>
 __global__
-void invertSeq (mTest::AMatrix<double,N> * mm, int n) {
+void invertSeq (mTest::AMatrix<double,N> * mm, unsigned int n) {
 
   if (threadIdx.x!=0) return;
   auto first = blockIdx.x*blockDim.x;
