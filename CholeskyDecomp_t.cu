@@ -37,9 +37,9 @@ void invertSeq (mTest::AMatrix<double,N> * mm, int n) {
 
   if (threadIdx.x!=0) return;
   auto first = blockIdx.x*blockDim.x;
-  auto last = std::mmin(first+blockDim.x,n);
+  auto last = std::min(first+blockDim.x,n);
   
-  for (i=first; i<last; ++i) {
+  for (auto i=first; i<last; ++i) {
     using MX = mTest::AMatrix<double,N>;
     MX & m = mm[i];
     ROOT::Math::CholeskyDecomp<double,N> decomp(m);
