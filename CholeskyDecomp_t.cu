@@ -152,7 +152,6 @@ int main() {
 	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/100.  << ' '
 	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/100.  << ' '
 	    << " ms" << std::endl;
-}
   
-   return 0;
+  return 0;
 }
