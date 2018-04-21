@@ -16,16 +16,36 @@
 
 template<int N>
 __global__
-void invert (mTest::AMatrix<double,N> * mm) {
+void invert (mTest::AMatrix<double,N> * mm, int n) {
+
+  auto i = blockIdx.x*blockDim.x + threadIdx.x;
+  if (i>=n) return;
+
   using MX = mTest::AMatrix<double,N>;
-  MX & m = *mm;
+  MX & m = mm[i];
   
   ROOT::Math::CholeskyDecomp<double,N> decomp(m);
   assert(decomp);
   
   assert(decomp.Invert(m));
  
+}
+
+template<int N>
+__global__
+void invertSeq (mTest::AMatrix<double,N> * mm, int n) {
+
+  if (threadIdx.x!=0) return;
+  auto first = blockIdx.x*blockDim.x;
+  auto last = std::mmin(first+blockDim.x,n);
   
+  for (i=first; i<last; ++i) {
+    using MX = mTest::AMatrix<double,N>;
+    MX & m = mm[i];
+    ROOT::Math::CholeskyDecomp<double,N> decomp(m);
+    assert(decomp);
+    assert(decomp.Invert(m));
+  }
 }
 
 
@@ -62,38 +82,55 @@ int main() {
 
   auto current_device = cuda::device::current::get(); 
 
-
+  constexpr int SIZE=1024;
   
   using MX = mTest::AMatrix<double,4>;
-  MX m;
-  genMatrix<MX,double,4>(m);
+  MX mm[SIZE];
+  for ( auto & m : mm) 
+    genMatrix<MX,double,4>(m);
+  
 
-  std::cout << m(1,1) << std::endl;
+  std::cout << mm[SIZE/2](1,1) << std::endl;
+
+  
+  auto m_d = cuda::memory::device::make_unique<MX[]>(current_device, SIZE);
+  
+  cuda::memory::copy(m_d.get(), &m, SIZE*sizeof(MX));
+
+  int threadsPerBlock =128;
+  int blocksPerGrid = SIZE/threadsPerBlock;
+
+  cuda::launch(
+	       invert<4>,
+	       { blocksPerGrid, threadsPerBlock },
+	       m_d.get(),SIZE,
+	       );
+
+  cuda::memory::copy(&m, m_d.get(),SIZE*sizeof(MX));
+  
+  std::cout << mm[SIZE/2](1,1) << std::endl;
+  
+  cuda::launch(
+	       invertSeq<4>,
+	       { blocksPerGrid, threadsPerBlock },
+	       m_d.get(),SIZE,
+	       );
+
+  cuda::memory::copy(&m, m_d.get(),SIZE*sizeof(MX));
+  
+  std::cout << mm[SIZE/2](1,1) << std::endl;
+  
+  
+  
+  for ( auto & m : mm) {
+    ROOT::Math::CholeskyDecomp<double,4> decomp(m);
+    assert(decomp);
+    assert(decomp.Invert(m));
+  }
+  
+  std::cout << m[SIZE/2](1,1) << std::endl; 
+  
  
-  auto m_d = cuda::memory::device::make_unique<MX[]>(current_device, 1);
   
-  cuda::memory::copy(m_d.get(), &m, sizeof(MX));
-
-   int threadsPerBlock =32;
-   int blocksPerGrid = 1;
-   cuda::launch(
-                invert<4>,
-                { blocksPerGrid, threadsPerBlock },
-                m_d.get()
-		);
-
-   cuda::memory::copy(&m, m_d.get(),sizeof(MX));
-		
-		
-  std::cout << m(1,1) << std::endl;
- 
-  ROOT::Math::CholeskyDecomp<double,4> decomp(m);
-  assert(decomp);
-  
-  assert(decomp.Invert(m));
-  
-  std::cout << m(1,1) << std::endl;
-  
-  
-  return 0;
+   return 0;
 }

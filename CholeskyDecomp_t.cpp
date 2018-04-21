@@ -38,20 +38,24 @@ void genMatrix(M  & m ) {
 
 
 int main() {
+
+  constexpr int SIZE=256;
   
   using MX = mTest::AMatrix<double,4>;
-  MX m;
-  genMatrix<MX,double,4>(m);
+  MX mm[SIZE];
+  for ( auto & m : mm) 
+    genMatrix<MX,double,4>(m);
 
 
-  std::cout << m(1,1) << std::endl;
- 
-  ROOT::Math::CholeskyDecomp<double,4> decomp(m);
-  assert(decomp);
+  std::cout << mm[SIZE/2](1,1) << std::endl;
+
+  for ( auto & m : mm) {
+    ROOT::Math::CholeskyDecomp<double,4> decomp(m);
+    assert(decomp);
+    assert(decomp.Invert(m));
+  }
   
-  assert(decomp.Invert(m));
-  
-  std::cout << m(1,1) << std::endl;
+  std::cout << m[SIZE/2](1,1) << std::endl;
   
   return 0;
 }
