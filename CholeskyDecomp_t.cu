@@ -114,13 +114,16 @@ void go() {
 
   std::cout << mm[SIZE/2](1,1) << std::endl;
 
+   auto m_d = cuda::memory::device::make_unique<MX[]>(current_device, SIZE);
+   cuda::memory::copy(m_d.get(), &mm, SIZE*sizeof(MX));
+
 
   constexpr int NKK = 1000;
   for (int kk=0; kk<NKK; ++kk) {
   
-    auto m_d = cuda::memory::device::make_unique<MX[]>(current_device, SIZE);
+    // auto m_d = cuda::memory::device::make_unique<MX[]>(current_device, SIZE);
     
-    cuda::memory::copy(m_d.get(), &mm, SIZE*sizeof(MX));
+    // cuda::memory::copy(m_d.get(), &mm, SIZE*sizeof(MX));
     
     int threadsPerBlock =128;
     int blocksPerGrid = SIZE/threadsPerBlock;
