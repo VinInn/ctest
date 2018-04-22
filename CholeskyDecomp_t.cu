@@ -1,3 +1,4 @@
+// nvcc -O3 CholeskyDecomp_t.cu -Icuda-api-wrappers/src/ --expt-relaxed-constexpr --compiler-options="-Ofast -march=native"
 #include "CholeskyDecomp.h"
 
 
@@ -21,8 +22,7 @@ void invert (mTest::AMatrix<double,N> * mm, unsigned int n) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   if (i>=n) return;
 
-  using MX = mTest::AMatrix<double,N>;
-  MX & m = mm[i];
+  auto & m = mm[i];
   
   ROOT::Math::CholeskyDecomp<double,N> decomp(m);
   assert(decomp);
@@ -40,8 +40,7 @@ void invertSeq (mTest::AMatrix<double,N> * mm, unsigned int n) {
   auto last = std::min(first+blockDim.x,n);
   
   for (auto i=first; i<last; ++i) {
-    using MX = mTest::AMatrix<double,N>;
-    MX & m = mm[i];
+    auto & m = mm[i];
     ROOT::Math::CholeskyDecomp<double,N> decomp(m);
     assert(decomp);
     assert(decomp.Invert(m));
@@ -73,7 +72,14 @@ void genMatrix(M  & m ) {
 }
 
 
-int main() {
+template<int N>
+void go() {
+
+  constexpr unsigned int DIM = N;
+  using MX = mTest::AMatrix<double,DIM>;
+
+  std::cout << "testing Matrix of dimension " << DIM << " size " << sizeof(MX) << std::endl;
+  using MX = mTest::AMatrix<double,DIM>;
 
   auto start = std::chrono::high_resolution_clock::now();
   auto delta = start - start;
@@ -88,17 +94,29 @@ int main() {
 
   auto current_device = cuda::device::current::get(); 
 
-  constexpr int SIZE=1024;
+  constexpr unsigned int SIZE=1024;
   
-  using MX = mTest::AMatrix<double,4>;
   MX mm[SIZE];
   for ( auto & m : mm) 
-    genMatrix<MX,double,4>(m);
+    genMatrix<MX,double,DIM>(m);
   
 
   std::cout << mm[SIZE/2](1,1) << std::endl;
 
-  for (int kk=0; kk<100; ++kk) {
+  for ( auto & m : mm) {
+   ROOT::Math::CholeskyDecomp<double,DIM> decomp(m);
+   assert(decomp);
+   assert(decomp.Invert(m));
+   ROOT::Math::CholeskyDecomp<double,DIM> decomp2(m);
+   assert(decomp2);
+   assert(decomp2.Invert(m));
+  }
+
+  std::cout << mm[SIZE/2](1,1) << std::endl;
+
+
+  constexpr int NKK = 1000;
+  for (int kk=0; kk<NKK; ++kk) {
   
     auto m_d = cuda::memory::device::make_unique<MX[]>(current_device, SIZE);
     
@@ -110,7 +128,7 @@ int main() {
     delta -= (std::chrono::high_resolution_clock::now()-start);
     
     cuda::launch(
-		 invert<4>,
+		 invert<DIM>,
 		 { blocksPerGrid, threadsPerBlock },
 		 m_d.get(),SIZE
 		 );
@@ -124,7 +142,7 @@ int main() {
     delta1 -= (std::chrono::high_resolution_clock::now()-start);
     
     cuda::launch(
-		 invertSeq<4>,
+		 invertSeq<DIM>,
 		 { blocksPerGrid, threadsPerBlock },
 		 m_d.get(),SIZE
 		 );
@@ -137,7 +155,7 @@ int main() {
   
     delta2 -= (std::chrono::high_resolution_clock::now()-start);
     for ( auto & m : mm) {
-      ROOT::Math::CholeskyDecomp<double,4> decomp(m);
+      ROOT::Math::CholeskyDecomp<double,DIM> decomp(m);
       assert(decomp);
       assert(decomp.Invert(m));
     }
@@ -147,11 +165,20 @@ int main() {
   
   std::cout << mm[SIZE/2](1,1) << std::endl; 
   
+  double DNNK = NKK;
   std::cout <<"cuda/cudaSeq/x86 computation took "
-	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/100. << ' '
-	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta1).count()/100.  << ' '
-	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta2).count()/100.  << ' '
+	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/DNNK << ' '
+	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta1).count()/DNNK  << ' '
+	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta2).count()/DNNK  << ' '
 	    << " ms" << std::endl;
-  
+
+}
+
+int main() { 
+
+  go<2>();
+  go<4>();
+  go<5>();
+
   return 0;
 }

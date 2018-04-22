@@ -35,9 +35,13 @@
 
 namespace mTest {
 
-  template<class F, unsigned N>
-  class AMatrix {
+  template<class F, unsigned int N>
+  class /* alignas(16) */ AMatrix {
   public:
+
+    using type = F;
+    constexpr unsigned int dim() { return N;}
+
     CMS_HOST_DEVICE
     F operator()(int i, int j) const { return m[i][j]; }
     CMS_HOST_DEVICE
