@@ -183,5 +183,6 @@ int main() {
   go<4>();
   go<5>();
 
+  go<10>();
   return 0;
 }
