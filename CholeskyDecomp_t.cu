@@ -1,4 +1,5 @@
 // nvcc -O3 CholeskyDecomp_t.cu -Icuda-api-wrappers/src/ --expt-relaxed-constexpr -gencode arch=compute_61,code=sm_61 --compiler-options="-Ofast -march=native"
+// add -DDOPROF to run  nvprof --metrics all
 #include "CholeskyDecomp.h"
 
 
@@ -118,7 +119,12 @@ void go() {
    cuda::memory::copy(m_d.get(), &mm, SIZE*sizeof(MX));
 
 
-  constexpr int NKK = 1000;
+  constexpr int NKK = 
+#ifdef DOPROF
+    2;
+#else
+    1000;
+#endif
   for (int kk=0; kk<NKK; ++kk) {
   
     // auto m_d = cuda::memory::device::make_unique<MX[]>(current_device, SIZE);
@@ -143,14 +149,16 @@ void go() {
     
     
     delta1 -= (std::chrono::high_resolution_clock::now()-start);
-    
-    cuda::launch(
+
+#ifndef DOPROF
+     cuda::launch(
 		 invertSeq<DIM>,
 		 { blocksPerGrid, threadsPerBlock },
 		 m_d.get(),SIZE
 		 );
     
     cuda::memory::copy(&mm, m_d.get(),SIZE*sizeof(MX));
+#endif
     delta1 += (std::chrono::high_resolution_clock::now()-start);
     
     if (0==kk) std::cout << mm[SIZE/2](1,1) << std::endl;
