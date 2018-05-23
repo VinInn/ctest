@@ -26,6 +26,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <cstring>
 
 #ifdef __NVCC__
 #define CMS_HOST_DEVICE __host__ __device__
@@ -357,6 +358,8 @@ private:
    F *fL;
    /// flag indicating a successful decomposition
    bool fOk;
+   /// flag indicating ownership of "fL"
+   bool fOwn;
 public:
    /// perform a Cholesky decomposition
    /** perfrom a Cholesky decomposition of a symmetric positive
@@ -368,8 +371,8 @@ public:
     */
    template<class M>
    CMS_HOST_DEVICE
-   CholeskyDecompGenDim(unsigned N, const M& m) :
-      fN(N), fL(new F[(fN * (fN + 1)) / 2]), fOk(false)
+   CholeskyDecompGenDim(unsigned N, const M& m, F * buf=nullptr) :
+     fN(N), fL(buf ? buf : new F[(fN * (fN + 1)) / 2]), fOk(false), fOwn(nullptr==buf)
    {
       using CholeskyDecompHelpers::_decomposerGenDim;
       fOk = _decomposerGenDim<F, M>()(fL, m, fN);
@@ -388,9 +391,9 @@ public:
     */
    template<typename G>
    CMS_HOST_DEVICE
-   CholeskyDecompGenDim(unsigned N, G* m) :
-      fN(N), fL(new F[(fN * (fN + 1)) / 2]), fOk(false)
-   {
+   CholeskyDecompGenDim(unsigned N, G* m, F * buf=nullptr) :
+      fN(N), fL(buf ? buf : new F[(fN * (fN + 1)) / 2]), fOk(false), fOwn(nullptr==buf)
+     {
       using CholeskyDecompHelpers::_decomposerGenDim;
       using CholeskyDecompHelpers::PackedArrayAdapter;
       fOk = _decomposerGenDim<F, PackedArrayAdapter<G> >()(
@@ -399,7 +402,7 @@ public:
 
    /// destructor
    CMS_HOST_DEVICE
-   ~CholeskyDecompGenDim() { delete[] fL; }
+   ~CholeskyDecompGenDim() { if (fOwn) delete[] fL; }
 
    /// returns true if decomposition was successful
    /** @returns true if decomposition was successful */
@@ -637,10 +640,10 @@ namespace CholeskyDecompHelpers {
    template<class F, class M> struct _inverterGenDim
    {
       /// method to do the inversion
-      CMS_HOST_DEVICE void operator()(M& dst, const F* src, unsigned N) const
+     CMS_HOST_DEVICE void operator()(M& dst, const F* src, unsigned N, F * buf=nullptr) const
       {
          // make working copy
-         F * l = new F[N * (N + 1) / 2];
+	F * l = buf ? buf : new F[(N * (N + 1)) / 2];
          memcpy(l, src, sizeof(F)*((N * (N + 1)) / 2));
          // ok, next step: invert off-diagonal part of matrix
          F* base1 = &l[1];
@@ -664,7 +667,7 @@ namespace CholeskyDecompHelpers {
                dst(i, j) = tmp;
             }
          }
-         delete [] l;
+	 if (!buf) delete[] l;
       }
    };
 
@@ -672,8 +675,8 @@ namespace CholeskyDecompHelpers {
    template<class F, unsigned N, class M> struct _inverter
    {
       /// method to do the inversion
-      CMS_HOST_DEVICE void operator()(M& dst, const F* src) const
-      { return _inverterGenDim<F, M>()(dst, src, N); }
+      CMS_HOST_DEVICE void operator()(M& dst, const F* src) const 
+     { F buf[(N * (N - 1)) / 2]; return _inverterGenDim<F, M>()(dst, src, N, buf); }
    };
 
    /// struct to solve a linear system using its Cholesky decomposition (generalised dimensionality)

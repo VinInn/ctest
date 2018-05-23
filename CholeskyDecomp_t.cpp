@@ -37,25 +37,36 @@ void genMatrix(M  & m ) {
 }
 
 
-int main() {
+template<int N> 
+void  go() {
 
-  constexpr int SIZE=1024;
   
-  using MX = mTest::AMatrix<double,4>;
+  constexpr int SIZE=1024;
+
+  std::cout << "inverting " << SIZE << " matrices of rank " << N << std::endl;   
+
+  using MX = mTest::AMatrix<double,N>;
   MX mm[SIZE];
   for ( auto & m : mm) 
-    genMatrix<MX,double,4>(m);
+    genMatrix<MX,double,N>(m);
 
 
   std::cout << mm[SIZE/2](1,1) << std::endl;
 
   for ( auto & m : mm) {
-    ROOT::Math::CholeskyDecomp<double,4> decomp(m);
+    ROOT::Math::CholeskyDecomp<double,N> decomp(m);
     assert(decomp);
     assert(decomp.Invert(m));
   }
   
   std::cout << mm[SIZE/2](1,1) << std::endl;
+}
+
+int main() {
+
+  go<4>();
+  go<5>();
+  go<10>();
   
   return 0;
 }
