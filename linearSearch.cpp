@@ -6,10 +6,11 @@ int main() {
   constexpr int s=1024;
   int v[s];
   for (int i=0;i<s;++i) v[i]=2*i;
+  v[0]=1;
   std::cout << v[s-1] << std::endl;
 
-  auto search = [&](int a, int j) { 
-    if (a>=v[j]) {while(j<s && a>=v[++j]){} return j-1;}
+  auto search = [&](auto a, unsigned int j) { 
+    if (!(a<v[j])) {while(j<s && (!(a<v[++j]))){} return j-1;}
     if (a<v[j]) {while(j>0 && a<v[--j]){} return j;}
     return j;
   };
@@ -23,6 +24,7 @@ int main() {
   };
 
   print(0);
+  print(1);
   print(v[s-1]);
   print(31);
   print(32);
