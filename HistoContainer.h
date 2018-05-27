@@ -3,7 +3,7 @@
 #include<atomic>
 
 template<typename T, uint32_t N, uint32_t M>
-class Histogram {
+class HistoContainer {
 
   static constexpr uint32_t sizeT = sizeof(T)*4;
   static constexpr uint32_t nbins = 1<<N;
@@ -16,16 +16,28 @@ class Histogram {
     return (t>>shift)&mask;
   }
 
+#ifdef NVCC
+
+#else
+  
+  HistoContainer() { zero();}
+
+  void zero() {
+   nspills=0;
+   for (auto & i : n) i=0;
+  }
+
   void fill(T t) {
     auto b = bin(t);
     auto w = n[b]++; // atomic
     if (w<binSize) {
       bins[b*binSize+w] =t;
     } else {
-      auto w = nspills++;
+      auto w = nspills++; // atomic
       if (w<spillSize) spillBin[w]=t;
     }     
   }
+#endif
 
   constexpr bool fullSpill() const {
     return nspills>=spillSize;
@@ -43,15 +55,19 @@ class Histogram {
      return begin(b)+std::min(binSize,n[b]);
   }
 
-  constexpr auto size(uint32_t b) const {
+  constexpr uint32_t size(uint32_t b) const {
      return n[b];
   }
 
-
+#ifdef NVCC
+  using Counter = uint32_t;
+#else
+  using Counter = std::atomic<uint32_t>;
+#endif
 
   T bins[nbins*binSize];
-  uint32_t n[nbins];
+  Counter  n[nbins];
   T spillBin[spillSize];
-  uint32_t nspills;
+  Counter  nspills;
 
 };
