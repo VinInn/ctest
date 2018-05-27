@@ -8,7 +8,7 @@
 template<typename T, uint32_t N, uint32_t M>
 class HistoContainer {
 public:
-  static constexpr uint32_t sizeT = sizeof(T)*4;
+  static constexpr uint32_t sizeT = sizeof(T)*8;
   static constexpr uint32_t nbins = 1<<N;
   static constexpr uint32_t shift = sizeT -N;
   static constexpr uint32_t mask =  nbins-1;
@@ -36,14 +36,14 @@ public:
   }
 
   __device__
-  void fill(T t) {
-    auto b = bin(t);
+  void fill(T const * t, uint32_t j) {
+    auto b = bin(t[j]);
     auto w = atomicAdd(&n[b],1); // atomic
     if (w<binSize) {
-      bins[b*binSize+w] =t;
+      bins[b*binSize+w] = j;
     } else {
       auto w = atomicAdd(&nspills,1); // atomic
-      if (w<spillSize) spillBin[w]=t;
+      if (w<spillSize) spillBin[w] = j;
     }
   }     
 
@@ -56,14 +56,14 @@ public:
    for (auto & i : n) i=0;
   }
 
-  void fill(T t) {
-    auto b = bin(t);
+  void fill(T const * t, uint32_t j) {
+    auto b = bin(t[j]);
     auto w = n[b]++; // atomic
     if (w<binSize) {
-      bins[b*binSize+w] =t;
+      bins[b*binSize+w] = j;
     } else {
       auto w = nspills++; // atomic
-      if (w<spillSize) spillBin[w]=t;
+      if (w<spillSize) spillBin[w] = j;
     }     
   }
 #endif
@@ -76,15 +76,15 @@ public:
     return n[b]>=binSize;
   }
 
-  constexpr T const * begin(uint32_t b) const {
+  constexpr auto const * begin(uint32_t b) const {
      return bins+b*binSize;
   }
 
-  constexpr T const * end(uint32_t b) const {
-     return begin(b)+std::min(binSize,n[b]);
+  constexpr auto const * end(uint32_t b) const {
+     return begin(b)+std::min(binSize,uint32_t(n[b]));
   }
 
-  constexpr uint32_t size(uint32_t b) const {
+  constexpr auto size(uint32_t b) const {
      return n[b];
   }
 
@@ -94,9 +94,9 @@ public:
   using Counter = std::atomic<uint32_t>;
 #endif
 
-  T bins[nbins*binSize];
+  uint32_t bins[nbins*binSize];
   Counter  n[nbins];
-  T spillBin[spillSize];
+  uint32_t spillBin[spillSize];
   Counter  nspills;
 
 };
