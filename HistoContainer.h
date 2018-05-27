@@ -1,8 +1,47 @@
 #include<cstdint>
 #include<algorithm>
+#ifndef __NVCC__
 #include<atomic>
-#ifdef NVCC
+#endif
+#ifdef __NVCC__
 #include <cuda_runtime.h>
+#endif
+
+
+#ifdef __NVCC__
+
+  template<typename Histo>
+  __host__
+  void zero(Histo * h, int nthreads, cudaStream_t stream) {
+    auto nblocks = (Histo::nbins+nthreads-1)/nthreads;
+    zeroOne<<<nblocks,nthreads, 0, stream>>>(h);
+  }
+
+  template<typename Histo, typename T>
+  __host__
+  void fillFromVector(Histo * h, T const * v, uint32_t size, int nthreads, cudaStream_t stream) {
+    zero(h,nthreads,stream);
+    auto nblocks = (size+nthreads-1)/nthreads;
+    fillOneFromVector<<<nblocks,nthreads, 0, stream>>>(h,v,size);
+  }
+
+
+  template<typename Histo>
+  __global__
+  void zeroOne(Histo * h) {
+    h->nspills=0;
+    auto i = blockIdx.x*blockDim.x + threadIdx.x;
+    if(i<Histo::nbins) h->n[i]=0;
+  }
+
+
+  template<typename Histo, typename T>
+  __global__
+  void fillOneFromVector(Histo * h, T const * v, uint32_t size) {
+     auto i = blockIdx.x*blockDim.x + threadIdx.x;
+     if(i<size) h->fill(v,i);
+  }
+
 #endif
 
 template<typename T, uint32_t N, uint32_t M>
@@ -20,20 +59,7 @@ public:
   }
 
 
-#ifdef NVCC
-
-  __host__
-  void zero(HistoContainer * h, int nthreads, cudaStream_t stream) {
-    auto nblocks = (nbins+nthreads-1)/nthreads;
-    zeroOne<<<nblocks,nthreads, 0, stream>>>(h);
-  }
-
-  __global__
-  static void zeroOne(HistoContainer * h) {
-    h->nspills=0;
-    auto i = blockIdx.x*blockDim.x + threadIdx.x;
-    if(i<nbins) h->n[i]=0;
-  }
+#ifdef __NVCC__
 
   __device__
   void fill(T const * t, uint32_t j) {
@@ -88,7 +114,7 @@ public:
      return n[b];
   }
 
-#ifdef NVCC
+#ifdef __NVCC__
   using Counter = uint32_t;
 #else
   using Counter = std::atomic<uint32_t>;
