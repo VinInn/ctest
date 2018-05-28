@@ -1,4 +1,4 @@
-#include "HistoContainer.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 
 #include<algorithm>
 #include<cassert>
@@ -80,6 +80,10 @@ void go() {
       if ( T(v[t1]-v[t2])<=0) std::cout << "for " << i <<':'<< v[k] <<" failed " << v[t1] << ' ' << v[t2] << std::endl;
     };
 
+    auto incr = [](auto & k) { return k = (k+1)%Hist::nbins;};
+
+
+    
     for (uint32_t j=0; j<nParts; ++j) {
       std::cout << "nspills " << h[j].nspills << std::endl;
       for (uint32_t i=0; i<Hist::nbins; ++i) {
@@ -90,8 +94,14 @@ void go() {
         auto kh = h[j].bin(v[k]+T(1000));
         assert(kl!=i);  assert(kh!=i);
         // std::cout << kl << ' ' << kh << std::endl;
-        for (auto p=h[j].begin(kl); p<h[j].end(kl); ++p) verify(i,k,k,(*p));
-        for (auto p=h[j].begin(kh); p<h[j].end(kh); ++p) verify(i,k,(*p),k);
+        
+        bool l = true; incr(kh);
+        for (auto kk=kl; kk!=kh; incr(kk)) {
+          if (kk==i) { l=false; continue; }
+          if (l) for (auto p=h[j].begin(kk); p<h[j].end(kk); ++p) verify(i,k,k,(*p));
+          else for (auto p=h[j].begin(kk); p<h[j].end(kk); ++p) verify(i,k,(*p),k);
+        }
+        assert(!l);
       }
     }
   }
