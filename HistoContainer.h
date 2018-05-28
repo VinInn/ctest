@@ -1,3 +1,8 @@
+#ifndef HeterogeneousCoreCUDAUtilitiesHistoContainer_h
+#define HeterogeneousCoreCUDAUtilitiesHistoContainer_h
+
+
+#include<cassert>
 #include<cstdint>
 #include<algorithm>
 #ifndef __NVCC__
@@ -10,34 +15,80 @@
 
 #ifdef __NVCC__
 
+  template<class ForwardIt, class T>
+  __device__
+  constexpr
+  ForwardIt upper_bound(ForwardIt first, ForwardIt last, const T& value)
+  {
+    auto count = last-first;
+ 
+    while (count > 0) {
+        auto it = first; 
+        auto step = count / 2; 
+        it+=step;
+        if (!(value < *it)) {
+            first = ++it;
+            count -= step + 1;
+        } 
+        else
+            count = step;
+    }
+    return first;
+  }
+
+
   template<typename Histo>
   __host__
-  void zero(Histo * h, int nthreads, cudaStream_t stream) {
-    auto nblocks = (Histo::nbins+nthreads-1)/nthreads;
-    zeroOne<<<nblocks,nthreads, 0, stream>>>(h);
+  void zero(Histo * h, uint32_t nh, int nthreads, cudaStream_t stream) {
+    auto nblocks = (nh*Histo::nbins+nthreads-1)/nthreads;
+    zeroMany<<<nblocks,nthreads, 0, stream>>>(h,nh);
   }
 
   template<typename Histo, typename T>
   __host__
-  void fillFromVector(Histo * h, T const * v, uint32_t size, int nthreads, cudaStream_t stream) {
-    zero(h,nthreads,stream);
+  void fillOneFromVector(Histo * h, T const * v, uint32_t size, int nthreads, cudaStream_t stream) {
+    zero(h,1, nthreads, stream);
     auto nblocks = (size+nthreads-1)/nthreads;
-    fillOneFromVector<<<nblocks,nthreads, 0, stream>>>(h,v,size);
+    fillFromVector<<<nblocks,nthreads, 0, stream>>>(h,v,size);
   }
 
+  template<typename Histo, typename T>
+  __host__
+  void fillManyFromVector(Histo * h, uint32_t nh, T const * v, uint32_t * offsets, uint32_t totSize, int nthreads, cudaStream_t stream) {
+    zero(h,nh, nthreads, stream);
+    auto nblocks = (totSize+nthreads-1)/nthreads;
+    fillFromVector<<<nblocks,nthreads, 0, stream>>>(h,nh,v,offsets);
+  }
 
   template<typename Histo>
   __global__
-  void zeroOne(Histo * h) {
-    h->nspills=0;
+  void zeroMany(Histo * h, uint32_t nh) {
     auto i = blockIdx.x*blockDim.x + threadIdx.x;
-    if(i<Histo::nbins) h->n[i]=0;
+    auto ih = i/Histo::nbins;
+    auto k = i - ih*Histo::nbins;
+    if (ih<nh) {
+      h[ih].nspills=0;
+      if(k<Histo::nbins) h[ih].n[k]=0;
+    }
+  }
+
+  template<typename Histo, typename T>
+  __global__
+  void fillFromVector(Histo * h,  uint32_t nh, T const * v, uint32_t * offsets) {
+     auto i = blockIdx.x*blockDim.x + threadIdx.x;
+     if(i>=offsets[nh]) return;
+     auto off = upper_bound(offsets,offsets+nh+1,i);
+     assert((*off)>0);
+     int32_t ih = off-offsets-1;
+     assert(ih>=0);
+     assert(ih<nh); 
+     h[ih].fill(v,i);
   }
 
 
   template<typename Histo, typename T>
   __global__
-  void fillOneFromVector(Histo * h, T const * v, uint32_t size) {
+  void fillFromVector(Histo * h, T const * v, uint32_t size) {
      auto i = blockIdx.x*blockDim.x + threadIdx.x;
      if(i<size) h->fill(v,i);
   }
@@ -126,3 +177,6 @@ public:
   Counter  nspills;
 
 };
+
+
+#endif
