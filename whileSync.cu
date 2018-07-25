@@ -4,22 +4,33 @@
 __global__
 void perm(int pad[]) {
     int t = threadIdx.x;
+    int n=0;
+    __shared__ bool done;
 
     pad[2] =0;
 
-    if (t==11) return;
-
-    if ( t == 1 ) {
+    done=true;
+    __syncthreads();
+    while (done) {
+      done = false;
+      __syncthreads();
+      if ( t == 1 ) {
+        ++n;
         pad[0] = 112211;
+        if (n<10) done = true;
+      }
+     __syncthreads();
     }
 
     __syncthreads();
 
-    if ( t == 17 ) {
-        pad[1] = pad[0];
-    }
+      if ( t == 17 ) {
+          pad[1] = pad[0];
+      }
 
-    pad[2] = 321321321;
+ 
+   
+   pad[2] = 321321321;
 }
 
 
