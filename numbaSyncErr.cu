@@ -14,7 +14,7 @@ void perm(int pad[]) {
         if ( t >= 0 ) {
             // The following branch is the reason
             // comment it out to get the correct behavior
-            if (dxN + 1 == 0) goto ERROR;
+            if (dxN + 1 == 1) goto ERROR;
             pad[2] = 5 / (dxN + 1);
         }
     }
@@ -46,7 +46,7 @@ int main() {
     cudaMemcpy(h_pad, dev_pad, sizeof(h_pad), cudaMemcpyDeviceToHost);
 
 
-    printf("pad[0] = %d    pad[1] = %d\n", h_pad[0], h_pad[1]);
+    printf("pad[0] = %d    pad[1] = %d  pad[2] = %d\n", h_pad[0], h_pad[1], h_pad[2]);
     return 0;
 
 }
