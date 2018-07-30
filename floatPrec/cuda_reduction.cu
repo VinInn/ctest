@@ -639,12 +639,12 @@ int main ( int argc , char ** argv )
     printf("\n*** Now with CUB ***\n");
     size_t temp_storage_bytes;
     double * temp_storage = NULL;
-    cub::DeviceReduce::Reduce(temp_storage, temp_storage_bytes, gpu_workbuf, gpu_reduction_tmp, nxyz, cub::Sum());
+    cub::DeviceReduce::Reduce(temp_storage, temp_storage_bytes, gpu_workbuf, gpu_reduction_tmp, nxyz, cub::Sum(),0);
     cudaMalloc(&temp_storage, temp_storage_bytes);
 
     cudaDeviceSynchronize();
     START_CUDA_TIMING(0);
-    cub::DeviceReduce::Reduce(temp_storage, temp_storage_bytes, gpu_workbuf, gpu_reduction_tmp, nxyz, cub::Sum());
+    cub::DeviceReduce::Reduce(temp_storage, temp_storage_bytes, gpu_workbuf, gpu_reduction_tmp, nxyz, cub::Sum(),0);
     STOP_CUDA_TIMING(0);
 
     threads = 512;
