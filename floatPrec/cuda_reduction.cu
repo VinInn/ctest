@@ -1,3 +1,5 @@
+// -I/data/vin/cmssw/slc7_amd64_gcc700/external/cub/1.8.0-gnimlf2/include/
+
 // kenneth.roche@pnl.gov ; k8r@uw.edu
 // richford@uw.edu
 
@@ -10,7 +12,9 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include "cub-1.4.1/cub/cub.cuh"
+#ifdef USECUB
+#include "cub/cub.cuh"
+#endif
 
 // profile cuda kernels
 #define CUDA_PROFILING /*enable profiling */
@@ -626,6 +630,8 @@ int main ( int argc , char ** argv )
     printf("THEORY:\t %.8f\n",0.5*nxyz*(workbuf[0]+workbuf[nxyz-1]));
     printf("GPU:   \t %.8f\n",gpu_redu);
 
+
+#ifdef USECUB
     printf("\n*** Now with CUB ***\n");
     size_t temp_storage_bytes;
     double * temp_storage = NULL;
@@ -651,6 +657,8 @@ int main ( int argc , char ** argv )
 
     printf("THEORY:\t %.8f\n",0.5*nxyz*(workbuf[0]+workbuf[nxyz-1]));
     printf("GPU:   \t %.8f\n",gpu_redu);
+#endif
+
 
 
     DESTROY_CUDA_PROFILER ;
