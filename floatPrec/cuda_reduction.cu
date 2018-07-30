@@ -88,8 +88,8 @@ __device__ double atomicAddDouble(double* address, double val)
 
 __device__ inline double __shfl_down_double(double var, unsigned int srcLane, int width=32) {
     int2 a = *reinterpret_cast<int2*>(&var);
-    a.x = __shfl_down(a.x, srcLane, width);
-    a.y = __shfl_down(a.y, srcLane, width);
+    a.x = __shfl_down_sync(a.x, srcLane, width);
+    a.y = __shfl_down_sync(a.y, srcLane, width);
     return *reinterpret_cast<double*>(&a);
 }
 
