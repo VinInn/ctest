@@ -1,4 +1,6 @@
 // -I/data/vin/cmssw/slc7_amd64_gcc700/external/cub/1.8.0-gnimlf2/include/
+// -I/cvmfs/cms.cern.ch/slc7_amd64_gcc630/external/cub/1.8.0-gnimlf2/include
+
 
 // kenneth.roche@pnl.gov ; k8r@uw.edu
 // richford@uw.edu
@@ -87,10 +89,13 @@ __device__ double atomicAddDouble(double* address, double val)
 }
 
 __device__ inline double __shfl_down_double(double var, unsigned int srcLane, int width=32) {
+    return __shfl_down_sync(0xffffffff,var, srcLane, width);
+/*
     int2 a = *reinterpret_cast<int2*>(&var);
-    a.x = __shfl_down_sync(a.x, srcLane, width);
-    a.y = __shfl_down_sync(a.y, srcLane, width);
+    a.x = __shfl_down(a.x, srcLane, width);
+    a.y = __shfl_down(a.y, srcLane, width);
     return *reinterpret_cast<double*>(&a);
+*/
 }
 
 /* Reduce values within a warp
