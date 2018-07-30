@@ -70,6 +70,7 @@
 
 __device__ double atomicAddDouble(double* address, double val)
 {
+#if __CUDA_ARCH__ < 600
     unsigned long long int* address_as_ull = 
 	    (unsigned long long int*)address;
     unsigned long long int old = *address_as_ull, assumed;
@@ -80,6 +81,9 @@ __device__ double atomicAddDouble(double* address, double val)
                         __longlong_as_double(assumed)));
     } while (assumed != old);
     return __longlong_as_double(old);
+#else
+ return atomicAdd(address,val);
+#endif
 }
 
 __device__ inline double __shfl_down_double(double var, unsigned int srcLane, int width=32) {
