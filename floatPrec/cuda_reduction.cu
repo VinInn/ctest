@@ -1,3 +1,7 @@
+// -I/data/vin/cmssw/slc7_amd64_gcc700/external/cub/1.8.0-gnimlf2/include/
+// -I/cvmfs/cms.cern.ch/slc7_amd64_gcc630/external/cub/1.8.0-gnimlf2/include
+
+
 // kenneth.roche@pnl.gov ; k8r@uw.edu
 // richford@uw.edu
 
@@ -10,7 +14,9 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include "cub-1.4.1/cub/cub.cuh"
+#ifdef USECUB
+#include "cub/cub.cuh"
+#endif
 
 // profile cuda kernels
 #define CUDA_PROFILING /*enable profiling */
@@ -66,6 +72,7 @@
 
 __device__ double atomicAddDouble(double* address, double val)
 {
+#if __CUDA_ARCH__ < 600
     unsigned long long int* address_as_ull = 
 	    (unsigned long long int*)address;
     unsigned long long int old = *address_as_ull, assumed;
@@ -76,13 +83,19 @@ __device__ double atomicAddDouble(double* address, double val)
                         __longlong_as_double(assumed)));
     } while (assumed != old);
     return __longlong_as_double(old);
+#else
+ return atomicAdd(address,val);
+#endif
 }
 
 __device__ inline double __shfl_down_double(double var, unsigned int srcLane, int width=32) {
+    return __shfl_down_sync(0xffffffff,var, srcLane, width);
+/*
     int2 a = *reinterpret_cast<int2*>(&var);
     a.x = __shfl_down(a.x, srcLane, width);
     a.y = __shfl_down(a.y, srcLane, width);
     return *reinterpret_cast<double*>(&a);
+*/
 }
 
 /* Reduce values within a warp
@@ -626,15 +639,17 @@ int main ( int argc , char ** argv )
     printf("THEORY:\t %.8f\n",0.5*nxyz*(workbuf[0]+workbuf[nxyz-1]));
     printf("GPU:   \t %.8f\n",gpu_redu);
 
+
+#ifdef USECUB
     printf("\n*** Now with CUB ***\n");
     size_t temp_storage_bytes;
     double * temp_storage = NULL;
-    cub::DeviceReduce::Reduce(temp_storage, temp_storage_bytes, gpu_workbuf, gpu_reduction_tmp, nxyz, cub::Sum());
+    cub::DeviceReduce::Reduce(temp_storage, temp_storage_bytes, gpu_workbuf, gpu_reduction_tmp, nxyz, cub::Sum(),0);
     cudaMalloc(&temp_storage, temp_storage_bytes);
 
     cudaDeviceSynchronize();
     START_CUDA_TIMING(0);
-    cub::DeviceReduce::Reduce(temp_storage, temp_storage_bytes, gpu_workbuf, gpu_reduction_tmp, nxyz, cub::Sum());
+    cub::DeviceReduce::Reduce(temp_storage, temp_storage_bytes, gpu_workbuf, gpu_reduction_tmp, nxyz, cub::Sum(),0);
     STOP_CUDA_TIMING(0);
 
     threads = 512;
@@ -651,6 +666,8 @@ int main ( int argc , char ** argv )
 
     printf("THEORY:\t %.8f\n",0.5*nxyz*(workbuf[0]+workbuf[nxyz-1]));
     printf("GPU:   \t %.8f\n",gpu_redu);
+#endif
+
 
 
     DESTROY_CUDA_PROFILER ;
