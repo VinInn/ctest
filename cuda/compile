@@ -1,0 +1,1 @@
+nvcc -O3 -Icuda-api-wrappers/src/ --expt-relaxed-constexpr $1

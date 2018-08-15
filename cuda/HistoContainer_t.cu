@@ -1,13 +1,12 @@
-#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+#include "HistoContainer.h"
 
-#include<algorithm>
-#include<cassert>
-#include<iostream>
-#include<random>
-#include<limits>
+#include <algorithm>
+#include <cassert>
+#include <iostream>
+#include <limits>
+#include <random>
 
-#include "cuda/api_wrappers.h"
-
+#include <cuda/api_wrappers.h>
 
 template<typename T>
 void go() {
@@ -36,7 +35,7 @@ void go() {
   uint32_t offsets[nParts+1];
 
   using Hist = HistoContainer<T,7,8>;
-  std::cout << "HistoContainer " << Hist::nbins << ' ' << Hist::binSize << std::endl;
+  std::cout << "HistoContainer " << Hist::nbins() << ' ' << Hist::binSize() << ' ' << (std::numeric_limits<T>::max()-std::numeric_limits<T>::min())/Hist::nbins() << std::endl;
   
   Hist h[nParts];
 
@@ -70,7 +69,7 @@ void go() {
 
     cuda::memory::copy(v_d.get(), v, N*sizeof(T));
 
-    fillManyFromVector(h_d.get(),nParts,v_d.get(),off_d.get(),offsets[10],256,0);
+    cudautils::fillManyFromVector(h_d.get(),nParts,v_d.get(),off_d.get(),offsets[10],256,0);
 
     cuda::memory::copy(&h, h_d.get(), nParts*sizeof(Hist));                                
 
@@ -80,27 +79,42 @@ void go() {
       if ( T(v[t1]-v[t2])<=0) std::cout << "for " << i <<':'<< v[k] <<" failed " << v[t1] << ' ' << v[t2] << std::endl;
     };
 
-    auto incr = [](auto & k) { return k = (k+1)%Hist::nbins;};
+    auto incr = [](auto & k) { return k = (k+1)%Hist::nbins();};
 
-
+    // make sure it spans 3 bins... 
+    auto window = T(1300);
     
     for (uint32_t j=0; j<nParts; ++j) {
-      std::cout << "nspills " << h[j].nspills << std::endl;
-      for (uint32_t i=0; i<Hist::nbins; ++i) {
-        if (0==h[j].n[i]) continue;
+      std::cout << j << ": nspills " << h[j].nspills << std::endl;
+      for (uint32_t i=0; i<Hist::nbins(); ++i) {
+        if (0==h[j].size(i)) continue;
         auto k= *h[j].begin(i);
+        if (j%2) k = *(h[j].begin(i)+(h[j].end(i)-h[j].begin(i))/2);
+        auto bk = h[j].bin(v[k]);
+        assert(bk==i);
         assert(k<offsets[j+1]);
-        auto kl = h[j].bin(v[k]-T(1000));
-        auto kh = h[j].bin(v[k]+T(1000));
+        auto kl = h[j].bin(v[k]-window);
+        auto kh = h[j].bin(v[k]+window);
         assert(kl!=i);  assert(kh!=i);
         // std::cout << kl << ' ' << kh << std::endl;
-        
-        bool l = true; incr(kh);
-        for (auto kk=kl; kk!=kh; incr(kk)) {
+
+        auto me = v[k];
+        auto tot = 0;
+        auto nm = 0;
+        bool l = true; auto khh = kh; incr(khh);
+        for (auto kk=kl; kk!=khh; incr(kk)) {
+          if (kk!=kl && kk!=kh) nm+=h[j].size(kk);
+          for(auto p=h[j].begin(kk); p<h[j].end(kk); ++p) {
+           if ( std::min(std::abs(T(v[*p]-me)), std::abs(T(me-v[*p]))) > window ) {} else {++tot;}
+          }
           if (kk==i) { l=false; continue; }
           if (l) for (auto p=h[j].begin(kk); p<h[j].end(kk); ++p) verify(i,k,k,(*p));
           else for (auto p=h[j].begin(kk); p<h[j].end(kk); ++p) verify(i,k,(*p),k);
         }
+        if (h[j].nspills==0 && !(tot>=nm)) {
+           std::cout << "too bad " << j << ' ' << i <<' ' << me << '/'<< T(me-window)<< '/'<< T(me+window) << ": " << kl << '/' << kh << ' '<< khh << ' '<< tot<<'/'<<nm << std::endl;
+        }
+        if (l) std::cout << "what? " << j << ' ' << i <<' ' << me << '/'<< T(me-window)<< '/'<< T(me+window) << ": " << kl << '/' << kh << ' '<< khh << ' '<< tot<<'/'<<nm << std::endl;
         assert(!l);
       }
     }
