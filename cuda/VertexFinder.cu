@@ -19,14 +19,16 @@ struct OnGPU {
   float * zv;
   uint32_t * nv;
   
-
+  int8_t  * izt;
+  uint16_t * nn;
+  uint32_t * iv;
 };
 
 
 // this algo does not really scale as it works in a single block...
 // enough for <10K tracks we have
 __global__ 
-void clusterTracks(int nt, float const * zt, int8_t  * izt, uint16_t * nn, uint32_t * iv, float * zv, uint32_t * nv, int minT, float eps)  {
+void clusterTracks(int nt, float const * zt, int8_t  * izt, uint16_t * nn, int32_t * iv, float * zv, uint32_t * nv, int minT, float eps)  {
 
   HistoContainer<int8_t,8,4,8,uint16_t> hist;
 
@@ -48,6 +50,7 @@ void clusterTracks(int nt, float const * zt, int8_t  * izt, uint16_t * nn, uint3
   }
   __syncthreads();
 
+  // count neighbours
   for (int i = threadIdx.x; i < nt; i += blockDim.x) {
 
      auto loop = [&](int j) {
@@ -75,10 +78,10 @@ void clusterTracks(int nt, float const * zt, int8_t  * izt, uint16_t * nn, uint3
   while (not __syncthreads_and(done)) {
     done = true;
     for (int i = threadIdx.x; i < nt; i += blockDim.x) {
-      if (nn[i]<minT) continue;
 
       auto loop = [&](int j) {
        if (i>=j) return;
+       if (nn[i]<minT && nn[j]<minT) return;  // DBSCAN rule
         auto dist = std::abs(zt[i]-zt[j]);
         if (dist<eps) return;
         auto old = atomicMin(&iv[j], iv[i]);
@@ -99,6 +102,37 @@ void clusterTracks(int nt, float const * zt, int8_t  * izt, uint16_t * nn, uint3
         loop(*pj);
     } // for i
   } // while
+
+
+    __shared__ int foundClusters;
+    foundClusters = 0;
+    __syncthreads();
+
+    // find the number of different clusters, identified by a pixels with clus[i] == i;
+    // mark these pixels with a negative id.
+    for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+        if (iv[i] == i) {
+          auto old = atomicAdd(&foundClusters, 1);
+          iv[i] = -(old + 1);
+        }
+    }
+    __syncthreads();
+
+    // propagate the negative id to all the pixels in the cluster.
+    for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+        if (iv[i] >= 0) {
+          // mark each pixel in a cluster with the same id as the first one
+          iv[i] = iv[iv[i]];
+        }
+    }
+    __syncthreads();
+
+    // adjust the cluster id to be a positive value starting from 0
+    for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+        iv[i] = - iv[i] - 1;
+    }
+    __syncthreads();
+
 
 }
 
