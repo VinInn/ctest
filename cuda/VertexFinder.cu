@@ -2,6 +2,8 @@
 #include<vector>
 #include<cstdint>
 
+#include "HistoContainer.h"
+
 
 struct Event {
   std::vector<float> zvert;
@@ -9,6 +11,96 @@ struct Event {
   std::vector<float> ztrack;
   std::vector<uint16_t> ivert;
 };
+
+
+struct OnGPU {
+
+  float * zt;
+  float * zv;
+  uint32_t * nv;
+  
+
+};
+
+
+// this algo does not really scale as it works in a single block...
+// enough for <10K tracks we have
+__global__ 
+void clusterTracks(int nt, float const * zt, int8_t  * izt, uint16_t * nn, uint32_t * iv, float * zv, uint32_t * nv, int minT, float eps)  {
+
+  HistoContainer<int8_t,8,4,8,uint16_t> hist;
+
+  // zero hist
+  hist.nspills = 0;
+  for (auto k = threadIdx.x; k<hist.nbins(); k+=blockDim.x) hist.n[k]=0;
+  __syncthreads();
+
+
+  // fill hist
+  for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+    int iz =  int(zt[i]*10.);
+    iz = std::max(iz,-127);
+    iz = std::min(iz,127);
+    izt[i]=iz;
+    hist.fill(izt,i);
+    iv[i]=i;
+    nn[i]=0;
+  }
+  __syncthreads();
+
+  for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+
+     auto loop = [&](int j) {
+        if (i==j) return;
+        auto dist = std::abs(zt[i]-zt[j]);
+        if (dist<eps) return;
+        nn[i]++;
+     };
+
+     auto bs = hist.bin(izt[i]);
+     auto be = std::min(hist.nbins(),bs+2);
+     bs = bs==0 ? 0 : bs-1;
+     for (auto b=bs; b<be; ++b){
+     for (auto pj=hist.begin(b);pj<hist.end(b);++pj) {
+            loop(*pj);
+     }}
+     for (auto pj=hist.beginSpill();pj<hist.endSpill();++pj)
+        loop(*pj);
+  }
+
+  __syncthreads();
+
+
+  bool done = false;
+  while (not __syncthreads_and(done)) {
+    done = true;
+    for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+      if (nn[i]<minT) continue;
+
+      auto loop = [&](int j) {
+       if (i>=j) return;
+        auto dist = std::abs(zt[i]-zt[j]);
+        if (dist<eps) return;
+        auto old = atomicMin(&iv[j], iv[i]);
+        if (old != iv[i]) {
+          // end the loop only if no changes were applied
+          done = false;
+        }
+        atomicMin(&iv[i], old);
+      }; 
+      auto bs = hist.bin(izt[i]);
+      auto be = std::min(hist.nbins(),bs+2);
+      bs = bs==0 ? 0 : bs-1;
+      for (auto b=bs; b<be; ++b){
+      for (auto pj=hist.begin(b);pj<hist.end(b);++pj) {
+       	    loop(*pj);
+      }}
+      for (auto pj=hist.beginSpill();pj<hist.endSpill();++pj)
+        loop(*pj);
+    } // for i
+  } // while
+
+}
 
 
 struct ClusterGenerator {
