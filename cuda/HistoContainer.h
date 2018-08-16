@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstdint>
 #include <algorithm>
+#include <type_traits>
 #ifndef __CUDA_ARCH__
 #include <atomic>
 #endif // __CUDA_ARCH__
@@ -83,6 +84,7 @@ public:
 #endif
 
   using index_type = I;
+  using UT = typename std::make_unsigned<T>::type;
   static constexpr uint32_t sizeT()     { return S; }
   static constexpr uint32_t nbins()     { return 1 << N; }
   static constexpr uint32_t shift()     { return sizeT() - N; }
@@ -90,7 +92,7 @@ public:
   static constexpr uint32_t binSize()   { return 1 << M; }
   static constexpr uint32_t spillSize() { return 16 * binSize(); }
 
-  static constexpr uint32_t bin(T t) {
+  static constexpr UT bin(T t) {
     return (t >> shift()) & mask();
   }
 
@@ -111,7 +113,13 @@ public:
 
   __host__ __device__
   void fill(T const * t, index_type j) {
-    auto b = bin(t[j]);
+     fill(t[j],j);
+  }
+
+  __host__ __device__
+  void fill(T t, index_type j) {
+    UT b = bin(t);
+    assert(b<nbins());
     auto w = atomicIncrement(n[b]);
     if (w < binSize()) {
       bins[b * binSize() + w] = j;
@@ -119,7 +127,7 @@ public:
       auto w = atomicIncrement(nspills);
       if (w < spillSize())
         spillBin[w] = j;
-    }     
+    }
   }
 
   constexpr bool fullSpill() const {
@@ -150,10 +158,10 @@ public:
      return beginSpill() + std::min(spillSize(), uint32_t(nspills));
   }
 
-  index_type bins[nbins()*binSize()];
   Counter  n[nbins()];
-  index_type spillBin[spillSize()];
   Counter  nspills;
+  index_type bins[nbins()*binSize()];
+  index_type spillBin[spillSize()];
 };
 
 #endif // HeterogeneousCore_CUDAUtilities_HistoContainer_h

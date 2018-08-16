@@ -4,6 +4,8 @@
 
 #include "HistoContainer.h"
 
+#include <cuda/api_wrappers.h>
+
 
 struct Event {
   std::vector<float> zvert;
@@ -21,34 +23,60 @@ struct OnGPU {
   
   int8_t  * izt;
   uint16_t * nn;
-  uint32_t * iv;
+  int32_t * iv;
+
 };
+
+
 
 
 // this algo does not really scale as it works in a single block...
 // enough for <10K tracks we have
 __global__ 
-void clusterTracks(int nt, float const * zt, int8_t  * izt, uint16_t * nn, int32_t * iv, float * zv, uint32_t * nv, int minT, float eps)  {
+void clusterTracks(int nt,
+                   OnGPU * pdata,
+                   int minT, float eps)  {
 
-  HistoContainer<int8_t,8,4,8,uint16_t> hist;
+  auto & data = *pdata;
+  float const * zt = data.zt;
+  float * zv = data.zv;
+  uint32_t & nv = *data.nv;
+
+  int8_t  * izt = data.izt;
+  uint16_t * nn = data.nn;
+  int32_t * iv = data.iv;
+
+  assert(pdata);
+  assert(zt);
+
+  __shared__ HistoContainer<int8_t,8,5,8,uint16_t> hist;
+
+  if(0==threadIdx.x) printf("params %d %f\n",minT,eps);    
+  if(0==threadIdx.x) printf("booked hist with %d bins, size %d for %d tracks\n",hist.nbins(),hist.binSize(),nt);
 
   // zero hist
   hist.nspills = 0;
   for (auto k = threadIdx.x; k<hist.nbins(); k+=blockDim.x) hist.n[k]=0;
   __syncthreads();
 
+  if(0==threadIdx.x) printf("histo zeroed\n");
+
 
   // fill hist
   for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+    assert(i<64000);
     int iz =  int(zt[i]*10.);
     iz = std::max(iz,-127);
     iz = std::min(iz,127);
     izt[i]=iz;
-    hist.fill(izt,i);
+    hist.fill(int8_t(iz),uint16_t(i));
     iv[i]=i;
     nn[i]=0;
   }
   __syncthreads();
+
+  if(0==threadIdx.x) printf("histo filled %d\n",hist.nspills);
+  if(0==threadIdx.x && hist.fullSpill()) printf("histo overflow\n");
 
   // count neighbours
   for (int i = threadIdx.x; i < nt; i += blockDim.x) {
@@ -56,13 +84,14 @@ void clusterTracks(int nt, float const * zt, int8_t  * izt, uint16_t * nn, int32
      auto loop = [&](int j) {
         if (i==j) return;
         auto dist = std::abs(zt[i]-zt[j]);
-        if (dist<eps) return;
+        if (dist>eps) return;
         nn[i]++;
      };
 
-     auto bs = hist.bin(izt[i]);
-     auto be = std::min(hist.nbins(),bs+2);
+     int bs = hist.bin(izt[i]);
+     int be = std::min(int(hist.nbins()),bs+2);
      bs = bs==0 ? 0 : bs-1;
+     assert(be>bs);
      for (auto b=bs; b<be; ++b){
      for (auto pj=hist.begin(b);pj<hist.end(b);++pj) {
             loop(*pj);
@@ -73,6 +102,8 @@ void clusterTracks(int nt, float const * zt, int8_t  * izt, uint16_t * nn, int32
 
   __syncthreads();
 
+  if(0==threadIdx.x) printf("nn counted\n");
+
 
   bool done = false;
   while (not __syncthreads_and(done)) {
@@ -80,19 +111,20 @@ void clusterTracks(int nt, float const * zt, int8_t  * izt, uint16_t * nn, int32
     for (int i = threadIdx.x; i < nt; i += blockDim.x) {
 
       auto loop = [&](int j) {
-       if (i>=j) return;
-       if (nn[i]<minT && nn[j]<minT) return;  // DBSCAN rule
+        if (i>=j) return;
+        if (nn[i]<minT && nn[j]<minT) return;  // DBSCAN rule
         auto dist = std::abs(zt[i]-zt[j]);
-        if (dist<eps) return;
+        if (dist>eps) return;
         auto old = atomicMin(&iv[j], iv[i]);
         if (old != iv[i]) {
           // end the loop only if no changes were applied
           done = false;
         }
         atomicMin(&iv[i], old);
-      }; 
-      auto bs = hist.bin(izt[i]);
-      auto be = std::min(hist.nbins(),bs+2);
+      };
+
+      int bs = hist.bin(izt[i]);
+      int be = std::min(int(hist.nbins()),bs+2);
       bs = bs==0 ? 0 : bs-1;
       for (auto b=bs; b<be; ++b){
       for (auto pj=hist.begin(b);pj<hist.end(b);++pj) {
@@ -133,7 +165,9 @@ void clusterTracks(int nt, float const * zt, int8_t  * izt, uint16_t * nn, int32
     }
     __syncthreads();
 
+   if(0==threadIdx.x) printf("found %d clusters\n",foundClusters);
 
+   nv = foundClusters;
 }
 
 
@@ -149,7 +183,7 @@ struct ClusterGenerator {
     ev.zvert.resize(nclus);
     ev.itrack.resize(nclus);
     for (auto & z : ev.zvert) { 
-       z = 13.0f*gauss(reng);
+       z = 3.5f*gauss(reng);
     }
 
     ev.ztrack.clear(); 
@@ -185,6 +219,35 @@ struct ClusterGenerator {
 
 int main() {
 
+  if (cuda::device::count() == 0) {
+    std::cerr << "No CUDA devices on this system" << "\n";
+    exit(EXIT_FAILURE);
+  }
+
+  auto current_device = cuda::device::current::get();
+
+  auto zt_d = cuda::memory::device::make_unique<float[]>(current_device, 64000);
+  auto zv_d = cuda::memory::device::make_unique<float[]>(current_device, 256);
+
+  auto izt_d = cuda::memory::device::make_unique<int8_t[]>(current_device, 64000);
+  auto nn_d = cuda::memory::device::make_unique<uint16_t[]>(current_device, 64000);
+  auto iv_d = cuda::memory::device::make_unique<int32_t[]>(current_device, 64000);
+
+  auto nv_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, 1);
+ 
+  auto onGPU_d = cuda::memory::device::make_unique<OnGPU[]>(current_device, 1);
+
+  OnGPU onGPU;
+
+  onGPU.zt = zt_d.get();
+  onGPU.zv = zv_d.get();
+  onGPU.nv = nv_d.get();
+  onGPU.izt = izt_d.get();
+  onGPU.nn = nn_d.get();
+  onGPU.iv = iv_d.get();
+
+
+  cuda::memory::copy(onGPU_d.get(), &onGPU, sizeof(OnGPU));
 
   Event  ev;
 
@@ -194,4 +257,14 @@ int main() {
   
   std::cout << ev.zvert.size() << ' ' << ev.ztrack.size() << std::endl;
 
+  cuda::memory::copy(onGPU.zt,ev.ztrack.data(),sizeof(float)*ev.ztrack.size());
+
+  cuda::launch(clusterTracks,
+                { 1, 512 },
+                ev.ztrack.size(), onGPU_d.get(),4,0.07f
+           );
+
+
+  uint32_t nv;
+  cuda::memory::copy(&nv, onGPU.nv, sizeof(uint32_t));
 }
