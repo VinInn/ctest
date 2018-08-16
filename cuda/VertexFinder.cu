@@ -11,6 +11,7 @@ struct Event {
   std::vector<float> zvert;
   std::vector<uint16_t>  itrack;
   std::vector<float> ztrack;
+  std::vector<float> eztrack;
   std::vector<uint16_t> ivert;
 };
 
@@ -18,6 +19,7 @@ struct Event {
 struct OnGPU {
 
   float * zt;
+  float * ezt2;
   float * zv;
   float * wv;
   uint32_t * nv;
@@ -41,6 +43,7 @@ void clusterTracks(int nt,
 
   auto & data = *pdata;
   float const * zt = data.zt;
+  float const * ezt2 = data.ezt2;
   float * zv = data.zv;
   float * wv = data.wv;
   uint32_t & nv = *data.nv;
@@ -88,6 +91,7 @@ void clusterTracks(int nt,
         if (i==j) return;
         auto dist = std::abs(zt[i]-zt[j]);
         if (dist>eps) return;
+        if (dist*dist>3.5*(ezt2[i]+ezt2[j])) return;
         nn[i]++;
      };
 
@@ -119,12 +123,13 @@ void clusterTracks(int nt,
         // look on the left
         auto dist = zt[j]-zt[i];
         if (dist<0 || dist>eps) return;
+        if (dist*dist>3.5*(ezt2[i]+ezt2[j])) return;
         auto old = atomicMin(&iv[j], iv[i]);
         if (old != iv[i]) {
           // end the loop only if no changes were applied
           more = true;
-          atomicMin(&iv[i], old);
         }
+        atomicMin(&iv[i], old);
       };
 
       int bs = hist.bin(izt[i]);
@@ -148,6 +153,7 @@ void clusterTracks(int nt,
       if (nn[j]<minT) return;  // DBSCAN core rule
       auto dist = std::abs(zt[i]-zt[j]);
       if (dist>mdist) return;
+      if (dist*dist>3.5*(ezt2[i]+ezt2[j])) return; // ????
       mdist=dist;
       iv[i] = iv[j]; // assign to cluster (better be unique??)
     };
@@ -207,8 +213,9 @@ void clusterTracks(int nt,
       if (iv[i]>9990) { atomicAdd(&noise, 1); continue;}
       assert(iv[i]>=0);
       assert(iv[i]<foundClusters);
-      atomicAdd(&zv[iv[i]],zt[i]);
-      atomicAdd(&wv[iv[i]],1.f); 
+      auto w = 1.f/ezt2[i];
+      atomicAdd(&zv[iv[i]],zt[i]*w);
+      atomicAdd(&wv[iv[i]],w); 
     }
 
     __syncthreads();
@@ -225,7 +232,7 @@ void clusterTracks(int nt,
 struct ClusterGenerator {
 
   explicit ClusterGenerator(float nvert, float ntrack) :
-    rgen(-13.,13), clusGen(nvert), trackGen(ntrack), gauss(0.,1.)
+    rgen(-13.,13), errgen(0.007,0.04), clusGen(nvert), trackGen(ntrack), gauss(0.,1.)
   {}
 
   void operator()(Event & ev) {
@@ -238,19 +245,24 @@ struct ClusterGenerator {
     }
 
     ev.ztrack.clear(); 
+    ev.eztrack.clear();
     ev.ivert.clear();
     for (int iv=0; iv<nclus; ++iv) {
       auto nt = trackGen(reng);
       ev.itrack[nclus] = nt;
       for (int it=0; it<nt; ++it) {
-       ev.ztrack.push_back(ev.zvert[iv]+0.02f*gauss(reng));  // reality is not gaussian....
+       auto err = errgen(reng); // reality is not flat....
+       ev.ztrack.push_back(ev.zvert[iv]+err*gauss(reng));
+       ev.eztrack.push_back(err*err);
        ev.ivert.push_back(iv);
       }
     }
     // add noise
     auto nt = 2*trackGen(reng);
     for (int it=0; it<nt; ++it) {
+      auto err = 0.05f;
       ev.ztrack.push_back(rgen(reng));
+      ev.eztrack.push_back(err*err);
       ev.ivert.push_back(9999);
     }
 
@@ -258,6 +270,7 @@ struct ClusterGenerator {
 
   std::mt19937 reng;
   std::uniform_real_distribution<float> rgen;
+  std::uniform_real_distribution<float> errgen;
   std::poisson_distribution<int> clusGen;
   std::poisson_distribution<int> trackGen;
   std::normal_distribution<float> gauss;
@@ -278,6 +291,7 @@ int main() {
   auto current_device = cuda::device::current::get();
 
   auto zt_d = cuda::memory::device::make_unique<float[]>(current_device, 64000);
+  auto ezt2_d = cuda::memory::device::make_unique<float[]>(current_device, 64000);
   auto zv_d = cuda::memory::device::make_unique<float[]>(current_device, 256);
   auto wv_d = cuda::memory::device::make_unique<float[]>(current_device, 256);
 
@@ -292,6 +306,7 @@ int main() {
   OnGPU onGPU;
 
   onGPU.zt = zt_d.get();
+  onGPU.ezt2 = ezt2_d.get();
   onGPU.zv = zv_d.get();
   onGPU.wv = wv_d.get();
   onGPU.nv = nv_d.get();
@@ -314,10 +329,12 @@ int main() {
   std::cout << ev.zvert.size() << ' ' << ev.ztrack.size() << std::endl;
 
   cuda::memory::copy(onGPU.zt,ev.ztrack.data(),sizeof(float)*ev.ztrack.size());
+  cuda::memory::copy(onGPU.ezt2,ev.eztrack.data(),sizeof(float)*ev.eztrack.size());
+
 
   cuda::launch(clusterTracks,
                 { 1, 1024 },
-                ev.ztrack.size(), onGPU_d.get(),4,0.06f
+                ev.ztrack.size(), onGPU_d.get(),4,0.1f
            );
 
 
