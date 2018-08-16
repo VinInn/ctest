@@ -38,14 +38,14 @@ namespace cudautils {
      int32_t ih = off - offsets - 1;
      assert(ih >= 0);
      assert(ih < nh); 
-     h[ih].fill(v, i);
+     h[ih].fill(v[i], i);
   }
 
   template<typename Histo, typename T>
   __global__
   void fillFromVector(Histo * h, T const * v, uint32_t size) {
      auto i = blockIdx.x * blockDim.x + threadIdx.x;
-     if(i < size) h->fill(v, i);
+     if(i < size) h->fill(v[i], i);
   }
 
   template<typename Histo>
@@ -109,11 +109,6 @@ public:
     #else
     return x++;
     #endif
-  }
-
-  __host__ __device__
-  void fill(T const * t, index_type j) {
-     fill(t[j],j);
   }
 
   __host__ __device__
