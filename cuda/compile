@@ -1,1 +1,1 @@
-nvcc -G -O3 -Icuda-api-wrappers/src/ --expt-relaxed-constexpr -gencode arch=compute_61,code=sm_61 $1
+nvcc -O3 -Icuda-api-wrappers/src/ --expt-relaxed-constexpr -gencode arch=compute_61,code=sm_61 $1

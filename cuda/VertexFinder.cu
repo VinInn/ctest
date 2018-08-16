@@ -19,11 +19,13 @@ struct OnGPU {
 
   float * zt;
   float * zv;
+  float * wv;
   uint32_t * nv;
-  
+  int32_t * iv;
+
+  // workspace  
   int8_t  * izt;
   uint16_t * nn;
-  int32_t * iv;
 
 };
 
@@ -40,6 +42,7 @@ void clusterTracks(int nt,
   auto & data = *pdata;
   float const * zt = data.zt;
   float * zv = data.zv;
+  float * wv = data.wv;
   uint32_t & nv = *data.nv;
 
   int8_t  * izt = data.izt;
@@ -51,15 +54,15 @@ void clusterTracks(int nt,
 
   __shared__ HistoContainer<int8_t,8,5,8,uint16_t> hist;
 
-  if(0==threadIdx.x) printf("params %d %f\n",minT,eps);    
-  if(0==threadIdx.x) printf("booked hist with %d bins, size %d for %d tracks\n",hist.nbins(),hist.binSize(),nt);
+//  if(0==threadIdx.x) printf("params %d %f\n",minT,eps);    
+//  if(0==threadIdx.x) printf("booked hist with %d bins, size %d for %d tracks\n",hist.nbins(),hist.binSize(),nt);
 
   // zero hist
   hist.nspills = 0;
   for (auto k = threadIdx.x; k<hist.nbins(); k+=blockDim.x) hist.n[k]=0;
   __syncthreads();
 
-  if(0==threadIdx.x) printf("histo zeroed\n");
+//  if(0==threadIdx.x) printf("histo zeroed\n");
 
 
   // fill hist
@@ -75,7 +78,7 @@ void clusterTracks(int nt,
   }
   __syncthreads();
 
-  if(0==threadIdx.x) printf("histo filled %d\n",hist.nspills);
+//   if(0==threadIdx.x) printf("histo filled %d\n",hist.nspills);
   if(0==threadIdx.x && hist.fullSpill()) printf("histo overflow\n");
 
   // count neighbours
@@ -102,30 +105,30 @@ void clusterTracks(int nt,
 
   __syncthreads();
 
-  if(0==threadIdx.x) printf("nn counted\n");
+//  if(0==threadIdx.x) printf("nn counted\n");
 
-
-  bool done = false;
-  while (not __syncthreads_and(done)) {
-    done = true;
+  // cluster seeds only
+  bool more = true;
+  while (__syncthreads_or(more)) {
+    more=false;
     for (int i = threadIdx.x; i < nt; i += blockDim.x) {
-
+      if (nn[i]<minT) continue; // DBSCAN core rule
       auto loop = [&](int j) {
-        if (i>=j) return;
-        if (nn[i]<minT && nn[j]<minT) return;  // DBSCAN rule
-        auto dist = std::abs(zt[i]-zt[j]);
-        if (dist>eps) return;
+//        if (i>=j) return;
+        if (nn[j]<minT) return;  // DBSCAN core rule
+        // look on the left
+        auto dist = zt[j]-zt[i];
+        if (dist<0 || dist>eps) return;
         auto old = atomicMin(&iv[j], iv[i]);
         if (old != iv[i]) {
           // end the loop only if no changes were applied
-          done = false;
+          more = true;
+          atomicMin(&iv[i], old);
         }
-        atomicMin(&iv[i], old);
       };
 
       int bs = hist.bin(izt[i]);
       int be = std::min(int(hist.nbins()),bs+2);
-      bs = bs==0 ? 0 : bs-1;
       for (auto b=bs; b<be; ++b){
       for (auto pj=hist.begin(b);pj<hist.end(b);++pj) {
        	    loop(*pj);
@@ -136,6 +139,30 @@ void clusterTracks(int nt,
   } // while
 
 
+
+  // collect edges (assign to cluster of closest point???)
+  for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+    if (nn[i]==0 || nn[i]>=minT) continue;    // DBSCAN edge rule
+    float mdist=eps;
+    auto loop = [&](int j) {
+      if (nn[j]<minT) return;  // DBSCAN core rule
+      auto dist = std::abs(zt[i]-zt[j]);
+      if (dist>mdist) return;
+      mdist=dist;
+      iv[i] = iv[j]; // assign to cluster (better be unique??)
+    };
+      int bs = hist.bin(izt[i]);
+      int be = std::min(int(hist.nbins()),bs+2);
+      bs = bs==0 ? 0 : bs-1;
+      for (auto b=bs; b<be; ++b){
+      for (auto pj=hist.begin(b);pj<hist.end(b);++pj) {
+            loop(*pj);
+      }}
+      for (auto pj=hist.beginSpill();pj<hist.endSpill();++pj)
+        loop(*pj);
+   }
+   
+
     __shared__ int foundClusters;
     foundClusters = 0;
     __syncthreads();
@@ -144,9 +171,15 @@ void clusterTracks(int nt,
     // mark these pixels with a negative id.
     for (int i = threadIdx.x; i < nt; i += blockDim.x) {
         if (iv[i] == i) {
-          auto old = atomicAdd(&foundClusters, 1);
-          iv[i] = -(old + 1);
-        }
+          if  (nn[i]>=minT) {
+            auto old = atomicAdd(&foundClusters, 1);
+            iv[i] = -(old + 1);
+            zv[old]=0;
+            wv[old]=0;
+          } else { // noise
+           iv[i] = -9998;
+          }
+       }
     }
     __syncthreads();
 
@@ -163,9 +196,27 @@ void clusterTracks(int nt,
     for (int i = threadIdx.x; i < nt; i += blockDim.x) {
         iv[i] = - iv[i] - 1;
     }
+
+    __shared__ int noise;
+    noise = 0;
+
     __syncthreads();
 
-   if(0==threadIdx.x) printf("found %d clusters\n",foundClusters);
+    // compute cluster location
+    for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+      if (iv[i]>9990) { atomicAdd(&noise, 1); continue;}
+      assert(iv[i]>=0);
+      assert(iv[i]<foundClusters);
+      atomicAdd(&zv[iv[i]],zt[i]);
+      atomicAdd(&wv[iv[i]],1.f); 
+    }
+
+    __syncthreads();
+
+   if(0==threadIdx.x) printf("found %d proto clusters ",foundClusters);
+   if(0==threadIdx.x) printf("and %d noise\n",noise);
+
+   for (int i = threadIdx.x; i < foundClusters; i += blockDim.x) zv[i]/=wv[i];
 
    nv = foundClusters;
 }
@@ -228,6 +279,7 @@ int main() {
 
   auto zt_d = cuda::memory::device::make_unique<float[]>(current_device, 64000);
   auto zv_d = cuda::memory::device::make_unique<float[]>(current_device, 256);
+  auto wv_d = cuda::memory::device::make_unique<float[]>(current_device, 256);
 
   auto izt_d = cuda::memory::device::make_unique<int8_t[]>(current_device, 64000);
   auto nn_d = cuda::memory::device::make_unique<uint16_t[]>(current_device, 64000);
@@ -241,6 +293,7 @@ int main() {
 
   onGPU.zt = zt_d.get();
   onGPU.zv = zv_d.get();
+  onGPU.wv = wv_d.get();
   onGPU.nv = nv_d.get();
   onGPU.izt = izt_d.get();
   onGPU.nn = nn_d.get();
@@ -249,9 +302,12 @@ int main() {
 
   cuda::memory::copy(onGPU_d.get(), &onGPU, sizeof(OnGPU));
 
+
   Event  ev;
 
   ClusterGenerator gen(50,10);
+
+  for (int i=0; i<10; ++i) {
 
   gen(ev);
   
@@ -260,11 +316,22 @@ int main() {
   cuda::memory::copy(onGPU.zt,ev.ztrack.data(),sizeof(float)*ev.ztrack.size());
 
   cuda::launch(clusterTracks,
-                { 1, 512 },
-                ev.ztrack.size(), onGPU_d.get(),4,0.07f
+                { 1, 1024 },
+                ev.ztrack.size(), onGPU_d.get(),4,0.06f
            );
 
 
   uint32_t nv;
   cuda::memory::copy(&nv, onGPU.nv, sizeof(uint32_t));
+  float zv[nv];
+  float	wv[nv];
+  cuda::memory::copy(&zv, onGPU.zv, nv*sizeof(float));
+  cuda::memory::copy(&wv, onGPU.wv, nv*sizeof(float));
+
+  float tw=0;
+  for (auto w : wv) tw+=w;
+  std::cout<< "total weight " << tw << std::endl;
+
+  }
+
 }
