@@ -118,7 +118,7 @@ void clusterTracks(int nt,
     for (int i = threadIdx.x; i < nt; i += blockDim.x) {
       if (nn[i]<minT) continue; // DBSCAN core rule
       auto loop = [&](int j) {
-//        if (i>=j) return;
+        if (i==j) return;
         if (nn[j]<minT) return;  // DBSCAN core rule
         // look on the left
         auto dist = zt[j]-zt[i];
@@ -145,7 +145,7 @@ void clusterTracks(int nt,
 
 
 
-  // collect edges (assign to cluster of closest point???)
+  // collect edges (assign to closest cluster of closest point??? here to closest point)
   for (int i = threadIdx.x; i < nt; i += blockDim.x) {
     if (nn[i]==0 || nn[i]>=minT) continue;    // DBSCAN edge rule
     float mdist=eps;
@@ -153,7 +153,7 @@ void clusterTracks(int nt,
       if (nn[j]<minT) return;  // DBSCAN core rule
       auto dist = std::abs(zt[i]-zt[j]);
       if (dist>mdist) return;
-      if (dist*dist>12.f*(ezt2[i]+ezt2[j])) return; // ????
+      if (dist*dist>12.f*(ezt2[i]+ezt2[j])) return; // needed?
       mdist=dist;
       iv[i] = iv[j]; // assign to cluster (better be unique??)
     };
