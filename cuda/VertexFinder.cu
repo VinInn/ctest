@@ -91,7 +91,7 @@ void clusterTracks(int nt,
         if (i==j) return;
         auto dist = std::abs(zt[i]-zt[j]);
         if (dist>eps) return;
-        if (dist*dist>3.5*(ezt2[i]+ezt2[j])) return;
+        if (dist*dist>12.f*(ezt2[i]+ezt2[j])) return;
         nn[i]++;
      };
 
@@ -123,7 +123,7 @@ void clusterTracks(int nt,
         // look on the left
         auto dist = zt[j]-zt[i];
         if (dist<0 || dist>eps) return;
-        if (dist*dist>3.5*(ezt2[i]+ezt2[j])) return;
+        if (dist*dist>12.f*(ezt2[i]+ezt2[j])) return;
         auto old = atomicMin(&iv[j], iv[i]);
         if (old != iv[i]) {
           // end the loop only if no changes were applied
@@ -153,7 +153,7 @@ void clusterTracks(int nt,
       if (nn[j]<minT) return;  // DBSCAN core rule
       auto dist = std::abs(zt[i]-zt[j]);
       if (dist>mdist) return;
-      if (dist*dist>3.5*(ezt2[i]+ezt2[j])) return; // ????
+      if (dist*dist>12.f*(ezt2[i]+ezt2[j])) return; // ????
       mdist=dist;
       iv[i] = iv[j]; // assign to cluster (better be unique??)
     };
@@ -334,7 +334,7 @@ int main() {
 
   cuda::launch(clusterTracks,
                 { 1, 1024 },
-                ev.ztrack.size(), onGPU_d.get(),4,0.1f
+                ev.ztrack.size(), onGPU_d.get(),3,0.1f
            );
 
 
