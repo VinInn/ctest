@@ -348,7 +348,26 @@ int main() {
   float tw=0;
   for (auto w : wv) tw+=w;
   std::cout<< "total weight " << tw << std::endl;
+  
+  
 
+  float dd[nv];
+  uint32_t ii=0;
+  for (auto zr : zv) {
+   auto md=500.0f;
+   for (auto zs : ev.ztrack) { 
+     auto d = std::abs(zr-zs);
+     md = std::min(d,md);
+   }
+   dd[ii++] = md;
   }
+  assert(ii==nv);
+  for (auto d:dd) std::cout << d << ' ';
+  std::cout << std::endl;
 
+
+  } // loop on events
+
+  
+  return 0;
 }
