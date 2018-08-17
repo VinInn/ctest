@@ -42,6 +42,9 @@ void clusterTracks(int nt,
                    OnGPU * pdata,
                    int minT, float eps)  {
 
+  float errmax = 0.1;  // max error to be "seed"
+  auto er2mx = errmax*errmax;
+
   auto & data = *pdata;
   float const * zt = data.zt;
   float const * ezt2 = data.ezt2;
@@ -87,7 +90,7 @@ void clusterTracks(int nt,
 
   // count neighbours
   for (int i = threadIdx.x; i < nt; i += blockDim.x) {
-
+     if (ezt2[i]>er2mx) continue;
      auto loop = [&](int j) {
         if (i==j) return;
         auto dist = std::abs(zt[i]-zt[j]);
@@ -148,7 +151,8 @@ void clusterTracks(int nt,
 
   // collect edges (assign to closest cluster of closest point??? here to closest point)
   for (int i = threadIdx.x; i < nt; i += blockDim.x) {
-    if (nn[i]==0 || nn[i]>=minT) continue;    // DBSCAN edge rule
+//    if (nn[i]==0 || nn[i]>=minT) continue;    // DBSCAN edge rule
+    if (nn[i]>=minT) continue;    // DBSCAN edge rule
     float mdist=eps;
     auto loop = [&](int j) {
       if (nn[j]<minT) return;  // DBSCAN core rule
