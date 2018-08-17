@@ -42,7 +42,7 @@ void clusterTracks(int nt,
                    OnGPU * pdata,
                    int minT, float eps)  {
 
-  float errmax = 0.025;  // max error to be "seed"
+  float errmax = 0.02;  // max error to be "seed"
   auto er2mx = errmax*errmax;
 
   auto & data = *pdata;
@@ -237,7 +237,7 @@ void clusterTracks(int nt,
 struct ClusterGenerator {
 
   explicit ClusterGenerator(float nvert, float ntrack) :
-    rgen(-13.,13), errgen(0.007,0.04), clusGen(nvert), trackGen(ntrack), gauss(0.,1.)
+    rgen(-13.,13), errgen(0.005,0.025), clusGen(nvert), trackGen(ntrack), gauss(0.,1.)
   {}
 
   void operator()(Event & ev) {
@@ -265,7 +265,7 @@ struct ClusterGenerator {
     // add noise
     auto nt = 2*trackGen(reng);
     for (int it=0; it<nt; ++it) {
-      auto err = 0.05f;
+      auto err = 0.03f;
       ev.ztrack.push_back(rgen(reng));
       ev.eztrack.push_back(err*err);
       ev.ivert.push_back(9999);
