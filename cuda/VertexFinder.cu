@@ -42,7 +42,7 @@ void clusterTracks(int nt,
                    OnGPU * pdata,
                    int minT, float eps)  {
 
-  float errmax = 0.1;  // max error to be "seed"
+  float errmax = 0.025;  // max error to be "seed"
   auto er2mx = errmax*errmax;
 
   auto & data = *pdata;

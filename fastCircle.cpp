@@ -4,7 +4,7 @@
 
 
 /**
-1) circle is parameterized as:                                              |
+| 1) circle is parameterized as:                                              |
 |    C*[(X-Xp)**2+(Y-Yp)**2] - 2*alpha*(X-Xp) - 2*beta*(Y-Yp) = 0             |
 |    Xp,Yp is a point on the track (Yp is at the center of the chamber);      |
 |    C = 1/r0 is the curvature  ( sign of C is charge of particle );          |
@@ -74,12 +74,12 @@ void FastCircle<T>::compute(T x1, T y1,
     // and why we flip????
   }
   auto ct  = num/det;
-  auto sn  = det>0 ? 1 : -1;  
+  auto sn  = det>0 ? T(1.) : T(-1.);  
   auto st2 = (d12*x3p-d32*x1p)/det;
-  auto seq = 1. +st2*st2;
+  auto seq = T(1.) +st2*st2;
   auto al2 = sn/sqrt(seq);
   auto be2 = -st2*al2;
-  ct *= 2.*al2;
+  ct *= T(2.)*al2;
   
   if (flip) {
     std::swap(x1p,y1p);
