@@ -77,7 +77,7 @@ void FastCircle<T>::compute(T x1, T y1,
   auto sn  = det>0 ? T(1.) : T(-1.);  
   auto st2 = (d12*x3p-d32*x1p)/det;
   auto seq = T(1.) +st2*st2;
-  auto al2 = sn/sqrt(seq);
+  auto al2 = sn/std::sqrt(seq);
   auto be2 = -st2*al2;
   ct *= T(2.)*al2;
   
