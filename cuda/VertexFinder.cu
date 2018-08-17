@@ -325,7 +325,9 @@ int main() {
 
   Event  ev;
 
-  ClusterGenerator gen(50,10);
+  for (int nav=30;nav<80;nav+=20){ 
+
+  ClusterGenerator gen(nav,10);
 
   for (int i=4; i<20; ++i) {
 
@@ -382,7 +384,7 @@ int main() {
   std::cout << "min max rms " << *mx.first << ' ' << *mx.second << ' ' << rms << std::endl;
 
   } // loop on events
-
+  } // lopp on ave vert
   
   return 0;
 }
