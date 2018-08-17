@@ -1,6 +1,7 @@
 #include<random>
 #include<vector>
 #include<cstdint>
+#include<cmath>
 
 #include "HistoContainer.h"
 
@@ -322,7 +323,9 @@ int main() {
 
   ClusterGenerator gen(50,10);
 
-  for (int i=0; i<10; ++i) {
+  for (int i=4; i<20; ++i) {
+
+  auto  kk=i/2;  // M param
 
   gen(ev);
   
@@ -331,10 +334,13 @@ int main() {
   cuda::memory::copy(onGPU.zt,ev.ztrack.data(),sizeof(float)*ev.ztrack.size());
   cuda::memory::copy(onGPU.ezt2,ev.eztrack.data(),sizeof(float)*ev.eztrack.size());
 
+  float eps = 0.1f;
+
+  std::cout << "M eps " << kk << ' ' << eps << std::endl;
 
   cuda::launch(clusterTracks,
                 { 1, 1024 },
-                ev.ztrack.size(), onGPU_d.get(),3,0.1f
+                ev.ztrack.size(), onGPU_d.get(),kk,eps
            );
 
 
@@ -362,9 +368,14 @@ int main() {
    dd[ii++] = md;
   }
   assert(ii==nv);
-  for (auto d:dd) std::cout << d << ' ';
-  std::cout << std::endl;
-
+  if (i==6) {
+    for (auto d:dd) std::cout << d << ' ';
+    std::cout << std::endl;
+  }
+  auto mx = std::minmax_element(dd,dd+nv);
+  float rms=0;
+  for (auto d:dd) rms+=d*d; rms = std::sqrt(rms)/(nv-1);
+  std::cout << "min max rms " << *mx.first << ' ' << *mx.second << ' ' << rms << std::endl;
 
   } // loop on events
 
