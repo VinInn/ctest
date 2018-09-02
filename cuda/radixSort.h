@@ -72,21 +72,26 @@ void radixSort(T * a, uint16_t * ind, uint32_t size) {
 
      ibs =size-1;
      __syncthreads();
+     int32_t bin;
      while (ibs>0) {
        int i = ibs - threadIdx.x;
        cu[threadIdx.x]=-1;
        ct[threadIdx.x]=-1;
        __syncthreads();
-       if (i<0) continue;
-       auto bin = (a[j[i]] >> d*p)&(sb-1);
-       ct[threadIdx.x]=bin;
-       atomicMax(&cu[bin],int(i));
+       if (i>=0) {
+         bin = (a[j[i]] >> d*p)&(sb-1);
+         ct[threadIdx.x]=bin;
+         atomicMax(&cu[bin],int(i));
+       }
        __syncthreads();
-       if (i==cu[bin])  // ensure to keep them in order
-         for (int ii=threadIdx.x; ii<blockDim.x; ++ii) if (ct[ii]==bin) {auto oi = ii-threadIdx.x; assert(i>=oi);if(i>=oi) k[--c[bin]] = j[i-oi]; }
+       if (i>=0 && i==cu[bin])  // ensure to keep them in order
+         for (int ii=threadIdx.x; ii<blockDim.x; ++ii) 
+            if (ct[ii]==bin) {auto oi = ii-threadIdx.x; assert(i>=oi);if(i>=oi) k[--c[bin]] = j[i-oi]; }
        __syncthreads();
-       assert(c[bin]>=0);
-       if (threadIdx.x==0) ibs-=blockDim.x;
+       if (i>=0) {
+         assert(c[bin]>=0);
+         if (threadIdx.x==0) ibs-=blockDim.x;
+       }
        __syncthreads();
      }    
       
