@@ -16,8 +16,11 @@ __global__ void warpReduce() {
 }
 
 __global__ void warpMin() {
+  
+    __shared__ int x[256];
     int laneId = threadIdx.x & 0x1f;
     int value = 15 - threadIdx.x;
+    x[threadIdx.x] = value;
 
     if (threadIdx.x < 60) {
     // auto mask = __activemask(); // not needed!
@@ -30,11 +33,14 @@ __global__ void warpMin() {
     printf("Thread %d final value = %d\n", threadIdx.x, value);
 
    __shared__ int min;
+   __shared__ int minloc;
    min = value;
    __syncthreads();
    if (laneId==0) atomicMin(&min,value);
+   if (x[threadIdx.x]==min) minloc=threadIdx.x;
+   __syncthreads();
 
-   if (threadIdx.x==0) printf("final value = %d\n", min);
+   if (threadIdx.x==0) printf("final value = %d @ %d \n", min,minloc);
 
 }
 
