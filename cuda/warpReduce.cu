@@ -17,21 +17,31 @@ __global__ void warpReduce() {
 
 __global__ void warpMin() {
     int laneId = threadIdx.x & 0x1f;
-    // Seed starting value as inverse lane ID
-    int value = 15 - laneId;
+    int value = 15 - threadIdx.x;
 
+    if (threadIdx.x < 60) {
+    // auto mask = __activemask(); // not needed!
     // Use XOR mode to perform butterfly reduction
-    for (int i=16; i>=1; i/=2)
-        value = std::min(value,__shfl_xor_sync(0xffffffff, value, i, 32));
+      for (int i=16; i>=1; i/=2)
+          value = std::min(value,__shfl_xor_sync(0xffffffff, value, i, 32));
+    }
 
     // "value" now contains the sum across all threads
     printf("Thread %d final value = %d\n", threadIdx.x, value);
+
+   __shared__ int min;
+   min = value;
+   __syncthreads();
+   if (laneId==0) atomicMin(&min,value);
+
+   if (threadIdx.x==0) printf("final value = %d\n", min);
+
 }
 
 
 int main() {
     warpReduce<<< 1, 32 >>>();
-    warpMin<<< 1, 32 >>>();
+    warpMin<<< 1, 64 >>>();
     cudaDeviceSynchronize();
 
     return 0;
