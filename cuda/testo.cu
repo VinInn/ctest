@@ -9,6 +9,13 @@ __shared__ uint16_t a[DIM];
 }
 
 
+/*
+__global__
+void bho(int s) {
+__shared__ uint16_t a[s];
+}
+*
+
 
 __device__  
 void radixSort(int16_t * v, uint16_t * index, uint32_t * offsets) {

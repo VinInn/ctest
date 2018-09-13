@@ -94,9 +94,9 @@ std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(),std::numeric
   if (i==0) std::cout << "done for " << offsets[blocks] << std::endl;
 
   if (32==i) {
-    std::cout << v[ind[0]] << ' ' << v[ind[1]] << ' ' << v[ind[2]] << std::endl;
-    std::cout << v[ind[3]] << ' ' << v[ind[10]] << ' ' << v[ind[blockSize-1000]] << std::endl;
-    std::cout << v[ind[blockSize/2-1]] << ' ' << v[ind[blockSize/2]] << ' ' << v[ind[blockSize/2+1]] << std::endl;
+    std::cout << int(v[ind[0]]) << ' ' << int(v[ind[1]]) << ' ' << int(v[ind[2]]) << std::endl;
+    std::cout << int(v[ind[3]]) << ' ' << int(v[ind[10]]) << ' ' << int(v[ind[blockSize-1000]]) << std::endl;
+    std::cout << int(v[ind[blockSize/2-1]]) << ' ' << int(v[ind[blockSize/2]]) << ' ' << int(v[ind[blockSize/2+1]]) << std::endl;
   }
   for (int ib=0; ib<blocks; ++ib)
   for (auto i = offsets[ib]+1; i < offsets[ib+1]; i++) {
@@ -114,7 +114,7 @@ std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(),std::numeric
 
 
 int main() {
-
+  go<int8_t>();
   go<int16_t>();
   go<int32_t>();
   return 0;
