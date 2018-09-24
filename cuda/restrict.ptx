@@ -186,4 +186,39 @@
 	ret;
 }
 
+	// .globl	_Z5rechcPK2HCPf
+.visible .entry _Z5rechcPK2HCPf(
+	.param .u64 _Z5rechcPK2HCPf_param_0,
+	.param .u64 _Z5rechcPK2HCPf_param_1
+)
+{
+	.reg .f32 	%f<5>;
+	.reg .b32 	%r<2>;
+	.reg .b64 	%rd<16>;
+
+
+	ld.param.u64 	%rd1, [_Z5rechcPK2HCPf_param_0];
+	ld.param.u64 	%rd2, [_Z5rechcPK2HCPf_param_1];
+	cvta.to.global.u64 	%rd3, %rd2;
+	cvta.to.global.u64 	%rd4, %rd1;
+	mov.u32 	%r1, %tid.x;
+	ld.global.nc.u64 	%rd5, [%rd4];
+	cvta.to.global.u64 	%rd6, %rd5;
+	mul.wide.u32 	%rd7, %r1, 4;
+	add.s64 	%rd8, %rd6, %rd7;
+	ld.global.f32 	%f1, [%rd8];
+	ld.global.nc.u64 	%rd9, [%rd4+8];
+	cvta.to.global.u64 	%rd10, %rd9;
+	add.s64 	%rd11, %rd10, %rd7;
+	ld.global.f32 	%f2, [%rd11];
+	ld.global.nc.u64 	%rd12, [%rd4+16];
+	cvta.to.global.u64 	%rd13, %rd12;
+	add.s64 	%rd14, %rd13, %rd7;
+	ld.global.f32 	%f3, [%rd14];
+	fma.rn.f32 	%f4, %f2, %f3, %f1;
+	add.s64 	%rd15, %rd3, %rd7;
+	st.global.f32 	[%rd15], %f4;
+	ret;
+}
+
 

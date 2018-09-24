@@ -47,7 +47,7 @@ struct H {
   float * y;
   float * z;
 
-__device__ __host__
+__device__
 __forceinline__
 float const * __restrict__ xg() const { return x;}
 
@@ -61,6 +61,14 @@ float zg(int i) const { return __ldg(z+i);}
 
 };
 
+struct HC {
+
+  float const * __restrict__ x;
+  float const * __restrict__ y;
+  float const * __restrict__ z;
+};
+
+
 
 __global__
 void rech(H const * __restrict__ ph, float * q) {
@@ -68,4 +76,12 @@ void rech(H const * __restrict__ ph, float * q) {
   float const * __restrict__ yg = h.y;
   auto i = threadIdx.x;;
   q[i] = h.xg()[i] + yg[i]*h.zg(i);
+}
+
+
+__global__
+void rechc(HC const * __restrict__ ph, float * q) {
+  auto const & h = *ph;
+  auto i = threadIdx.x;;
+  q[i] = h.x[i] + h.y[i]*h.z[i];
 }
