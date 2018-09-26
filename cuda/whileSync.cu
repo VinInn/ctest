@@ -1,31 +1,33 @@
 #include <stdio.h>
-
+#include<algorithm>
 
 __global__
-void perm(int pad[]) {
+void perm(int * pad) {
+    int off = blockIdx.x*(3+256+4);
     int t = threadIdx.x;
     int n=0;
 
+    pad +=off;
     pad[2] =0;
-    pad[3+threadIdx.x] = t;
+    pad[3+threadIdx.x] = t%64 + 2;
     pad[260]=0;
     __syncthreads();
 
     bool more=true;
     while (__syncthreads_or(more)) {
       more = false;
-      for (int j=0; j<threadIdx.x; ++j) {
+      for (int j=std::max(0,int(threadIdx.x)-20); j<threadIdx.x; ++j) {
         // if (3==t%4) { pad[3+threadIdx.x]++; }
         if ( t == 5 ) {
           ++n;
           pad[0] = 112211;
-          if (n<20) more = true;
+//          if (n<10) more = true;
         }
-        if (2==t%2) {
+//        if (2==t%2) {
           auto old = atomicMin(&pad[3+j],pad[3+threadIdx.x]);
           if(old!=pad[3+threadIdx.x]) more=true;
           atomicMin(&pad[3+threadIdx.x],old);
-        }
+//        }
       }
       if(0==threadIdx.x) ++pad[260];
     }
@@ -44,12 +46,14 @@ void perm(int pad[]) {
 
 int main() {
 
-    int h_pad[3+256+4];
+    int h_pad[2000*(3+256+4)];
     int *dev_pad = 0;
     cudaMalloc(&dev_pad, sizeof(h_pad));
     cudaMemset(dev_pad, 0, sizeof(h_pad));
 
-    perm<<< 1, 256 >>>(dev_pad);
+    printf("size %d\n",sizeof(h_pad));
+
+    perm<<< 2000, 256 >>>(dev_pad);
 
     cudaMemcpy(h_pad, dev_pad, sizeof(h_pad), cudaMemcpyDeviceToHost);
 
