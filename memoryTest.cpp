@@ -1,5 +1,6 @@
 //  cat /proc/meminfo | grep -i anon
 //  ps -eo pid,command,rss,vsz | grep a.out
+// strace -e trace=memory ./a.out
 #include<iostream>
 #include<vector>
 #include<memory>
