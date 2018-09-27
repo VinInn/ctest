@@ -1,5 +1,6 @@
 #include <cstdlib>
-#include <malloc/malloc.h>
+#include <malloc.h>
+#include <libc/malloc.h>
 #include <iostream>
 
 
