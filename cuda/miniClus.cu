@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <algorithm>
-
+#include <cassert>
 
 __global__
 void perm(uint16_t const __restrict__ * x, int * id,  int nt) {
@@ -14,6 +14,8 @@ void perm(uint16_t const __restrict__ * x, int * id,  int nt) {
     while (__syncthreads_or(more)) {
       more = false;
       for (int t = threadIdx.x; t < nt; t += blockDim.x) {
+         assert (id[t] != 999);
+         assert (id[t] < nt);
          for (auto m = t+1; m<nt; ++m) {
           if (std::abs(x[m]-x[t])>1) continue;
           auto old = atomicMin(&id[m],id[t]);
@@ -39,15 +41,19 @@ int main() {
     cudaMalloc(&x_d, sizeof(x));
     cudaMalloc(&id_d, sizeof(id));
 
-    x[0]=1;x[1]=1;x[2]=1;
+    x[0]=1;x[1]=0;x[2]=2;
+    x[3]=4;x[4]=4;x[5]=5;
+    x[6]=9;x[7]=9;
+    for (int i=8;i<115; ++i) x[i]=15;
+    x[17]=42;x[34]=41;x[73]=42;
 
-    int n =3;
+    int n = 115;
 
     cudaMemcpy(x_d, x, sizeof(x),cudaMemcpyHostToDevice);
 
     printf("size %d\n",sizeof(x));
 
-    perm<<< 1, 256 >>>(x_d,id_d,n);
+    perm<<< 1, 64 >>>(x_d,id_d,n);
 
     cudaMemcpy(id, id_d, sizeof(x),cudaMemcpyDeviceToHost);
 
