@@ -101,8 +101,11 @@ int main() {
   for(int bs=32; bs<=1024; bs+=32) {
   std::cout << "bs " << bs << std::endl;
   for (int j=1;j<=1024; ++j) {
+   std::cout << j << std::endl;
    testPrefixScan<uint16_t><<<1,bs>>>(j);
-   testPrefixScan<float><<<1,bs>>>(j);
+  cudaDeviceSynchronize();
+//   testPrefixScan<float><<<1,bs>>>(j);
+//  cudaDeviceSynchronize();
   }}
   cudaDeviceSynchronize();
 
