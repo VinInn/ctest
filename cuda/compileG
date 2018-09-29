@@ -1,1 +1,1 @@
-nvcc -g -G -Icub -Icuda-api-wrappers/src/ -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda $1
+nvcc -DGPU_DEBUG -g -G -Icub -Icuda-api-wrappers/src/ -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda $1
