@@ -44,13 +44,13 @@ void testWarpPrefixScan(uint32_t size) {
 #include<iostream>
 int main() {
 
-  std::cout << "warp 32" << std::endl;
+  // std::cout << "warp 32" << std::endl;
   testWarpPrefixScan<int><<<1,32>>>(32);
   cudaDeviceSynchronize();
-  std::cout << "warp 16" << std::endl;
+  // std::cout << "warp 16" << std::endl;
   testWarpPrefixScan<int><<<1,32>>>(16);
   cudaDeviceSynchronize();
-  std::cout << "warp 5" << std::endl;
+  // std::cout << "warp 5" << std::endl;
   testWarpPrefixScan<int><<<1,32>>>(5);
   cudaDeviceSynchronize();
 
