@@ -1,3 +1,9 @@
+#if __CUDA_ARCH__ < 600
+  #define atomicMin_block(X,Y) atomicMin(X,Y)
+  #define atomicAdd_block(X,Y) atomicAdd(X,Y)
+#endif
+
+
 __global__
 void glo(int * x, int * y) {
    atomicAdd(x+3,1);
