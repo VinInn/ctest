@@ -81,6 +81,10 @@ uint64_t memory_usage::deallocated()
 uint64_t memory_usage::totlive()
 {
    if (!is_available()) return 0;
+   // Update the statistics cached by mallctl.
+   uint64_t epoch = 1;
+   auto sz = sizeof(epoch);
+   mallctl("epoch", &epoch, &sz, &epoch, sz);
    size_t stats=0;
    auto stats_s = sizeof(size_t);
    mallctl("stats.active",  & stats, & stats_s, nullptr, 0);

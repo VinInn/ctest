@@ -33,6 +33,19 @@ int main() {
 
   constexpr size_t N = 1000*1000*1000;
 
+{
+//    auto v = std::make_unique<int[]>(N);
+    auto v = new int[N];
+    stop("after create");
+    v[0]=1;
+    stop("after assign 0");
+    for (int i=0; i<N; i+=100000) v[i]=1;
+    stop("after assign many");
+
+    delete [] v;
+
+  }
+  stop("after first block");
  {
     std::vector<int> v;
     v.reserve(N);
@@ -45,22 +58,6 @@ int main() {
     stop("after assign many");
 
   }
-
-
-{
-//    auto v = std::make_unique<int[]>(N);
-    auto v = new int[N];
-    stop("after create");
-    v[0]=1;
-    stop("after assign 0");
-    for (int i=0; i<N; i+=10000) v[i]=1;
-    stop("after assign many");
-
-    delete [] v;
-
-  }
-
-
 
   stop("stop");
 
