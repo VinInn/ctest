@@ -22,6 +22,11 @@ void zero () {
 
 }
 
+
+//
+// there is a bug....
+//
+
 struct A {
   
   A() : i(0), v(10000){++nd;}
@@ -60,13 +65,14 @@ int main() {
   int N=400000;
 
   std::vector<A> a;
+  // a.reserve(N);
   int i=0;
   try {
     for(;i<N;++i) 
       a.push_back(A(i));
   }
   catch(...) {
-    
+    std::cout << "oops" << std::endl;    
   }
 
   std::cout << "size " << a.size() << std::endl;
