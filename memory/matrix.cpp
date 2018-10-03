@@ -131,7 +131,7 @@ int main() {
         << std::chrono::duration_cast<std::chrono::nanoseconds>(delta2).count()/DNNK  << ' '
         << std::chrono::duration_cast<std::chrono::nanoseconds>(delta3).count()/DNNK  << ' '
         << std::chrono::duration_cast<std::chrono::nanoseconds>(delta4).count()/DNNK  << ' '
-        << " ms\n" << std::endl;
+        << " us\n" << std::endl;
 
   delta1=delta2=delta3=delta4=start-start;
 
@@ -148,7 +148,7 @@ int main() {
         << std::chrono::duration_cast<std::chrono::nanoseconds>(delta2).count()/DNNK  << ' '
         << std::chrono::duration_cast<std::chrono::nanoseconds>(delta3).count()/DNNK  << ' '
         << std::chrono::duration_cast<std::chrono::nanoseconds>(delta4).count()/DNNK  << ' '
-        << " ms\n" << std::endl;
+        << " us\n" << std::endl;
 
 
 
