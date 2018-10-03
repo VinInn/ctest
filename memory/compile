@@ -1,1 +1,4 @@
 c++ -O3 -march=native -std=c++17 -Wall $1
+c++ -O2 -march=native -std=c++17 -Wall matrix.cpp -ftree-vectorize
+c++ -O3 -march=native -std=c++17 -Wall matrix.cpp  -fno-loop-interchange
+
