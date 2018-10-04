@@ -5,6 +5,29 @@
 #include<iostream>
 #include<cassert>
 
+#include<chrono>
+
+#include "memory_usage.h"
+
+auto start = std::chrono::high_resolution_clock::now();
+
+uint64_t maxLive=0;
+
+void stop(const char * m) {
+  auto delta = std::chrono::high_resolution_clock::now()-start;
+  maxLive= std::max( maxLive, memory_usage::totlive() );
+  std::cout << m;
+  std::cout << " elapsted time " << std::chrono::duration_cast<std::chrono::nanoseconds>(delta).count() << std::endl;
+  std::cout << "allocated so far " << memory_usage::allocated();
+  std::cout << " deallocated so far " << memory_usage::deallocated() << std::endl;
+  std::cout << "total / max live " << memory_usage::totlive() << ' ' << maxLive << std::endl;
+
+  start = std::chrono::high_resolution_clock::now();
+}
+
+
+
+
 namespace {
   int nm = 0;
   int nma = 0;
@@ -94,6 +117,7 @@ void one(bool doprint) {
   int nb[na];
   for(int i=0;i<na;++i) nb[i]=bGen(reng);
   try {
+    stop("before first loop");
     // here we fake a clustering process
     // first we assume some how in each A associate twice as much elements
     auto nah = na/2;
@@ -106,6 +130,7 @@ void one(bool doprint) {
       assert(v.size()==nb[i]+nb[i+nah]);
     }
     assert(va.back().i==nah-1);
+    stop("before second loop");
     // now we split
     for(int i=0;i<nah;++i) {
       va.push_back(A(i+nah));
@@ -116,6 +141,8 @@ void one(bool doprint) {
       // remove them from v1
       v1.resize(nb[i]);
     }
+    stop("after second loop");
+
     assert(va.size()==na);
     for(int i=0;i<na;++i) {
       assert(va[i].i==i);
@@ -139,6 +166,9 @@ void one(bool doprint) {
     std::cout << "tot size / capacity " << totsize << ' ' << totcapacity << std::endl;
     print();
   }
+
+
+
 }
 
 
@@ -146,11 +176,17 @@ int main() {
 
   one(true);
 
-  for (int i=0; i<100; ++i)
+  for (int i=0; i<100; ++i) {
     one(false);
+    stop("after call");
+
+  }
 
   one(true);
 
+  stop("\nat the end");
+
+  
   return 0;
 
 }
