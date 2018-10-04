@@ -167,6 +167,7 @@ void one(bool doprint) {
       totsize+=va[i].v.size();
       totcapacity+=va[i].v.capacity();
     }
+    assert(totsize==totElement); // all these push_back to get a number that was given to us!
 
     /// bonus sort!
     stop("before sort");
