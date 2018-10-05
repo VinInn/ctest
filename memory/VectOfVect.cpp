@@ -94,8 +94,8 @@ struct A {
 };
 
 
-constexpr int N=10000;
-constexpr int M=40;
+constexpr int N=100000;
+constexpr int M=80;
 
 std::mt19937 reng;
 std::poisson_distribution<int> aGen(N);
@@ -121,11 +121,11 @@ void one(bool doprint) {
     stop("before first loop");
     // here we fake a clustering process
     // WHAT WE KNOW IS ONLY THAT WE HAVE totElement ELEMENTS
-    // they are store somewhere we do not deal with the real algo here, only data structure
-    // representing their grouping
+    // this is given as input. they are store somewhere
+    // we do not deal with the real algo here, only data structures representing their grouping
     // we assume that the final results is "na" groups each associated with nb[i] elements.
     // the solution can be any data structure not necessarely the "vector of vector of indices used here
-    // the only fixed assumpition is that in the first loop somehow each A is associated to twice as much elements
+    // the only fixed assumpition is that in the first loop somehow each group is associated to twice as much elements
     // the asserts shall be respected
     auto nah = na/2;
     auto kk1=0;  // fakes the index (pointer) to an element
