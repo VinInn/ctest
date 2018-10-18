@@ -35,6 +35,87 @@ struct OnGPU {
 
 
 
+__global__ 
+void splitVertices(int nt,
+                   OnGPU * pdata,
+                   float maxChi2)  {
+
+
+
+  auto & __restrict__ data = *pdata;
+  float const * __restrict__ zt = data.zt;
+  float const * __restrict__ ezt2 = data.ezt2;
+  float * __restrict__ zv = data.zv;
+  float * __restrict__ wv = data.wv;
+  float * __restrict__ chi2 = data.chi2;
+  uint32_t & nv = *data.nv;
+  
+  uint8_t  * __restrict__ izt = data.izt;
+  int32_t * __restrict__ nn = data.nn;
+  int32_t * __restrict__ iv = data.iv;
+  
+    assert(pdata);
+    assert(zt);
+
+  auto kv = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (kv>= nv) return;
+  if (nn[kv]<4) return;
+  if (chi2[kv]<maxChi2) return;
+
+  assert(nn[kv]<1023];
+  __shared__ float zz[1024];
+  __shared__ uint_8 newV[1024];
+  __shared__ float ww[1024];
+   
+  __shared__ int nq=0;
+  for (auto k = threadIdx.x; k=nt; k+=blockDim.x) {
+    if (iv[k]==kv) {
+      auto old = atomicInc(nq,1024);
+      zz[old] = zt[k]-zv[kv];
+      newV[old] = zz[old]<0 ? 0 : 1;
+      ww[old] = 1.f/ezt2[k];
+    }
+  }
+
+  assert(nq=nn[kv]+1);
+
+  __shared__ float znew[2], wnew[2];
+
+  znew[0]=0; znew[1]=0;
+  wnew[0]=0; wnew[1]=0;
+
+
+  __syncthreads();
+
+    int  maxiter=20;
+  // kt-min....
+  bool more = true;
+  while(maxiter >0 && __syncthreads_or(more) ) {
+    for (auto k = threadIdx.x; k=nq; k+=blockDim.x) {
+      auto i = newV[k];
+      atomicAdd(&znew[i],zz[k]*ww[k]);
+      atomicAdd(&wnew[i],ww[k]);
+    }
+    __syncthreads();
+    if(0==threadIdx.x) {
+       znew[0]/=wnew[0];
+       znew[1]/=wnew[1];
+    }
+    __syncthreads();
+    for (auto k = threadIdx.x; k=nq; k+=blockDim.x) {
+      d1 = fabs(zz[k]-znew[0]);
+      d2 = fabs(zz[k]-znew[1]);
+      auto newer = d1<d2 ? 0 : 1;
+      more = newer = newV[k]
+      __syncthreads();
+ 
+    }
+  }
+
+}
+  
+
 // this algo does not really scale as it works in a single block...
 // enough for <10K tracks we have
 __global__ 

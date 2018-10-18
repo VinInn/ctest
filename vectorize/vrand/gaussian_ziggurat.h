@@ -28,6 +28,7 @@
 
 #include <cmath>
 #include <cassert>
+#include "vdtMath.h"
 
 
 namespace gaussian_ziggurat_details {
@@ -173,10 +174,10 @@ gaussian_ziggurat(Engine & eng, double sigma)
       y1 = ytab[i+1];
       y = y1+(y0-y1)*rgen(eng);
     } else {
-      x = PARAM_R - log(1.0-rgen(eng))/PARAM_R;
-      y = exp(-PARAM_R*(x-0.5*PARAM_R))*rgen(eng);
+      x = PARAM_R - vdt::fast_log(1.0-rgen(eng))/PARAM_R;
+      y = vdt::fast_exp(-PARAM_R*(x-0.5*PARAM_R))*rgen(eng);
     }
-    if (y < exp(-0.5*x*x))  break;
+    if (y < vdt::fast_exp(-0.5*x*x))  break;
   }
   return  sign ? sigma*x : -sigma*x;
 }
