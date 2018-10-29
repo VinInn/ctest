@@ -67,6 +67,19 @@
   constexpr uint32_t layerIndexSize = numberOfModules/maxModuleStride;
   constexpr std::array<uint8_t,layerIndexSize> layer = make_array<layerIndexSize>(findLayerFromCompact);
 
+  constexpr bool validateLayerIndex() {
+    bool res=true;
+    for (auto i=0U; i<numberOfModules; ++i)  {
+      auto j = i/maxModuleStride;
+      res &=(layer[j]<10);
+      res &=(i>=layerStart[layer[j]]);
+      res &=(i<layerStart[layer[j]+1]);
+    }
+    return res;
+  }
+
+  static_assert(validateLayerIndex(),"Vincenzo's algo is buggy");
+
 #include<iostream>
 #include<cassert>
 int main() {
