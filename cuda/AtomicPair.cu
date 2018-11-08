@@ -14,7 +14,7 @@ struct AtomicPairCounter {
     uint32_t m;  // number of elements
   };
 
-  union Atomic {
+  union Atomic2 {
     Counters counters;
     c_type ac; //
   };
@@ -28,13 +28,13 @@ struct AtomicPairCounter {
   Counters add(c_type i) {
     assert(i<incr);
     i+=incr;
-    DoubleAtomic ret;
+    Atomic2 ret;
     ret.ac = atomicAdd(&counter.ac,i);
     return ret.counters;
   } 
 
 
-  Atomic counter;
+  Atomic2 counter;
   
 };
 
@@ -94,7 +94,7 @@ int main() {
     finalize<<<1,1 >>>(dc_d,n_d,m_d,10000);
     verify<<<2000, 512 >>>(dc_d,n_d,m_d,10000);
 
-    DoubleCounter dc;
+    AtomicPairCounter dc;
     cudaMemcpy(&dc, dc_d, sizeof(AtomicPairCounter), cudaMemcpyDeviceToHost);
 
     std::cout << dc.get().n << ' ' << dc.get().m << std::endl;
