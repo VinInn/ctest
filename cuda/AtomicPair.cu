@@ -95,9 +95,11 @@ int main() {
     verify<<<2000, 512 >>>(dc_d,n_d,m_d,10000);
 
     AtomicPairCounter dc;
+    uint32_t n;
     cudaMemcpy(&dc, dc_d, sizeof(AtomicPairCounter), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&n, dc_d, sizeof(uint32_t), cudaMemcpyDeviceToHost);
 
-    std::cout << dc.get().n << ' ' << dc.get().m << std::endl;
+    std::cout << dc.get().n << ' ' << dc.get().m << ' ' << n << std::endl;
 
     return 0;
 }
