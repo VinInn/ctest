@@ -30,8 +30,8 @@ int main() {
   auto theLoop = [&](int i) {
     auto nn = n;
     for (int j=0; j<nn; ++j)
-      res[j] =  (q[j+i*nn]>0) ? c : res[j];
-      // if (q[j+i*nn]>0) res[j]=c;
+      // res[j] =  (q[j+i*nn]>0) ? c : res[j];
+      if (q[j+i*nn]>0) res[j]=c;
   };
 
 
