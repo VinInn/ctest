@@ -11,18 +11,16 @@
 int main() {
 
 
-  constexpr uint32_t n = 100000;
+  constexpr uint32_t n = 17*40000;
   constexpr uint32_t m = n*20;
 
-  float res[n];
+  std::vector<float> res(n,0);
   std::vector<float> q(m);
-
-  for(auto & r: res) r=0;
 
   int ok=0;
   for(auto & r: q) { 
-    r = (++ok ==5) ? 1 : -1.f;
-    if (ok==5) ok=0;
+    r = (++ok ==2) ? 1 : -1.f;
+    if (ok==7) ok=0;
   }
 
   constexpr float c = 3.14;
@@ -30,10 +28,17 @@ int main() {
   auto theLoop = [&](int i) {
     auto nn = n;
     for (int j=0; j<nn; ++j)
-      // res[j] =  (q[j+i*nn]>0) ? c : res[j];
-      if (q[j+i*nn]>0) res[j]=c;
+      res[j] =  (q[j+i*nn]>0) ? c : res[j];
+     // if (q[j+i*nn]>0) res[j]=c;
   };
 
+
+  tbb::parallel_for(
+            tbb::blocked_range<size_t>(0,10),
+            [&](const tbb::blocked_range<size_t>& r) {
+              for (size_t i=r.begin();i<r.end();++i) theLoop(i);
+    }
+  );
 
   tbb::parallel_for(
             tbb::blocked_range<size_t>(0,20),
@@ -42,7 +47,7 @@ int main() {
     }
   );
 
-  std::cout << std::count(res,res+n,c) << std::endl;
+  std::cout << std::count(res.begin(),res.end(),c) << std::endl;
 
 
 
