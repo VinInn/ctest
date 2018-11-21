@@ -28,8 +28,10 @@ int main() {
   constexpr float c = 3.14;
 
   auto theLoop = [&](int i) {
-    for (int j=0; j<n; ++j)
-      if (q[j+i*n]>0) res[j]=c;
+    auto nn = n;
+    for (int j=0; j<nn; ++j)
+      res[j] =  (q[j+i*nn]>0) ? c : res[j];
+      // if (q[j+i*nn]>0) res[j]=c;
   };
 
 
