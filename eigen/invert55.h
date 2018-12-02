@@ -1,6 +1,8 @@
 #include<cmath>
-template<typename M, typename F> CholeksyInver55(M const & src, M * dst) {
-void  CholeksyInver55(M const & src, M * dst) {
+template<typename M> 
+inline
+void choleksyInvert55(M const & src, M & dst) {
+  using F = decltype(src(0,0));
   auto luc0 = F(1.0) / std::sqrt(src(0,0));
   auto luc1 = src(1,0) * luc0;
   auto luc2 = src(1,1) - luc1 * luc1;
@@ -19,21 +21,21 @@ void  CholeksyInver55(M const & src, M * dst) {
   auto luc12 = (src(4,2) - luc3 * luc10 - luc4 * luc11) * luc5;
   auto luc13 = (src(4,3) - luc6 * luc10 - luc7 * luc11 - luc8 * luc12) * luc9;
   auto luc14 = src(4,4) - (luc10*luc10+luc11*luc11+luc12*luc12+luc13*luc13);
-  auto luc14 = F(1.0) / std::sqrt(luc14);
+  luc14 = F(1.0) / std::sqrt(luc14);
   
 
-  const F li21 = -luc1 * luc0 * luc2;
-  const F li32 = -luc4 * luc2 * luc5;
-  const F li31 = (luc1 * luc4 * luc2 - luc3) * luc0 * luc5;
-  const F li43 = -luc8 * luc9 * luc5;
-  const F li42 = (luc4 * luc8 * luc5 - luc7) * luc2 * luc9;
-  const F li41 = (-luc1 * luc4 * luc8 * luc2 * luc5 +
+  auto li21 = -luc1 * luc0 * luc2;
+  auto li32 = -luc4 * luc2 * luc5;
+  auto li31 = (luc1 * luc4 * luc2 - luc3) * luc0 * luc5;
+  auto li43 = -luc8 * luc9 * luc5;
+  auto li42 = (luc4 * luc8 * luc5 - luc7) * luc2 * luc9;
+  auto li41 = (-luc1 * luc4 * luc8 * luc2 * luc5 +
 		  luc1 * luc7 * luc2 + luc3 * luc8 * luc5 - luc6) * luc0 * luc9;
-  const F li54 = -luc13 * luc14 * luc9;
-  const F li53 = (luc13 * luc8 * luc9 - luc12) * luc5 * luc14;
-  const F li52 = (-luc4 * luc8 * luc13 * luc5 * luc9 +
+  auto li54 = -luc13 * luc14 * luc9;
+  auto li53 = (luc13 * luc8 * luc9 - luc12) * luc5 * luc14;
+  auto li52 = (-luc4 * luc8 * luc13 * luc5 * luc9 +
 		  luc4 * luc12 * luc5 + luc7 * luc13 * luc9 - luc11) * luc2 * luc14;
-  const F li51 = (luc1*luc4*luc8*luc13*luc2*luc5*luc9 -
+  auto li51 = (luc1*luc4*luc8*luc13*luc2*luc5*luc9 -
 		  luc13*luc8*luc3*luc9*luc5 - luc12*luc4*luc1*luc2*luc5 - luc13*luc7*luc1*luc9*luc2 +
 		  luc11*luc1*luc2 + luc12*luc3*luc5 + luc13*luc6*luc9 -luc10) * luc0 * luc14;
   
