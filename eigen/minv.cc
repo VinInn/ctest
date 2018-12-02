@@ -20,6 +20,7 @@ void inv(double * __restrict__ b, double * __restrict__ r)
     MD src(b+i,5,5);
     MD dst(r+i,5,5);
     choleksyInvert55(src,dst);
+    symmetrize(dst); // if needed...
   }
 }
 
@@ -30,5 +31,6 @@ void inv(float * __restrict__ b, float * __restrict__ r)
     M src(b+i,5,5);
     M dst(r+i,5,5);
     choleksyInvert55(src,dst);
+    symmetrize(dst); //    if needed...
   }
 }

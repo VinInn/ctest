@@ -55,3 +55,19 @@ void choleksyInvert55(M const & src, M & dst) {
   dst(4,3) = li54*luc14;
   dst(4,4) = luc14*luc14;
 }
+
+
+template<typename M>
+inline
+void symmetrize(M & dst) {
+  dst(0,1) = dst(1,0);
+  dst(0,2) = dst(2,0);
+  dst(0,3) = dst(3,0);
+  dst(0,4) = dst(4,0);
+  dst(1,2) = dst(2,1);
+  dst(1,3) = dst(3,1);
+  dst(1,4) = dst(4,1);
+  dst(2,3) = dst(3,2);
+  dst(2,4) = dst(4,2);
+  dst(3,4) = dst(4,3);
+}
