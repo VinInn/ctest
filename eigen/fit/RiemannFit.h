@@ -1173,7 +1173,7 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
     Jx << d_X0, d_Y0, d_R, d_x, d_y, 0., 0., 0., 0., 0., 0., 1.;
 
     Cov << MatrixXd::Zero(6, 6);
-    Cov_sz_single << MatrixXd::Zero(2, 2);
+    // Cov_sz_single << MatrixXd::Zero(2, 2);
     Cov.block(0, 0, 3, 3) = circle.cov;
     Cov(3, 3) = hits_cov(i, i);                        // x errors
     Cov(4, 4) = hits_cov(i + n, i + n);                // y errors
@@ -1181,7 +1181,7 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
     Cov(3, 4) = Cov(4, 3) = hits_cov(i, i + n);        // cov_xy
     Cov(3, 5) = Cov(5, 3) = hits_cov(i, i + 2*n);      // cov_xz
     Cov(4, 5) = Cov(5, 4) = hits_cov(i + n, i + 2*n);  // cov_yz
-    Cov_sz_single = Jx * Cov * Jx.transpose();
+    Cov_sz_single.noalias() = Jx * Cov * Jx.transpose();
     cov_sz(i, i) = Cov_sz_single(0, 0);
     cov_sz(i + n, i + n) = Cov_sz_single(1, 1);
     cov_sz(i, i + n) = cov_sz(i + n, i) = Cov_sz_single(0, 1);
@@ -1198,7 +1198,7 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
 #endif
 
   // Prepare the Rotation Matrix to rotate the points
-  Eigen::Matrix<double, 2, 2> rot = Eigen::Matrix<double, 2, 2>::Zero();
+  Eigen::Matrix<double, 2, 2> rot; //  = Eigen::Matrix<double, 2, 2>::Zero();
   rot << sin(theta), cos(theta), -cos(theta), sin(theta);
 
   // Rotate Points with the shape [2, n]
@@ -1240,7 +1240,7 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
 
   // We need now to transfer back the results in the original s-z plane
   auto common_factor = 1./(sin(theta)-sol(1,0)*cos(theta));
-  Eigen::Matrix<double, 2, 2> J = Eigen::Matrix<double, 2, 2>::Zero();
+  Eigen::Matrix<double, 2, 2> J; //  = Eigen::Matrix<double, 2, 2>::Zero();
   J << 0., common_factor*common_factor, common_factor, sol(0,0)*cos(theta)*common_factor*common_factor;
 
   double m = common_factor*(sol(1,0)*sin(theta)+cos(theta));
