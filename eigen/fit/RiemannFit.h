@@ -493,7 +493,7 @@ __host__ __device__ inline Vector4d Fast_fit(const Matrix3xNd& hits)
     auto div = 2. * (cx * by - bx*cy);
     // if aligned TO FIX
     auto Y0 = (cx*b2 - bx*c2) / div;
-    auto X0 = Y0 * (0.5*b2 - by) / bx;
+    auto X0 = (0.5*b2 - Y0*by) / bx;
     result(0) = hits(0, 0) + ( flip ? Y0 : X0);
     result(1) = hits(1, 0) + ( flip ? X0 : Y0);
     result(2) = sqrt(sqr(X0) + sqr(Y0));
