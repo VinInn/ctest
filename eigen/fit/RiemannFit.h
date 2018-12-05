@@ -476,35 +476,26 @@ __host__ __device__ inline Vector4d Fast_fit(const Matrix3xNd& hits)
     printIt(&b, "Fast_fit - b: ");
     printIt(&c, "Fast_fit - c: ");
     // Compute their lengths
-    const double b2 = b.squaredNorm();
-    const double c2 = c.squaredNorm();
-    double X0;
-    double Y0;
+    auto b2 = b.squaredNorm();
+    auto c2 = c.squaredNorm();
     // The algebra has been verified (MR). The usual approach has been followed:
     // * use an orthogonal reference frame passing from the first point.
     // * build the segments (chords)
     // * build orthogonal lines through mid points
     // * make a system and solve for X0 and Y0.
     // * add the initial point
-    if (abs(b.x()) > abs(b.y()))
-    {  //!< in case b.x is 0 (2 hits with same x)
-        const double k = c.x() / b.x();
-        const double div = 2. * (k * b.y() - c.y());
-        // if aligned TO FIX
-        Y0 = (k * b2 - c2) / div;
-        X0 = b2 / (2 * b.x()) - b.y() / b.x() * Y0;
-    }
-    else
-    {
-        const double k = c.y() / b.y();
-        const double div = 2. * (k * b.x() - c.x());
-        // if aligned TO FIX
-        X0 = (k * b2 - c2) / div;
-        Y0 = b2 / (2 * b.y()) - b.x() / b.y() * X0;
-    }
-
-    result(0) = X0 + hits(0, 0);
-    result(1) = Y0 + hits(1, 0);
+    bool flip =  abs(b.x()) < abs(b.y());
+    auto bx = flip ? b.y() : b.x();
+    auto by = flip ? b.x() : b.y();
+    auto cx = flip ? c.y() : c.x();
+    auto cy = flip ? c.x() : c.y();
+    //!< in case b.x is 0 (2 hits with same x)
+    auto div = 2. * (cx * by - bx*cy);
+    // if aligned TO FIX
+    auto Y0 = (cx*b2 - bx*c2) / div;
+    auto X0 = Y0 * (0.5*b2 - by) / bx;
+    result(0) = hits(0, 0) + ( flip ? Y0 : X0);
+    result(1) = hits(1, 0) + ( flip ? X0 : Y0);
     result(2) = sqrt(sqr(X0) + sqr(Y0));
     printIt(&result, "Fast_fit - result: ");
 
@@ -514,9 +505,9 @@ __host__ __device__ inline Vector4d Fast_fit(const Matrix3xNd& hits)
     printIt(&e, "Fast_fit - e: ");
     printIt(&d, "Fast_fit - d: ");
     // Compute the arc-length between first and last point: L = R * theta = R * atan (tan (Theta) )
-    const double dr = result(2) * atan2(cross2D(d, e), d.dot(e));
+    auto dr = result(2) * atan2(cross2D(d, e), d.dot(e));
     // Simple difference in Z between last and first hit
-    const double dz = hits(2, n - 1) - hits(2, 0);
+    auto dz = hits(2, n - 1) - hits(2, 0);
 
     result(3) = (dr / dz);
 
