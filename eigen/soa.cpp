@@ -24,7 +24,7 @@ int main() {
 
   MD m1(data+1,3,4);
   for (auto i=0; i<4; ++i)
-    m1.col(i) << 10+i,100+i,1000+i;  
+    m1.col(i) << 20+i,200+i,2000+i;  
   std::cout << m1 << std::endl;
 
   std::cout << data[0] << ' ' << data[1] << std::endl;
