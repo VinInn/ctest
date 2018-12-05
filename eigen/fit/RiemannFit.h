@@ -101,8 +101,9 @@ void computeRadLenUniformMaterial(const VectorNd &length_values,
     correspond to the case at eta = 0.
  */
 
+template<typename V4>
 __host__ __device__ inline MatrixNd Scatter_cov_line(Matrix2Nd& cov_sz,
-                                                     const Vector4d& fast_fit,
+                                                     const V4& fast_fit,
                                                      VectorNd const& s_arcs,
                                                      VectorNd const& z_values,
                                                      const double theta,
@@ -171,8 +172,9 @@ __host__ __device__ inline MatrixNd Scatter_cov_line(Matrix2Nd& cov_sz,
     \details Only the tangential component is computed (the radial one is
     negligible).
  */
+template<typename V4>
 __host__ __device__ inline MatrixNd Scatter_cov_rad(const Matrix2xNd& p2D,
-                                                    const Vector4d& fast_fit,
+                                                    const V4& fast_fit,
                                                     VectorNd const& rad,
                                                     double B)
 {
@@ -296,9 +298,9 @@ __host__ __device__ inline MatrixNd cov_carttorad(const Matrix2xNd& p2D,
     \return cov_rad covariance matrix in the pre-fitted circle's
     orthogonal system.
 */
-
+template<typename V4>
 __host__ __device__ inline MatrixNd cov_carttorad_prefit(const Matrix2xNd& p2D, const Matrix2Nd& cov_cart,
-                                                         const Vector4d& fast_fit,
+                                                         V4& fast_fit,
                                                          const VectorNd& rad)
 {
     u_int n = p2D.cols();
@@ -463,9 +465,9 @@ __host__ __device__ inline Vector2d min_eigen2D(const Matrix2d& A, double& chi2)
     - computation of error due to multiple scattering.
 */
 
-__host__ __device__ inline Vector4d Fast_fit(const Matrix3xNd& hits)
+template<typename M3xN, typename V4>
+__host__ __device__ inline void Fast_fit(const M3xN& hits, V4 & result)
 {
-    Vector4d result;
     u_int n = hits.cols();  // get the number of hits
     printIt(&hits, "Fast_fit - hits: ");
 
@@ -514,7 +516,6 @@ __host__ __device__ inline Vector4d Fast_fit(const Matrix3xNd& hits)
 #if RFIT_DEBUG
     printf("Fast_fit: [%f, %f, %f, %f]\n", result(0), result(1), result(2), result(3));
 #endif
-    return result;
 }
 
 /*!
@@ -544,10 +545,10 @@ __host__ __device__ inline Vector4d Fast_fit(const Matrix3xNd& hits)
     \bug further investigation needed for error propagation with multiple
     scattering.
 */
-
-__host__ __device__ inline circle_fit Circle_fit(const Matrix2xNd& hits2D,
+template<typename M2xN, typename V4>
+__host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
                                                  const Matrix2Nd& hits_cov2D,
-                                                 const Vector4d& fast_fit,
+                                                 const V4& fast_fit,
                                                  const VectorNd& rad,
                                                  const double B,
                                                  const bool error = true)
@@ -875,234 +876,13 @@ __host__ __device__ inline circle_fit Circle_fit(const Matrix2xNd& hits2D,
     return circle;
 }
 
-/*!
-    \brief Fit of helix parameter cotan(theta)) and Zip by projection on the
-    pre-fitted cylinder  and line fit on its surface.
-    \param hits hits coordinates.
-    \param hits_cov covariance matrix of the hits.
-    \param circle cylinder parameter, their covariance (if computed, otherwise
-    uninitialized) and particle charge.
-    \param fast_fit result of the previous fast fit in this form:
-    (X0,Y0,R,cotan(theta))).
-    \param error flag for error computation.
-    \return line line_fit:
-    -par parameter of the line in this form: (cotan(theta)), Zip); \n
-    -cov covariance matrix of the fitted parameter; \n
-    -chi2.
-    \warning correlation between R and z are neglected, this could be relevant
-    if geometry detector provides sloped modules in the R/z plane.
-    \bug chi2 and errors could be slightly underestimated for small eta (<0.2)
-    when pt is small (<0.3 Gev/c).
-    \todo multiple scattering treatment.
-    \details Line fit is made by orthogonal distance regression where
-    correlation between coordinates in the transverse plane (x,y) and z are
-    neglected (for a barrel + endcap geometry this is a very good
-    approximation).
-    Covariance matrix of the fitted parameter is optionally computed.
-    Multiple scattering is not handled (yet).
-    A fast pre-fit is performed in order to evaluate weights and to compute
-    errors.
-*/
 
-__host__ __device__ inline line_fit Line_fit_odr(const Matrix3xNd& hits,
+template<typename M3xN, typename V4>
+__host__ __device__ 
+inline line_fit Line_fit(const M3xN& hits,
     const Matrix3Nd& hits_cov,
     const circle_fit& circle,
-    const Vector4d& fast_fit,
-    const double B,
-    const bool error = true)
-{
-    u_int n = hits.cols();
-    double theta = -circle.q*atan(fast_fit(3));
-    theta = theta < 0. ? theta + M_PI :  theta;
-    // PROJECTION ON THE CILINDER
-    Matrix2xNd p2D = MatrixXd::Zero(2, n);
-    Eigen::Matrix<double, 2, 6> Jx;
-
-#if RFIT_DEBUG
-    printf("Line_fit - B: %g\n", B);
-    printIt(&hits, "Line_fit points: ");
-    printIt(&hits_cov, "Line_fit covs: ");
-#endif
-    // x & associated Jacobian
-    // cfr https://indico.cern.ch/event/663159/contributions/2707659/attachments/1517175/2368189/Riemann_fit.pdf
-    // Slide 11
-    // a ==> -o i.e. the origin of the circle in XY plane, negative
-    // b ==> p i.e. distances of the points wrt the origin of the circle.
-    const Vector2d o(circle.par(0), circle.par(1));
-
-    // associated Jacobian, used in weights and errors computation
-    Matrix2Nd cov_sz = MatrixXd::Zero(2 * n, 2 * n);
-    for (u_int i = 0; i < n; ++i)
-    {  // x
-      Matrix6d Cov = MatrixXd::Zero(6, 6);
-      Matrix2d Cov_sz_single = MatrixXd::Zero(2, 2);
-        Vector2d p = hits.block(0, i, 2, 1) - o;
-        const double cross = cross2D(-o, p);
-        const double dot = (-o).dot(p);
-        // atan2(cross, dot) give back the angle in the transverse plane so tha the
-        // final equation reads: x_i = -q*R*theta (theta = angle returned by atan2)
-        const double atan2_ = -circle.q * atan2(cross, dot);
-        p2D(0, i) = atan2_ * circle.par(2);
-
-        // associated Jacobian, used in weights and errors- computation
-        const double temp0 = -circle.q * circle.par(2) * 1. / (sqr(dot) + sqr(cross));
-        double d_X0 = 0., d_Y0 = 0., d_R = 0.;  // good approximation for big pt and eta
-        if (error)
-        {
-            d_X0 = -temp0 * ((p(1) + o(1)) * dot - (p(0) - o(0)) * cross);
-            d_Y0 = temp0 * ((p(0) + o(0)) * dot - (o(1) - p(1)) * cross);
-            d_R = atan2_;
-        }
-        const double d_x = temp0 * (o(1) * dot + o(0) * cross);
-        const double d_y = temp0 * (-o(0) * dot + o(1) * cross);
-        Jx << d_X0, d_Y0, d_R, d_x, d_y, 0., 0., 0., 0., 0., 0., 1.;
-//        Jx << d_X0, d_Y0, d_R, p(1)/p.norm(), -p(0)/p.norm(), 0, 0, 0, 0, 0, 0, 1.;
-        Cov.block(0, 0, 3, 3) = circle.cov;
-        Cov(3, 3) = hits_cov(i, i);
-        Cov(4, 4) = hits_cov(i + n, i + n);
-        Cov(5, 5) = hits_cov(i + 2*n, i + 2*n);
-        Cov(3, 4) = Cov(4, 3) = hits_cov(i, i + n);
-        Cov(3, 5) = Cov(5, 3) = hits_cov(i, i + 2*n);
-        Cov(4, 5) = Cov(5, 4) = hits_cov(i + n, i + 2*n);
-        Cov_sz_single = Jx * Cov * Jx.transpose();
-        cov_sz(i, i) = Cov_sz_single(0, 0);
-        cov_sz(i + n, i + n) = Cov_sz_single(1, 1);
-        cov_sz(i, i + n) = cov_sz(i + n, i) = Cov_sz_single(0, 1);
-    }
-    // Math of d_{X0,Y0,R,x,y} all verified by hand
-
-    // y
-    p2D.row(1) = hits.row(2);
-
-    // WEIGHT COMPUTATION
-#if RFIT_DEBUG
-    printIt(&cov_sz, "line_fit - cov_sz:");
-#endif
-    MatrixNd cov_with_ms = Scatter_cov_line(cov_sz, fast_fit, p2D.row(0), p2D.row(1), theta, B);
-#if RFIT_DEBUG
-    printIt(&cov_with_ms, "line_fit - cov_with_ms: ");
-#endif
-    Matrix4d G;
-    G = cov_with_ms.inverse();
-#if RFIT_DEBUG
-    printIt(&G, "line_fit - cov_with_ms.inverse():");
-#endif
-    double renorm = G.sum();
-    G *= 1. / renorm;
-#if RFIT_DEBUG
-    printIt(&G, "line_fit - G4:");
-#endif
-
-    const VectorNd weight = Weight_circle(G);
-
-    // COST FUNCTION
-
-    // compute
-    // r0 represents the weighted mean of "x" and "y".
-    const Vector2d r0 = p2D * weight;
-    // This is the X  vector that will be used to build the
-    // scatter matrix S = X^T * X
-    const Matrix2xNd X = p2D.colwise() - r0;
-    Matrix2d A = Matrix2d::Zero();
-    A = X * G * X.transpose();
-
-#if RFIT_DEBUG
-    printIt(&A, "Line_fit - A: ");
-#endif
-
-    // minimize. v is normalized!!
-    double chi2;
-    Vector2d v = min_eigen2D(A, chi2);
-#if RFIT_DEBUG
-    printIt(&v, "Line_fit - v: ");
-    printf("Line_fit chi2: %e\n", chi2);
-#endif
-
-    // This hack to be able to run on GPU where the automatic assignment to a
-    // double from the vector multiplication is not working.
-    Eigen::Matrix<double, 1, 1> cm;
-    cm = -v.transpose() * r0;
-    const double c = cm(0, 0);
-
-    // COMPUTE LINE PARAMETER
-    line_fit line;
-    line.par << -v(0) / v(1),                          // cotan(theta))
-        -c / v(1);  // Zip
-    line.chi2 = abs(chi2*renorm);
-#if RFIT_DEBUG
-    printIt(&(line.par), "Line_fit - line.par: ");
-    printf("Line_fit - v norm: %e\n", sqrt(v(0)*v(0) + v(1)*v(1)));
-#endif
-
-    // ERROR PROPAGATION
-    if (error)
-    {
-        const double v0_2 = sqr(v(0));
-        const double v1_2 = sqr(v(1));
-
-        Matrix3d C;  // cov(v,c)
-        {
-          // The norm is taken from Chernov, properly adapted to the weights case.
-            double norm = v.transpose() * A * v;
-//            double norm_empirical = cov_with_ms.diagonal().mean();
-#if RFIT_DEBUG
-            printf("Chi_2: %g\n", chi2);
-            printf("Norm: %g\n", norm);
-            printf("weight.sum(): %g\n", weight.sum());
-            printf("Line_fit - norm:    %e\n", norm);
-#endif
-
-            const double sig2 = norm/(A(0,0) + A(1,1));
-            C(0, 0) = sig2 * v1_2;
-            C(1, 1) = sig2 * v0_2;
-            C(1, 0) = C(0, 1) = -sig2 * v(0) * v(1);
-            C(2, 2) = sig2 * (v(0)*r0(1)-v(1)*r0(0))*(v(0)*r0(1)-v(1)*r0(0)) + (sig2/n)*(A(0,0)+A(1,1));
-            C(0, 2) = C(2, 0) = sig2*(v(0)*r0(1)-v(1)*r0(0))*v(1);
-            C(1, 2) = C(2, 1) = - sig2*(v(0)*r0(1)-v(1)*r0(0))*v(0);
-        }
-#if RFIT_DEBUG
-        printIt(&C, "line_fit - C:");
-#endif
-
-        Eigen::Matrix<double, 2, 3> J;  // Jacobian of (v,c) -> (cotan(theta)),Zip)
-        {
-            const double t0 = 1. / v(1);
-            const double t1 = sqr(t0);
-            J << -t0, v(0) * t1, 0., 0., c * t1, -t0;
-        }
-        Eigen::Matrix<double, 3, 2> JT = J.transpose().eval();
-#if RFIT_DEBUG
-        printIt(&J, "line_fit - J:");
-#endif
-        line.cov = J * C * JT;
-    }
-
-#if RFIT_DEBUG
-    printIt(&line.cov, "Line cov:");
-#endif
-    return line;
-}
-
-/*!  \brief Perform an ordinary least square fit in the s-z plane to compute
- * the parameters cotTheta and Zip.
- *
- * The fit is performed in the rotated S3D-Z' plane, following the formalism of
- * Frodesen, Chapter 10, p. 259.
- *
- * The system has been rotated to both try to use the combined errors in s-z
- * along Z', as errors in the Y direction and to avoid the patological case of
- * degenerate lines with angular coefficient m = +/- inf.
- *
- * The rotation is using the information on the theta angle computed in the
- * fast fit. The rotation is such that the S3D axis will be the X-direction,
- * while the rotated Z-axis will be the Y-direction. This pretty much follows
- * what is done in the same fit in the Broken Line approach.
- */
-
-__host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
-    const Matrix3Nd& hits_cov,
-    const circle_fit& circle,
-    const Vector4d& fast_fit,
+    const V4& fast_fit,
     const double B,
     const bool error = true) {
   auto n = hits.cols();
@@ -1301,7 +1081,8 @@ inline helix_fit Helix_fit(const Matrix3xNd& hits, const Matrix3Nd& hits_cov, co
     VectorNd rad = (hits.block(0, 0, 2, n).colwise().norm());
 
     // Fast_fit gives back (X0, Y0, R, theta) w/o errors, using only 3 points.
-    const Vector4d fast_fit = Fast_fit(hits);
+    Vector4d fast_fit; 
+    Fast_fit(hits,fast_fit);
 
     circle_fit circle = Circle_fit(hits.block(0, 0, 2, n),
                                    hits_cov.block(0, 0, 2 * n, 2 * n),

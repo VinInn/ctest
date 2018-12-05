@@ -5,8 +5,14 @@ using m34 = Eigen::Matrix<float,3,4>;
 using MD = Eigen::Map<m34,0,Eigen::Stride<3*1024,1024> >;
 
 
-
 #include<iostream>
+
+template<typename M>
+void print(M const & m) {
+   std::cout << m.cols() << std::endl;
+   std::cout << m << std::endl;
+}
+
 int main() {
 
   m34 a;
@@ -27,8 +33,14 @@ int main() {
     m1.col(i) << 20+i,200+i,2000+i;  
   std::cout << m1 << std::endl;
 
+  std::cout << std::endl;
+  print(m1);
+
   std::cout << data[0] << ' ' << data[1] << std::endl;
   std::cout << data[1024] << ' ' << data[1024+1] << std::endl;
+
+  std::cout << std::endl;
+  print(m1.block(0,0,2,m1.cols()));
 
   
   return 0;
