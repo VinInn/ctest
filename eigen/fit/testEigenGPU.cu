@@ -120,16 +120,16 @@ void kernelFillHitsAndHitsCov(double * __restrict__ phits,
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3x4d hits(phits+i,3,4);
   Rfit::Map6x4f hits_ge(phits_ge+i,6,4);
-  hits_ge = MatrixXd::Zero(6,4);
+  hits_ge = MatrixXf::Zero(6,4);
   fillHitsAndHitsCov(hits,hits_ge);
 }
 
 void testFit() {
   constexpr double B = 0.0113921;
   Rfit::Matrix3xNd hits(3,4);
-  Rfit::Matrix6x4f hits_ge = MatrixXd::Zero(6,4);
+  Rfit::Matrix6x4f hits_ge = MatrixXf::Zero(6,4);
   double * hitsGPU = nullptr;;
-  double * hits_geGPU = nullptr;
+  float * hits_geGPU = nullptr;
   double * fast_fit_resultsGPU = nullptr;
   double * fast_fit_resultsGPUret = new double[Rfit::maxNumberOfTracks()*sizeof(Vector4d)];
   Rfit::circle_fit * circle_fit_resultsGPU = nullptr;
@@ -147,9 +147,9 @@ void testFit() {
 
   // for timing    purposes we fit    4096 tracks
   constexpr uint32_t Ntracks = 4096;
-  cudaCheck(cudaMalloc((void **)&hitsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix3xNd(3,4))));
-  cudaCheck(cudaMalloc((void **)&hits_geGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix6x4f)));
-  cudaMalloc((void**)&fast_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Vector4d));
+  cudaCheck(cudaMalloc(&hitsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix3xNd(3,4))));
+  cudaCheck(cudaMalloc(&hits_geGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix6x4f)));
+  cudaCheck(cudaMalloc(&fast_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Vector4d)));
   cudaCheck(cudaMalloc((void **)&line_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::line_fit)));
   cudaCheck(cudaMalloc((void **)&circle_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::circle_fit)));
 
@@ -170,7 +170,7 @@ void testFit() {
   Rfit::VectorNd rad = (hits.block(0, 0, 2, n).colwise().norm());
 
   Rfit::Matrix2Nd hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
-  Rfit::loadCovariance2d(hits_ge,hits_cov);
+  Rfit::loadCovariance2D(hits_ge,hits_cov);
   Rfit::circle_fit circle_fit_results = Rfit::Circle_fit(hits.block(0, 0, 2, n),
       hits_cov,
       fast_fit_results, rad, B, true);
@@ -178,7 +178,7 @@ void testFit() {
 
   // CIRCLE_FIT GPU
 
-  kernelCircleFit<<<Ntracks/64, 64>>>(hitsGPU, (Rfit::Matrix3Nd *)hits_covGPU,
+  kernelCircleFit<<<Ntracks/64, 64>>>(hitsGPU, hits_geGPU,
       fast_fit_resultsGPU, B, circle_fit_resultsGPU);
   cudaDeviceSynchronize();
 
