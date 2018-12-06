@@ -109,7 +109,7 @@ void fillHitsAndHitsCov(M3x4 & hits, M6x4 & hits_ge) {
   hits_ge.col(2)[5] = 6.25e-06;
   hits_ge.col(3)[5] = 3.136e-05;
   hits_ge.col(0)[1] = -5.60077e-06;
-  hits_ge.col(0)[1] = -1.11936e-06;
+  hits_ge.col(1)[1] = -1.11936e-06;
   hits_ge.col(2)[1] = -6.24945e-07;
   hits_ge.col(3)[1] = -5.28e-06;
 }
