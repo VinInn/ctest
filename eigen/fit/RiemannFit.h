@@ -50,10 +50,8 @@ __host__ __device__ inline double cross2D(const Vector2d& a, const Vector2d& b)
  *  load error in CMSSW format to our formalism
  *  
  */
-
-
   template<typename M6x4f>
-  __host__ __device__ loadCovariance2D(M6x4f const & ge,  Matrix2Nd & hits_cov) {
+  __host__ __device__ void loadCovariance2D(M6x4f const & ge,  Matrix2Nd & hits_cov) {
     // Index numerology:
     // i: index of the hits/point (0,..,3)
     // j: index of space component (x,y,z)
@@ -78,7 +76,7 @@ __host__ __device__ inline double cross2D(const Vector2d& a, const Vector2d& b)
   }
   
   template<typename M6x4f>
-  __host__ __device__ loadCovariance(M6x4f const & ge,  Matrix3Nd & hits_cov) {
+  __host__ __device__ void loadCovariance(M6x4f const & ge,  Matrix3Nd & hits_cov) {
 
     // Index numerology:
     // i: index of the hits/point (0,..,3)

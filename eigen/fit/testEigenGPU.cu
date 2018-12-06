@@ -78,7 +78,7 @@ if (0==i) {
 
 __global__
 void kernelLineFit(double * __restrict__ phits,
-                    float * __restrict__ phits_ge,
+		   float * __restrict__ phits_ge,
                    Rfit::circle_fit * circle_fit,
                    double * __restrict__ pfast_fit,
                    Rfit::line_fit * line_fit)
