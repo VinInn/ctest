@@ -34,6 +34,7 @@ using RowVectorNd = Eigen::Matrix<double, 1, Dynamic, 1, 1, max_nop>;
 using RowVector2Nd = Eigen::Matrix<double, 1, Dynamic, 1, 1, 2 * max_nop>;
 
 
+
 using Vector2d = Eigen::Vector2d;
 using Vector3d = Eigen::Vector3d;
 using Vector4d = Eigen::Vector4d;
@@ -45,6 +46,9 @@ using Matrix6d = Eigen::Matrix<double, 6, 6>;
 using Vector5d = Eigen::Matrix<double, 5, 1>;
 
 using Matrix3f = Eigen::Matrix3f;
+using Vector3f = Eigen::Vector3f;
+using Vector4f = Eigen::Vector4f;
+using Vector6f = Eigen::Matrix<double, 6, 1>;
 
 using u_int = unsigned int;
 

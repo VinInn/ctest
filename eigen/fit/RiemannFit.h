@@ -46,6 +46,72 @@ __host__ __device__ inline double cross2D(const Vector2d& a, const Vector2d& b)
     return a.x() * b.y() - a.y() * b.x();
 }
 
+/*!
+ *  load error in CMSSW format to our formalism
+ *  
+ */
+
+
+  template<typename M6x4f>
+  __host__ __device__ loadCovariance2D(M6x4f const & ge,  Matrix2Nd & hits_cov) {
+    // Index numerology:
+    // i: index of the hits/point (0,..,3)
+    // j: index of space component (x,y,z)
+    // l: index of space components (x,y,z)
+    // ge is always in sync with the index i and is formatted as:
+    // ge[] ==> [xx, xy, yy, xz, yz, zz]
+    // in (j,l) notation, we have:
+    // ge[] ==> [(0,0), (0,1), (1,1), (0,2), (1,2), (2,2)]
+    // so the index ge_idx corresponds to the matrix elements:
+    // | 0  1  3 |
+    // | 1  2  4 |
+    // | 3  4  5 |
+    for (uint32_t i=0; i<4; ++i) {
+      auto ge_idx = 0; auto j=0; auto l=0;
+      hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+      ge_idx = 2; j=1; l=1;
+      hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+      ge_idx = 1; j=1; l=0;
+      hits_cov(i + l * hits_in_fit, i + j * hits_in_fit) =
+      hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+    }
+  }
+  
+  template<typename M6x4f>
+  __host__ __device__ loadCovariance(M6x4f const & ge,  Matrix3Nd & hits_cov) {
+
+    // Index numerology:
+    // i: index of the hits/point (0,..,3)
+    // j: index of space component (x,y,z)
+    // l: index of space components (x,y,z)
+    // ge is always in sync with the index i and is formatted as:
+    // ge[] ==> [xx, xy, yy, xz, yz, zz]
+    // in (j,l) notation, we have:
+    // ge[] ==> [(0,0), (0,1), (1,1), (0,2), (1,2), (2,2)]
+    // so the index ge_idx corresponds to the matrix elements:
+    // | 0  1  3 |
+    // | 1  2  4 |
+    // | 3  4  5 |
+    for (uint32_t i=0; i<4; ++i) {
+      auto ge_idx = 0; auto j=0; auto l=0;
+      hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+      ge_idx = 2; j=1; l=1;
+      hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+      ge_idx = 5; j=2; l=2;
+      hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+      ge_idx = 1; j=1; l=0;
+      hits_cov(i + l * hits_in_fit, i + j * hits_in_fit) =
+	hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+      ge_idx = 3; j=2; l=0;
+      hits_cov(i + l * hits_in_fit, i + j * hits_in_fit) =
+	hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+      ge_idx = 4; j=2; l=1;
+      hits_cov(i + l * hits_in_fit, i + j * hits_in_fit) =
+	hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+    }
+  }
+
+  
 /*!  Compute the Radiation length in the uniform hypothesis
  *
  * The Pixel detector, barrel and forward, is considered as an omogeneous
@@ -870,10 +936,10 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
 }
 
 
-template<typename M3xN, typename V4>
+  template<typename M3xN, typename M6xN, typename V4>
 __host__ __device__ 
 inline line_fit Line_fit(const M3xN& hits,
-    const Matrix3Nd& hits_cov,
+    const  M6xN & hits_ge,
     const circle_fit& circle,
     const V4& fast_fit,
     const double B,
@@ -945,12 +1011,12 @@ inline line_fit Line_fit(const M3xN& hits,
     Cov << MatrixXd::Zero(6, 6);
     // Cov_sz_single << MatrixXd::Zero(2, 2);
     Cov.block(0, 0, 3, 3) = circle.cov;
-    Cov(3, 3) = hits_cov(i, i);                        // x errors
-    Cov(4, 4) = hits_cov(i + n, i + n);                // y errors
-    Cov(5, 5) = hits_cov(i + 2*n, i + 2*n);            // z errors
-    Cov(3, 4) = Cov(4, 3) = hits_cov(i, i + n);        // cov_xy
-    Cov(3, 5) = Cov(5, 3) = hits_cov(i, i + 2*n);      // cov_xz
-    Cov(4, 5) = Cov(5, 4) = hits_cov(i + n, i + 2*n);  // cov_yz
+    Cov(3, 3) = hits_ge.col(i)[0];                // x errors
+    Cov(4, 4) = hits_ge.col(i)[2];                // y errors
+    Cov(5, 5) = hits_ge.col(i)[5];                // z errors
+    Cov(3, 4) = Cov(4, 3) =  hits_ge.col(i)[1];   // cov_xy
+    Cov(3, 5) = Cov(5, 3) =  hits_ge.col(i)[3];   // cov_xz
+    Cov(4, 5) = Cov(5, 4) =  hits_ge.col(i)[4];   // cov_yz
     Matrix2d tmp = Jx * Cov * Jx.transpose();
     cov_sz[i].noalias() = rot*tmp*rot.transpose();
   }
