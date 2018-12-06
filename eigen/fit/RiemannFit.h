@@ -689,10 +689,9 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
     // COST FUNCTION
 
     // compute
-    Matrix3d A; //  = Matrix3d::Zero();
-    Vector3d r0; r0.noalias() = p3D * weight;  // center of gravity
+    Vector3d r0 = p3D * weight;  // center of gravity
     const Matrix3xNd X = p3D.colwise() - r0;
-    A.noalias() = X * G * X.transpose();
+    Matrix3d A = X * G * X.transpose();
     printIt(&A, "circle_fit - A:");
 
 #if RFIT_DEBUG
@@ -754,18 +753,18 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
 #if RFIT_DEBUG
         printf("circle_fit - ERROR PRPAGATION ACTIVATED\n");
 #endif
-        ArrayNd Vcs_[2][2];  // cov matrix of center & scaled points
+        MatrixNd Vcs_[2][2];  // cov matrix of center & scaled points
 #if RFIT_DEBUG
         printf("circle_fit - ERROR PRPAGATION ACTIVATED 2\n");
 #endif
         {
             Eigen::Matrix<double, 1, 1> cm;
             Eigen::Matrix<double, 1, 1> cm2;
-            cm = mc.transpose() * V * mc;
+            cm = mc.transpose() * V.selfadjointView<Eigen::Upper>() * mc;
             //      cm2 = mc * mc.transpose();
             const double c = cm(0, 0);
             //      const double c2 = cm2(0,0);
-            const Matrix2Nd Vcs = sqr(s) * V + sqr(sqr(s)) * 1. / (4. * q * n) *
+            const Matrix2Nd Vcs.triangularView<Eigen::Upper>() = sqr(s) * V + sqr(sqr(s)) * 1. / (4. * q * n) *
                                                    (2. * V.squaredNorm() + 4. * c) *  // mc.transpose() * V * mc) *
                                                    mc * mc.transpose();
             printIt(&Vcs, "circle_fit - Vcs:");
@@ -786,12 +785,16 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
             const ArrayNd t10 = t01.transpose();
             C[0][0] = Vcs_[0][0];
             C[0][1] = Vcs_[0][1];
-            C[0][2] = 2. * (Vcs_[0][0] * t0 + Vcs_[0][1] * t1);
+            C[0][2] = 2. * (Vcs_[0][0].selfadjointView<Eigen::Upper>().array() * t0 + Vcs_[0][1].array() * t1);
             C[1][1] = Vcs_[1][1];
-            C[1][2] = 2. * (Vcs_[1][0] * t0 + Vcs_[1][1] * t1);
-            C[2][2] = 2. * (Vcs_[0][0] * Vcs_[0][0] + Vcs_[0][0] * Vcs_[0][1] + Vcs_[1][1] * Vcs_[1][0] +
-                            Vcs_[1][1] * Vcs_[1][1]) +
-                      4. * (Vcs_[0][0] * t00 + Vcs_[0][1] * t01 + Vcs_[1][0] * t10 + Vcs_[1][1] * t11);
+            C[1][2] = 2. * (Vcs_[1][0].array() * t0 + Vcs_[1][1].selfadjointView<Eigen::Upper>().array() * t1);
+            C[2][2].triangularView<Eigen::Upper>() = 2. * (Vcs_[0][0].selfadjointView<Eigen::Upper>().array() * Vcs_[0][0].selfadjointView<Eigen::Upper>().array()
+							   + Vcs_[0][0].selfadjointView<Eigen::Upper>().array() * Vcs_[0][1].array()
+							   + Vcs_[1][1].selfadjointView<Eigen::Upper>().array() * Vcs_[1][0].array() +
+							   Vcs_[1][1].selfadjointView<Eigen::Upper>().array() * Vcs_[1][1].selfadjointView<Eigen::Upper>().array()) +
+	      4. * (Vcs_[0][0].selfadjointView<Eigen::Upper>().array() * t00 +
+		    Vcs_[0][1].array() * t01 + Vcs_[1][0].array() * t10 +
+		    Vcs_[1][1].selfadjointView<Eigen::Upper>().array() * t11);
         }
         printIt(&C[0][0], "circle_fit - C[0][0]:");
 
@@ -818,12 +821,12 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
 
         MatrixNd D_[3][3];  // cov(s_v)
         {
-            D_[0][0] = (H * C[0][0] * H.transpose()).cwiseProduct(W);
+            D_[0][0] = (H * C[0][0].selfadjointView<Eigen::Upper>() * H.transpose()).cwiseProduct(W);
             D_[0][1] = (H * C[0][1] * H.transpose()).cwiseProduct(W);
             D_[0][2] = (H * C[0][2] * H.transpose()).cwiseProduct(W);
-            D_[1][1] = (H * C[1][1] * H.transpose()).cwiseProduct(W);
+            D_[1][1] = (H * C[1][1].selfadjointView<Eigen::Upper>() * H.transpose()).cwiseProduct(W);
             D_[1][2] = (H * C[1][2] * H.transpose()).cwiseProduct(W);
-            D_[2][2] = (H * C[2][2] * H.transpose()).cwiseProduct(W);
+            D_[2][2] = (H * C[2][2].selfadjointView<Eigen::Upper>() * H.transpose()).cwiseProduct(W);
             D_[1][0] = D_[0][1].transpose();
             D_[2][0] = D_[0][2].transpose();
             D_[2][1] = D_[1][2].transpose();
