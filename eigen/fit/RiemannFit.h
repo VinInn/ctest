@@ -64,7 +64,8 @@ __host__ __device__ inline double cross2D(const Vector2d& a, const Vector2d& b)
     // | 0  1  3 |
     // | 1  2  4 |
     // | 3  4  5 |
-    for (uint32_t i=0; i<4; ++i) {
+    constexpr uint32_t  hits_in_fit = 4; // Fixme
+    for (uint32_t i=0; i< hits_in_fit; ++i) {
       auto ge_idx = 0; auto j=0; auto l=0;
       hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
       ge_idx = 2; j=1; l=1;
@@ -90,7 +91,8 @@ __host__ __device__ inline double cross2D(const Vector2d& a, const Vector2d& b)
     // | 0  1  3 |
     // | 1  2  4 |
     // | 3  4  5 |
-    for (uint32_t i=0; i<4; ++i) {
+    constexpr uint32_t  hits_in_fit = 4; // Fixme
+    for (uint32_t i=0; i<hits_in_fit; ++i) {
       auto ge_idx = 0; auto j=0; auto l=0;
       hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
       ge_idx = 2; j=1; l=1;

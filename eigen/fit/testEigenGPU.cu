@@ -46,7 +46,7 @@ auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::VectorNd rad = (hits.block(0, 0, 2, n).colwise().norm());
 
   Rfit::Matrix2Nd hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
-  Rfit::loadCovariance2d(hits_ge,hits_cov);
+  Rfit::loadCovariance2D(hits_ge,hits_cov);
   
 #if TEST_DEBUG
 if (0==i) {
@@ -116,7 +116,7 @@ void fillHitsAndHitsCov(M3x4 & hits, M6x4 & hits_ge) {
 
 __global__
 void kernelFillHitsAndHitsCov(double * __restrict__ phits,
-  double * phits_ge) {
+  float * phits_ge) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3x4d hits(phits+i,3,4);
   Rfit::Map6x4f hits_ge(phits_ge+i,6,4);
