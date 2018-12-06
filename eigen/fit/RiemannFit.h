@@ -102,7 +102,7 @@ void computeRadLenUniformMaterial(const VectorNd &length_values,
  */
 
 template<typename V4>
-__host__ __device__ inline MatrixNd Scatter_cov_line(Matrix2Nd& cov_sz,
+__host__ __device__ inline MatrixNd Scatter_cov_line(Matrix2d const * cov_sz,
                                                      const V4& fast_fit,
                                                      VectorNd const& s_arcs,
                                                      VectorNd const& z_values,
@@ -127,19 +127,12 @@ __host__ __device__ inline MatrixNd Scatter_cov_line(Matrix2Nd& cov_sz,
 #if RFIT_DEBUG
     Rfit::printIt(&cov_sz, "Scatter_cov_line - cov_sz: ");
 #endif
-    Matrix2Nd rot = MatrixXd::Zero(2 * n, 2 * n);
-    for (u_int i = 0; i < n; ++i) {
-      rot(i, i) = sin(theta);
-      rot(n + i, n + i) = sin(theta);
-      u_int j = (i + n);
-      rot(i, j) = i < j ? cos(theta) : -cos(theta);
-    }
-
-#if RFIT_DEBUG
-    Rfit::printIt(&rot, "Scatter_cov_line - rot: ");
-#endif
-
-    Matrix2Nd tmp = rot*cov_sz*rot.transpose();
+    Matrix2Nd tmp = MatrixXd::Zero(2 * n, 2 * n);
+    for (u_int k = 0; k < n; ++k) {
+     tmp(k, k) = cov_sz[k](0, 0);
+     tmp(k + n, k + n) = cov_sz[k](1, 1);
+     tmp(k, k + n) = tmp(k + n, k) = cov_sz[i](0, 1);
+    } 
     for (u_int k = 0; k < n; ++k)
     {
       for (u_int l = k; l < n; ++l)
@@ -889,6 +882,11 @@ inline line_fit Line_fit(const M3xN& hits,
   double theta = -circle.q*atan(fast_fit(3));
   theta = theta < 0. ? theta + M_PI : theta;
 
+  // Prepare the Rotation Matrix to rotate the points
+  Eigen::Matrix<double, 2, 2> rot;
+  rot << sin(theta), cos(theta), -cos(theta), sin(theta);
+
+  
   // PROJECTION ON THE CILINDER
   //
   // p2D will be:
@@ -916,9 +914,8 @@ inline line_fit Line_fit(const M3xN& hits,
   const Vector2d o(circle.par(0), circle.par(1));
 
   // associated Jacobian, used in weights and errors computation
-  Matrix2Nd cov_sz = MatrixXd::Zero(2 * n, 2 * n);
   Matrix6d Cov(6,6);
-  Matrix2d Cov_sz_single(2, 2);
+  Matrix2d cov_sz[4];  // FIXME: should be max nhit
   for (u_int i = 0; i < n; ++i)
   {
     Vector2d p = hits.block(0, i, 2, 1) - o;
@@ -943,6 +940,8 @@ inline line_fit Line_fit(const M3xN& hits,
     const double d_y = temp0 * (-o(0) * dot + o(1) * cross);
     Jx << d_X0, d_Y0, d_R, d_x, d_y, 0., 0., 0., 0., 0., 0., 1.;
 
+
+    
     Cov << MatrixXd::Zero(6, 6);
     // Cov_sz_single << MatrixXd::Zero(2, 2);
     Cov.block(0, 0, 3, 3) = circle.cov;
@@ -952,10 +951,8 @@ inline line_fit Line_fit(const M3xN& hits,
     Cov(3, 4) = Cov(4, 3) = hits_cov(i, i + n);        // cov_xy
     Cov(3, 5) = Cov(5, 3) = hits_cov(i, i + 2*n);      // cov_xz
     Cov(4, 5) = Cov(5, 4) = hits_cov(i + n, i + 2*n);  // cov_yz
-    Cov_sz_single.noalias() = Jx * Cov * Jx.transpose();
-    cov_sz(i, i) = Cov_sz_single(0, 0);
-    cov_sz(i + n, i + n) = Cov_sz_single(1, 1);
-    cov_sz(i, i + n) = cov_sz(i + n, i) = Cov_sz_single(0, 1);
+    Matrix2d tmp = Jx * Cov * Jx.transpose();
+    cov_sz[i].noalias() = rot*tmp*rot.transpose();
   }
   // Math of d_{X0,Y0,R,x,y} all verified by hand
   p2D.row(1) = hits.row(2);
