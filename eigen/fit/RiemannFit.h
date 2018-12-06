@@ -131,7 +131,7 @@ __host__ __device__ inline MatrixNd Scatter_cov_line(Matrix2d const * cov_sz,
     for (u_int k = 0; k < n; ++k) {
      tmp(k, k) = cov_sz[k](0, 0);
      tmp(k + n, k + n) = cov_sz[k](1, 1);
-     tmp(k, k + n) = tmp(k + n, k) = cov_sz[i](0, 1);
+     tmp(k, k + n) = tmp(k + n, k) = cov_sz[k](0, 1);
     } 
     for (u_int k = 0; k < n; ++k)
     {
@@ -964,10 +964,6 @@ inline line_fit Line_fit(const M3xN& hits,
   printIt(&cov_sz, "line_fit - cov_sz:");
   printIt(&cov_with_ms, "line_fit - cov_with_ms: ");
 #endif
-
-  // Prepare the Rotation Matrix to rotate the points
-  Eigen::Matrix<double, 2, 2> rot; //  = Eigen::Matrix<double, 2, 2>::Zero();
-  rot << sin(theta), cos(theta), -cos(theta), sin(theta);
 
   // Rotate Points with the shape [2, n]
   Matrix2xNd p2D_rot = rot*p2D;
