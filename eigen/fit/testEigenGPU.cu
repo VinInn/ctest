@@ -139,7 +139,7 @@ void testFit() {
   fillHitsAndHitsCov(hits, hits_ge);
   
   std::cout << "Generated hits:\n" << hits << std::endl;
-  std::cout << "Generated cov:\n" << hits_cov << std::endl;
+  std::cout << "Generated cov:\n" << hits_ge << std::endl;
 
   // FAST_FIT_CPU
   Vector4d fast_fit_results; Rfit::Fast_fit(hits, fast_fit_results);
