@@ -15,7 +15,8 @@ void symTest() {
 
   Eigen::Matrix2f j; j<< 1,-1,0,0.5;
 
-  Eigen::Matrix<float,1,2> w; w<<1,-1;
+  Eigen::Matrix<float,1,2> v; v<<1,-1;
+  Eigen::Matrix<float,2,1> w; w<<1,-1;
 
   Eigen::Matrix4f Vcs;
 
@@ -46,13 +47,18 @@ void symTest() {
    C[1][0].triangularView<Eigen::Upper>() = j*C[0][0].selfadjointView<Eigen::Upper>()*j.transpose();
    C[2][0].triangularView<Eigen::Upper>() = j.transpose()*C[0][0].selfadjointView<Eigen::Upper>()*j;
 
-//   C[0][1].triangularView<Eigen::Upper>() = Vcs_[0][0].triangularView<Eigen::Upper>();
+   C[0][1].triangularView<Eigen::Upper>() = Vcs_[0][0].triangularView<Eigen::Upper>();
    C[1][1].triangularView<Eigen::Upper>() = (Vcs_[0][0].array()*Vcs_[0][0].array()).matrix().triangularView<Eigen::Upper>();
 //   std::cout << C[1][1] << std::endl;
 
 
-  Eigen::Matrix<float,1,1> c;
-  c = w*C[0][0].selfadjointView<Eigen::Upper>()*w.transpose();
+  Eigen::Matrix<float,1,1> c1,c2;
+  c1 = v*C[0][0].selfadjointView<Eigen::Upper>()*v.transpose();
+  //std::cout << c << std::endl;
+
+
+  c2 = w.transpose()*C[0][0].selfadjointView<Eigen::Upper>()*w;
+  // std::cout << c << std::endl;
 
 }
 
