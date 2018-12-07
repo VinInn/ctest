@@ -770,7 +770,7 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
             Vcs.triangularView<Eigen::Upper>() = (sqr(s) * V 
                                                  + sqr(sqr(s)) * 1. / (4. * q * n) *
                                                    (2. * V.squaredNorm() + 4. * c) *  // mc.transpose() * V * mc) *
-                                                   (mc * mc.transpose())).triangularView<Eigen::Upper>();
+                                                   (mc * mc.transpose()));
             printIt(&Vcs, "circle_fit - Vcs:");
             C[0][0] = Vcs.block(0, 0, n, n);
             C[0][1] = Vcs.block(0, n, n, n);
@@ -783,9 +783,9 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
             const ArrayNd t0 = (VectorXd::Constant(n, 1.) * p3D.row(0));
             const ArrayNd t1 = (VectorXd::Constant(n, 1.) * p3D.row(1));
             MatrixNd t00= MatrixXd::Zero(n, n); 
-            t00.triangularView<Eigen::Upper>() = (p3D.row(0).transpose() * p3D.row(0)).selfadjointView<Eigen::Upper>();
+            t00.triangularView<Eigen::Upper>() = (p3D.row(0).transpose() * p3D.row(0));
             MatrixNd t11= MatrixXd::Zero(n, n);
-            t11.triangularView<Eigen::Upper>() = (p3D.row(1).transpose() * p3D.row(1)).selfadjointView<Eigen::Upper>();
+            t11.triangularView<Eigen::Upper>() = (p3D.row(1).transpose() * p3D.row(1));
             const ArrayNd t01 = p3D.row(0).transpose() * p3D.row(1);
             const ArrayNd t10 = t01.transpose();
             C[0][2] = 2. * (C[0][0].array() * t0 + C[0][1].array() * t1);
