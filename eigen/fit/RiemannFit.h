@@ -782,9 +782,11 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
         {
             const ArrayNd t0 = (VectorXd::Constant(n, 1.) * p3D.row(0));
             const ArrayNd t1 = (VectorXd::Constant(n, 1.) * p3D.row(1));
-            const ArrayNd t00 = p3D.row(0).transpose() * p3D.row(0);
+            MatrixNd t00= MatrixXd::Zero(n, n); 
+            t00.triangularView<Eigen::Upper>() = (p3D.row(0).transpose() * p3D.row(0)).selfadjointView<Eigen::Upper>();
+            MatrixNd t11= MatrixXd::Zero(n, n);
+            t11.triangularView<Eigen::Upper>() = (p3D.row(1).transpose() * p3D.row(1)).selfadjointView<Eigen::Upper>();
             const ArrayNd t01 = p3D.row(0).transpose() * p3D.row(1);
-            const ArrayNd t11 = p3D.row(1).transpose() * p3D.row(1);
             const ArrayNd t10 = t01.transpose();
             C[0][2] = 2. * (C[0][0].array() * t0 + C[0][1].array() * t1);
             C[1][2] = 2. * (Vcs_10.array() * t0 + C[1][1].array() * t1);

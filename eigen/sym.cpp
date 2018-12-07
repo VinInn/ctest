@@ -39,11 +39,15 @@ int main() {
    std::cout << Vcs_[1][1] << std::endl;
    std::cout << Vcs_[1][0] << std::endl;
 
-   Eigen::Matrix2f C[3][3];
+   std::cout << std::endl;
 
+
+   Eigen::Matrix2f C[3][3];
+   std::cout << std::endl;
    C[0][0] = Vcs_[0][0].selfadjointView<Eigen::Upper>();
    std::cout << C[0][0] << std::endl;
 
+   std::cout << std::endl;
 
    C[1][0].triangularView<Eigen::Upper>() = j*C[0][0].selfadjointView<Eigen::Upper>()*j.transpose();
    std::cout << C[1][0] << std::endl;
@@ -52,13 +56,31 @@ int main() {
    C[1][1].triangularView<Eigen::Upper>() = (Vcs_[0][0].array()*Vcs_[0][0].array()).matrix().triangularView<Eigen::Upper>();
    std::cout << C[1][1] << std::endl;
 
+   std::cout << std::endl;
+
+
   Eigen::Matrix<float,1,1> c;
   c = v*C[0][0].selfadjointView<Eigen::Upper>()*v.transpose();
   std::cout << c << std::endl;
 
 
- c = w.transpose()*C[0][0].selfadjointView<Eigen::Upper>()*w;
+  c = w.transpose()*C[0][0].selfadjointView<Eigen::Upper>()*w;
   std::cout << c << std::endl;
+
+
+  Eigen::Matrix<float,2,4> q = VcsF.block(0, 0, 2, 4);
+
+  Eigen::Matrix<float,2,2> qq = q*q.transpose();
+  std::cout << qq<< std::endl;
+
+
+  Eigen::Matrix<float,2,2> qqq;
+  qqq.triangularView<Eigen::Upper>() = q*q.transpose();
+  std::cout << qqq<< std::endl;
+
+  Eigen::Matrix<float,2,2> qqqq;
+  qqqq.triangularView<Eigen::Upper>() = q*q.transpose();
+  std::cout << qqqq<< std::endl;
 
    return 0;
 }
