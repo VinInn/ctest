@@ -33,4 +33,14 @@ int main() {
    std::cout << Vcs_[1][1] << std::endl;
    std::cout << Vcs_[1][0] << std::endl;
 
-};
+   Eigen::Matrix2f C[2][2];
+
+   C[0][0] = Vcs_[0][0].selfadjointView<Eigen::Upper>();
+   std::cout << C[0][0] << std::endl;
+
+   C[1][1].triangularView<Eigen::Upper>() = (Vcs_[0][0].array()*Vcs_[0][0].array()).matrix().triangularView<Eigen::Upper>();
+   std::cout << C[1][1] << std::endl;
+
+
+   return 0;
+}
