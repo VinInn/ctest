@@ -3,8 +3,8 @@
 
 #include<iostream>
 
-
-int main() {
+__global__
+void symTest() {
 
   int n=2;
   Eigen::Matrix4f VcsF;
@@ -15,13 +15,12 @@ int main() {
 
   Eigen::Matrix2f j; j<< 1,-1,0,0.5;
 
-
   Eigen::Matrix4f Vcs;
 
   Vcs.triangularView<Eigen::Upper>() = VcsF;
 
 
-  std::cout <<Vcs << std::endl;
+//  std::cout <<Vcs << std::endl;
 
   Eigen::Matrix2f Vcs_[2][2];
 
@@ -30,25 +29,28 @@ int main() {
     Vcs_[1][1] = Vcs.block(n, n, n, n);
     Vcs_[1][0] = Vcs_[0][1].transpose();
  
-
+   /*
    std::cout << Vcs_[0][0] << std::endl;
    std::cout << Vcs_[0][1] << std::endl;
    std::cout << Vcs_[1][1] << std::endl;
    std::cout << Vcs_[1][0] << std::endl;
+   */
 
    Eigen::Matrix2f C[2][2];
 
    C[0][0] = Vcs_[0][0].selfadjointView<Eigen::Upper>();
-   std::cout << C[0][0] << std::endl;
-
+//   std::cout << C[0][0] << std::endl;
 
    C[1][0].triangularView<Eigen::Upper>() = j*C[0][0].selfadjointView<Eigen::Upper>()*j.transpose();
-   std::cout << C[1][0] << std::endl;
-
 
    C[1][1].triangularView<Eigen::Upper>() = (Vcs_[0][0].array()*Vcs_[0][0].array()).matrix().triangularView<Eigen::Upper>();
-   std::cout << C[1][1] << std::endl;
+//   std::cout << C[1][1] << std::endl;
+
+}
 
 
-   return 0;
+int main() {
+
+  symTest<<<1,1>>>();
+  cudaDeviceSynchronize();
 }
