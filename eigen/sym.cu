@@ -42,7 +42,7 @@ void symTest() {
 //   std::cout << C[0][0] << std::endl;
 
    C[1][0].triangularView<Eigen::Upper>() = j*C[0][0].selfadjointView<Eigen::Upper>()*j.transpose();
-
+   C[0][1].triangularView<Eigen::Upper>() = Vcs_[0][0].triangularView<Eigen::Upper>();
    C[1][1].triangularView<Eigen::Upper>() = (Vcs_[0][0].array()*Vcs_[0][0].array()).matrix().triangularView<Eigen::Upper>();
 //   std::cout << C[1][1] << std::endl;
 

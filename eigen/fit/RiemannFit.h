@@ -760,7 +760,8 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
         {
             Eigen::Matrix<double, 1, 1> cm;
             Eigen::Matrix<double, 1, 1> cm2;
-            cm = mc.transpose() * V.selfadjointView<Eigen::Upper>() * mc;
+            cm = mc.transpose() * V * mc;
+//            cm = mc.transpose() * V.selfadjointView<Eigen::Upper>() * mc;
             //      cm2 = mc * mc.transpose();
             const double c = cm(0, 0);
             //      const double c2 = cm2(0,0);
@@ -823,12 +824,15 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
 
         MatrixNd D_[3][3];  // cov(s_v)
         {
-            D_[0][0] = (H * C[0][0].selfadjointView<Eigen::Upper>() * H.transpose()).cwiseProduct(W);
+            MatrixNd tmp=C[0][0].selfadjointView<Eigen::Upper>();
+            D_[0][0] = (H * tmp * H.transpose()).cwiseProduct(W);
             D_[0][1] = (H * C[0][1] * H.transpose()).cwiseProduct(W);
             D_[0][2] = (H * C[0][2] * H.transpose()).cwiseProduct(W);
-            D_[1][1] = (H * C[1][1].selfadjointView<Eigen::Upper>() * H.transpose()).cwiseProduct(W);
+            tmp=C[1][1].selfadjointView<Eigen::Upper>();
+            D_[1][1] = (H * tmp * H.transpose()).cwiseProduct(W);
             D_[1][2] = (H * C[1][2] * H.transpose()).cwiseProduct(W);
-            D_[2][2] = (H * C[2][2].selfadjointView<Eigen::Upper>() * H.transpose()).cwiseProduct(W);
+            tmp=C[2][2].selfadjointView<Eigen::Upper>();
+            D_[2][2] = (H * tmp * H.transpose()).cwiseProduct(W);
             D_[1][0] = D_[0][1].transpose();
             D_[2][0] = D_[0][2].transpose();
             D_[2][1] = D_[1][2].transpose();
