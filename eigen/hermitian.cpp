@@ -26,9 +26,20 @@ int main() {
 
   VcsF = Vcs;
 
-
   std::cout <<Vcs << std::endl;
+
+  H4f a = Vcs*Vcs;
+  std::cout << a << std::endl;
+
+  H2f b; b << 1,12,12,2;
+
+  H2f c = j*b*j.transpose();
   
+  //H4f c; c << VcsF;
+  
+  std::cout << c << std::endl;
+
+
 /*
     Eigen::Matrix2f tmp = VcsF.block(0, 0, n, n);
     H2f Vcs_00 = tmp;
@@ -46,7 +57,8 @@ int main() {
    
   */ 
 
-  
+/*  
+
    H2f C[3][3];
    std::cout << std::endl;
 
@@ -59,6 +71,8 @@ int main() {
 
    C[1][0] = j*C[0][0]*j.transpose();
    std::cout << C[1][0] << std::endl;
+
+*/
 
 /*
    C[1][1] = (Vcs_[0][0].array()*Vcs_[0][0].array()).matrix();
