@@ -21,6 +21,8 @@ int main() {
 
   Eigen::Matrix4f Vcs;
 
+  std::cout << Eigen::Matrix4f::RowsAtCompileTime << ' ' << Eigen::Matrix4f::ColsAtCompileTime << std::endl;
+
   Vcs.triangularView<Eigen::Upper>() = VcsF;
 
 
