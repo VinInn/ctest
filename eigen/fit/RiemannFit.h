@@ -170,12 +170,12 @@ void computeRadLenUniformMaterial(const VNd &length_values,
  */
 
 template<typename V4, typename VNd>
-__host__ __device__ inline MatrixNd Scatter_cov_line(Matrix2d const * cov_sz,
+__host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
                                                      const V4& fast_fit,
                                                      VNd const& s_arcs,
                                                      VNd const& z_values,
                                                      const double theta,
-                                                     const double B)
+						 const double B) -> MatrixNd<VNd::RawsAtCompileTime>
 {
 #if RFIT_DEBUG
     Rfit::printIt(&s_arcs, "Scatter_cov_line - s_arcs: ");
@@ -289,7 +289,7 @@ __host__ __device__ inline MatrixNd Scatter_cov_line(Matrix2d const * cov_sz,
 */
 
   template<int N>
-__host__ __device__ inline Matrix2Nd cov_radtocart(const Matrix2xNd& p2D,
+  __host__ __device__ inline Matrix2Nd<N> cov_radtocart(const Matrix2xNd& p2D,
                                                    const MatrixNd<N>& cov_rad,
                                                    const VectorNd<N>& rad)
 {
@@ -1143,7 +1143,7 @@ inline line_fit Line_fit(const M3xN& hits,
    \bug see Circle_fit(), Line_fit() and Fast_fit() bugs.
 */
 
-template<typename N>
+template<int N>
 inline helix_fit Helix_fit(const Matrix3xNd<N>& hits, const Matrix3Nd<N>& hits_cov, const double B,
                            const bool error = true)
 {
