@@ -134,8 +134,9 @@ __host__ __device__ inline double cross2D(const Vector2d& a, const Vector2d& b)
  * \return incremental radiation lengths that correspond to each segment.
  */
 
-__host__ __device__ inline
+
 template<typename VNd>
+__host__ __device__ inline
 void computeRadLenUniformMaterial(const VNd &length_values,
     VNd & rad_lengths) {
   // Radiation length of the pixel detector in the uniform assumption, with

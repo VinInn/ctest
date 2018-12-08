@@ -29,7 +29,6 @@ using Matrix3Nd = Eigen::Matrix<double, 3 * N, 3 * N>;
 template<int N>
 using Matrix2xNd = Eigen::Matrix<double, 2, N>;
 template<int N>
-template<int N>
 using Array2xNd = Eigen::Array<double, 2, N>;
 template<int N>
 using Matrix3xNd = Eigen::Matrix<double, 3, N>;
