@@ -33,6 +33,16 @@ using Vector3Nd = Eigen::Matrix<double, Dynamic, 1, 0, 3 * max_nop, 1>;
 using RowVectorNd = Eigen::Matrix<double, 1, Dynamic, 1, 1, max_nop>;
 using RowVector2Nd = Eigen::Matrix<double, 1, Dynamic, 1, 1, 2 * max_nop>;
 
+template<int N>
+using TMatrixNd = Eigen::Matrix<double,N,N>;
+template<int N>
+using TMatrix2Nd = Eigen::Matrix<double,2*N,2*N>;
+template<int N>
+using TVectorNd = Eigen::Vector<double,N>;
+template<int N>
+using TVector2Nd = Eigen::Vector<double,2*N>;
+
+
 
 
 using Vector2d = Eigen::Vector2d;

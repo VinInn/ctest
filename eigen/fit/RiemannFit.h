@@ -50,8 +50,8 @@ __host__ __device__ inline double cross2D(const Vector2d& a, const Vector2d& b)
  *  load error in CMSSW format to our formalism
  *  
  */
-  template<typename M6x4f>
-  __host__ __device__ void loadCovariance2D(M6x4f const & ge,  Matrix2Nd & hits_cov) {
+  template<typename M6x4f, typename M2Nd>
+  __host__ __device__ void loadCovariance2D(M6x4f const & ge,  M2Nd & hits_cov) {
     // Index numerology:
     // i: index of the hits/point (0,..,3)
     // j: index of space component (x,y,z)
@@ -135,8 +135,9 @@ __host__ __device__ inline double cross2D(const Vector2d& a, const Vector2d& b)
  */
 
 __host__ __device__ inline
-void computeRadLenUniformMaterial(const VectorNd &length_values,
-    VectorNd & rad_lengths) {
+template<typename VNd>
+void computeRadLenUniformMaterial(const VNd &length_values,
+    VNd & rad_lengths) {
   // Radiation length of the pixel detector in the uniform assumption, with
   // 0.06 rad_len at 16 cm
   constexpr double XX_0_inv = 0.06/16.;
@@ -167,11 +168,11 @@ void computeRadLenUniformMaterial(const VectorNd &length_values,
     correspond to the case at eta = 0.
  */
 
-template<typename V4>
+template<typename V4, typename VNd>
 __host__ __device__ inline MatrixNd Scatter_cov_line(Matrix2d const * cov_sz,
                                                      const V4& fast_fit,
-                                                     VectorNd const& s_arcs,
-                                                     VectorNd const& z_values,
+                                                     VNd const& s_arcs,
+                                                     VNd const& z_values,
                                                      const double theta,
                                                      const double B)
 {
@@ -305,11 +306,12 @@ __host__ __device__ inline Matrix2Nd cov_radtocart(const Matrix2xNd& p2D,
             cov_cart(i + n, j + n) = cov_rad(i, j) * p2D(0, i) * rad_inv(i) * p2D(0, j) * rad_inv(j);
             cov_cart(i, j + n) = -cov_rad(i, j) * p2D(1, i) * rad_inv(i) * p2D(0, j) * rad_inv(j);
             cov_cart(i + n, j) = -cov_rad(i, j) * p2D(0, i) * rad_inv(i) * p2D(1, j) * rad_inv(j);
-
+            /*
             cov_cart(j, i) = cov_cart(i, j);
             cov_cart(j + n, i + n) = cov_cart(i + n, j + n);
             cov_cart(j + n, i) = cov_cart(i, j + n);
             cov_cart(j, i + n) = cov_cart(i + n, j);
+            */
         }
     }
     return cov_cart;
@@ -640,7 +642,7 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
 #if RFIT_DEBUG
         printf("Address of hits2D: a) %p\n", &hits2D);
 #endif
-        V += cov_radtocart(hits2D, scatter_cov_rad, rad);
+        V.triangularView<Eigen::Upper>() += cov_radtocart(hits2D, scatter_cov_rad, rad);
         printIt(&V, "circle_fit - V:");
         cov_rad += scatter_cov_rad;
         printIt(&cov_rad, "circle_fit - cov_rad:");
@@ -755,28 +757,33 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
         printf("circle_fit - ERROR PRPAGATION ACTIVATED\n");
 #endif
         ArrayNd Vcs_[2][2];  // cov matrix of center & scaled points
+        MatrixNd C[3][3];  // cov matrix of 3D transformed points
 #if RFIT_DEBUG
         printf("circle_fit - ERROR PRPAGATION ACTIVATED 2\n");
 #endif
         {
+            Matrix2Nd tmp = MatrixXd::Zero(2*n, 2*n);
+            tmp  = V.selfadjointView<Eigen::Upper>();
             Eigen::Matrix<double, 1, 1> cm;
             Eigen::Matrix<double, 1, 1> cm2;
-            cm = mc.transpose() * V * mc;
+            cm = mc.transpose() * tmp * mc;
             //      cm2 = mc * mc.transpose();
             const double c = cm(0, 0);
             //      const double c2 = cm2(0,0);
-            const Matrix2Nd Vcs = sqr(s) * V + sqr(sqr(s)) * 1. / (4. * q * n) *
-                                                   (2. * V.squaredNorm() + 4. * c) *  // mc.transpose() * V * mc) *
-                                                   mc * mc.transpose();
+            Matrix2Nd Vcs = MatrixXd::Zero(2*n, 2*n);
+            Vcs.triangularView<Eigen::Upper>() = (sqr(s) * V
+                                                 + sqr(sqr(s)) * 1. / (4. * q * n) *
+                                                   (2. * tmp.squaredNorm() + 4. * c) *  // mc.transpose() * V * mc) *
+                                                   (mc * mc.transpose()));
+
             printIt(&Vcs, "circle_fit - Vcs:");
-            Vcs_[0][0] = Vcs.block(0, 0, n, n);
+            C[0][0] = Vcs.block(0, 0, n, n).selfadjointView<Eigen::Upper>();
             Vcs_[0][1] = Vcs.block(0, n, n, n);
-            Vcs_[1][1] = Vcs.block(n, n, n, n);
+            C[1][1] = Vcs.block(n, n, n, n).selfadjointView<Eigen::Upper>();
             Vcs_[1][0] = Vcs_[0][1].transpose();
             printIt(&Vcs, "circle_fit - Vcs:");
         }
 
-        MatrixNd C[3][3];  // cov matrix of 3D transformed points
         {
             const ArrayNd t0 = (VectorXd::Constant(n, 1.) * p3D.row(0));
             const ArrayNd t1 = (VectorXd::Constant(n, 1.) * p3D.row(1));
@@ -784,14 +791,16 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
             const ArrayNd t01 = p3D.row(0).transpose() * p3D.row(1);
             const ArrayNd t11 = p3D.row(1).transpose() * p3D.row(1);
             const ArrayNd t10 = t01.transpose();
-            C[0][0] = Vcs_[0][0];
+            Vcs_[0][0] = C[0][0];;
             C[0][1] = Vcs_[0][1];
             C[0][2] = 2. * (Vcs_[0][0] * t0 + Vcs_[0][1] * t1);
-            C[1][1] = Vcs_[1][1];
+            Vcs_[1][1] = C[1][1];
             C[1][2] = 2. * (Vcs_[1][0] * t0 + Vcs_[1][1] * t1);
-            C[2][2] = 2. * (Vcs_[0][0] * Vcs_[0][0] + Vcs_[0][0] * Vcs_[0][1] + Vcs_[1][1] * Vcs_[1][0] +
+            MatrixNd tmp = MatrixXd::Zero(n, n);
+            tmp.triangularView<Eigen::Upper>() =  ( 2. * (Vcs_[0][0] * Vcs_[0][0] + Vcs_[0][0] * Vcs_[0][1] + Vcs_[1][1] * Vcs_[1][0] +
                             Vcs_[1][1] * Vcs_[1][1]) +
-                      4. * (Vcs_[0][0] * t00 + Vcs_[0][1] * t01 + Vcs_[1][0] * t10 + Vcs_[1][1] * t11);
+                      4. * (Vcs_[0][0] * t00 + Vcs_[0][1] * t01 + Vcs_[1][0] * t10 + Vcs_[1][1] * t11) ).matrix();
+            C[2][2] = tmp.selfadjointView<Eigen::Upper>();
         }
         printIt(&C[0][0], "circle_fit - C[0][0]:");
 
