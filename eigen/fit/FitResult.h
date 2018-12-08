@@ -15,33 +15,38 @@ namespace Rfit
 constexpr double d = 1.e-4;          //!< used in numerical derivative (J2 in Circle_fit())
 constexpr unsigned int max_nop = 4;  //!< In order to avoid use of dynamic memory
 
-constexpr auto Dynamic = Eigen::Dynamic;
+
 using VectorXd = Eigen::VectorXd;
 using MatrixXd = Eigen::MatrixXd;
-using MatrixNd = Eigen::Matrix<double, Dynamic, Dynamic, 0, max_nop, max_nop>;
-using ArrayNd = Eigen::Array<double, Dynamic, Dynamic, 0, max_nop, max_nop>;
-using Matrix2Nd = Eigen::Matrix<double, Dynamic, Dynamic, 0, 2 * max_nop, 2 * max_nop>;
-using Matrix3Nd = Eigen::Matrix<double, Dynamic, Dynamic, 0, 3 * max_nop, 3 * max_nop>;
-using Matrix2xNd = Eigen::Matrix<double, 2, Dynamic, 0, 2, max_nop>;
-using Array2xNd = Eigen::Array<double, 2, Dynamic, 0, 2, max_nop>;
-using Matrix3xNd = Eigen::Matrix<double, 3, Dynamic, 0, 3, max_nop>;
-using MatrixNx3d = Eigen::Matrix<double, Dynamic, 3, 0, max_nop, 3>;
-using MatrixNx5d = Eigen::Matrix<double, Dynamic, 5, 0, max_nop, 5>;
-using VectorNd = Eigen::Matrix<double, Dynamic, 1, 0, max_nop, 1>;
-using Vector2Nd = Eigen::Matrix<double, Dynamic, 1, 0, 2 * max_nop, 1>;
-using Vector3Nd = Eigen::Matrix<double, Dynamic, 1, 0, 3 * max_nop, 1>;
-using RowVectorNd = Eigen::Matrix<double, 1, Dynamic, 1, 1, max_nop>;
-using RowVector2Nd = Eigen::Matrix<double, 1, Dynamic, 1, 1, 2 * max_nop>;
-
 template<int N>
-using TMatrixNd = Eigen::Matrix<double,N,N>;
+using MatrixNd = Eigen::Matrix<double, N, N>;
 template<int N>
-using TMatrix2Nd = Eigen::Matrix<double,2*N,2*N>;
+using ArrayNd = Eigen::Array<double, N, N>;
 template<int N>
-using TVectorNd = Eigen::Vector<double,N>;
+using Matrix2Nd = Eigen::Matrix<double, 2 * N, 2 * N>;
 template<int N>
-using TVector2Nd = Eigen::Vector<double,2*N>;
-
+using Matrix3Nd = Eigen::Matrix<double, 3 * N, 3 * N>;
+template<int N>
+using Matrix2xNd = Eigen::Matrix<double, 2, N>;
+template<int N>
+template<int N>
+using Array2xNd = Eigen::Array<double, 2, N>;
+template<int N>
+using Matrix3xNd = Eigen::Matrix<double, 3, N>;
+template<int N>
+using MatrixNx3d = Eigen::Matrix<double, N, 3>;
+template<int N>
+using MatrixNx5d = Eigen::Matrix<double, N, 5>;
+template<int N>
+using VectorNd = Eigen::Matrix<double, N, 1>;
+template<int N>
+using Vector2Nd = Eigen::Matrix<double, 2 * N, 1>;
+template<int N>
+using Vector3Nd = Eigen::Matrix<double, 3 * N, 1>;
+template<int N>
+using RowVectorNd = Eigen::Matrix<double, 1, 1, N>;
+template<int N>
+using RowVector2Nd = Eigen::Matrix<double, 1, 2 * N>;
 
 
 

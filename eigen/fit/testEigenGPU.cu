@@ -40,12 +40,13 @@ auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3x4d hits(phits+i,3,4);
   Rfit::Map4d   fast_fit_input(pfast_fit_input+i,4);
   Rfit::Map6x4f hits_ge(phits_ge+i,6,4);
- 
-  u_int n = hits.cols();
-  
-  Rfit::VectorNd rad = (hits.block(0, 0, 2, n).colwise().norm());
 
-  Rfit::Matrix2Nd hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
+  constexpr auto N = Rfit::Map3x4d::::ColsAtCompileTime;
+  constexpr auto u_int n = N;
+  
+  Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, n).colwise().norm());
+
+  Rfit::Matrix2Nd<N> hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
   Rfit::loadCovariance2D(hits_ge,hits_cov);
   
 #if TEST_DEBUG
@@ -147,7 +148,7 @@ void testFit() {
 
   // for timing    purposes we fit    4096 tracks
   constexpr uint32_t Ntracks = 4096;
-  cudaCheck(cudaMalloc(&hitsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix3xNd(3,4))));
+  cudaCheck(cudaMalloc(&hitsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix3xNd<4>)));
   cudaCheck(cudaMalloc(&hits_geGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix6x4f)));
   cudaCheck(cudaMalloc(&fast_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Vector4d)));
   cudaCheck(cudaMalloc((void **)&line_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::line_fit)));
@@ -166,10 +167,11 @@ void testFit() {
   assert(isEqualFuzzy(fast_fit_results, fast_fit));
 
   // CIRCLE_FIT CPU
-  u_int n = hits.cols();
-  Rfit::VectorNd rad = (hits.block(0, 0, 2, n).colwise().norm());
+  constexpr auto N = Rfit::Map3x4d::::ColsAtCompileTime;
+  constexpr auto u_int n = N;
+  Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, n).colwise().norm());
 
-  Rfit::Matrix2Nd hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
+  Rfit::Matrix2Nd<N> hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
   Rfit::loadCovariance2D(hits_ge,hits_cov);
   Rfit::circle_fit circle_fit_results = Rfit::Circle_fit(hits.block(0, 0, 2, n),
       hits_cov,
