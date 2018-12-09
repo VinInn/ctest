@@ -169,19 +169,19 @@ void computeRadLenUniformMaterial(const VNd1 &length_values,
     correspond to the case at eta = 0.
  */
 
-  template<typename V4, typename VNd1, typename VNd2>
+  template<typename V4, typename VNd1, typename VNd2, int N>
 __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
 						 const V4& fast_fit,
 						 VNd1 const& s_arcs,
 						 VNd2 const& z_values,
 						 const double theta,
-						 const double B) -> MatrixNd<VNd1::RawsAtCompileTime>
+						 const double B, 
+                                                 MatrixNd<N>& ret)
 {
 #if RFIT_DEBUG
     Rfit::printIt(&s_arcs, "Scatter_cov_line - s_arcs: ");
 #endif
-    constexpr auto N = VNd1::RawsAtCompileTime;
-    constexpr auto u_int n = N;
+    constexpr auto n = N;
     double p_t = std::min(20.,fast_fit(2) * B);   // limit pt to avoid too small error!!!
     double p_2 = p_t * p_t * (1. + 1. / (fast_fit(3) * fast_fit(3)));
     VectorNd<N> rad_lengths_S;
@@ -218,7 +218,7 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
 #if RFIT_DEBUG
     Rfit::printIt(&tmp, "Scatter_cov_line - tmp: ");
 #endif
-    return tmp.block(n, n, n, n);
+    ret = tmp.block(n, n, n, n);
 }
 
 /*!
@@ -1033,7 +1033,8 @@ inline line_fit Line_fit(const M3xN& hits,
 
   // The following matrix will contain errors orthogonal to the rotated S
   // component only, with the Multiple Scattering properly treated!!
-  MatrixNd<N> cov_with_ms = Scatter_cov_line(cov_sz, fast_fit, p2D.row(0), p2D.row(1), theta, B);
+  MatrixNd<N> cov_with_ms; 
+  Scatter_cov_line(cov_sz, fast_fit, p2D.row(0), p2D.row(1), theta, B,cov_with_ms);
 #if RFIT_DEBUG
   printIt(&cov_sz, "line_fit - cov_sz:");
   printIt(&cov_with_ms, "line_fit - cov_with_ms: ");

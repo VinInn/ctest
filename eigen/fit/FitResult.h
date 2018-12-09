@@ -3,11 +3,11 @@
 
 #include <cmath>
 
-#include <cuda_runtime.h>
+// #include <cuda_runtime.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
-#include "../../cuda/cuda_assert.h"
+// #include "../../cuda/cuda_assert.h"
 
 namespace Rfit
 {
