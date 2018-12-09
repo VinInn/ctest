@@ -41,7 +41,7 @@ auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map4d   fast_fit_input(pfast_fit_input+i,4);
   Rfit::Map6x4f hits_ge(phits_ge+i,6,4);
 
-  constexpr auto N = Rfit::Map3x4d::::ColsAtCompileTime;
+  constexpr auto N = Rfit::Map3x4d::ColsAtCompileTime;
   constexpr auto u_int n = N;
   
   Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, n).colwise().norm());

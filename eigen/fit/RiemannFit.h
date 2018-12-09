@@ -289,7 +289,7 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
 */
 
   template<int N>
-  __host__ __device__ inline Matrix2Nd<N> cov_radtocart(const Matrix2xNd& p2D,
+  __host__ __device__ inline Matrix2Nd<N> cov_radtocart(const Matrix2xNd<N>& p2D,
                                                    const MatrixNd<N>& cov_rad,
                                                    const VectorNd<N>& rad)
 {
