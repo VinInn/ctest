@@ -785,12 +785,12 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
         }
 
         {
-            const ArrayNd t0 = (VectorXd::Constant(n, 1.) * p3D.row(0));
-            const ArrayNd t1 = (VectorXd::Constant(n, 1.) * p3D.row(1));
-            const ArrayNd t00 = p3D.row(0).transpose() * p3D.row(0);
-            const ArrayNd t01 = p3D.row(0).transpose() * p3D.row(1);
-            const ArrayNd t11 = p3D.row(1).transpose() * p3D.row(1);
-            const ArrayNd t10 = t01.transpose();
+            const ArrayNd<N> t0 = (VectorXd::Constant(n, 1.) * p3D.row(0));
+            const ArrayNd<N> t1 = (VectorXd::Constant(n, 1.) * p3D.row(1));
+            const ArrayNd<N> t00 = p3D.row(0).transpose() * p3D.row(0);
+            const ArrayNd<N> t01 = p3D.row(0).transpose() * p3D.row(1);
+            const ArrayNd<N> t11 = p3D.row(1).transpose() * p3D.row(1);
+            const ArrayNd<N> t10 = t01.transpose();
             Vcs_[0][0] = C[0][0];;
             C[0][1] = Vcs_[0][1];
             C[0][2] = 2. * (Vcs_[0][0] * t0 + Vcs_[0][1] * t1);
