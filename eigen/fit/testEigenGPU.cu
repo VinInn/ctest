@@ -127,7 +127,7 @@ void kernelFillHitsAndHitsCov(double * __restrict__ phits,
 
 void testFit() {
   constexpr double B = 0.0113921;
-  Rfit::Matrix3xNd hits(3,4);
+  Rfit::Matrix3xNd<4> hits;
   Rfit::Matrix6x4f hits_ge = MatrixXf::Zero(6,4);
   double * hitsGPU = nullptr;;
   float * hits_geGPU = nullptr;
@@ -138,6 +138,9 @@ void testFit() {
   Rfit::line_fit * line_fit_resultsGPU = nullptr;
 
   fillHitsAndHitsCov(hits, hits_ge);
+
+  std::cout << "sizes " << sizeof(hits) << ' ' << sizeof(hits_ge)
+	    << ' ' << sizeof(Vector4d)<< std::endl;
   
   std::cout << "Generated hits:\n" << hits << std::endl;
   std::cout << "Generated cov:\n" << hits_ge << std::endl;
