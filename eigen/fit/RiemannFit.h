@@ -180,7 +180,7 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
 #if RFIT_DEBUG
     Rfit::printIt(&s_arcs, "Scatter_cov_line - s_arcs: ");
 #endif
-    constexpr auto N = VNd1::RawsAtCompileTime;
+    constexpr uint32_t N = VNd1::RawsAtCompileTime;
     constexpr auto u_int n = N;
     double p_t = std::min(20.,fast_fit(2) * B);   // limit pt to avoid too small error!!!
     double p_2 = p_t * p_t * (1. + 1. / (fast_fit(3) * fast_fit(3)));
