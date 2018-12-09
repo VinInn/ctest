@@ -328,7 +328,7 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
     \return cov_rad covariance matrix in raidal coordinate.
     \warning correlation between different point are not computed.
 */
-    template<<typename M2xN, int N>
+    template<typename M2xN, int N>
     __host__ __device__ inline MatrixNd<N> cov_carttorad(const M2xN& p2D,
 							 const Matrix2Nd<N>& cov_cart,
 							 const VectorNd<N>& rad)
