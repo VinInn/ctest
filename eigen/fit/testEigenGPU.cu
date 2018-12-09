@@ -170,8 +170,8 @@ void testFit() {
   assert(isEqualFuzzy(fast_fit_results, fast_fit));
 
   // CIRCLE_FIT CPU
-  constexpr auto N = Rfit::Map3x4d::::ColsAtCompileTime;
-  constexpr auto u_int n = N;
+  constexpr uint32_t N = Rfit::Map3x4d::ColsAtCompileTime;
+  constexpr auto n = N;
   Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, n).colwise().norm());
 
   Rfit::Matrix2Nd<N> hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
