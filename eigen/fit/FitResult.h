@@ -76,8 +76,8 @@ struct circle_fit
       |cov(X0,Y0)|cov(Y0,Y0)|cov( R,Y0)| \n
       |cov(X0, R)|cov(Y0, R)|cov( R, R)|
   */
-    int64_t q;  //!< particle charge
-    double chi2 = 0.0;
+    int32_t q;  //!< particle charge
+    float chi2 = 0.0;
 };
 
 struct line_fit
