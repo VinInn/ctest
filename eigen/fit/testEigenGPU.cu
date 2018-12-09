@@ -42,7 +42,7 @@ auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map6x4f hits_ge(phits_ge+i,6,4);
 
   constexpr uint32_t N = Rfit::Map3x4d::ColsAtCompileTime;
-  constexpr auto u_int n = N;
+  constexpr auto n = N;
   
   Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, n).colwise().norm());
 
