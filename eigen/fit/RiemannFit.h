@@ -135,10 +135,10 @@ __host__ __device__ inline double cross2D(const Vector2d& a, const Vector2d& b)
  */
 
 
-template<typename VNd>
+  template<typename VNd1, typename VNd2>
 __host__ __device__ inline
-void computeRadLenUniformMaterial(const VNd &length_values,
-    VNd & rad_lengths) {
+void computeRadLenUniformMaterial(const VNd1 &length_values,
+    VNd2 & rad_lengths) {
   // Radiation length of the pixel detector in the uniform assumption, with
   // 0.06 rad_len at 16 cm
   constexpr double XX_0_inv = 0.06/16.;
@@ -169,12 +169,12 @@ void computeRadLenUniformMaterial(const VNd &length_values,
     correspond to the case at eta = 0.
  */
 
-template<typename V4, typename VNd>
+  template<typename V4, typename VNd1, typename VNd2>
 __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
-                                                     const V4& fast_fit,
-                                                     VNd const& s_arcs,
-                                                     VNd const& z_values,
-                                                     const double theta,
+						 const V4& fast_fit,
+						 VNd1 const& s_arcs,
+						 VNd2 const& z_values,
+						 const double theta,
 						 const double B) -> MatrixNd<VNd::RawsAtCompileTime>
 {
 #if RFIT_DEBUG
@@ -245,7 +245,7 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
     double p_2 = p_t * p_t * (1. + 1. / (fast_fit(3) * fast_fit(3)));
     double theta = atan(fast_fit(3));
     theta = theta < 0. ? theta + M_PI :  theta;
-    VectorNd<N> s_values(;
+    VectorNd<N> s_values;
     VectorNd<N> rad_lengths;
     const Vector2d o(fast_fit(0), fast_fit(1));
 
@@ -945,16 +945,17 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
   template<typename M3xN, typename M6xN, typename V4>
 __host__ __device__ 
 inline line_fit Line_fit(const M3xN& hits,
-    const  M6xN & hits_ge,
-    const circle_fit& circle,
-    const V4& fast_fit,
-    const double B,
-    const bool error = true) {
-    constexpr N = M3xN::ColsAtCompileTime;
+			 const  M6xN & hits_ge,
+			 const circle_fit& circle,
+			 const V4& fast_fit,
+			 const double B,
+			 const bool error = true) {
+    
+  constexpr uint32_t N = M3xN::ColsAtCompileTime;
   auto n = hits.cols();
   double theta = -circle.q*atan(fast_fit(3));
   theta = theta < 0. ? theta + M_PI : theta;
-
+    
   // Prepare the Rotation Matrix to rotate the points
   Eigen::Matrix<double, 2, 2> rot;
   rot << sin(theta), cos(theta), -cos(theta), sin(theta);
