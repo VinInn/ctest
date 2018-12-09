@@ -770,16 +770,17 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
             //      cm2 = mc * mc.transpose();
             const double c = cm(0, 0);
             //      const double c2 = cm2(0,0);
-            Matrix2Nd<N> Vcs = MatrixXd::Zero(2*n, 2*n);
-            Vcs.triangularView<Eigen::Upper>() = (sqr(s) * V
-                                                 + sqr(sqr(s)) * 1. / (4. * q * n) *
-                                                   (2. * V.squaredNorm() + 4. * c) *  // mc.transpose() * V * mc) *
-                                                   (mc * mc.transpose()));
+            // Matrix2Nd<N> Vcs = MatrixXd::Zero(2*n, 2*n);
+            // Vcs.triangularView<Eigen::Upper>()
+	     Matrix2Nd<N> Vcs  = (sqr(s) * V
+				  + sqr(sqr(s)) * 1. / (4. * q * n) *
+				  (2. * V.squaredNorm() + 4. * c) *  // mc.transpose() * V * mc) *
+				  (mc * mc.transpose()));
 
             printIt(&Vcs, "circle_fit - Vcs:");
-            C[0][0] = Vcs.block(0, 0, n, n).selfadjointView<Eigen::Upper>();
+            C[0][0] = Vcs.block(0, 0, n, n); // .selfadjointView<Eigen::Upper>();
             Vcs_[0][1] = Vcs.block(0, n, n, n);
-            C[1][1] = Vcs.block(n, n, n, n).selfadjointView<Eigen::Upper>();
+            C[1][1] = Vcs.block(n, n, n, n); // .selfadjointView<Eigen::Upper>();
             Vcs_[1][0] = Vcs_[0][1].transpose();
             printIt(&Vcs, "circle_fit - Vcs:");
         }
@@ -796,11 +797,12 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
             C[0][2] = 2. * (Vcs_[0][0] * t0 + Vcs_[0][1] * t1);
             Vcs_[1][1] = C[1][1];
             C[1][2] = 2. * (Vcs_[1][0] * t0 + Vcs_[1][1] * t1);
-            MatrixNd<N> tmp = MatrixXd::Zero(n, n);
-            tmp.triangularView<Eigen::Upper>() =  ( 2. * (Vcs_[0][0] * Vcs_[0][0] + Vcs_[0][0] * Vcs_[0][1] + Vcs_[1][1] * Vcs_[1][0] +
-                            Vcs_[1][1] * Vcs_[1][1]) +
-                      4. * (Vcs_[0][0] * t00 + Vcs_[0][1] * t01 + Vcs_[1][0] * t10 + Vcs_[1][1] * t11) ).matrix();
-            C[2][2] = tmp.selfadjointView<Eigen::Upper>();
+            // MatrixNd<N> tmp = MatrixXd::Zero(n, n);
+            // tmp.triangularView<Eigen::Upper>()
+	    C[2][2].noalsias()  =  ( 2. * (Vcs_[0][0] * Vcs_[0][0] + Vcs_[0][0] * Vcs_[0][1] + Vcs_[1][1] * Vcs_[1][0] +
+					   Vcs_[1][1] * Vcs_[1][1]) +
+				     4. * (Vcs_[0][0] * t00 + Vcs_[0][1] * t01 + Vcs_[1][0] * t10 + Vcs_[1][1] * t11) ).matrix();
+	      // C[2][2] = tmp.selfadjointView<Eigen::Upper>();
         }
         printIt(&C[0][0], "circle_fit - C[0][0]:");
 
