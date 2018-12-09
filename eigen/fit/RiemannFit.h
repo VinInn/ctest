@@ -175,7 +175,7 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
 						 VNd1 const& s_arcs,
 						 VNd2 const& z_values,
 						 const double theta,
-						 const double B) -> MatrixNd<VNd::RawsAtCompileTime>
+						 const double B) -> MatrixNd<VNd1::RawsAtCompileTime>
 {
 #if RFIT_DEBUG
     Rfit::printIt(&s_arcs, "Scatter_cov_line - s_arcs: ");
@@ -412,7 +412,7 @@ template<typename M2xN, typename V4, int N>
     \param par_uvr result of the circle fit in this form: (X0,Y0,R).
     \return q int 1 or -1.
 */
-template<typename M2xN, int N> 
+template<typename M2xN> 
   __host__ __device__ inline int32_t Charge(const M2xN& p2D, const Vector3d& par_uvr)
 {
     return ((p2D(0, 1) - p2D(0, 0)) * (par_uvr.y() - p2D(1, 0)) - (p2D(1, 1) - p2D(1, 0)) * (par_uvr.x() - p2D(0, 0)) > 0)? -1 : 1;
