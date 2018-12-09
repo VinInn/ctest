@@ -234,8 +234,8 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
     \details Only the tangential component is computed (the radial one is
     negligible).
  */
-  template<typename V4, int N>
-  __host__ __device__ inline MatrixNd<N> Scatter_cov_rad(const Matrix2xNd<N>& p2D,
+  template<typename M2xN, typename V4, int N>
+  __host__ __device__ inline MatrixNd<N> Scatter_cov_rad(const M2xN& p2D,
 							 const V4& fast_fit,
 							 VectorNd<N> const& rad,
 							 double B)
@@ -288,8 +288,8 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
     \return cov_cart covariance matrix in Cartesian coordinates.
 */
 
-  template<int N>
-  __host__ __device__ inline Matrix2Nd<N> cov_radtocart(const Matrix2xNd<N>& p2D,
+  template<typename M2xN, int N>
+  __host__ __device__ inline Matrix2Nd<N> cov_radtocart(const M2xN,& p2D,
                                                    const MatrixNd<N>& cov_rad,
                                                    const VectorNd<N>& rad)
 {
@@ -328,8 +328,8 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
     \return cov_rad covariance matrix in raidal coordinate.
     \warning correlation between different point are not computed.
 */
-    template<int N>
-    __host__ __device__ inline MatrixNd<N> cov_carttorad(const Matrix2xNd<N>& p2D,
+    template<<typename M2xN, int N>
+    __host__ __device__ inline MatrixNd<N> cov_carttorad(const M2xN& p2D,
 							 const Matrix2Nd<N>& cov_cart,
 							 const VectorNd<N>& rad)
 {
@@ -361,9 +361,9 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
     \return cov_rad covariance matrix in the pre-fitted circle's
     orthogonal system.
 */
-  template<typename V4, int N>
-  __host__ __device__ inline MatrixNd<N> cov_carttorad_prefit(const Matrix2xNd<N>& p2D, const Matrix2Nd<N>& cov_cart,
-                                                         V4& fast_fit,
+template<typename M2xN, typename V4, int N>
+  __host__ __device__ inline MatrixNd<N> cov_carttorad_prefit(const M2xN& p2D, const Matrix2Nd<N>& cov_cart,
+							      V4& fast_fit,
 							      const VectorNd<N>& rad)
 {
     u_int n = p2D.cols();
@@ -799,7 +799,7 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
             C[1][2] = 2. * (Vcs_[1][0] * t0 + Vcs_[1][1] * t1);
             // MatrixNd<N> tmp = MatrixXd::Zero(n, n);
             // tmp.triangularView<Eigen::Upper>()
-	    C[2][2].noalsias()  =  ( 2. * (Vcs_[0][0] * Vcs_[0][0] + Vcs_[0][0] * Vcs_[0][1] + Vcs_[1][1] * Vcs_[1][0] +
+	    C[2][2].noalias()  =  ( 2. * (Vcs_[0][0] * Vcs_[0][0] + Vcs_[0][0] * Vcs_[0][1] + Vcs_[1][1] * Vcs_[1][0] +
 					   Vcs_[1][1] * Vcs_[1][1]) +
 				     4. * (Vcs_[0][0] * t00 + Vcs_[0][1] * t01 + Vcs_[1][0] * t10 + Vcs_[1][1] * t11) ).matrix();
 	      // C[2][2] = tmp.selfadjointView<Eigen::Upper>();
