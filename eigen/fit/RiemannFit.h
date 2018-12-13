@@ -3,9 +3,7 @@
 
 #include "FitResult.h"
 
-#ifndef RFIT_DEBUG
-#define RFIT_DEBUG 0
-#endif  // RFIT_DEBUG
+// #define RFIT_DEBUG
 
 namespace Rfit
 {
@@ -13,7 +11,7 @@ namespace Rfit
 template <class C>
 __host__ __device__ void printIt(C* m, const char* prefix = "")
 {
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     for (u_int r = 0; r < m->rows(); ++r)
     {
         for (u_int c = 0; c < m->cols(); ++c)
@@ -178,7 +176,7 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
 						 const double B, 
                                                  MatrixNd<N>& ret)
 {
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     Rfit::printIt(&s_arcs, "Scatter_cov_line - s_arcs: ");
 #endif
     constexpr auto n = N;
@@ -193,8 +191,8 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
     computeRadLenUniformMaterial(S_values, rad_lengths_S);
     VectorNd<N> sig2_S;
     sig2_S = .000225 / p_2 * (1. + 0.038 * rad_lengths_S.array().log()).abs2() * rad_lengths_S.array();
-#if RFIT_DEBUG
-    Rfit::printIt(&cov_sz, "Scatter_cov_line - cov_sz: ");
+#ifdef RFIT_DEBUG
+    Rfit::printIt(cov_sz, "Scatter_cov_line - cov_sz: ");
 #endif
     Matrix2Nd<N> tmp = Matrix2Nd<N>::Zero();
     for (u_int k = 0; k < n; ++k) {
@@ -215,7 +213,7 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
     }
     // We are interested only in the errors orthogonal to the rotated s-axis
     // which, in our formalism, are in the lower square matrix.
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     Rfit::printIt(&tmp, "Scatter_cov_line - tmp: ");
 #endif
     ret = tmp.block(n, n, n, n);
@@ -273,7 +271,7 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
             scatter_cov_rad(l, k) = scatter_cov_rad(k, l);
         }
     }
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     Rfit::printIt(&scatter_cov_rad, "Scatter_cov_rad - scatter_cov_rad: ");
 #endif
     return scatter_cov_rad;
@@ -292,7 +290,7 @@ __host__ __device__ inline auto Scatter_cov_line(Matrix2d const * cov_sz,
                                                    const MatrixNd<N>& cov_rad,
                                                    const VectorNd<N>& rad)
 {
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("Address of p2D: %p\n", &p2D);
 #endif
     printIt(&p2D, "cov_radtocart - p2D:");
@@ -463,14 +461,14 @@ __host__ __device__ inline void par_uvrtopak(circle_fit& circle, const double B,
 
 __host__ __device__ inline Vector3d min_eigen3D(const Matrix3d& A, double& chi2)
 {
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("min_eigen3D - enter\n");
 #endif
     Eigen::SelfAdjointEigenSolver<Matrix3d> solver(3);
     solver.computeDirect(A);
     int min_index;
     chi2 = solver.eigenvalues().minCoeff(&min_index);
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("min_eigen3D - exit\n");
 #endif
     return solver.eigenvectors().col(min_index);
@@ -576,7 +574,7 @@ __host__ __device__ inline void Fast_fit(const M3xN& hits, V4 & result)
 
     result(3) = (dr / dz);
 
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("Fast_fit: [%f, %f, %f, %f]\n", result(0), result(1), result(2), result(3));
 #endif
 }
@@ -616,7 +614,7 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
                                                  const double B,
                                                  const bool error = true)
 {
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - enter\n");
 #endif
     // INITIALIZATION
@@ -625,7 +623,7 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
     printIt(&hits2D, "circle_fit - hits2D:");
     printIt(&hits_cov2D, "circle_fit - hits_cov2D:");
 
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - WEIGHT COMPUTATION\n");
 #endif
     // WEIGHT COMPUTATION
@@ -637,7 +635,7 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
         MatrixNd<N> scatter_cov_rad = Scatter_cov_rad(hits2D, fast_fit, rad, B);
         printIt(&scatter_cov_rad, "circle_fit - scatter_cov_rad:");
         printIt(&hits2D, "circle_fit - hits2D bis:");
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
         printf("Address of hits2D: a) %p\n", &hits2D);
 #endif
         V += cov_radtocart(hits2D, scatter_cov_rad, rad);
@@ -652,12 +650,12 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
     printIt(&weight, "circle_fit - weight:");
 
     // SPACE TRANSFORMATION
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - SPACE TRANSFORMATION\n");
 #endif
 
     // center
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("Address of hits2D: b) %p\n", &hits2D);
 #endif
     const Vector2d h_ = hits2D.rowwise().mean();  // centroid
@@ -678,7 +676,7 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
     p3D.row(2) = p3D.block(0, 0, 2, n).colwise().squaredNorm();
     printIt(&p3D, "circle_fit - p3D: b)");
 
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - COST FUNCTION\n");
 #endif
     // COST FUNCTION
@@ -689,13 +687,13 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
     Matrix3d A = X * G * X.transpose();
     printIt(&A, "circle_fit - A:");
 
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - MINIMIZE\n");
 #endif
     // minimize
     double chi2;
     Vector3d v = min_eigen3D(A, chi2);
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - AFTER MIN_EIGEN\n");
 #endif
     printIt(&v, "v BEFORE INVERSION");
@@ -703,21 +701,21 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
     printIt(&v, "v AFTER INVERSION");
     // This hack to be able to run on GPU where the automatic assignment to a
     // double from the vector multiplication is not working.
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - AFTER MIN_EIGEN 1\n");
 #endif
     Eigen::Matrix<double, 1, 1> cm;
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - AFTER MIN_EIGEN 2\n");
 #endif
     cm = -v.transpose() * r0;
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - AFTER MIN_EIGEN 3\n");
 #endif
     const double c = cm(0, 0);
     //  const double c = -v.transpose() * r0;
 
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - COMPUTE CIRCLE PARAMETER\n");
 #endif
     // COMPUTE CIRCLE PARAMETER
@@ -735,22 +733,22 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
     circle.chi2 = abs(chi2) * renorm * 1. / sqr(2 * v(2) * par_uvr_(2) * s);
     printIt(&circle.par, "circle_fit - CIRCLE PARAMETERS:");
     printIt(&circle.cov, "circle_fit - CIRCLE COVARIANCE:");
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - CIRCLE CHARGE: %ld\n", circle.q);
 #endif
 
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - ERROR PROPAGATION\n");
 #endif
     // ERROR PROPAGATION
     if (error)
     {
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
         printf("circle_fit - ERROR PRPAGATION ACTIVATED\n");
 #endif
         ArrayNd<N> Vcs_[2][2];  // cov matrix of center & scaled points
         MatrixNd<N> C[3][3];  // cov matrix of 3D transformed points
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
         printf("circle_fit - ERROR PRPAGATION ACTIVATED 2\n");
 #endif
         {
@@ -926,7 +924,7 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
     }
 
     printIt(&circle.cov, "Circle cov:");
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
     printf("circle_fit - exit\n");
 #endif
     return circle;
@@ -963,10 +961,11 @@ inline line_fit Line_fit(const M3xN& hits,
   Matrix2xNd<N> p2D = Matrix2xNd<N>::Zero(); 
   Eigen::Matrix<double, 2, 6> Jx;
 
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
   printf("Line_fit - B: %g\n", B);
   printIt(&hits, "Line_fit points: ");
-  printIt(&hits_cov, "Line_fit covs: ");
+  printIt(&hits_ge, "Line_fit covs: ");
+  printIt(&rot, "Line_fit rot: ");
 #endif
   // x & associated Jacobian
   // cfr https://indico.cern.ch/event/663159/contributions/2707659/attachments/1517175/2368189/Riemann_fit.pdf
@@ -1021,15 +1020,15 @@ inline line_fit Line_fit(const M3xN& hits,
   // component only, with the Multiple Scattering properly treated!!
   MatrixNd<N> cov_with_ms; 
   Scatter_cov_line(cov_sz, fast_fit, p2D.row(0), p2D.row(1), theta, B,cov_with_ms);
-#if RFIT_DEBUG
-  printIt(&cov_sz, "line_fit - cov_sz:");
+#ifdef RFIT_DEBUG
+  printIt(cov_sz, "line_fit - cov_sz:");
   printIt(&cov_with_ms, "line_fit - cov_with_ms: ");
 #endif
 
   // Rotate Points with the shape [2, n]
   Matrix2xNd<N> p2D_rot = rot*p2D;
 
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
   printf("Fast fit Tan(theta): %g\n", fast_fit(3));
   printf("Rotation angle: %g\n", theta);
   printIt(&rot, "Rotation Matrix:");
@@ -1042,7 +1041,7 @@ inline line_fit Line_fit(const M3xN& hits,
   Matrix2xNd<N> A;
   A << MatrixXd::Ones(1, n), p2D_rot.row(0);  // rotated s values
 
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
   printIt(&A, "A Matrix:");
 #endif
 
@@ -1059,7 +1058,7 @@ inline line_fit Line_fit(const M3xN& hits,
   Eigen::Matrix<double, 2, 1> sol = Cov_params*A*Vy_inv*p2D_rot.row(1).transpose();
 
 
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
   printIt(&sol, "Rotated solutions:");
 #endif
 
@@ -1081,7 +1080,7 @@ inline line_fit Line_fit(const M3xN& hits,
   line.cov << cov_mq;
   line.chi2 = chi2;
 
-#if RFIT_DEBUG
+#ifdef RFIT_DEBUG
   printf("Common_factor: %g\n", common_factor);
   printIt(&J, "Jacobian:");
   printIt(&sol, "Rotated solutions:");
