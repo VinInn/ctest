@@ -133,10 +133,6 @@ namespace gpuClustering {
       jmax[k] = hist.end();
 #endif
 
-    __shared__ int nloops;
-    nloops=0;
-
-
     __syncthreads();  // for hit filling!
 
 #ifdef GPU_DEBUG
@@ -161,6 +157,7 @@ namespace gpuClustering {
     // after the loop, all the pixel in each cluster should have the id equeal to the lowest
     // pixel in the cluster ( clus[i] == i ).
     bool more = true;
+    int nloops=0;
     while (__syncthreads_or(more)) {
       if (1==nloops%2) {
         for (int j=threadIdx.x, k = 0; j<hist.size(); j+=blockDim.x, ++k) {
@@ -207,13 +204,20 @@ namespace gpuClustering {
           for (;p<e;++p) loop(p);
         } // pixel loop
         }
-        if (threadIdx.x==0) ++nloops;
+        ++nloops;
     }  // end while
 
 #ifdef GPU_DEBUG
+   {
+     __shared__ int n0;
+     if (threadIdx.x == 0) n0=nloops;
+     __syncthreads();
+     auto ok = n0==nloops;
+     assert(__syncthreads_and(ok));
    if (thisModuleId % 100 == 1)
       if (threadIdx.x == 0)
         printf("# loops %d\n",nloops);
+   }
 #endif
 
     __shared__ unsigned int foundClusters;
