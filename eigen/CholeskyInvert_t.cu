@@ -1,7 +1,9 @@
 // nvcc -O3 CholeskyDecomp_t.cu -Icuda-api-wrappers/src/ --expt-relaxed-constexpr -gencode arch=compute_61,code=sm_61 --compiler-options="-Ofast -march=native"
 // add -DDOPROF to run  nvprof --metrics all
-#include "CholeskyInversion.h"
+
+#include "choleskyInversion.h"
 #include <Eigen/Core>
+#include <Eigen/Eigenvalues>
 
 #include <iomanip>
 #include <memory>
@@ -24,11 +26,11 @@ void invert (M * mm, unsigned int n) {
   if (i>=n) return;
 
   auto & m = mm[i];
-  choleksyInversion::invert(m,m);
+  choleskyInversion::invert(m,m);
  
 }
 
-template<<typename M, int N>
+template<typename M, int N>
 __global__
 void invertSeq (M * mm, unsigned int n) {
 
@@ -38,7 +40,7 @@ void invertSeq (M * mm, unsigned int n) {
   
   for (auto i=first; i<last; ++i) {
     auto & m = mm[i];
-    choleksyInversion::invert(m,m);
+    choleskyInversion::invert(m,m);
   }
 }
 
@@ -71,7 +73,7 @@ template<int N>
 void go() {
 
   constexpr unsigned int DIM = N;
-  using MX = Eigen::Matrix<<double,DIM,DIM>;
+  using MX = Eigen::Matrix<double,DIM,DIM>;
 
   std::cout << "testing Matrix of dimension " << DIM << " size " << sizeof(MX) << std::endl;
 
@@ -99,14 +101,14 @@ void go() {
   std::cout << mm[SIZE/2](1,1) << std::endl;
 
   for ( auto & m : mm) {
-    choleksyInversion::invert(m,m);
-    choleksyInversion::invert(m,m);
+    choleskyInversion::invert(m,m);
+    choleskyInversion::invert(m,m);
   }
 
   std::cout << mm[SIZE/2](1,1) << std::endl;
 
-   auto m_d = cuda::memory::device::make_unique<MX[]>(current_device, SIZE);
-   cuda::memory::copy(m_d.get(), &mm, SIZE*sizeof(MX));
+   auto m_d = cuda::memory::device::make_unique<double[]>(current_device, DIM*DIM*SIZE);
+   cuda::memory::copy(m_d.get(), (double const*)(mm), SIZE*sizeof(MX));
 
 
   constexpr int NKK = 
@@ -117,19 +119,15 @@ void go() {
 #endif
   for (int kk=0; kk<NKK; ++kk) {
   
-    // auto m_d = cuda::memory::device::make_unique<MX[]>(current_device, SIZE);
-    
-    // cuda::memory::copy(m_d.get(), &mm, SIZE*sizeof(MX));
-    
     int threadsPerBlock =128;
     int blocksPerGrid = SIZE/threadsPerBlock;
     
     delta -= (std::chrono::high_resolution_clock::now()-start);
     
     cuda::launch(
-		 invert<DIM>,
+		 invert<MX,DIM>,
 		 { blocksPerGrid, threadsPerBlock },
-		 m_d.get(),SIZE
+		 (MX*)(m_d.get()),SIZE
 		 );
     
     cuda::memory::copy(&mm, m_d.get(),SIZE*sizeof(MX));
@@ -142,9 +140,9 @@ void go() {
 
 #ifndef DOPROF
      cuda::launch(
-		 invertSeq<DIM>,
+		 invertSeq<MX,DIM>,
 		 { blocksPerGrid, threadsPerBlock },
-		 m_d.get(),SIZE
+		 (MX*)(m_d.get()),SIZE
 		 );
     
     cuda::memory::copy(&mm, m_d.get(),SIZE*sizeof(MX));
@@ -156,7 +154,7 @@ void go() {
   
     delta2 -= (std::chrono::high_resolution_clock::now()-start);
     for ( auto & m : mm) {
-      choleksyInversion::invert(m,m);
+      choleskyInversion::invert(m,m);
     }
     delta2 += (std::chrono::high_resolution_clock::now()-start);
 

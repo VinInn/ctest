@@ -12,7 +12,7 @@
  *
  *
  */
-namespace choleksyInversion {
+namespace choleskyInversion {
 
   template<typename M1, typename M2> 
   inline constexpr
@@ -31,7 +31,7 @@ namespace choleksyInversion {
 
     auto li21 = luc1 * luc0 * luc2;
 
-    dst(0,0) = = li21 + luc0;
+    dst(0,0) = li21 + luc0;
     dst(1,0) = - src(1,0)*luc0*luc2;
     dst(1,1) = luc2;
   }
@@ -290,45 +290,45 @@ namespace choleksyInversion {
   
   template<typename M1, typename M2, int N>
   struct Inverter {
-    static constexpr eval(M1 const & src, M2 & dst){ dst=src.inverse();}
+    static constexpr void eval(M1 const & src, M2 & dst){ dst=src.inverse();}
   };
   template<typename M1, typename M2>
   struct Inverter<M1,M2,1> {
-    static constexpr eval(M1 const & src, M2 & dst) {
+    static constexpr void eval(M1 const & src, M2 & dst) {
       invert11(src,dst);
     }
   };
   template<typename M1, typename M2>
   struct Inverter<M1,M2,2> {
-    static constexpr eval(M1 const & src, M2 & dst) {
+    static constexpr void eval(M1 const & src, M2 & dst) {
       invert22(src,dst);
       symmetrize22(dst);
     }
   };
   template<typename M1, typename M2>
   struct Inverter<M1,M2,3> {
-    static constexpr eval(M1 const & src, M2 & dst) {
+    static constexpr void eval(M1 const & src, M2 & dst) {
       invert33(src,dst);
       symmetrize33(dst);
     }
   };
   template<typename M1, typename M2>
   struct Inverter<M1,M2,4> {
-    static constexpr eval(M1 const & src, M2 & dst) {
+    static constexpr void eval(M1 const & src, M2 & dst) {
       invert44(src,dst);
       symmetrize44(dst);
     }
   };
   template<typename M1, typename M2>
   struct Inverter<M1,M2,5> {
-    static constexpr eval(M1 const & src, M2 & dst) {
+    static constexpr void eval(M1 const & src, M2 & dst) {
       invert55(src,dst);
       symmetrize55(dst);
     }
   };
   template<typename M1, typename M2>
   struct Inverter<M1,M2,6> {
-    static constexpr eval(M1 const & src, M2 & dst) {
+    static constexpr void eval(M1 const & src, M2 & dst) {
       invert66(src,dst);
       symmetrize66(dst);
     }
