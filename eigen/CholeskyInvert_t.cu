@@ -23,7 +23,7 @@ constexpr int stride() { return 5*1024;}
 template<int DIM>
 using MXN = Eigen::Matrix<double,DIM,DIM>;
 template<int DIM>
-MapMX = Eigen::Map<MXN<DIM>,Eigen::Stride<DIM*stride(),stride()> >;
+using MapMX = Eigen::Map<MXN<DIM>,Eigen::Stride<DIM*stride(),stride()> >;
 
 
 template<int N>
