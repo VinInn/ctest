@@ -33,7 +33,7 @@ void invertSOA(double * mm, unsigned int n) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   if (i>=n) return;
 
-  auto & m = MapMX<N>(mm+i);
+  MapMX<N> m(p+i);
   choleskyInversion::invert(m,m);
  
 }
@@ -118,7 +118,7 @@ void go(bool soa) {
 
   if (soa) {
     for (unsigned int =0; i<SIZE; ++i) {
-      auto & m = MapMX<N>(p+i);
+      MapMX<N> m(p+i);
       genMatrix<(m);
     }
   }else{  
@@ -130,7 +130,7 @@ void go(bool soa) {
 
   if (soa)
     for (unsigned int =0; i<SIZE; ++i) {
-      auto & m = MapMX<N>(p+i);
+      MapMX<N> m(p+i);
       choleskyInversion::invert(m,m);
       choleskyInversion::invert(m,m);
     }
@@ -199,7 +199,7 @@ void go(bool soa) {
     if (soa)
       #pragma GCC ivdep
       for (unsigned int =0; i<SIZE; ++i) {
-	auto & m = MapMX<N>(p+i);
+	MapMX<N> m(p+i);
 	choleskyInversion::invert(m,m);
       }
     else
