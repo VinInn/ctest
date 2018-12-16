@@ -160,7 +160,7 @@ namespace choleskyInversion {
   }
 
   template<typename M1, typename M2> 
-  inline constexpr
+  inline __attribute__((always_inline)) constexpr
   void invert66(M1 const & src, M2 & dst) {
     using F = decltype(src(0,0));
     auto luc0 = F(1.0) / std::sqrt(src(0,0));
