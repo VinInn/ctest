@@ -18,6 +18,26 @@
 
 #include "cuda/api_wrappers.h"
 
+
+constexpr int stride() { return 5*1024;}
+template<int DIM>
+using MXN = Eigen::Matrix<double,DIM,DIM>;
+template<int DIM>
+MapMX = Eigen::Map<MXN<DIM>,Eigen::Stride<DIM*stride(),stride()> >;
+
+
+template<int N>
+__global__
+void invertSOA(double * mm, unsigned int n) {
+
+  auto i = blockIdx.x*blockDim.x + threadIdx.x;
+  if (i>=n) return;
+
+  auto & m = MapMX<N>(mm+i);
+  choleskyInversion::invert(m,m);
+ 
+}
+
 template<typename M, int N>
 __global__
 void invert (M * mm, unsigned int n) {
@@ -47,19 +67,20 @@ void invertSeq (M * mm, unsigned int n) {
 
 
 // generate matrices
-template<class M, class T, int N>
+template<class M>
 void genMatrix(M  & m ) {
-  
+  using T = decltype(m(0,0));
+  int n = M::ColsAtCompileTime;
   std::mt19937 eng;
   // std::mt19937 eng2;
   std::uniform_real_distribution<T> rgen(0.,1.);
   
   // generate first diagonal elemets
-  for (int i = 0; i < N; ++i) {
-    double maxVal = i*10000/(N-1) + 1;  // max condition is 10^4
+  for (int i = 0; i < n; ++i) {
+    double maxVal = i*10000/(n-1) + 1;  // max condition is 10^4
     m(i,i) = maxVal*rgen(eng);
   }
-  for (int i = 0; i < N; ++i) {
+  for (int i = 0; i < n; ++i) {
     for (int j = 0; j < i; ++j) {
       double v = 0.3*std::sqrt( m(i,i) * m(j,j) ); // this makes the matrix pos defined
       m(i,j) = v*rgen(eng);
@@ -70,11 +91,10 @@ void genMatrix(M  & m ) {
 
 
 template<int N>
-void go() {
+void go(bool soa) {
 
   constexpr unsigned int DIM = N;
-  using MX = Eigen::Matrix<double,DIM,DIM>;
-
+  using MX =  MXN<DIM>;
   std::cout << "testing Matrix of dimension " << DIM << " size " << sizeof(MX) << std::endl;
 
 
@@ -91,24 +111,39 @@ void go() {
 
   auto current_device = cuda::device::current::get(); 
 
-  constexpr unsigned int SIZE=1024;
+  constexpr unsigned int SIZE=4*1024;
   
-  MX mm[SIZE];
-  for ( auto & m : mm) 
-    genMatrix<MX,double,DIM>(m);
-  
+  MX mm[stride()];  // just storage in case of SOA
+  double * p = (double *)(mm);
 
-  std::cout << mm[SIZE/2](1,1) << std::endl;
-
-  for ( auto & m : mm) {
-    choleskyInversion::invert(m,m);
-    choleskyInversion::invert(m,m);
+  if (soa) {
+    for (unsigned int =0; i<SIZE; ++i) {
+      auto & m = MapMX<N>(p+i);
+      genMatrix<(m);
+    }
+  }else{  
+    for ( auto & m : mm) 
+      genMatrix<(m);
   }
 
   std::cout << mm[SIZE/2](1,1) << std::endl;
 
-   auto m_d = cuda::memory::device::make_unique<double[]>(current_device, DIM*DIM*SIZE);
-   cuda::memory::copy(m_d.get(), (double const*)(mm), SIZE*sizeof(MX));
+  if (soa)
+    for (unsigned int =0; i<SIZE; ++i) {
+      auto & m = MapMX<N>(p+i);
+      choleskyInversion::invert(m,m);
+      choleskyInversion::invert(m,m);
+    }
+  else
+    for ( auto & m : mm) {
+      choleskyInversion::invert(m,m);
+      choleskyInversion::invert(m,m);
+    }
+
+  std::cout << mm[SIZE/2](1,1) << std::endl;
+
+  auto m_d = cuda::memory::device::make_unique<double[]>(current_device, DIM*DIM*stride());
+  cuda::memory::copy(m_d.get(), (double const*)(mm), stride()*sizeof(MX));
 
 
   constexpr int NKK = 
@@ -124,38 +159,55 @@ void go() {
     
     delta -= (std::chrono::high_resolution_clock::now()-start);
     
-    cuda::launch(
-		 invert<MX,DIM>,
-		 { blocksPerGrid, threadsPerBlock },
-		 (MX*)(m_d.get()),SIZE
-		 );
+    if (soa)
+      cuda::launch(
+		   invertSOA<DIM>,
+		   { blocksPerGrid, threadsPerBlock },
+		   m_d.get(),SIZE
+		   );
+    else    
+      cuda::launch(
+		   invert<MX,DIM>,
+		   { blocksPerGrid, threadsPerBlock },
+		   (MX*)(m_d.get()),SIZE
+		   );
     
-    cuda::memory::copy(&mm, m_d.get(),SIZE*sizeof(MX));
+    cuda::memory::copy(&mm, m_d.get(),stride()*sizeof(MX));
     delta += (std::chrono::high_resolution_clock::now()-start);
     
     if (0==kk) std::cout << mm[SIZE/2](1,1) << std::endl;
     
-    
-    delta1 -= (std::chrono::high_resolution_clock::now()-start);
-
+    if (!soa) {
+      
+      delta1 -= (std::chrono::high_resolution_clock::now()-start);
+      
 #ifndef DOPROF
-     cuda::launch(
-		 invertSeq<MX,DIM>,
-		 { blocksPerGrid, threadsPerBlock },
-		 (MX*)(m_d.get()),SIZE
-		 );
-    
-    cuda::memory::copy(&mm, m_d.get(),SIZE*sizeof(MX));
+      cuda::launch(
+		   invertSeq<MX,DIM>,
+		   { blocksPerGrid, threadsPerBlock },
+		   (MX*)(m_d.get()),SIZE
+		   );
+      
+      cuda::memory::copy(&mm, m_d.get(),stride()*sizeof(MX));
 #endif
-    delta1 += (std::chrono::high_resolution_clock::now()-start);
-    
-    if (0==kk) std::cout << mm[SIZE/2](1,1) << std::endl;
-    
+      delta1 += (std::chrono::high_resolution_clock::now()-start);
+      
+      if (0==kk) std::cout << mm[SIZE/2](1,1) << std::endl;
+    }
   
     delta2 -= (std::chrono::high_resolution_clock::now()-start);
-    for ( auto & m : mm) {
-      choleskyInversion::invert(m,m);
-    }
+    if (soa)
+      #pragma GCC ivdep
+      for (unsigned int =0; i<SIZE; ++i) {
+	auto & m = MapMX<N>(p+i);
+	choleskyInversion::invert(m,m);
+      }
+    else
+      #pragma GCC ivdep
+      for ( auto & m : mm) {
+	choleskyInversion::invert(m,m);
+      }
+    
     delta2 += (std::chrono::high_resolution_clock::now()-start);
 
   }
@@ -173,11 +225,16 @@ void go() {
 
 int main() { 
 
-  go<2>();
-  go<4>();
-  go<5>();
-  go<6>();
+  go<2>(false);
+  go<4>(false);
+  go<5>(false);
+  go<6>(false);
 
-  go<10>();
+  go<2>(true);
+  go<4>(true);
+  go<5>(true);
+  go<6>(true);
+
+  // go<10>();
   return 0;
 }
