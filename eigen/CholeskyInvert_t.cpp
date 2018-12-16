@@ -16,55 +16,11 @@
 #include<iostream>
 #include<limits>
 
-#include "cuda/api_wrappers.h"
-
-
 constexpr int stride() { return 5*1024;}
 template<int DIM>
 using MXN = Eigen::Matrix<double,DIM,DIM>;
 template<int DIM>
 using MapMX = Eigen::Map<MXN<DIM>, 0, Eigen::Stride<DIM*stride(),stride()> >;
-
-
-template<int N>
-__global__
-void invertSOA(double * __restrict__ p, unsigned int n) {
-
-  auto i = blockIdx.x*blockDim.x + threadIdx.x;
-  if (i>=n) return;
-
-  MapMX<N> m(p+i);
-  choleskyInversion::invert(m,m);
- 
-}
-
-template<typename M, int N>
-__global__
-void invert (M * mm, unsigned int n) {
-
-  auto i = blockIdx.x*blockDim.x + threadIdx.x;
-  if (i>=n) return;
-
-  auto & m = mm[i];
-  choleskyInversion::invert(m,m);
- 
-}
-
-template<typename M, int N>
-__global__
-void invertSeq (M * mm, unsigned int n) {
-
-  if (threadIdx.x!=0) return;
-  auto first = blockIdx.x*blockDim.x;
-  auto last = std::min(first+blockDim.x,n);
-  
-  for (auto i=first; i<last; ++i) {
-    auto & m = mm[i];
-    choleskyInversion::invert(m,m);
-  }
-}
-
-
 
 // generate matrices
 template<class M>
@@ -104,13 +60,6 @@ void go(bool soa) {
   auto delta2 = delta;
 
   
-  if (cuda::device::count() == 0) {
-	std::cerr << "No CUDA devices on this system" << "\n";
-	exit(EXIT_FAILURE);
-  }
-
-  auto current_device = cuda::device::current::get(); 
-
   constexpr unsigned int SIZE=4*1024;
   
   MX mm[stride()];  // just storage in case of SOA
@@ -142,9 +91,6 @@ void go(bool soa) {
 
   std::cout << mm[SIZE/2](1,1) << std::endl;
 
-  auto m_d = cuda::memory::device::make_unique<double[]>(current_device, DIM*DIM*stride());
-  cuda::memory::copy(m_d.get(), (double const*)(mm), stride()*sizeof(MX));
-
 
   constexpr int NKK = 
 #ifdef DOPROF
@@ -153,47 +99,6 @@ void go(bool soa) {
     1000;
 #endif
   for (int kk=0; kk<NKK; ++kk) {
-  
-    int threadsPerBlock =128;
-    int blocksPerGrid = SIZE/threadsPerBlock;
-    
-    delta -= (std::chrono::high_resolution_clock::now()-start);
-    
-    if (soa)
-      cuda::launch(
-		   invertSOA<DIM>,
-		   { blocksPerGrid, threadsPerBlock },
-		   m_d.get(),SIZE
-		   );
-    else    
-      cuda::launch(
-		   invert<MX,DIM>,
-		   { blocksPerGrid, threadsPerBlock },
-		   (MX*)(m_d.get()),SIZE
-		   );
-    
-    cuda::memory::copy(&mm, m_d.get(),stride()*sizeof(MX));
-    delta += (std::chrono::high_resolution_clock::now()-start);
-    
-    if (0==kk) std::cout << mm[SIZE/2](1,1) << std::endl;
-    
-    if (!soa) {
-      
-      delta1 -= (std::chrono::high_resolution_clock::now()-start);
-      
-#ifndef DOPROF
-      cuda::launch(
-		   invertSeq<MX,DIM>,
-		   { blocksPerGrid, threadsPerBlock },
-		   (MX*)(m_d.get()),SIZE
-		   );
-      
-      cuda::memory::copy(&mm, m_d.get(),stride()*sizeof(MX));
-#endif
-      delta1 += (std::chrono::high_resolution_clock::now()-start);
-      
-      if (0==kk) std::cout << mm[SIZE/2](1,1) << std::endl;
-    }
   
     delta2 -= (std::chrono::high_resolution_clock::now()-start);
     if (soa)
@@ -215,9 +120,7 @@ void go(bool soa) {
   std::cout << mm[SIZE/2](1,1) << std::endl; 
   
   double DNNK = NKK;
-  std::cout <<"cuda/cudaSeq/x86 computation took "
-	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/DNNK << ' '
-	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta1).count()/DNNK  << ' '
+  std::cout <<"x86 computation took "
 	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta2).count()/DNNK  << ' '
 	    << " ms" << std::endl;
 

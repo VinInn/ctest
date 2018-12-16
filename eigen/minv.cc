@@ -2,7 +2,7 @@
 #include <Eigen/Core>
 #include <tuple>
 
-#include "invert55.h"
+#include "choleskyInversion.h"
 
 using v5 = Eigen::Matrix<float,5,1>;
 using m5 = Eigen::Matrix<float,5,5>;
@@ -19,8 +19,8 @@ void inv(double * __restrict__ b, double * __restrict__ r)
   for (int i=0; i<256;++i) {
     MD src(b+i,5,5);
     MD dst(r+i,5,5);
-    choleksyInvert55(src,dst);
-    symmetrize(dst); // if needed...
+    choleskyInversion::invert55(src,dst);
+    choleskyInversion::symmetrize55(dst); // if needed...
   }
 }
 
@@ -30,7 +30,18 @@ void inv(float * __restrict__ b, float * __restrict__ r)
   for (int i=0; i<256;++i) {
     M src(b+i,5,5);
     M dst(r+i,5,5);
-    choleksyInvert55(src,dst);
-    symmetrize(dst); //    if needed...
+    choleskyInversion::invert55(src,dst);
+    choleskyInversion::symmetrize55(dst); //    if needed...
   }
 }
+
+void inv(float * __restrict__ b)
+{
+  #pragma GCC ivdep
+  for (int i=0; i<256;++i) {
+    M m(b+i,5,5);
+    choleskyInversion::invert55(m,m);
+    choleskyInversion::symmetrize55(m); //    if needed...
+  }
+}
+
