@@ -290,7 +290,7 @@ namespace choleksyInversion {
   
   template<typename M1, typename M2, int N>
   struct Inverter {
-    static constexpr eval(M1 const & src, M2 & dst){}
+    static constexpr eval(M1 const & src, M2 & dst){ dst=src.inverse();}
   };
   template<typename M1, typename M2>
   struct Inverter<M1,M2,1> {
