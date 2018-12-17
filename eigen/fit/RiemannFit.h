@@ -1048,11 +1048,11 @@ inline line_fit Line_fit(const M3xN& hits,
 #endif
 
   // Build A^T V-1 A, where V-1 is the covariance of only the Y components.
-  MatrixNd<N> Vy_inv = cov_with_ms.inverse();
-  Eigen::Matrix<double, 2, 2> Inv_Cov = A*Vy_inv*A.transpose();
-
+  MatrixNd<N> Vy_inv; choleskyInversion::invert(cov_with_ms,Vy_inv);
+  // MatrixNd<N> Vy_inv = cov_with_ms.inverse();
+  Eigen::Matrix<double, 2, 2> Cov_params = A*Vy_inv*A.transpose();
   // Compute the Covariance Matrix of the fit parameters
-  Eigen::Matrix<double, 2, 2> Cov_params = Inv_Cov.inverse();
+  choleskyInversion::invert(Cov_params,Cov_params);
 
   // Now Compute the Parameters in the form [2,1]
   // The first component is q.
