@@ -2,6 +2,7 @@
 #define RecoPixelVertexing_PixelTrackFitting_interface_RiemannFit_h
 
 #include "FitResult.h"
+#include "../choleskyInversion.h"
 
 // #define RFIT_DEBUG
 
@@ -642,7 +643,8 @@ __host__ __device__ inline circle_fit Circle_fit(const  M2xN& hits2D,
         printIt(&V, "circle_fit - V:");
         cov_rad += scatter_cov_rad;
         printIt(&cov_rad, "circle_fit - cov_rad:");
-        G = cov_rad.inverse();
+        choleskyInversion::invert(cov_rad,G);
+        // G = cov_rad.inverse();
 	renorm = G.sum();
         G *= 1. / renorm;
         weight = Weight_circle(G);
