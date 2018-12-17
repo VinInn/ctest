@@ -62,8 +62,8 @@ void go(bool soa) {
   
   constexpr unsigned int SIZE=4*1024;
   
-  MX mm[stride()];  // just storage in case of SOA
-  double * __restrict__ p = (double *)(mm);
+  alignas(128) MX mm[stride()];  // just storage in case of SOA
+  double * __restrict__ p = (double*)__builtin_assume_aligned(mm, 128);
 
   if (soa) {
     for (unsigned int i=0; i<SIZE; ++i) {
