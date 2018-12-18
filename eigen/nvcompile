@@ -1,4 +1,5 @@
-nvcc -I/data/vin/cmssw/slc7_amd64_gcc700/external/eigen/1f44b667dd9aeeb153284b15fc7fe159d2c09329-patatrack/include/eigen3 $1 \
+nvcc -I/data/vin/cmssw/slc7_amd64_gcc700/external/eigen/c42672350ed4411cf08b593c3394a1061dc07fb4-patatrack/include/eigen3 \
+-I../cuda/cuda-api-wrappers/include $1 \
 -gencode arch=compute_61,code=sm_61 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda --generate-line-info --source-in-ptx \
 --compiler-options '-O3 -Wall -g -mfma -mavx2'
 

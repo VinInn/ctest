@@ -122,16 +122,15 @@ namespace gpuClustering {
         hist.fill(y[i],i-firstPixel);
       }
 
-#ifdef CLUS_LIMIT_LOOP
     // assume that we can cover the whole module with up to 10 blockDim.x-wide iterations
     constexpr int maxiter = 10;
     if (threadIdx.x==0) {
       assert((hist.size()/ blockDim.x) <= maxiter);
     }
-    uint16_t const * jmax[maxiter];
+    // nearest neighbour
+    uint16_t nn[maxiter][6];
     for (int k = 0; k < maxiter; ++k)
-      jmax[k] = hist.end();
-#endif
+      for (int i=0; i<6; ++i) nn[k][i] = 64001;
 
     __syncthreads();  // for hit filling!
 
@@ -151,6 +150,31 @@ namespace gpuClustering {
     }
     __syncthreads();
 #endif
+
+    // fill NN
+    for (int j=threadIdx.x, k = 0; j<hist.size(); j+=blockDim.x, ++k) {
+        auto p = hist.begin()+j;
+        auto i = *p + firstPixel;
+        assert (id[i] != InvId);
+        assert(id[i] == thisModuleId);    // same module
+        int be = Hist::bin(y[i]+1);
+        auto e = hist.end(be);
+        ++p;
+        for (;p<e;++p) {
+          auto m = (*p)+firstPixel;
+          assert(m!=i);
+          if (std::abs(int(x[m]) - int(x[i])) > 1) continue;
+          auto dx = 1 + int(x[m]) - int(x[i]);
+          auto dy = int(y[m]) - int(y[i]);
+          assert(dy>=0);
+          assert(dy<2);
+          assert(dx>=0);
+          assert(dx<3);
+          auto l = dx+dx + dy;
+          assert(l<6);
+          nn[k][l]=*p;
+        }
+     }
 
     // for each pixel, look at all the pixels until the end of the module;
     // when two valid pixels within +/- 1 in x or y are found, set their id to the minimum;
@@ -172,39 +196,21 @@ namespace gpuClustering {
         for (int j=threadIdx.x, k = 0; j<hist.size(); j+=blockDim.x, ++k) {
           auto p = hist.begin()+j;
           auto i = *p + firstPixel;
-          assert (id[i] != InvId);
-          assert(id[i] == thisModuleId);    // same module
-#ifdef CLUS_LIMIT_LOOP
-          auto jm = jmax[k];
-          jmax[k] = p + 1;
-#endif
-          int be = Hist::bin(y[i]+1);
-          auto e = hist.end(be);
-#ifdef CLUS_LIMIT_LOOP
-          e = std::min(e,jm);
-#endif      
-          // loop to columns
-          auto loop = [&](uint16_t const * kk) {
-            auto m = (*kk)+firstPixel;
+          for (int kk=0; kk<6; ++kk) {
+            auto l = nn[k][kk];
+            if (l>64000) continue;
+            auto m = l+firstPixel;
             assert(m!=i);
-            if (std::abs(int(x[m]) - int(x[i])) > 1) return;
-            // if (std::abs(int(y[m]) - int(y[i])) > 1) return; // binssize is 1
             auto old = atomicMin(&clusterId[m], clusterId[i]);
             if (old != clusterId[i]) {
               // end the loop only if no changes were applied
               more = true;
             }
             atomicMin(&clusterId[i], old);
-#ifdef CLUS_LIMIT_LOOP
-            // update the loop boundary for the next iteration
-            jmax[k] = std::max(kk + 1,jmax[k]);
-#endif
-          };
-          ++p;
-          for (;p<e;++p) loop(p);
+          } // nnloop
         } // pixel loop
-        }
-        ++nloops;
+      }
+      ++nloops;
     }  // end while
 
 #ifdef GPU_DEBUG
