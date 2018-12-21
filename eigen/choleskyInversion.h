@@ -1,5 +1,5 @@
 #include<cmath>
-
+#include <Eigen/Core>
 
 
 /**
@@ -334,10 +334,12 @@ namespace choleskyInversion {
     }
   };
 
-  // Eigen interface (MatrixBase<Derived> ??)
-  template<typename M1, typename M2> 
+  // Eigen interface
+  template<typename D1, typename D2> 
   inline constexpr
-  void invert(M1 const & src, M2 & dst) {
+  void invert(Eigen::DenseBase<D1> const & src, Eigen::DenseBase<D2> & dst) {
+    using M1 = Eigen::DenseBase<D1>;
+    using M2 = Eigen::DenseBase<D2>;
     Inverter<M1,M2,M2::ColsAtCompileTime>::eval(src,dst);
   }
 

@@ -51,7 +51,8 @@ void go(bool soa) {
 
   constexpr unsigned int DIM = N;
   using MX =  MXN<DIM>;
-  std::cout << "testing Matrix of dimension " << DIM << " size " << sizeof(MX) << std::endl;
+  std::cout << "testing Matrix of dimension " << DIM << " size " << sizeof(MX) 
+            << " in " << (soa ? "SOA" : "AOS") << " mode"<< std::endl;
 
 
   auto start = std::chrono::high_resolution_clock::now();
@@ -129,11 +130,13 @@ void go(bool soa) {
 int main() { 
 
   go<2>(false);
+  go<3>(false);
   go<4>(false);
   go<5>(false);
   go<6>(false);
 
   go<2>(true);
+  go<3>(true);
   go<4>(true);
   go<5>(true);
   go<6>(true);
