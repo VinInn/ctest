@@ -9,6 +9,8 @@ int main() {
   using H4f = Eigen::HermitianMatrix<float,4>;
   using H2f = Eigen::HermitianMatrix<float,2>;
 
+  using MH4f = Eigen::Map<H4f,0,Eigen::Stride<4*1024,1024> >;
+
   int n=2;
   H4f Vcs;
               Vcs << 1,12,13,14,
@@ -33,12 +35,24 @@ int main() {
 
   H2f b; b << 1,12,12,2;
 
-  H2f c = j*b*j.transpose();
-  
+  // H2f c = j*b*j.transpose();  
   //H4f c; c << VcsF;
   
-  std::cout << c << std::endl;
+  std::cout << b << std::endl;
 
+  /*
+  float data[16*1024];
+
+   MH4f h(data);
+
+   h(data) << 1,12,13,14,
+                    12,2,23,24,
+                    13,23,3,34,
+                    14,24,34,4;
+
+   std::cout << h << std::endl;
+
+   */
 
 /*
     Eigen::Matrix2f tmp = VcsF.block(0, 0, n, n);
