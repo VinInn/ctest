@@ -128,9 +128,10 @@ namespace gpuClustering {
       assert((hist.size()/ blockDim.x) <= maxiter);
     }
     // nearest neighbour
-    uint16_t nn[maxiter][6];
+    uint16_t nn[maxiter][5];
+    uint8_t nnn[maxiter]; // number of nn
     for (int k = 0; k < maxiter; ++k)
-      for (int i=0; i<6; ++i) nn[k][i] = 64001;
+      nnn[k] = 0;
 
     __syncthreads();  // for hit filling!
 
@@ -164,14 +165,8 @@ namespace gpuClustering {
           auto m = (*p)+firstPixel;
           assert(m!=i);
           if (std::abs(int(x[m]) - int(x[i])) > 1) continue;
-          auto dx = 1 + int(x[m]) - int(x[i]);
-          auto dy = int(y[m]) - int(y[i]);
-          assert(dy>=0);
-          assert(dy<2);
-          assert(dx>=0);
-          assert(dx<3);
-          auto l = dx+dx + dy;
-          assert(l<6);
+          auto l = nnn[k]++;
+          assert(l<5);
           nn[k][l]=*p;
         }
      }
@@ -196,9 +191,8 @@ namespace gpuClustering {
         for (int j=threadIdx.x, k = 0; j<hist.size(); j+=blockDim.x, ++k) {
           auto p = hist.begin()+j;
           auto i = *p + firstPixel;
-          for (int kk=0; kk<6; ++kk) {
+          for (int kk=0; kk<nnn[k]; ++kk) {
             auto l = nn[k][kk];
-            if (l>64000) continue;
             auto m = l+firstPixel;
             assert(m!=i);
             auto old = atomicMin(&clusterId[m], clusterId[i]);
