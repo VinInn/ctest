@@ -19,21 +19,21 @@ __global__
 void nn(uint32_t * __restrict__ counters,
 float const * __restrict__ z, float const * __restrict__ w, uint32_t * __restrict__ nns, int ntot, float eps) {
     COUNT(0);
-    // this part is actually run blockDim.y times for each "z"
-    auto idx = blockIdx.x * blockDim.x + threadIdx.x;
-    auto first = threadIdx.y;
-    assert(blockDim.y==STRIDE);
-    assert(blockIdx.y==0);
+    // this part is actually run blockDim.x times for each "z"
+    auto id = blockIdx.y * blockDim.y + threadIdx.y;
+    auto first = threadIdx.x;
+    assert(blockDim.x==STRIDE);
+    assert(blockIdx.x==0);
     assert(first<STRIDE);
     // usual loop uder the assumption ntot is not kown on HOST side
-    auto incr = (blockDim.x * gridDim.x);
-    for (auto j = idx; j < ntot; j += incr) {
+    auto incr = (blockDim.y * gridDim.y);
+    for (auto j = id; j < ntot; j += incr) {
       COUNT(1)
       // combinatorial loop  (n^2)
       // in reality it should be limited using a Histogram, KDTree or similar
-      // here we parallelize. for each "z[j]" blockDim.y threads are actually used
+      // here we parallelize. for each "z[j]" blockDim.x threads are actually used
       auto k = j+ 1+first;
-      for (;k < ntot; k +=blockDim.y) {
+      for (;k < ntot; k +=blockDim.x) {
         COUNT(2);
         if (
              fabs(z[j]-z[k]) < eps && 
@@ -61,10 +61,11 @@ void go(uint32_t * c_d, float const * z_d, float const * w_d, uint32_t * nss_d) 
   cudaMemset(c_d,0,10*sizeof(uint32_t));
 #endif
 
-  auto ntx = 64;
-  auto nbx = 1024;
-  auto nty = STRIDE;
-  auto nby = 1;
+  // x is the fastest....
+  auto nty = 64;
+  auto nby = 1024;
+  auto ntx = STRIDE;
+  auto nbx = 1;
   dim3 nt(ntx,nty,1);
   dim3 nb(nbx,nby,1);
   nn<STRIDE><<<nb,nt>>>(c_d, z_d,w_d,nss_d,NTOT,0.1f);
