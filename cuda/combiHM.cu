@@ -4,9 +4,19 @@
 #include<random>
 #include<vector>
 
+#ifdef VERIFY
+#define COUNT(x) atomicAdd(&counters[x],1);
+#else
+__device__
+void dummy(int){}
+#define COUNT(x) dummy(x);
+#endif
+
 template<int STRIDE>
 __global__
-void nn(float const * __restrict__ z, float const * __restrict__ w, uint32_t * __restrict__ nns, int ntot, float eps) {
+void nn(uint32_t * __restrict__ counters,
+float const * __restrict__ z, float const * __restrict__ w, uint32_t * __restrict__ nns, int ntot, float eps) {
+    COUNT(0);
     // this part is actually run STRIDE times for each "z"
     auto ldx = blockIdx.x * blockDim.x + threadIdx.x;
     auto idx = ldx/STRIDE;
@@ -15,18 +25,20 @@ void nn(float const * __restrict__ z, float const * __restrict__ w, uint32_t * _
     // usual loop uder the assumption ntot is not kown on HOST side
     auto incr = (blockDim.x * gridDim.x)/STRIDE;
     for (auto j = idx; j < ntot; j += incr) {
-
+      COUNT(1)
       // combinatorial loop  (n^2)
       // in reality it should be limited using a Histogram, KDTree or similar
       // here we parallelize. for each "z[j]" STRIDE threads are actually used
       auto k = j+ 1+first;
       for (;k < ntot; k +=STRIDE) {
+        COUNT(2);
         if (
              fabs(z[j]-z[k]) < eps && 
              fabs(w[j]-w[k]) < eps
            ) {
           atomicAdd(&nns[j],1);
           atomicAdd(&nns[k],1);
+          COUNT(3);
         }
       }  // inner loop k
     } // outer loop j
@@ -40,13 +52,24 @@ void nn(float const * __restrict__ z, float const * __restrict__ w, uint32_t * _
 constexpr uint32_t NTOT = 1024*8;
 
 template<int STRIDE>
-void go(float * z_d, float * w_d, uint32_t * nss_d) {
+void go(uint32_t * c_d, float const * z_d, float const * w_d, uint32_t * nss_d) {
+#ifdef VERIFY
+  uint32_t counters[10];
+  cudaMemset(c_d,0,10*sizeof(uint32_t));
+#endif
 
   auto nt = 128;
   auto nb = 1024*STRIDE;
 
-  nn<STRIDE><<<nb,nt>>>(z_d,w_d,nss_d,NTOT,0.1f);
+  nn<STRIDE><<<nb,nt>>>(c_d, z_d,w_d,nss_d,NTOT,0.1f);
 
+#ifdef VERIFY
+  cuda::memory::copy(counters,c_d,10*sizeof(uint32_t));
+
+  std::cout << STRIDE << ' ' << NTOT;
+  for (int i=0; i<5; ++i) std::cout << ' ' << counters[i];
+  std::cout << std::endl;
+#endif
 }
 
 
@@ -62,6 +85,7 @@ int main() {
   auto z_d = cuda::memory::device::make_unique<float[]>(current_device, NTOT);
   auto w_d = cuda::memory::device::make_unique<float[]>(current_device, NTOT);
   auto nns_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, NTOT);
+  auto c_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, 10);
 
   for (int i=0; i<16; ++i) {
 
@@ -77,11 +101,11 @@ int main() {
   cuda::memory::copy(w_d.get(),z_h.data(),sizeof(float)*z_h.size());
 
 
-  go<1>(z_d.get(),w_d.get(),nns_d.get());
-  go<2>(z_d.get(),w_d.get(),nns_d.get());
-  go<4>(z_d.get(),w_d.get(),nns_d.get());
-  go<8>(z_d.get(),w_d.get(),nns_d.get());
-  go<16>(z_d.get(),w_d.get(),nns_d.get());
+  go<1>(c_d.get(), z_d.get(),w_d.get(),nns_d.get());
+  go<2>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<4>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<8>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<16>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
 
 
   }
