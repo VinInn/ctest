@@ -85,7 +85,6 @@ namespace gpuClustering {
     // renumber
     __shared__ uint16_t ws[32];
     blockPrefixScan(newclusId, nclus, ws);
-    __syncthreads();
 
     // assert(nclus>=newclusId[nclus-1]);
     // __syncthreads();
