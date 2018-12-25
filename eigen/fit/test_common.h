@@ -23,7 +23,7 @@ void printIt(C * m) {
 }
 
 template<class C1, class C2>
-bool isEqualFuzzy(C1 a, C2 b, double epsilon = 1e-6) {
+bool isEqualFuzzy(C1 a, C2 b, double epsilon = 1e-4) {
   for (unsigned int i = 0; i < a.rows(); ++i) {
     for (unsigned int j = 0; j < a.cols(); ++j) {
       assert(std::abs(a(i,j)-b(i,j))

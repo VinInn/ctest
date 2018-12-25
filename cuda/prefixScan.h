@@ -2,6 +2,7 @@
 #define HeterogeneousCore_CUDAUtilities_prefixScan_h
 
 #include <cstdint>
+
 #include <cassert>
 
 template<typename T>

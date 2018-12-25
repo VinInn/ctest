@@ -42,15 +42,33 @@ namespace gpuClustering {
 
     auto first = firstPixel + threadIdx.x;
 
+    // find the index of the first pixel not belonging to this module (or invalid)
+    __shared__ int msize;
+    msize = numElements;
+    __syncthreads();
+
+    // skip threads not associated to an existing pixel
+      for (int i = first; i < numElements; i += blockDim.x) {
+        if (id[i] == InvId)                 // skip invalid pixels
+          continue;
+        if (id[i] != thisModuleId) {        // find the first pixel in a different module
+          atomicMin(&msize, i);
+          break;
+        }
+      }
+
+//    __syncthreads();
+
     __shared__ int32_t charge[MaxNumClustersPerModules];
     for (int i=threadIdx.x; i<nclus; i += blockDim.x) {
       charge[i]=0;
     }
     __syncthreads();
 
-    for (int i = first; i < numElements; i += blockDim.x) {
+    assert(msize<=numElements);
+
+    for (int i = first; i < msize; i += blockDim.x) {
       if (id[i] == InvId) continue;     // not valid
-      if (id[i] != thisModuleId) break;           // end of module
       atomicAdd(&charge[clusterId[i]], adc[i]);
     }
     __syncthreads();
@@ -67,10 +85,13 @@ namespace gpuClustering {
     // renumber
     __shared__ uint16_t ws[32];
     blockPrefixScan(newclusId, nclus, ws);
+    __syncthreads();
 
-    assert(nclus>=newclusId[nclus-1]);
-    
-    if(nclus==newclusId[nclus-1]) return;
+    // assert(nclus>=newclusId[nclus-1]);
+    // __syncthreads();
+
+    // if(nclus==newclusId[nclus-1]) return;
+    // __syncthreads();
 
     nClustersInModule[thisModuleId] = newclusId[nclus-1];
     __syncthreads();
@@ -82,9 +103,8 @@ namespace gpuClustering {
     __syncthreads();
 
     // reassign id
-    for (int i = first; i < numElements; i += blockDim.x) {
+    for (int i = first; i < msize; i += blockDim.x) {
       if (id[i] == InvId) continue;     // not valid
-      if (id[i] != thisModuleId) break;           // end of module
       clusterId[i] = newclusId[clusterId[i]]-1;
       if(clusterId[i]==InvId) id[i] = InvId;
     }

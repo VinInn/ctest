@@ -272,6 +272,7 @@ int main(void)
     for (auto i=MaxNumModules; i>0; i--) if (nclus[i-1]>0) {std::cout << "last module is " << i-1 << ' ' << nclus[i-1] << std::endl; break;}
     if (ncl!=std::accumulate(nclus,nclus+MaxNumModules,0)) std::cout << "ERROR!!!!! wrong number of cluster found" << std::endl;
 
+
     cuda::launch(
                clusterChargeCut,
                { blocksPerGrid, threadsPerBlock },
