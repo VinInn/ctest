@@ -104,6 +104,7 @@ void go(bool soa) {
     delta2 -= (std::chrono::high_resolution_clock::now()-start);
     if (soa)
       #pragma GCC ivdep
+      #pragma clang loop vectorize(enable) interleave(enable)
       for (unsigned int i=0; i<SIZE; ++i) {
 	MapMX<N> m(p+i);
 	choleskyInversion::invert(m,m);

@@ -1,0 +1,3 @@
+clang++ -Ofast -mfma -mavx2 -Rpass-missed=loop-vectorized -mllvm -inline-threshold=100000 \
+-I/afs/cern.ch/user/i/innocent/eigen/ \
+$1
