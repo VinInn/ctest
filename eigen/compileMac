@@ -1,0 +1,2 @@
+c++  -O3  -g -march=native $1 -I/Users/innocent/eigen
+
