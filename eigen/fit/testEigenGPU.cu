@@ -3,7 +3,12 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
+#ifdef USE_BL
+#include "BrokenLine.h"
+#else
 #include "RiemannFit.h"
+#endif
+
 
 #include "test_common.h"
 #include "../../cuda/cudaCheck.h"
@@ -31,8 +36,55 @@ void kernelFastFit(double * __restrict__ phits, double * __restrict__ presults) 
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3x4d hits(phits+i,3,4);
   Rfit::Map4d result(presults+i,4);
+#ifdef USE_BL
+  BrokenLine::BL_Fast_fit(hits, results);
+#else
   Rfit::Fast_fit(hits,  result);
+#endif
 }
+
+#ifdef USE_BL
+
+__global__
+void kernelBrokenLineFit(double * __restrict__ phits,
+			 float * __restrict__ phits_ge, 
+			 double * __restrict__ pfast_fit_input, 
+			 double B,
+			 Rfit::circle_fit * circle_fit,
+			 Rfit::line_fit * line_fit
+			 ) {
+  auto i = blockIdx.x*blockDim.x + threadIdx.x;
+  Rfit::Map3x4d hits(phits+i,3,4);
+  Rfit::Map4d   fast_fit_input(pfast_fit_input+i,4);
+  Rfit::Map6x4f hits_ge(phits_ge+i,6,4);
+
+  constexpr uint32_t N = Rfit::Map3x4d::ColsAtCompileTime;
+  constexpr auto n = N;
+  
+  BrokenLine::PreparedBrokenLineData<N> data;
+  Rfit::Matrix3d Jacob;
+  Rfit::MatrixNplusONEd<N> C_U;
+
+  auto & line_fit_results = line_fit[i];
+  auto & circle_fit_results = circle_fit[i];
+  
+  BrokenLine::prepareBrokenLineData(hits,fast_fit_input,B,data);
+  BrokenLine::BL_Line_fit(hits_ge,fast_fit_results,B,data,line_fit_results);
+  BrokenLine::BL_Circle_fit(hits,hits_ge,fast_fit_input,B,data,circle_fit_results,Jacob,C_U);
+  Jacob << 1,0,0,
+    0,1,0,
+    0,0,-B/std::copysign(Rfit::sqr(circle_fit_results.par(2)),circle_fit_results.par(2));
+  circle_fit_results.par(2)=B/std::abs(circle_fit_results.par(2));
+  circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
+
+#ifdef TEST_DEBUG
+if (0==i) {
+  printf("Circle param %f,%f,%f\n",circle_fit[i].par(0),circle_fit[i].par(1),circle_fit[i].par(2));
+ }
+#endif
+}
+
+#else
 
 __global__
 void kernelCircleFit(double * __restrict__ phits,
@@ -41,16 +93,15 @@ void kernelCircleFit(double * __restrict__ phits,
     double B,
     Rfit::circle_fit * circle_fit_resultsGPU) {
 
-auto i = blockIdx.x*blockDim.x + threadIdx.x;
+  auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3x4d hits(phits+i,3,4);
   Rfit::Map4d   fast_fit_input(pfast_fit_input+i,4);
   Rfit::Map6x4f hits_ge(phits_ge+i,6,4);
 
   constexpr uint32_t N = Rfit::Map3x4d::ColsAtCompileTime;
   constexpr auto n = N;
-  
-  Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, n).colwise().norm());
 
+  Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, n).colwise().norm());
   Rfit::Matrix2Nd<N> hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
   Rfit::loadCovariance2D(hits_ge,hits_cov);
   
@@ -96,6 +147,7 @@ void kernelLineFit(double * __restrict__ phits,
   Rfit::Map6x4f hits_ge(phits_ge+i,6,4);
   line_fit[i] = Rfit::Line_fit(hits, hits_ge, circle_fit[i], fast_fit, B, true);
 }
+#endif
 
 template<typename M3x4, typename M6x4>
 __device__ __host__
@@ -142,6 +194,7 @@ void testFit() {
   Rfit::circle_fit * circle_fit_resultsGPU = nullptr;
   Rfit::circle_fit * circle_fit_resultsGPUret = new Rfit::circle_fit();
   Rfit::line_fit * line_fit_resultsGPU = nullptr;
+  Rfit::line_fit * line_fit_resultsGPUret = new Rfit::line_fit();
 
   fillHitsAndHitsCov(hits, hits_ge);
 
@@ -175,9 +228,34 @@ void testFit() {
   std::cout << "Fitted values (FastFit, [X0, Y0, R, tan(theta)]): GPU\n" << fast_fit << std::endl;
   assert(isEqualFuzzy(fast_fit_results, fast_fit));
 
-  // CIRCLE_FIT CPU
   constexpr uint32_t N = Rfit::Map3x4d::ColsAtCompileTime;
   constexpr auto n = N;
+
+#ifdef USE_BL
+  // CIRCLE AND LINE FIT CPU
+  BrokenLine::PreparedBrokenLineData<N> data;
+  BrokenLine::karimaki_circle_fit circle_fit_results;
+  Rfit::Matrix3d Jacob;
+  Rfit::MatrixNplusONEd<N> C_U;
+  BrokenLine::prepareBrokenLineData(hits,fast_fit_results,B,data);
+  BrokenLine::BL_Line_fit(hits_ge,fast_fit_results,B,data,line_fit_results);
+  BrokenLine::BL_Circle_fit(hits,hits_ge,fast_fit_results,B,data,circle_fit_results,Jacob,C_U);
+  Jacob << 1,0,0,
+    0,1,0,
+    0,0,-B/std::copysign(Rfit::sqr(circle_fit_results.par(2)),circle_fit_results.par(2));
+  circle_fit_results.par(2)=B/std::abs(circle_fit_results.par(2));
+  circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
+
+  // fit on GPU
+  kernelBrokenLineFit<<<Ntracks/64, 64>>>(hitsGPU, hits_geGPU,
+					  fast_fit_resultsGPU, B,
+					  circle_fit_resultsGPU,
+					  line_fit_resultsGPU);
+  cudaDeviceSynchronize();
+
+  
+#else
+  // CIRCLE_FIT CPU
   Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, n).colwise().norm());
 
   Rfit::Matrix2Nd<N> hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
@@ -185,33 +263,36 @@ void testFit() {
   Rfit::circle_fit circle_fit_results = Rfit::Circle_fit(hits.block(0, 0, 2, n),
       hits_cov,
       fast_fit_results, rad, B, true);
-  std::cout << "Fitted values (CircleFit):\n" << circle_fit_results.par << std::endl;
 
   // CIRCLE_FIT GPU
-
   kernelCircleFit<<<Ntracks/64, 64>>>(hitsGPU, hits_geGPU,
       fast_fit_resultsGPU, B, circle_fit_resultsGPU);
   cudaDeviceSynchronize();
-
-  cudaMemcpy(circle_fit_resultsGPUret, circle_fit_resultsGPU,
-      sizeof(Rfit::circle_fit), cudaMemcpyDeviceToHost);
-  std::cout << "Fitted values (CircleFit) GPU:\n" << circle_fit_resultsGPUret->par << std::endl;
-  assert(isEqualFuzzy(circle_fit_results.par, circle_fit_resultsGPUret->par));
-
+ 
   // LINE_FIT CPU
   Rfit::line_fit line_fit_results = Rfit::Line_fit(hits, hits_ge, circle_fit_results, fast_fit_results, B, true);
-  std::cout << "Fitted values (LineFit):\n" << line_fit_results.par << std::endl;
 
-  // LINE_FIT GPU
-  Rfit::line_fit * line_fit_resultsGPUret = new Rfit::line_fit();
 
   kernelLineFit<<<Ntracks/64, 64>>>(hitsGPU, hits_geGPU, B, circle_fit_resultsGPU, fast_fit_resultsGPU, line_fit_resultsGPU);
   cudaDeviceSynchronize();
+#endif
 
+  std::cout << "Fitted values (CircleFit):\n" << circle_fit_results.par << std::endl;
+
+  
+  cudaMemcpy(circle_fit_resultsGPUret, circle_fit_resultsGPU,
+	     sizeof(Rfit::circle_fit), cudaMemcpyDeviceToHost);
+  std::cout << "Fitted values (CircleFit) GPU:\n" << circle_fit_resultsGPUret->par << std::endl;
+  assert(isEqualFuzzy(circle_fit_results.par, circle_fit_resultsGPUret->par));
+  
+  
+  std::cout << "Fitted values (LineFit):\n" << line_fit_results.par << std::endl;
+    // LINE_FIT GPU
   cudaMemcpy(line_fit_resultsGPUret, line_fit_resultsGPU, sizeof(Rfit::line_fit), cudaMemcpyDeviceToHost);
   std::cout << "Fitted values (LineFit) GPU:\n" << line_fit_resultsGPUret->par << std::endl;
   assert(isEqualFuzzy(line_fit_results.par, line_fit_resultsGPUret->par));
 
+  
   std::cout << "Fitted cov (CircleFit) CPU:\n" << circle_fit_results.cov << std::endl;
   std::cout << "Fitted cov (LineFit): CPU\n" << line_fit_results.cov << std::endl;
   std::cout << "Fitted cov (CircleFit) GPU:\n" << circle_fit_resultsGPUret->cov << std::endl;

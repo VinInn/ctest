@@ -79,23 +79,19 @@ void testFit() {
 
 #ifdef USE_BL
   BrokenLine::PreparedBrokenLineData<N> data;
-  BrokenLine::karimaki_circle_fit circle;
+  BrokenLine::karimaki_circle_fit circle_fit_results;
   Rfit::Matrix3d Jacob;
   Rfit::MatrixNplusONEd<N> C_U;
     
   BrokenLine::prepareBrokenLineData(hits,fast_fit_results,B,data);
   Rfit::line_fit line_fit_results;
   BrokenLine::BL_Line_fit(hits_ge,fast_fit_results,B,data,line_fit_results);
-  BrokenLine::BL_Circle_fit(hits,hits_ge,fast_fit_results,B,data,circle,Jacob,C_U);
-  Rfit::circle_fit circle_fit_results;
+  BrokenLine::BL_Circle_fit(hits,hits_ge,fast_fit_results,B,data,circle_fit_results,Jacob,C_U);
   Jacob << 1,0,0,
     0,1,0,
-    0,0,-std::abs(circle.par(2))*B/(Rfit::sqr(circle.par(2))*circle.par(2));
-  circle_fit_results.par = circle.par;
-  circle_fit_results.chi2 = circle.chi2;
-  circle_fit_results.q = circle.q;
-  circle_fit_results.par(2)=B/abs(circle.par(2));
-  circle_fit_results.cov=Jacob*circle.cov*Jacob.transpose();
+    0,0,-B/std::copysign(Rfit::sqr(circle_fit_results.par(2)),circle_fit_results.par(2));
+  circle_fit_results.par(2)=B/std::abs(circle_fit_results.par(2));
+  circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
 #else
   Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, n).colwise().norm());
   Rfit::Matrix2Nd<N> hits_cov =  MatrixXd::Zero(2 * n, 2 * n);

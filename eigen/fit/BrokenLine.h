@@ -14,18 +14,14 @@
 namespace BrokenLine {
   
   using namespace Rfit;
-  
-  struct karimaki_circle_fit {
-    Vector3d par;  //!< Karimäki's parameters: (phi, d, k=1/R)
-    Matrix3d cov;
-    /*!< covariance matrix: \n
-      |cov(phi,phi)|cov( d ,phi)|cov( k ,phi)| \n
-      |cov(phi, d )|cov( d , d )|cov( k , d )| \n
-      |cov(phi, k )|cov( d , k )|cov( k , k )|
-    */
-    int q;  //!< particle charge
-    double chi2;
-  };
+
+  //!< Karimäki's parameters: (phi, d, k=1/R)
+  /*!< covariance matrix: \n
+    |cov(phi,phi)|cov( d ,phi)|cov( k ,phi)| \n
+    |cov(phi, d )|cov( d , d )|cov( k , d )| \n
+    |cov(phi, k )|cov( d , k )|cov( k , k )|
+  */
+  using karimaki_circle_fit = Rfit::circle_fit;
   
   
   /*!
