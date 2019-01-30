@@ -21,6 +21,8 @@ using MatrixXd = Eigen::MatrixXd;
 template<int N>
 using MatrixNd = Eigen::Matrix<double, N, N>;
 template<int N>
+using MatrixNplusONEd = Eigen::Matrix<double, N+1, N+1>; 
+template<int N>
 using ArrayNd = Eigen::Array<double, N, N>;
 template<int N>
 using Matrix2Nd = Eigen::Matrix<double, 2 * N, 2 * N>;
@@ -38,6 +40,8 @@ template<int N>
 using MatrixNx5d = Eigen::Matrix<double, N, 5>;
 template<int N>
 using VectorNd = Eigen::Matrix<double, N, 1>;
+template<int N>
+using VectorNplusONEd  = Eigen::Matrix<double, N+1, 1>;
 template<int N>
 using Vector2Nd = Eigen::Matrix<double, 2 * N, 1>;
 template<int N>
@@ -58,6 +62,7 @@ using Matrix4d = Eigen::Matrix4d;
 using Matrix5d = Eigen::Matrix<double, 5, 5>;
 using Matrix6d = Eigen::Matrix<double, 6, 6>;
 using Vector5d = Eigen::Matrix<double, 5, 1>;
+using Matrix2x3d = Eigen::Matrix<double, 2, 3>;
 
 using Matrix3f = Eigen::Matrix3f;
 using Vector3f = Eigen::Vector3f;
