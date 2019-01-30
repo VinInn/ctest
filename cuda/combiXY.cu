@@ -14,7 +14,7 @@ void dummy(int){}
 #define COUNT(x) dummy(x);
 #endif
 
-template<int STRIDE>
+template<int STRIDE, int NTTOT>
 __global__
 void nn(uint32_t * __restrict__ counters,
 float const * __restrict__ z, float const * __restrict__ w, uint32_t * __restrict__ nns, int ntot, float eps) {
@@ -54,7 +54,7 @@ float const * __restrict__ z, float const * __restrict__ w, uint32_t * __restric
 
 constexpr uint32_t NTOT = 1024*8;
 
-template<int STRIDE>
+template<int STRIDE, int NTTOT>
 void go(uint32_t * c_d, float const * z_d, float const * w_d, uint32_t * nss_d) {
 #ifdef VERIFY
   uint32_t counters[10];
@@ -62,13 +62,14 @@ void go(uint32_t * c_d, float const * z_d, float const * w_d, uint32_t * nss_d) 
 #endif
 
   // x is the fastest....
-  auto nty = 64;
-  auto nby = 1024;
+  auto ntTot = NTTOT; // KEEP THE NUMBER OF THREAD FIXED
+  auto nty = ntTot/STRIDE;
+  auto nby = 1024*STRIDE/NTTOT*64; // 1024 was for ntTot=64
   auto ntx = STRIDE;
   auto nbx = 1;
   dim3 nt(ntx,nty,1);
   dim3 nb(nbx,nby,1);
-  nn<STRIDE><<<nb,nt>>>(c_d, z_d,w_d,nss_d,NTOT,0.1f);
+  nn<STRIDE,NTTOT><<<nb,nt>>>(c_d, z_d,w_d,nss_d,NTOT,0.1f);
 
 #ifdef VERIFY
   cuda::memory::copy(counters,c_d,10*sizeof(uint32_t));
@@ -108,12 +109,24 @@ int main() {
   cuda::memory::copy(w_d.get(),z_h.data(),sizeof(float)*z_h.size());
 
 
-  go<1>(c_d.get(), z_d.get(),w_d.get(),nns_d.get());
-  go<2>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
-  go<4>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
-  go<8>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
-  go<16>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<1,64>(c_d.get(), z_d.get(),w_d.get(),nns_d.get());
+  go<2,64>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<4,64>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<8,64>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<16,64>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<32,64>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
 
+  go<1,256>(c_d.get(), z_d.get(),w_d.get(),nns_d.get());
+  go<2,256>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<4,256>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<8,256>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<16,256>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<32,256>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<64,256>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+
+  go<64,1024>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<128,1024>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
+  go<256,1024>(c_d.get(),z_d.get(),w_d.get(),nns_d.get());
 
   }
   cudaDeviceSynchronize();
