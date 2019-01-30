@@ -37,7 +37,7 @@ void kernelFastFit(double * __restrict__ phits, double * __restrict__ presults) 
   Rfit::Map3x4d hits(phits+i,3,4);
   Rfit::Map4d result(presults+i,4);
 #ifdef USE_BL
-  BrokenLine::BL_Fast_fit(hits, results);
+  BrokenLine::BL_Fast_fit(hits, result);
 #else
   Rfit::Fast_fit(hits,  result);
 #endif
@@ -69,7 +69,7 @@ void kernelBrokenLineFit(double * __restrict__ phits,
   auto & circle_fit_results = circle_fit[i];
   
   BrokenLine::prepareBrokenLineData(hits,fast_fit_input,B,data);
-  BrokenLine::BL_Line_fit(hits_ge,fast_fit_results,B,data,line_fit_results);
+  BrokenLine::BL_Line_fit(hits_ge,fast_fit_input,B,data,line_fit_results);
   BrokenLine::BL_Circle_fit(hits,hits_ge,fast_fit_input,B,data,circle_fit_results,Jacob,C_U);
   Jacob << 1,0,0,
     0,1,0,
@@ -205,7 +205,11 @@ void testFit() {
   std::cout << "Generated cov:\n" << hits_ge << std::endl;
 
   // FAST_FIT_CPU
+#ifdef USE_BL
+  Vector4d fast_fit_results; BrokenLine::BL_Fast_fit(hits, fast_fit_results);
+#else
   Vector4d fast_fit_results; Rfit::Fast_fit(hits, fast_fit_results);
+#endif
   std::cout << "Fitted values (FastFit, [X0, Y0, R, tan(theta)]):\n" << fast_fit_results << std::endl;
 
   // for timing    purposes we fit    4096 tracks
@@ -235,6 +239,7 @@ void testFit() {
   // CIRCLE AND LINE FIT CPU
   BrokenLine::PreparedBrokenLineData<N> data;
   BrokenLine::karimaki_circle_fit circle_fit_results;
+  Rfit::line_fit line_fit_results;
   Rfit::Matrix3d Jacob;
   Rfit::MatrixNplusONEd<N> C_U;
   BrokenLine::prepareBrokenLineData(hits,fast_fit_results,B,data);
