@@ -75,7 +75,6 @@ void testFit() {
 
   // CIRCLE_FIT CPU
   constexpr uint32_t N = Rfit::Map3x4d::ColsAtCompileTime;
-  constexpr auto n = N;
 
 #ifdef USE_BL
   BrokenLine::PreparedBrokenLineData<N> data;
@@ -93,10 +92,10 @@ void testFit() {
   circle_fit_results.par(2)=B/std::abs(circle_fit_results.par(2));
   circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
 #else
-  Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, n).colwise().norm());
-  Rfit::Matrix2Nd<N> hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
+  Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, N).colwise().norm());
+  Rfit::Matrix2Nd<N> hits_cov =  Rfit::Matrix2Nd<N>::Zero();
   Rfit::loadCovariance2D(hits_ge,hits_cov);
-  Rfit::circle_fit circle_fit_results = Rfit::Circle_fit(hits.block(0, 0, 2, n),
+  Rfit::circle_fit circle_fit_results = Rfit::Circle_fit(hits.block(0, 0, 2, N),
       hits_cov,
       fast_fit_results, rad, B, true);
   // LINE_FIT CPU
