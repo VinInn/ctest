@@ -95,6 +95,8 @@ void testFit() {
     0,1,0,
     0,0,-std::abs(circle.par(2))*B/(Rfit::sqr(circle.par(2))*circle.par(2));
   circle_fit_results.par = circle.par;
+  circle_fit_results.chi2 = circle.chi2;
+  circle_fit_results.q = circle.q;
   circle_fit_results.par(2)=B/abs(circle.par(2));
   circle_fit_results.cov=Jacob*circle.cov*Jacob.transpose();
 #else
