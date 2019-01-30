@@ -36,8 +36,8 @@ double * __restrict__ pp, int n) {
   //auto const & J = pj[i];
 
   MD cov(pcov+i);
-  Matrix5d tmp = cov*J.transpose();
-  cov.noalias() = J*tmp;
+//  auto tmp = cov*J.transpose();
+  cov.noalias() = J*(cov*J.transpose()).eval();
 }
 
 

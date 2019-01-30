@@ -1,13 +1,14 @@
 #include <iostream>
 
-#define __host__ 
+#define __host__
 #define __device__
-
 
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
+
 #include "RiemannFit.h"
+// #include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
 
 #include "test_common.h"
 
@@ -51,13 +52,6 @@ void testFit() {
   constexpr double B = 0.0113921;
   Rfit::Matrix3xNd<4> hits;
   Rfit::Matrix6x4f hits_ge = MatrixXf::Zero(6,4);
-  double * hitsGPU = nullptr;;
-  float * hits_geGPU = nullptr;
-  double * fast_fit_resultsGPU = nullptr;
-  double * fast_fit_resultsGPUret = new double[Rfit::maxNumberOfTracks()*sizeof(Vector4d)];
-  Rfit::circle_fit * circle_fit_resultsGPU = nullptr;
-  Rfit::circle_fit * circle_fit_resultsGPUret = new Rfit::circle_fit();
-  Rfit::line_fit * line_fit_resultsGPU = nullptr;
 
   fillHitsAndHitsCov(hits, hits_ge);
 
@@ -85,7 +79,7 @@ void testFit() {
   std::cout << "Fitted values (CircleFit):\n" << circle_fit_results.par << std::endl;
 
   // LINE_FIT CPU
-  Rfit::line_fit line_fit_results = Rfit::Line_fit(hits, hits_ge, circle_fit_results, fast_fit_results, true);
+  Rfit::line_fit line_fit_results = Rfit::Line_fit(hits, hits_ge, circle_fit_results, fast_fit_results, B, true);
   std::cout << "Fitted values (LineFit):\n" << line_fit_results.par << std::endl;
 
   std::cout << "Fitted cov (CircleFit) CPU:\n" << circle_fit_results.cov << std::endl;

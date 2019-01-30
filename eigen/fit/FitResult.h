@@ -7,7 +7,7 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
-// #include "../../cuda/cuda_assert.h"
+// #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 namespace Rfit
 {
