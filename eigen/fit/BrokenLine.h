@@ -263,9 +263,9 @@ namespace BrokenLine {
     The step 2 is the least square fit, done by imposing the minimum constraint on the cost function and solving the consequent linear system. It determines the fitted parameters u and \Delta\kappa and their covariance matrix.
     The step 3 is the correction of the fast pre-fitted parameters for the innermost part of the track. It is first done in a comfortable coordinate system (the one in which the first hit is the origin) and then the parameters and their covariance matrix are transformed to the original coordinate system.
   */
-  template<typename M3xN, typename V4, int N>
+  template<typename M3xN, typename M6xN, typename V4, int N>
   __host__ __device__ inline void BL_Circle_fit(const M3xN& hits,
-						const Matrix3Nd<N>& hits_cov,
+						const  M6xN & hits_ge,
 						const V4& fast_fit,
 						const double B,
 						PreparedBrokenLineData<N>& data,
@@ -294,10 +294,9 @@ namespace BrokenLine {
     Matrix2d RR; // rotation matrix point by point
     //double Slope; // slope of the circle point by point
     for(i=0;i<n;i++) {
-      V(0,0)=hits_cov(i,i); // I could not find an easy access to sub-matrices in Eigen...
-      V(0,1)=hits_cov(i,i+n);
-      V(1,0)=hits_cov(i+n,i);
-      V(1,1)=hits_cov(i+n,i+n);
+      V(0,0)=hits_ge.col(i)[0];                // x errors
+      V(0,1)=V(1,0)=hits_ge.col(i)[1];   // cov_xy
+      V(1,1)=hits_ge.col(i)[2];                // y errors
       //Slope=-radii(0,i)/radii(1,i);
       RR=RotationMatrix(-radii(0,i)/radii(1,i));
       w(i)=1/((RR*V*RR.transpose())(1,1)); // compute the orthogonal weight point by point
@@ -396,8 +395,8 @@ namespace BrokenLine {
     The step 2 is the least square fit, done by imposing the minimum constraint on the cost function and solving the consequent linear system. It determines the fitted parameters u and their covariance matrix.
     The step 3 is the correction of the fast pre-fitted parameters for the innermost part of the track. It is first done in a comfortable coordinate system (the one in which the first hit is the origin) and then the parameters and their covariance matrix are transformed to the original coordinate system.
   */
-  template<typename V4, int N>
-  __host__ __device__ inline void BL_Line_fit(const Matrix3Nd<N>& hits_cov,
+  template<typename V4, typename M6xN, int N>
+  __host__ __device__ inline void BL_Line_fit(const  M6xN & hits_ge,
 					      const V4& fast_fit,
 					      const double B,
 					      const PreparedBrokenLineData<N>& data,
@@ -417,15 +416,12 @@ namespace BrokenLine {
     Matrix2x3d JacobXYZtosZ=Matrix2x3d::Zero(); // jacobian for computation of the error on s (xyz -> sz)
     VectorNd<N> w=VectorNd<N>::Zero();
     for(i=0;i<n;i++) {
-      V(0,0)=hits_cov(i,i); // I could not find an easy way to access the sub-matrices in Eigen...
-      V(0,1)=hits_cov(i,i+n);
-      V(0,2)=hits_cov(i,i+2*n);
-      V(1,0)=hits_cov(i+n,i);
-      V(1,1)=hits_cov(i+n,i+n);
-      V(1,2)=hits_cov(i+n,i+2*n);
-      V(2,0)=hits_cov(i+2*n,i);
-      V(2,1)=hits_cov(i+2*n,i+n);
-      V(2,2)=hits_cov(i+2*n,i+2*n);
+      V(0,0)=hits_ge.col(i)[0];                // x errors
+      V(0,1)=V(1,0)=hits_ge.col(i)[1];   // cov_xy
+      V(0,2)=V(2,0)= hits_ge.col(i)[3];   // cov_xz
+      V(1,1)=hits_ge.col(i)[2];                // y errors
+      V(2,1)=V(1,2)=hits_ge.col(i)[4];   // cov_yz
+      V(2,2)=hits_ge.col(i)[5];                // z errors
       JacobXYZtosZ(0,0)=radii(1,i)/radii.block(0,i,2,1).norm();
       JacobXYZtosZ(0,1)=-radii(0,i)/radii.block(0,i,2,1).norm();
       JacobXYZtosZ(1,2)=1;
@@ -516,7 +512,6 @@ namespace BrokenLine {
     BL_Fast_fit(hits,fast_fit);
 
     Matrix3Nd<N> hits_cov = Matrix3Nd<N>::Zero();
-    Rfit::loadCovariance(hits_ge,hits_cov);
     
     PreparedBrokenLineData<N> data;
     karimaki_circle_fit circle;
@@ -525,8 +520,8 @@ namespace BrokenLine {
     MatrixNplusONEd<N> C_U;
     
     prepareBrokenLineData(hits,fast_fit,B,data);
-    BL_Line_fit(hits_cov,fast_fit,B,data,line);
-    BL_Circle_fit(hits,hits_cov,fast_fit,B,data,circle,Jacob,C_U);
+    BL_Line_fit(hits_ge,fast_fit,B,data,line);
+    BL_Circle_fit(hits,hits_ge,fast_fit,B,data,circle,Jacob,C_U);
     
     // the circle fit gives k, but here we want p_t, so let's change the parameter and the covariance matrix
     Jacob << 1,0,0,

@@ -78,9 +78,6 @@ void testFit() {
   constexpr auto n = N;
 
 #ifdef USE_BL
-  Rfit::Matrix3Nd<N> hits_cov = Rfit::Matrix3Nd<N>::Zero();
-  Rfit::loadCovariance(hits_ge,hits_cov);
-
   BrokenLine::PreparedBrokenLineData<N> data;
   BrokenLine::karimaki_circle_fit circle;
   Rfit::Matrix3d Jacob;
@@ -88,8 +85,8 @@ void testFit() {
     
   BrokenLine::prepareBrokenLineData(hits,fast_fit_results,B,data);
   Rfit::line_fit line_fit_results;
-  BrokenLine::BL_Line_fit(hits_cov,fast_fit_results,B,data,line_fit_results);
-  BrokenLine::BL_Circle_fit(hits,hits_cov,fast_fit_results,B,data,circle,Jacob,C_U);
+  BrokenLine::BL_Line_fit(hits_ge,fast_fit_results,B,data,line_fit_results);
+  BrokenLine::BL_Circle_fit(hits,hits_ge,fast_fit_results,B,data,circle,Jacob,C_U);
   Rfit::circle_fit circle_fit_results;
   Jacob << 1,0,0,
     0,1,0,
