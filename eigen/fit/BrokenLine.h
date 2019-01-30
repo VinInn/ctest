@@ -507,8 +507,6 @@ namespace BrokenLine {
     Vector4d fast_fit;
     BL_Fast_fit(hits,fast_fit);
 
-    Matrix3Nd<N> hits_cov = Matrix3Nd<N>::Zero();
-    
     PreparedBrokenLineData<N> data;
     karimaki_circle_fit circle;
     line_fit line;
