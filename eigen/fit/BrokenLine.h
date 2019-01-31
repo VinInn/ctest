@@ -409,7 +409,7 @@ namespace BrokenLine {
       V(2,2)=hits_ge.col(i)[5];                // z errors
       JacobXYZtosZ(0,0)=radii(1,i)/radii.block(0,i,2,1).norm();
       JacobXYZtosZ(0,1)=-radii(0,i)/radii.block(0,i,2,1).norm();
-      JacobXYZtosZ(1,2)=1;
+      JacobXYZtosZ(1,2)=1.;
       w(i)=1./((R*JacobXYZtosZ*V*JacobXYZtosZ.transpose()*R.transpose())(1,1)); // compute the orthogonal weight point by point
     }
     
@@ -417,8 +417,10 @@ namespace BrokenLine {
     for(i=0;i<n;i++) {
       r_u(i)=w(i)*Z(i);
     }
+
+    MatrixNd<N> I; choleskyInversion::invert(MatrixC_u(w,S,VarBeta),I);
+    //    MatrixNd<N> I=MatrixC_u(w,S,VarBeta).inverse();
     
-    MatrixNd<N> I=MatrixC_u(w,S,VarBeta).inverse();
     VectorNd<N> u=I*r_u; // obtain the fitted parameters by solving the linear system
     
     // line parameters in the system in which the first hit is the origin and with axis along SZ
@@ -428,19 +430,19 @@ namespace BrokenLine {
     
     // translate to the original SZ system
     Matrix2d Jacob;
-    Jacob(0,0)=1;
+    Jacob(0,0)=1.;
     Jacob(0,1)=0;
     Jacob(1,0)=-S(0);
-    Jacob(1,1)=1;
+    Jacob(1,1)=1.;
     line_results.par(1)+=-line_results.par(0)*S(0);
     line_results.cov=Jacob*line_results.cov*Jacob.transpose();
     
     // rotate to the original sz system
-    double tmp=R(0,0)-line_results.par(0)*R(0,1);
-    Jacob(0,0)=1./sqr(tmp);
+    auto tmp=R(0,0)-line_results.par(0)*R(0,1);
+    Jacob(1,1)=1./tmp;
+    Jacob(0,0)=Jacob(1,1)*Jacob(1,1);
     Jacob(0,1)=0;
     Jacob(1,0)=line_results.par(1)*R(0,1)*Jacob(0,0);
-    Jacob(1,1)=1./tmp;
     line_results.par(1)=line_results.par(1)*Jacob(1,1);
     line_results.par(0)=(R(0,1)+line_results.par(0)*R(0,0))*Jacob(1,1);
     line_results.cov=Jacob*line_results.cov*Jacob.transpose();
@@ -449,7 +451,9 @@ namespace BrokenLine {
     line_results.chi2=0;
     for(i=0;i<n;i++) {
       line_results.chi2+=w(i)*sqr(Z(i)-u(i));
-      if(i>0 && i<n-1) line_results.chi2+=sqr(u(i-1)/(S(i)-S(i-1))-u(i)*(S(i+1)-S(i-1))/((S(i+1)-S(i))*(S(i)-S(i-1)))+u(i+1)/(S(i+1)-S(i)))/VarBeta(i);
+      if(i>0 && i<n-1) line_results.chi2+=sqr(u(i-1)/(S(i)-S(i-1))
+					      -u(i)*(S(i+1)-S(i-1))/((S(i+1)-S(i))*(S(i)-S(i-1)))
+					      +u(i+1)/(S(i+1)-S(i)))/VarBeta(i);
     }
     
     assert(line_results.chi2>=0);
