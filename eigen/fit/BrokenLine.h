@@ -67,7 +67,7 @@ namespace BrokenLine {
     
     \return 2D rotation matrix.
   */
-  __host__ __device__ inline Matrix2d RotationMatrix(const double& slope) {
+  __host__ __device__ inline Matrix2d RotationMatrix(double slope) {
     Matrix2d Rot;
     Rot(0,0)=1./sqrt(1.+sqr(slope));
     Rot(0,1)=slope*Rot(0,0);
@@ -84,7 +84,7 @@ namespace BrokenLine {
     \param y0 y coordinate of the translation vector.
     \param Jacob passed by reference in order to save stack.
   */
-  __host__ __device__ inline void TranslateKarimaki(karimaki_circle_fit& circle, const double& x0, const double& y0, Matrix3d& Jacob) {
+  __host__ __device__ inline void TranslateKarimaki(karimaki_circle_fit& circle, double x0, double y0, Matrix3d& Jacob) {
     double A,U,BB,C,DO,DP,uu,xi,v,mu,lambda,zeta;
     DP=x0*cos(circle.par(0))+y0*sin(circle.par(0));
     DO=x0*sin(circle.par(0))-y0*cos(circle.par(0))+circle.par(1);
@@ -92,16 +92,16 @@ namespace BrokenLine {
     C=-circle.par(2)*y0+uu*cos(circle.par(0));
     BB=circle.par(2)*x0+uu*sin(circle.par(0));
     A=2*DO+circle.par(2)*(sqr(DO)+sqr(DP));
-    U=sqrt(1+circle.par(2)*A);
-    xi=1/(sqr(BB)+sqr(C));
-    v=1+circle.par(2)*DO;
-    lambda=(A/2)/(U*sqr(1+U));
-    mu=1/(U*(1+U))+circle.par(2)*lambda;
+    U=sqrt(1.+circle.par(2)*A);
+    xi=1./(sqr(BB)+sqr(C));
+    v=1.+circle.par(2)*DO;
+    lambda=(0.5*A)/(U*sqr(1.+U));
+    mu=1./(U*(1.+U))+circle.par(2)*lambda;
     zeta=sqr(DO)+sqr(DP);
     
     Jacob << xi*uu*v, -xi*sqr(circle.par(2))*DP, xi*DP,
-      2*mu*uu*DP, 2*mu*v, mu*zeta-lambda*A,
-      0, 0, 1;
+      2.*mu*uu*DP, 2.*mu*v, mu*zeta-lambda*A,
+      0, 0, 1.;
     
     circle.par(0)=atan2(BB,C);
     circle.par(1)=A/(1+U);
@@ -129,16 +129,11 @@ namespace BrokenLine {
     u_int i;
     Vector2d d;
     Vector2d e;
-    results.radii=Matrix2xNd<N>::Zero();
-    results.s=VectorNd<N>::Zero();
-    results.S=VectorNd<N>::Zero();
-    results.Z=VectorNd<N>::Zero();
     results.VarBeta=VectorNd<N>::Zero();
     
-    results.q=1;
     d=hits.block(0,1,2,1)-hits.block(0,0,2,1);
     e=hits.block(0,n-1,2,1)-hits.block(0,n-2,2,1);
-    if(cross2D(d,e)>0) results.q=-1;
+    results.q = cross2D(d,e)>0 ? -1 : 1;
     
     const double slope=-results.q/fast_fit(3);
     
@@ -150,7 +145,6 @@ namespace BrokenLine {
     for(i=0;i<n;i++) {
       d=results.radii.block(0,i,2,1);
       results.s(i)=results.q*fast_fit(2)*atan2(cross2D(d,e),d.dot(e)); // calculates the arc length
-      //if(results.s(i)<=0);
     }
     VectorNd<N> z=hits.block(2,0,1,n).transpose();
     
@@ -187,19 +181,18 @@ namespace BrokenLine {
     MatrixNd<N> C_U=MatrixNd<N>::Zero();
     for(i=0;i<n;i++) {
       C_U(i,i)=w(i);
-      if(i>1) C_U(i,i)+=1/(VarBeta(i-1)*sqr(S(i)-S(i-1)));
-      if(i>0 && i<n-1) C_U(i,i)+=(1/VarBeta(i))*sqr((S(i+1)-S(i-1))/((S(i+1)-S(i))*(S(i)-S(i-1))));
-      if(i<n-2) C_U(i,i)+=1/(VarBeta(i+1)*sqr(S(i+1)-S(i)));
+      if(i>1) C_U(i,i)+=1./(VarBeta(i-1)*sqr(S(i)-S(i-1)));
+      if(i>0 && i<n-1) C_U(i,i)+=(1./VarBeta(i))*sqr((S(i+1)-S(i-1))/((S(i+1)-S(i))*(S(i)-S(i-1))));
+      if(i<n-2) C_U(i,i)+=1./(VarBeta(i+1)*sqr(S(i+1)-S(i)));
       
-      if(i>0 && i<n-1) C_U(i,i+1)=1/(VarBeta(i)*(S(i+1)-S(i)))*(-(S(i+1)-S(i-1))/((S(i+1)-S(i))*(S(i)-S(i-1))));
-      if(i<n-2) C_U(i,i+1)+=1/(VarBeta(i+1)*(S(i+1)-S(i)))*(-(S(i+2)-S(i))/((S(i+2)-S(i+1))*(S(i+1)-S(i))));
+      if(i>0 && i<n-1) C_U(i,i+1)=1./(VarBeta(i)*(S(i+1)-S(i)))*(-(S(i+1)-S(i-1))/((S(i+1)-S(i))*(S(i)-S(i-1))));
+      if(i<n-2) C_U(i,i+1)+=1./(VarBeta(i+1)*(S(i+1)-S(i)))*(-(S(i+2)-S(i))/((S(i+2)-S(i+1))*(S(i+1)-S(i))));
       
-      if(i<n-2) C_U(i,i+2)=1/(VarBeta(i+1)*(S(i+2)-S(i+1))*(S(i+1)-S(i)));
+      if(i<n-2) C_U(i,i+2)=1./(VarBeta(i+1)*(S(i+2)-S(i+1))*(S(i+1)-S(i)));
       
-      C_U(i,i)=C_U(i,i)/2;
+      C_U(i,i)*=0.5;
     }
-    MatrixNd<N> C_u;
-    C_u=C_U+C_U.transpose();
+    MatrixNd<N> C_u = C_U+C_U.transpose();
     
     return C_u;
   }
@@ -225,11 +218,11 @@ namespace BrokenLine {
     const Vector2d b=hits.block(0,n-1,2,1)-hits.block(0,n/2,2,1);
     const Vector2d c=hits.block(0,0,2,1)-hits.block(0,n-1,2,1);
     
-    result(0)=hits(0,0)-(a(1)*c.squaredNorm()+c(1)*a.squaredNorm())/(2*cross2D(c,a));
-    result(1)=hits(1,0)+(a(0)*c.squaredNorm()+c(0)*a.squaredNorm())/(2*cross2D(c,a));
+    result(0)=hits(0,0)-(a(1)*c.squaredNorm()+c(1)*a.squaredNorm())/(2.*cross2D(c,a));
+    result(1)=hits(1,0)+(a(0)*c.squaredNorm()+c(0)*a.squaredNorm())/(2.*cross2D(c,a));
     // check Wikipedia for these formulas
     
-    result(2)=(a.norm()*b.norm()*c.norm())/(2*abs(cross2D(b,a)));
+    result(2)=(a.norm()*b.norm()*c.norm())/(2.*abs(cross2D(b,a)));
     // Using Math Olympiad's formula R=abc/(4A)
     
     const Vector2d d=hits.block(0,0,2,1)-result.head(2);
@@ -286,7 +279,7 @@ namespace BrokenLine {
     }
     
     Matrix2d V; // covariance matrix
-    VectorNd<N> w=VectorNd<N>::Zero(); // weights
+    VectorNd<N> w; // weights
     Matrix2d RR; // rotation matrix point by point
     //double Slope; // slope of the circle point by point
     for(i=0;i<n;i++) {
@@ -295,10 +288,10 @@ namespace BrokenLine {
       V(1,1)=hits_ge.col(i)[2];                // y errors
       //Slope=-radii(0,i)/radii(1,i);
       RR=RotationMatrix(-radii(0,i)/radii(1,i));
-      w(i)=1/((RR*V*RR.transpose())(1,1)); // compute the orthogonal weight point by point
+      w(i)=1./((RR*V*RR.transpose())(1,1)); // compute the orthogonal weight point by point
     }
     
-    VectorNplusONEd<N> r_u=VectorNplusONEd<N>::Zero();
+    VectorNplusONEd<N> r_u;
     for(i=0;i<n;i++) {
       r_u(i)=w(i)*Z(i);
     } r_u(n)=0;
@@ -307,25 +300,26 @@ namespace BrokenLine {
     //add the border to the C_u matrix
     for(i=0;i<n;i++) {
       if(i>0 && i<n-1) {
-	C_U(i,n)+=-(s(i+1)-s(i-1))/(2*VarBeta(i))*(s(i+1)-s(i-1))/((s(i+1)-s(i))*(s(i)-s(i-1)));
+	C_U(i,n)+=-(s(i+1)-s(i-1))/(2.*VarBeta(i))*(s(i+1)-s(i-1))/((s(i+1)-s(i))*(s(i)-s(i-1)));
 	C_U(n,i)=C_U(i,n);
       }
       if(i>1) {
-	C_U(i,n)+=(s(i)-s(i-2))/(2*VarBeta(i-1)*(s(i)-s(i-1)));
+	C_U(i,n)+=(s(i)-s(i-2))/(2.*VarBeta(i-1)*(s(i)-s(i-1)));
 	C_U(n,i)=C_U(i,n);
       }
       if(i<n-2) {
-	C_U(i,n)+=(s(i+2)-s(i))/(2*VarBeta(i+1)*(s(i+1)-s(i)));
+	C_U(i,n)+=(s(i+2)-s(i))/(2.*VarBeta(i+1)*(s(i+1)-s(i)));
 	C_U(n,i)=C_U(i,n);
       }
       
-      if(i>0 && i<n-1) C_U(n,n)+=sqr(s(i+1)-s(i-1))/(4*VarBeta(i));
+      if(i>0 && i<n-1) C_U(n,n)+=sqr(s(i+1)-s(i-1))/(4.*VarBeta(i));
     }
     C_U.block(0,0,n,n)=MatrixC_u(w,s,VarBeta);
-    MatrixNplusONEd<N>& I=C_U;
-    I=C_U.inverse();//MatrixNplusONEd I=C_U.inverse();
-    
-    VectorNplusONEd<N>& u=r_u;
+
+    MatrixNplusONEd<N>& I = C_U;
+    I=C_U.inverse();
+
+    VectorNplusONEd<N>& u = r_u;
     u=I*r_u; // obtain the fitted parameters by solving the linear system
     
     // compute (phi, d_ca, k) in the system in which the midpoint of the first two corrected hits is the origin...
@@ -421,10 +415,10 @@ namespace BrokenLine {
       JacobXYZtosZ(0,0)=radii(1,i)/radii.block(0,i,2,1).norm();
       JacobXYZtosZ(0,1)=-radii(0,i)/radii.block(0,i,2,1).norm();
       JacobXYZtosZ(1,2)=1;
-      w(i)=1/((R*JacobXYZtosZ*V*JacobXYZtosZ.transpose()*R.transpose())(1,1)); // compute the orthogonal weight point by point
+      w(i)=1./((R*JacobXYZtosZ*V*JacobXYZtosZ.transpose()*R.transpose())(1,1)); // compute the orthogonal weight point by point
     }
     
-    VectorNd<N> r_u=VectorNd<N>::Zero();
+    VectorNd<N> r_u;
     for(i=0;i<n;i++) {
       r_u(i)=w(i)*Z(i);
     }
@@ -448,12 +442,12 @@ namespace BrokenLine {
     
     // rotate to the original sz system
     double tmp=R(0,0)-line_results.par(0)*R(0,1);
-    Jacob(0,0)=1/sqr(tmp);
+    Jacob(0,0)=1./sqr(tmp);
     Jacob(0,1)=0;
-    Jacob(1,0)=line_results.par(1)*R(0,1)/sqr(tmp);
-    Jacob(1,1)=1/tmp;
-    line_results.par(1)=line_results.par(1)/tmp;
-    line_results.par(0)=(R(0,1)+line_results.par(0)*R(0,0))/tmp;
+    Jacob(1,0)=line_results.par(1)*R(0,1)*Jacob(0,0);
+    Jacob(1,1)=1./tmp;
+    line_results.par(1)=line_results.par(1)*Jacob(1,1);
+    line_results.par(0)=(R(0,1)+line_results.par(0)*R(0,0))*Jacob(1,1);
     line_results.cov=Jacob*line_results.cov*Jacob.transpose();
     
     // compute chi2
@@ -518,10 +512,10 @@ namespace BrokenLine {
     BL_Circle_fit(hits,hits_ge,fast_fit,B,data,circle,Jacob,C_U);
     
     // the circle fit gives k, but here we want p_t, so let's change the parameter and the covariance matrix
-    Jacob << 1,0,0,
-      0,1,0,
-      0,0,-abs(circle.par(2))*B/(sqr(circle.par(2))*circle.par(2));
-    circle.par(2)=B/abs(circle.par(2));
+    Jacob << 1.,0,0,
+      0,1.,0,
+      0,0,-std::abs(circle.par(2))*B/(sqr(circle.par(2))*circle.par(2));
+    circle.par(2)=B/std::abs(circle.par(2));
     circle.cov=Jacob*circle.cov*Jacob.transpose();
     
     helix.par << circle.par, line.par;
