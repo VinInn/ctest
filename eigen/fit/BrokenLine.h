@@ -93,7 +93,7 @@ namespace BrokenLine {
     uu=1+circle.par(2)*circle.par(1);
     C=-circle.par(2)*y0+uu*cos(circle.par(0));
     BB=circle.par(2)*x0+uu*sin(circle.par(0));
-    A=2*DO+circle.par(2)*(sqr(DO)+sqr(DP));
+    A=2.*DO+circle.par(2)*(sqr(DO)+sqr(DP));
     U=sqrt(1.+circle.par(2)*A);
     xi=1./(sqr(BB)+sqr(C));
     v=1.+circle.par(2)*DO;
@@ -217,12 +217,13 @@ namespace BrokenLine {
     const Vector2d a=hits.block(0,n/2,2,1)-hits.block(0,0,2,1);
     const Vector2d b=hits.block(0,n-1,2,1)-hits.block(0,n/2,2,1);
     const Vector2d c=hits.block(0,0,2,1)-hits.block(0,n-1,2,1);
-    
-    result(0)=hits(0,0)-(a(1)*c.squaredNorm()+c(1)*a.squaredNorm())/(2.*cross2D(c,a));
-    result(1)=hits(1,0)+(a(0)*c.squaredNorm()+c(0)*a.squaredNorm())/(2.*cross2D(c,a));
+
+    auto tmp = 0.5/cross2D(c,a);
+    result(0)=hits(0,0)-(a(1)*c.squaredNorm()+c(1)*a.squaredNorm())*tmp;
+    result(1)=hits(1,0)+(a(0)*c.squaredNorm()+c(0)*a.squaredNorm())*tmp;
     // check Wikipedia for these formulas
     
-    result(2)=(a.norm()*b.norm()*c.norm())/(2.*abs(cross2D(b,a)));
+    result(2)=(a.norm()*b.norm()*c.norm())/(2.*std::abs(cross2D(b,a)));
     // Using Math Olympiad's formula R=abc/(4A)
     
     const Vector2d d=hits.block(0,0,2,1)-result.head(2);
