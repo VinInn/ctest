@@ -26,7 +26,7 @@ namespace Rfit
     \brief raise to square.
   */
   template <typename T>
-  __host__ __device__ inline T sqr(const T a)
+  constexpr T sqr(const T a)
   {
     return a * a;
   }

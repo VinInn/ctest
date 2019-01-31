@@ -51,13 +51,15 @@ namespace BrokenLine {
     
     \return the variance of the planar angle ((theta_0)^2 /3).
   */
-  __host__ __device__ inline double MultScatt(const double& length, const double B, const double& R, int Layer, double slope) {
-    double XX_0; //!< radiation length of the material in cm
-    if(Layer==1) XX_0=16/0.06;
-    else XX_0=16/0.06;
-    XX_0*=1;
-    double geometry_factor=0.7; //!< number between 1/3 (uniform material) and 1 (thin scatterer) to be manually tuned
-    return geometry_factor*sqr((13.6/1000.)/(1.*B*R*sqrt(1.+sqr(slope))))*(abs(length)/XX_0)*sqr(1.+0.038*log(abs(length)/XX_0));
+  __host__ __device__ inline double MultScatt(const double& length, const double B, const double R, int Layer, double slope) {
+    constexpr double XXI_0 = 0.06/16.; //!< inverse of radiation length of the material in cm
+    //if(Layer==1) XXI_0=0.06/16.;
+    // else XXI_0=0.06/16.;
+    //XX_0*=1;
+    constexpr double geometry_factor=0.7; //!< number between 1/3 (uniform material) and 1 (thin scatterer) to be manually tuned
+    constexpr double fact = geometry_factor*sqr(13.6/1000.);
+    return fact/sqr(1.*B*R*sqrt(1.+sqr(slope)))
+      *(std::abs(length)*XXI_0)*sqr(1.+0.038*log(std::abs(length)*XXI_0));
   }
   
   /*!
@@ -287,9 +289,10 @@ namespace BrokenLine {
     }
     
     VectorNplusONEd<N> r_u;
+    r_u(n)=0;
     for(i=0;i<n;i++) {
       r_u(i)=w(i)*Z(i);
-    } r_u(n)=0;
+    }
     
     MatrixNplusONEd<N> C_U;
     C_U.block(0,0,n,n)=MatrixC_u(w,s,VarBeta);
@@ -325,8 +328,8 @@ namespace BrokenLine {
     Vector2d e=hits.block(0,1,2,1)+(-Z(1)+u(1))*radii.block(0,1,2,1);
     
     circle_results.par << atan2((e-d)(1),(e-d)(0)),
-      -circle_results.q*(fast_fit(2)-sqrt(sqr(fast_fit(2))-(e-d).squaredNorm()/4)),
-      circle_results.q*(1/fast_fit(2)+u(n));
+      -circle_results.q*(fast_fit(2)-sqrt(sqr(fast_fit(2))- 0.25*(e-d).squaredNorm())),
+      circle_results.q*(1./fast_fit(2)+u(n));
     
     assert(circle_results.q*circle_results.par(1)<=0);
     
