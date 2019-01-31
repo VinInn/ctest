@@ -59,7 +59,6 @@ void kernelBrokenLineFit(double * __restrict__ phits,
   Rfit::Map6x4f hits_ge(phits_ge+i,6,4);
 
   constexpr uint32_t N = Rfit::Map3x4d::ColsAtCompileTime;
-  constexpr auto n = N;
   
   BrokenLine::PreparedBrokenLineData<N> data;
   Rfit::Matrix3d Jacob;
