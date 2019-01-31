@@ -9,7 +9,7 @@
 
 #include "FitUtils.h"
 
-
+#include "../choleskyInversion.h"
 
 namespace BrokenLine {
   
@@ -245,8 +245,6 @@ namespace BrokenLine {
     -par parameter of the line in this form: (phi, d, k); \n
     -cov covariance matrix of the fitted parameter; \n
     -chi2 value of the cost function in the minimum.
-    \param Jacob passed by reference in order to save stack.
-    \param C_U passed by reference in order to sake stack.
     
     \details The function implements the steps 2 and 3 of the Broken Line fit with the curvature correction.\n
     The step 2 is the least square fit, done by imposing the minimum constraint on the cost function and solving the consequent linear system. It determines the fitted parameters u and \Delta\kappa and their covariance matrix.
@@ -258,9 +256,8 @@ namespace BrokenLine {
 						const V4& fast_fit,
 						const double B,
 						PreparedBrokenLineData<N>& data,
-						karimaki_circle_fit & circle_results,
-						Matrix3d& Jacob,
-						MatrixNplusONEd<N>& C_U) {
+						karimaki_circle_fit & circle_results
+                                               ) {
 
     constexpr u_int n = N;
     u_int i;
@@ -296,31 +293,30 @@ namespace BrokenLine {
       r_u(i)=w(i)*Z(i);
     } r_u(n)=0;
     
-    C_U=MatrixNplusONEd<N>::Zero();
+    MatrixNplusONEd<N> C_U;
+    C_U.block(0,0,n,n)=MatrixC_u(w,s,VarBeta);
+    C_U(n,n) =0;
     //add the border to the C_u matrix
     for(i=0;i<n;i++) {
+      C_U(i,n) =0;
       if(i>0 && i<n-1) {
 	C_U(i,n)+=-(s(i+1)-s(i-1))/(2.*VarBeta(i))*(s(i+1)-s(i-1))/((s(i+1)-s(i))*(s(i)-s(i-1)));
-	C_U(n,i)=C_U(i,n);
       }
       if(i>1) {
 	C_U(i,n)+=(s(i)-s(i-2))/(2.*VarBeta(i-1)*(s(i)-s(i-1)));
-	C_U(n,i)=C_U(i,n);
       }
       if(i<n-2) {
 	C_U(i,n)+=(s(i+2)-s(i))/(2.*VarBeta(i+1)*(s(i+1)-s(i)));
-	C_U(n,i)=C_U(i,n);
       }
-      
+      C_U(n,i) = C_U(i,n);
       if(i>0 && i<n-1) C_U(n,n)+=sqr(s(i+1)-s(i-1))/(4.*VarBeta(i));
     }
-    C_U.block(0,0,n,n)=MatrixC_u(w,s,VarBeta);
 
-    MatrixNplusONEd<N>& I = C_U;
-    I=C_U.inverse();
+    MatrixNplusONEd<N> I;
+    choleskyInversion::invert(C_U,I);
+    // MatrixNplusONEd<N> I = C_U.inverse();
 
-    VectorNplusONEd<N>& u = r_u;
-    u=I*r_u; // obtain the fitted parameters by solving the linear system
+    VectorNplusONEd<N> u = I*r_u; // obtain the fitted parameters by solving the linear system
     
     // compute (phi, d_ca, k) in the system in which the midpoint of the first two corrected hits is the origin...
     
@@ -339,6 +335,7 @@ namespace BrokenLine {
     Vector2d eMinusd=e-d;
     double tmp1=eMinusd.squaredNorm();
     
+    Matrix3d Jacob;
     Jacob << (radii(1,0)*eMinusd(0)-eMinusd(1)*radii(0,0))/tmp1,(radii(1,1)*eMinusd(0)-eMinusd(1)*radii(0,1))/tmp1,0,
       (circle_results.q/2)*(eMinusd(0)*radii(0,0)+eMinusd(1)*radii(1,0))/sqrt(sqr(2*fast_fit(2))-tmp1),(circle_results.q/2)*(eMinusd(0)*radii(0,1)+eMinusd(1)*radii(1,1))/sqrt(sqr(2*fast_fit(2))-tmp1),0,
       0,0,circle_results.q;
@@ -505,11 +502,10 @@ namespace BrokenLine {
     karimaki_circle_fit circle;
     line_fit line;
     Matrix3d Jacob;
-    MatrixNplusONEd<N> C_U;
     
     prepareBrokenLineData(hits,fast_fit,B,data);
     BL_Line_fit(hits_ge,fast_fit,B,data,line);
-    BL_Circle_fit(hits,hits_ge,fast_fit,B,data,circle,Jacob,C_U);
+    BL_Circle_fit(hits,hits_ge,fast_fit,B,data,circle);
     
     // the circle fit gives k, but here we want p_t, so let's change the parameter and the covariance matrix
     Jacob << 1.,0,0,
