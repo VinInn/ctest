@@ -223,7 +223,7 @@ namespace BrokenLine {
     result(1)=hits(1,0)+(a(0)*c.squaredNorm()+c(0)*a.squaredNorm())*tmp;
     // check Wikipedia for these formulas
     
-    result(2)=(a.norm()*b.norm()*c.norm())/(2.*std::abs(cross2D(b,a)));
+    result(2)=sqrt(a.squaredNorm()*b.squaredNorm()*c.squaredNorm())/(2.*std::abs(cross2D(b,a)));
     // Using Math Olympiad's formula R=abc/(4A)
     
     const Vector2d d=hits.block(0,0,2,1)-result.head(2);
