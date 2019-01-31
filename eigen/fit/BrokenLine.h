@@ -129,7 +129,6 @@ namespace BrokenLine {
     u_int i;
     Vector2d d;
     Vector2d e;
-    results.VarBeta=VectorNd<N>::Zero();
     
     d=hits.block(0,1,2,1)-hits.block(0,0,2,1);
     e=hits.block(0,n-1,2,1)-hits.block(0,n-2,2,1);
@@ -159,6 +158,7 @@ namespace BrokenLine {
     results.Z=pointsSZ.block(1,0,1,n).transpose();
     
     //calculate VarBeta
+    results.VarBeta(0)=results.VarBeta(n-1)=0;
     for(i=1;i<n-1;i++) {
       results.VarBeta(i)=MultScatt(results.S(i+1)-results.S(i),B,fast_fit(2),i+2,slope)+MultScatt(results.S(i)-results.S(i-1),B,fast_fit(2),i+1,slope);
     }
@@ -189,12 +189,10 @@ namespace BrokenLine {
       if(i<n-2) C_U(i,i+1)+=1./(VarBeta(i+1)*(S(i+1)-S(i)))*(-(S(i+2)-S(i))/((S(i+2)-S(i+1))*(S(i+1)-S(i))));
       
       if(i<n-2) C_U(i,i+2)=1./(VarBeta(i+1)*(S(i+2)-S(i+1))*(S(i+1)-S(i)));
-      
+
       C_U(i,i)*=0.5;
     }
-    MatrixNd<N> C_u = C_U+C_U.transpose();
-    
-    return C_u;
+    return C_U+C_U.transpose();
   }
   
   /*!

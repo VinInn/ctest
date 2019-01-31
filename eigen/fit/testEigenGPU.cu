@@ -232,7 +232,6 @@ void testFit() {
   assert(isEqualFuzzy(fast_fit_results, fast_fit));
 
   constexpr uint32_t N = Rfit::Map3x4d::ColsAtCompileTime;
-  constexpr auto n = N;
 
 #ifdef USE_BL
   // CIRCLE AND LINE FIT CPU
@@ -259,11 +258,11 @@ void testFit() {
   
 #else
   // CIRCLE_FIT CPU
-  Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, n).colwise().norm());
+  Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, N).colwise().norm());
 
-  Rfit::Matrix2Nd<N> hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
+  Rfit::Matrix2Nd<N> hits_cov =  Rfit::Matrix2Nd<N>::Zero();
   Rfit::loadCovariance2D(hits_ge,hits_cov);
-  Rfit::circle_fit circle_fit_results = Rfit::Circle_fit(hits.block(0, 0, 2, n),
+  Rfit::circle_fit circle_fit_results = Rfit::Circle_fit(hits.block(0, 0, 2, N),
       hits_cov,
       fast_fit_results, rad, B, true);
 
