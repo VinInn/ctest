@@ -320,7 +320,11 @@ namespace BrokenLine {
     MatrixNplusONEd<N> I;
     choleskyInversion::invert(C_U,I);
     // MatrixNplusONEd<N> I = C_U.inverse();
+#ifdef CPP_DUMP
+    std::cout << "I5\n" << I << std::endl;
+#endif
 
+    
     VectorNplusONEd<N> u = I*r_u; // obtain the fitted parameters by solving the linear system
     
     // compute (phi, d_ca, k) in the system in which the midpoint of the first two corrected hits is the origin...
@@ -429,7 +433,10 @@ namespace BrokenLine {
 #endif
     MatrixNd<N> I; choleskyInversion::invert(MatrixC_u(w,S,VarBeta),I);
     //    MatrixNd<N> I=MatrixC_u(w,S,VarBeta).inverse();
-    
+#ifdef CPP_DUMP
+    std::cout << "I4\n" << I << std::endl;
+#endif
+
     VectorNd<N> u=I*r_u; // obtain the fitted parameters by solving the linear system
     
     // line parameters in the system in which the first hit is the origin and with axis along SZ
