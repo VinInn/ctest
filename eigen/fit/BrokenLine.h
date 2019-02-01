@@ -302,7 +302,7 @@ namespace BrokenLine {
     for(i=0;i<n;i++) {
       C_U(i,n) =0;
       if(i>0 && i<n-1) {
-	C_U(i,n)+=-(s(i+1)-s(i-1))/(2.*VarBeta(i))*(s(i+1)-s(i-1))/((s(i+1)-s(i))*(s(i)-s(i-1)));
+	C_U(i,n)+=-(s(i+1)-s(i-1))*(s(i+1)-s(i-1))/(2.*VarBeta(i)*(s(i+1)-s(i))*(s(i)-s(i-1)));
       }
       if(i>1) {
 	C_U(i,n)+=(s(i)-s(i-2))/(2.*VarBeta(i-1)*(s(i)-s(i-1)));
@@ -350,7 +350,7 @@ namespace BrokenLine {
     
     //...Translate in the system in which the first corrected hit is the origin, adding the m.s. correction...
     
-    TranslateKarimaki(circle_results,(e-d)(0)/2,(e-d)(1)/2,Jacob);
+    TranslateKarimaki(circle_results,0.5*(e-d)(0),0.5*(e-d)(1),Jacob);
     circle_results.cov(0,0)+=(1+sqr(slope))*MultScatt(S(1)-S(0),B,fast_fit(2),2,slope);
     
     //...And translate back to the original system
