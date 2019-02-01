@@ -418,8 +418,9 @@ namespace BrokenLine {
       V(1,1)=hits_ge.col(i)[2];                // y errors
       V(2,1)=V(1,2)=hits_ge.col(i)[4];   // cov_yz
       V(2,2)=hits_ge.col(i)[5];                // z errors
-      JacobXYZtosZ(0,0)=radii(1,i)/radii.block(0,i,2,1).norm();
-      JacobXYZtosZ(0,1)=-radii(0,i)/radii.block(0,i,2,1).norm();
+      auto tmp = 1./radii.block(0,i,2,1).norm();
+      JacobXYZtosZ(0,0)=radii(1,i)*tmp;
+      JacobXYZtosZ(0,1)=-radii(0,i)*tmp;
       JacobXYZtosZ(1,2)=1.;
       w(i)=1./((R*JacobXYZtosZ*V*JacobXYZtosZ.transpose()*R.transpose())(1,1)); // compute the orthogonal weight point by point
     }
@@ -441,8 +442,10 @@ namespace BrokenLine {
     
     // line parameters in the system in which the first hit is the origin and with axis along SZ
     line_results.par << (u(1)-u(0))/(S(1)-S(0)), u(0);
-    line_results.cov << (I(0,0)-2*I(0,1)+I(1,1))/sqr(S(1)-S(0))+MultScatt(S(1)-S(0),B,fast_fit(2),2,slope), (I(0,1)-I(0,0))/(S(1)-S(0)),
-      (I(0,1)-I(0,0))/(S(1)-S(0)), I(0,0);
+    auto idiff = 1./(S(1)-S(0));
+    line_results.cov << (I(0,0)-2*I(0,1)+I(1,1))*sqr(idiff)+MultScatt(S(1)-S(0),B,fast_fit(2),2,slope),
+      (I(0,1)-I(0,0))*idiff,
+      (I(0,1)-I(0,0))*idiff, I(0,0);
     
     // translate to the original SZ system
     Matrix2d Jacob;
