@@ -314,6 +314,9 @@ namespace BrokenLine {
       if(i>0 && i<n-1) C_U(n,n)+=sqr(s(i+1)-s(i-1))/(4.*VarBeta(i));
     }
 
+#ifdef CPP_DUMP
+    std::cout << "CU5\n" << C_U << std::endl;
+#endif
     MatrixNplusONEd<N> I;
     choleskyInversion::invert(C_U,I);
     // MatrixNplusONEd<N> I = C_U.inverse();
@@ -421,7 +424,9 @@ namespace BrokenLine {
     for(i=0;i<n;i++) {
       r_u(i)=w(i)*Z(i);
     }
-
+#ifdef CPP_DUMP
+    std::cout << "CU4\n" << MatrixC_u(w,S,VarBeta) << std::endl;
+#endif
     MatrixNd<N> I; choleskyInversion::invert(MatrixC_u(w,S,VarBeta),I);
     //    MatrixNd<N> I=MatrixC_u(w,S,VarBeta).inverse();
     
