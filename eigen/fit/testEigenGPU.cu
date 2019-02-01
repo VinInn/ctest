@@ -31,6 +31,19 @@ namespace Rfit {
 
 }
 
+
+__global__
+void kernelPrintSizes(double * __restrict__ phits,
+                      float * __restrict__ phits_ge
+                     ) {
+  auto i = blockIdx.x*blockDim.x + threadIdx.x;
+  Rfit::Map3x4d hits(phits+i,3,4);
+  Rfit::Map6x4f hits_ge(phits_ge+i,6,4);
+  if (i!=0) return;
+  printf("GPU sizes %lu %lu %lu %lu %lu\n",sizeof(hits[i]),sizeof(hits_ge[i]),
+                                      sizeof(Vector4d),sizeof(Rfit::line_fit),sizeof(Rfit::circle_fit));
+}
+
 __global__
 void kernelFastFit(double * __restrict__ phits, double * __restrict__ presults) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
@@ -197,7 +210,10 @@ void testFit() {
   fillHitsAndHitsCov(hits, hits_ge);
 
   std::cout << "sizes " << sizeof(hits) << ' ' << sizeof(hits_ge)
-	    << ' ' << sizeof(Vector4d)<< std::endl;
+	    << ' ' << sizeof(Vector4d) 
+	    << ' ' << sizeof(Rfit::line_fit) 
+            << ' ' << sizeof(Rfit::circle_fit)
+            << std::endl;
   
   std::cout << "Generated hits:\n" << hits << std::endl;
   std::cout << "Generated cov:\n" << hits_ge << std::endl;
@@ -215,10 +231,14 @@ void testFit() {
   cudaCheck(cudaMalloc(&hitsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix3xNd<4>)));
   cudaCheck(cudaMalloc(&hits_geGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix6x4f)));
   cudaCheck(cudaMalloc(&fast_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Vector4d)));
-  cudaCheck(cudaMalloc((void **)&line_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::line_fit)));
-  cudaCheck(cudaMalloc((void **)&circle_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::circle_fit)));
+  cudaCheck(cudaMalloc(&line_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::line_fit)));
+  cudaCheck(cudaMalloc(&circle_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::circle_fit)));
+
+  cudaCheck(cudaMemset(fast_fit_resultsGPU, 0, Rfit::maxNumberOfTracks()*sizeof(Vector4d)));
+  cudaCheck(cudaMemset(line_fit_resultsGPU, 0, Rfit::maxNumberOfTracks()*sizeof(Rfit::line_fit)));
 
 
+  kernelPrintSizes<<<Ntracks/64, 64>>>(hitsGPU,hits_geGPU);
   kernelFillHitsAndHitsCov<<<Ntracks/64, 64>>>(hitsGPU,hits_geGPU);
 
   // FAST_FIT GPU

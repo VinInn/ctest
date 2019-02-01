@@ -111,7 +111,7 @@ struct helix_fit
     float chi2_line;
 //    Vector4d fast_fit;
     int32_t q;  //!< particle charge
-} __attribute__((aligned(16)));
+}; // __attribute__((aligned(16)));
 
 } // namespace RFit
 #endif
