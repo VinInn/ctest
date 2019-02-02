@@ -7,30 +7,57 @@
 #include <memory>
 #include <algorithm>
 
-constexpr uint32_t stride() { return 5*1024;}
+constexpr uint32_t maxN() { return 5*1024;}
 using V3 = Eigen::Vector3f;
 using V15 = Eigen::Matrix<float,15,1>;
-using MapV3 =  Eigen::Map<V3,0,  Eigen::InnerStride<stride()>>;
-using MapV15 =  Eigen::Map<V15, 0, Eigen::InnerStride<stride()>>;
+
+template<int S>
+using MapV3 =  Eigen::Map<V3,0,  Eigen::InnerStride<S>>;
+template<int S>
+using MapV15 =  Eigen::Map<V15, 0, Eigen::InnerStride<S>>;
+
+template<int S>
+struct BaseSOA {
+  static constexpr uint32_t stride() { return S;}
+  template<typename T>
+  static constexpr uint32_t size() { return sizeof(T)*stride();}
+  template<typename T>
+  static constexpr uint32_t off(uint32_t preOff) { return preOff+size<T>();}
+  
+  //  char * p;
+};
 
 
 struct TSOS {
   V3 position;
   V3 momentum;
   V15 covariance;
+  float charge;
 };
 
+template<int S>
 struct TSOSsoa {
-  explicit TSOSsoa(float * ip) :p(ip){}
-  constexpr uint32_t posOff() {return 0;}
-  constexpr uint32_t movOff() { return 3*stride();}
-  constexpr uint32_t covOff() { return 6*stride();}
+  static constexpr uint32_t stride() { return S;}
+  template<typename T>
+  static constexpr uint32_t size() { return sizeof(T)*stride();}
 
-  auto position(uint32_t i) { return MapV3(p+posOff()+i);}
-  auto momentum(uint32_t i) { return MapV3(p+movOff()+i);}
-  auto covariance(uint32_t i)  { return MapV3(p+covOff()+i);}
+  static constexpr uint32_t posOff() {return 0;}
+  static constexpr uint32_t movOff() { return size<V3>();}
+  static constexpr uint32_t covOff() { return movOff()+size<V3>();}
+  static constexpr uint32_t chargeOff() { return covOff()+size<V15>();}
+  static constexpr uint32_t totSize() { return chargeOff()+size<float>();}
 
-  float * p;
+  template<typename T>
+  constexpr T * loc(uint32_t off, uint32_t i) {
+    return (T*)(data+off)+i;
+  }
+  
+  auto position(uint32_t i) { return MapV3<S>(loc<float>(posOff(),i));}
+  auto momentum(uint32_t i) { return MapV3<S>(loc<float>(movOff(),i));}
+  auto covariance(uint32_t i)  { return MapV15<S>(loc<float>(covOff(),i));}
+  auto charge(uint32_t i)  { return loc<float>(chargeOff(),i);}
+  
+  char data[totSize()];
 };
 
 
@@ -40,7 +67,9 @@ struct Box {
 
   template<typename P3>
   inline bool inside(P3 const & v) const {
-    return ((transform*v).array().abs() <  halfWidth.array()).all();
+    auto r = (transform*p).array().abs()-halfWidth.array();
+    return (r(0)<0)+(r(1)<0)+(r(2)<0);
+    // return ((transform*v).array().abs() <  halfWidth.array()).all();
   }
 };
 
@@ -50,8 +79,6 @@ constexpr uint32_t nTracks = 4096;
  
 void doAOS(std::vector<TSOS> &trajs, Box const & b, std::vector<uint8_t> & res) {
 
-  // std::vector<TSOS> trajs;
-  // trajs.resize(nTracks);
 
   std::transform(trajs.begin(),trajs.end(),res.begin(),
 		 [&](auto const& t){ return b.inside(t.position);});
@@ -59,10 +86,7 @@ void doAOS(std::vector<TSOS> &trajs, Box const & b, std::vector<uint8_t> & res) 
 }
 
 
-void doSOA(TSOSsoa & trajSoa, Box const & b, uint8_t * res) {
-
-  //  auto storage = std::make_unique<float[]>((3+3+15)*stride());
-  // TSOSsoa trajSoa(storage.get());
+void doSOA(TSOSsoa<maxN()> & trajSoa, Box const & b, uint8_t * res) {
 
   #pragma GCC ivdep
   for (auto i=0U; i<nTracks; ++i) {
