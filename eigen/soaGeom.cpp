@@ -16,6 +16,7 @@ using MapV3 =  Eigen::Map<V3,0,  Eigen::InnerStride<S>>;
 template<int S>
 using MapV15 =  Eigen::Map<V15, 0, Eigen::InnerStride<S>>;
 
+
 template<int S>
 struct BaseSOA {
   static constexpr uint32_t stride() { return S;}
@@ -35,6 +36,8 @@ struct TSOS {
   float charge;
 };
 
+
+
 template<int S>
 struct TSOSsoa {
   static constexpr uint32_t stride() { return S;}
@@ -45,11 +48,12 @@ struct TSOSsoa {
   static constexpr uint32_t movOff() { return size<V3>();}
   static constexpr uint32_t covOff() { return movOff()+size<V3>();}
   static constexpr uint32_t chargeOff() { return covOff()+size<V15>();}
-  static constexpr uint32_t totSize() { return chargeOff()+size<float>();}
+  static constexpr uint32_t totSize() 
+  { return chargeOff()+size<float>();}
 
   template<typename T>
   constexpr T * loc(uint32_t off, uint32_t i) {
-    return (T*)(data+off)+i;
+    return ((T*)(data+off))+i;
   }
   
   auto position(uint32_t i) { return MapV3<S>(loc<float>(posOff(),i));}
@@ -62,23 +66,23 @@ struct TSOSsoa {
 
 
 struct Box {
-  Eigen::AffineCompact3f transform;  
+  Eigen::AffineCompact3f transform; 
   V3 halfWidth;
 
   template<typename P3>
-  inline bool inside(P3 const & v) const {
+  constexpr uint32_t inside(P3 const & p) const {
+    //auto r = (p).array().abs()-halfWidth.array();
     auto r = (transform*p).array().abs()-halfWidth.array();
     return (r(0)<0)+(r(1)<0)+(r(2)<0);
-    // return ((transform*v).array().abs() <  halfWidth.array()).all();
+    // return ((transform*p).array().abs() <  halfWidth.array()).all();
   }
 };
 
 
 
 constexpr uint32_t nTracks = 4096;
- 
-void doAOS(std::vector<TSOS> &trajs, Box const & b, std::vector<uint8_t> & res) {
 
+void doAOS(std::vector<TSOS> &trajs, Box const & b, std::vector<uint8_t> & res) {
 
   std::transform(trajs.begin(),trajs.end(),res.begin(),
 		 [&](auto const& t){ return b.inside(t.position);});
@@ -86,7 +90,7 @@ void doAOS(std::vector<TSOS> &trajs, Box const & b, std::vector<uint8_t> & res) 
 }
 
 
-void doSOA(TSOSsoa<maxN()> & trajSoa, Box const & b, uint8_t * res) {
+void doSOA(TSOSsoa<maxN()> & trajSoa, Box const & b, uint32_t * res) {
 
   #pragma GCC ivdep
   for (auto i=0U; i<nTracks; ++i) {
@@ -94,6 +98,3 @@ void doSOA(TSOSsoa<maxN()> & trajSoa, Box const & b, uint8_t * res) {
   }
   
 }
-
-
-  
