@@ -37,20 +37,20 @@ namespace Rfit {
   using Map4d = Eigen::Map<Vector4d,0,Eigen::InnerStride<stride()> >;
 
 }
-}
+
 
 
 template<int N>
 __global__
 void kernelPrintSizes(double * __restrict__ phits,
                       float * __restrict__ phits_ge
-                     ) {
+		      ) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3xNd<N> hits(phits+i,3,4);
   Rfit::Map6xNf<N> hits_ge(phits_ge+i,6,4);
   if (i!=0) return;
   printf("GPU sizes %lu %lu %lu %lu %lu\n",sizeof(hits[i]),sizeof(hits_ge[i]),
-                                      sizeof(Vector4d),sizeof(Rfit::line_fit),sizeof(Rfit::circle_fit));
+	 sizeof(Vector4d),sizeof(Rfit::line_fit),sizeof(Rfit::circle_fit));
 }
 
 
@@ -82,10 +82,10 @@ void kernelBrokenLineFit(double * __restrict__ phits,
   Rfit::Map3xNd<N> hits(phits+i,3,N);
   Rfit::Map4d   fast_fit_input(pfast_fit_input+i,4);
   Rfit::Map6xNf<N> hits_ge(phits_ge+i,6,N);
-
+  
   BrokenLine::PreparedBrokenLineData<N> data;
   Rfit::Matrix3d Jacob;
-
+  
   auto & line_fit_results = line_fit[i];
   auto & circle_fit_results = circle_fit[i];
   
