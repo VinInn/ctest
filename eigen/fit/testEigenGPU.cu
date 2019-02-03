@@ -59,7 +59,7 @@ __global__
 void kernelFastFit(double * __restrict__ phits, double * __restrict__ presults) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3xNd<N> hits(phits+i,3,N);
-  Rfit::Map4d<N> result(presults+i,4);
+  Rfit::Map4d result(presults+i,4);
 #ifdef USE_BL
   BrokenLine::BL_Fast_fit(hits, result);
 #else
