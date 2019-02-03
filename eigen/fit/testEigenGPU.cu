@@ -231,7 +231,7 @@ void testFit() {
 
   fillHitsAndHitsCov(hits, hits_ge);
 
-  std::cout << "sizes " N << ' '
+  std::cout << "sizes " << N << ' '
 	    << sizeof(hits) << ' ' << sizeof(hits_ge)
 	    << ' ' << sizeof(Vector4d) 
 	    << ' ' << sizeof(Rfit::line_fit) 
@@ -261,8 +261,8 @@ void testFit() {
   cudaCheck(cudaMemset(line_fit_resultsGPU, 0, Rfit::maxNumberOfTracks()*sizeof(Rfit::line_fit)));
 
 
-  kernelPrintSizes<<<Ntracks/64, 64>>>(hitsGPU,hits_geGPU);
-  kernelFillHitsAndHitsCov<<<Ntracks/64, 64>>>(hitsGPU,hits_geGPU);
+  kernelPrintSizes<N><<<Ntracks/64, 64>>>(hitsGPU,hits_geGPU);
+  kernelFillHitsAndHitsCov<N><<<Ntracks/64, 64>>>(hitsGPU,hits_geGPU);
 
   // FAST_FIT GPU
   kernelFastFit<N><<<Ntracks/64, 64>>>(hitsGPU, fast_fit_resultsGPU);
