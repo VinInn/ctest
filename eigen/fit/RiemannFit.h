@@ -860,7 +860,7 @@ inline line_fit Line_fit(const M3xN& hits,
 
   // associated Jacobian, used in weights and errors computation
   Matrix6d Cov = Matrix6d::Zero();
-  Matrix2d cov_sz[4];  // FIXME: should be "N"
+  Matrix2d cov_sz[N];
   for (u_int i = 0; i < n; ++i)
   {
     Vector2d p = hits.block(0, i, 2, 1) - o;
