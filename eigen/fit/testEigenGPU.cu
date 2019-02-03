@@ -363,6 +363,7 @@ int main (int argc, char * argv[]) {
 
   testFit<4>();
   testFit<3>();
+  testFit<5>();
 
   std::cout << "TEST FIT, NO ERRORS" << std::endl;
 
