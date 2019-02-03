@@ -160,14 +160,14 @@ void kernelLineFit(double * __restrict__ phits,
 		   float * __restrict__ phits_ge,
                    double B,
                    Rfit::circle_fit * circle_fit,
-                   double * __restrict__ pfast_fit,
+                   double * __restrict__ pfast_fit_input,
                    Rfit::line_fit * line_fit)
 {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3xNd<N> hits(phits+i,3,N);
   Rfit::Map4d   fast_fit_input(pfast_fit_input+i,4);
   Rfit::Map6xNf<N> hits_ge(phits_ge+i,6,N);
-  line_fit[i] = Rfit::Line_fit(hits, hits_ge, circle_fit[i], fast_fit, B, true);
+  line_fit[i] = Rfit::Line_fit(hits, hits_ge, circle_fit[i], fast_fit_input, B, true);
 }
 #endif
 
