@@ -59,7 +59,7 @@ __global__
 void kernelFastFit(double * __restrict__ phits, double * __restrict__ presults) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3xNd<N> hits(phits+i,3,N);
-  Rfit::MapNd<N> result(presults+i,N);
+  Rfit::Map4d<N> result(presults+i,4);
 #ifdef USE_BL
   BrokenLine::BL_Fast_fit(hits, result);
 #else
@@ -252,7 +252,7 @@ void testFit() {
   // for timing    purposes we fit    4096 tracks
   constexpr uint32_t Ntracks = 4096;
   cudaCheck(cudaMalloc(&hitsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix3xNd<4>)));
-  cudaCheck(cudaMalloc(&hits_geGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix6x4f)));
+  cudaCheck(cudaMalloc(&hits_geGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix6xNf<N>)));
   cudaCheck(cudaMalloc(&fast_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Vector4d)));
   cudaCheck(cudaMalloc(&line_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::line_fit)));
   cudaCheck(cudaMalloc(&circle_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::circle_fit)));
