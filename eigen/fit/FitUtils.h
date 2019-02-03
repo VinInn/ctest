@@ -48,8 +48,8 @@ namespace Rfit
    *  load error in CMSSW format to our formalism
    *  
    */
-  template<typename M6x4f, typename M2Nd>
-  __host__ __device__ void loadCovariance2D(M6x4f const & ge,  M2Nd & hits_cov) {
+  template<typename M6xNf, typename M2Nd>
+  __host__ __device__ void loadCovariance2D(M6xNf const & ge,  M2Nd & hits_cov) {
     // Index numerology:
     // i: index of the hits/point (0,..,3)
     // j: index of space component (x,y,z)
@@ -62,7 +62,7 @@ namespace Rfit
     // | 0  1  3 |
     // | 1  2  4 |
     // | 3  4  5 |
-    constexpr uint32_t  hits_in_fit = 4; // Fixme
+    constexpr uint32_t hits_in_fit = M6xNf::ColsAtCompileTime;
     for (uint32_t i=0; i< hits_in_fit; ++i) {
       auto ge_idx = 0; auto j=0; auto l=0;
       hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
@@ -74,8 +74,8 @@ namespace Rfit
     }
   }
   
-  template<typename M6x4f, typename M3xNd>
-  __host__ __device__ void loadCovariance(M6x4f const & ge,  M3xNd & hits_cov) {
+  template<typename M6xNf, typename M3xNd>
+  __host__ __device__ void loadCovariance(M6xNf const & ge,  M3xNd & hits_cov) {
     
     // Index numerology:
     // i: index of the hits/point (0,..,3)
@@ -89,7 +89,7 @@ namespace Rfit
     // | 0  1  3 |
     // | 1  2  4 |
     // | 3  4  5 |
-    constexpr uint32_t  hits_in_fit = 4; // Fixme
+    constexpr uint32_t hits_in_fit = M6xNf::ColsAtCompileTime;
     for (uint32_t i=0; i<hits_in_fit; ++i) {
       auto ge_idx = 0; auto j=0; auto l=0;
       hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];

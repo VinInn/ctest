@@ -1013,7 +1013,7 @@ inline line_fit Line_fit(const M3xN& hits,
 */
 
 template<int N>
-inline helix_fit Helix_fit(const Matrix3xNd<N>& hits, const Eigen::Matrix<float,6,4>& hits_ge, const double B,
+inline helix_fit Helix_fit(const Matrix3xNd<N>& hits, const Eigen::Matrix<float,6,N>& hits_ge, const double B,
                            const bool error)
 {
     constexpr u_int n = N;
@@ -1022,7 +1022,7 @@ inline helix_fit Helix_fit(const Matrix3xNd<N>& hits, const Eigen::Matrix<float,
     // Fast_fit gives back (X0, Y0, R, theta) w/o errors, using only 3 points.
     Vector4d fast_fit; 
     Fast_fit(hits,fast_fit);
-    Rfit::Matrix2Nd<4> hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
+    Rfit::Matrix2Nd<N> hits_cov =  MatrixXd::Zero(2 * n, 2 * n);
     Rfit::loadCovariance2D(hits_ge,hits_cov);
     circle_fit circle = Circle_fit(hits.block(0, 0, 2, n),
                                    hits_cov,
