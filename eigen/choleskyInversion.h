@@ -43,25 +43,25 @@ namespace choleskyInversion {
   inline constexpr
   void invert33(M1 const & src, M2 & dst) {
     using F = decltype(src(0,0));
-    auto luc0 = F(1.0) / std::sqrt(src(0,0));
-    auto luc1 = src(1,0) * luc0;
-    auto luc2 = src(1,1) - luc1 * luc1;
-    luc2 = F(1.0) / std::sqrt(luc2);
-    auto luc3 = src(2,0) * luc0;
-    auto luc4 = (src(2,1) - luc1 * luc3) * luc2;
-    auto luc5 = src(2,2) - (luc3 * luc3 + luc4 * luc4);
-    luc5 = F(1.0) / std::sqrt(luc5);
+    auto luc0 = F(1.0) / src(0,0);
+    auto luc1 = src(1,0);
+    auto luc2 = src(1,1) - luc0 * luc1 * luc1;
+    luc2 = F(1.0) / luc2;
+    auto luc3 = src(2,0);
+    auto luc4 = (src(2,1) - luc0 * luc1 * luc3);
+    auto luc5 = src(2,2) - (luc0 * luc3 * luc3 + (luc2 * luc4) * luc4);
+    luc5 = F(1.0) / luc5;
     
-    auto li21 = -luc1 * luc0 * luc2;
-    auto li32 = -luc4 * luc2 * luc5;
-    auto li31 = (luc1 * luc4 * luc2 - luc3) * luc0 * luc5;
+    auto li21 = -luc0 * luc1;
+    auto li32 = -(luc2 * luc4);
+    auto li31 = (luc1 * (luc2 * luc4)  - luc3) * luc0;
 
-    dst(0,0) = li31*li31 + li21*li21 + luc0*luc0;
-    dst(1,0) = li31*li32 + li21*luc2;
-    dst(1,1) = li32*li32 + luc2*luc2;
-    dst(2,0) = li31*luc5;
-    dst(2,1) = li32*luc5;
-    dst(2,2) = luc5*luc5;
+    dst(0,0) = luc5*li31*li31 + li21*li21*luc2 + luc0;
+    dst(1,0) = luc5*li31*li32 + li21*luc2;
+    dst(1,1) = luc5*li32*li32 + luc2;
+    dst(2,0) = luc5*li31;
+    dst(2,1) = luc5*li32;
+    dst(2,2) = luc5;
     
   }
 
@@ -69,38 +69,38 @@ namespace choleskyInversion {
   inline constexpr
   void invert44(M1 const & src, M2 & dst) {
     using F = decltype(src(0,0));
-    auto luc0 = F(1.0) / std::sqrt(src(0,0));
-    auto luc1 = src(1,0) * luc0;
-    auto luc2 = src(1,1) - luc1 * luc1;
-    luc2 = F(1.0) / std::sqrt(luc2);
-    auto luc3 = src(2,0) * luc0;
-    auto luc4 = (src(2,1) - luc1 * luc3) * luc2;
-    auto luc5 = src(2,2) - (luc3 * luc3 + luc4 * luc4);
-    luc5 = F(1.0) / std::sqrt(luc5);
-    auto luc6 = src(3,0) * luc0;
-    auto luc7 = (src(3,1) - luc1 * luc6) * luc2;
-    auto luc8 = (src(3,2) - luc3 * luc6 - luc4 * luc7) * luc5;
-    auto luc9 = src(3,3) - (luc6 * luc6 + luc7 * luc7 + luc8 * luc8);
-    luc9 = F(1.0) / std::sqrt(luc9);
+    auto luc0 = F(1.0) / src(0,0);
+    auto luc1 = src(1,0);
+    auto luc2 = src(1,1) - luc0 * luc1 * luc1;
+    luc2 = F(1.0) / luc2;
+    auto luc3 = src(2,0);
+    auto luc4 = (src(2,1) - luc0 * luc1 * luc3);
+    auto luc5 = src(2,2) - (luc0 * luc3 * luc3 + luc2 * luc4 * luc4);
+    luc5 = F(1.0) / luc5;
+    auto luc6 = src(3,0);
+    auto luc7 = (src(3,1) - luc0 * luc1 * luc6);
+    auto luc8 = (src(3,2) - luc0 * luc3 * luc6 - luc2 * luc4 * luc7);
+    auto luc9 = src(3,3) - (luc0 * luc6 * luc6 + luc2 * luc7 * luc7 + luc8 * (luc8 *luc5) );
+    luc9 = F(1.0) / luc9;
     
-    auto li21 = -luc1 * luc0 * luc2;
-    auto li32 = -luc4 * luc2 * luc5;
-    auto li31 = (luc1 * luc4 * luc2 - luc3) * luc0 * luc5;
-    auto li43 = -luc8 * luc9 * luc5;
-    auto li42 = (luc4 * luc8 * luc5 - luc7) * luc2 * luc9;
-    auto li41 = (-luc1 * luc4 * luc8 * luc2 * luc5 +
-		 luc1 * luc7 * luc2 + luc3 * luc8 * luc5 - luc6) * luc0 * luc9;
+    auto li21 = -luc1 * luc0;
+    auto li32 = -luc2 * luc4;
+    auto li31 = (luc1 * (luc2 * luc4) - luc3) * luc0;
+    auto li43 = -(luc8 * luc5);
+    auto li42 = (luc4 * luc8 * luc5 - luc7) * luc2;
+    auto li41 = (-luc1 * (luc2*luc4) * (luc8 * luc5) +
+		 luc1 * (luc2*luc7) + luc3 * (luc8 * luc5) - luc6) * luc0;
 
-    dst(0,0) = li41*li41 + li31*li31 + li21*li21 + luc0*luc0;
-    dst(1,0) = li41*li42 + li31*li32 + li21*luc2;
-    dst(1,1) = li42*li42 + li32*li32 + luc2*luc2;
-    dst(2,0) = li41*li43 + li31*luc5;
-    dst(2,1) = li42*li43 + li32*luc5;
-    dst(2,2) = li43*li43 + luc5*luc5;
-    dst(3,0) = li41*luc9;
-    dst(3,1) = li42*luc9;
-    dst(3,2) = li43*luc9;
-    dst(3,3) = luc9*luc9;  
+    dst(0,0) = luc9*li41*li41 + luc5*li31*li31 + luc2*li21*li21 + luc0;
+    dst(1,0) = luc9*li41*li42 + luc5*li31*li32 + luc2*li21;
+    dst(1,1) = luc9*li42*li42 + luc5*li32*li32 + luc2;
+    dst(2,0) = luc9*li41*li43 + luc5*li31;
+    dst(2,1) = luc9*li42*li43 + luc5*li32;
+    dst(2,2) = luc9*li43*li43 + luc5;
+    dst(3,0) = luc9*li41;
+    dst(3,1) = luc9*li42;
+    dst(3,2) = luc9*li43;
+    dst(3,3) = luc9;  
     
   }
 
