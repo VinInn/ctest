@@ -7,6 +7,63 @@
 
 namespace Rfit
 {
+
+
+  constexpr double d = 1.e-4;          //!< used in numerical derivative (J2 in Circle_fit())
+
+
+
+  using VectorXd = Eigen::VectorXd;
+  using MatrixXd = Eigen::MatrixXd;
+  template<int N>
+  using MatrixNd = Eigen::Matrix<double, N, N>;
+  template<int N>
+  using MatrixNplusONEd = Eigen::Matrix<double, N+1, N+1>; 
+  template<int N>
+  using ArrayNd = Eigen::Array<double, N, N>;
+  template<int N>
+  using Matrix2Nd = Eigen::Matrix<double, 2 * N, 2 * N>;
+  template<int N>
+  using Matrix3Nd = Eigen::Matrix<double, 3 * N, 3 * N>;
+  template<int N>
+  using Matrix2xNd = Eigen::Matrix<double, 2, N>;
+  template<int N>
+  using Array2xNd = Eigen::Array<double, 2, N>;
+  template<int N>
+  using Matrix3xNd = Eigen::Matrix<double, 3, N>;
+  template<int N>
+  using MatrixNx3d = Eigen::Matrix<double, N, 3>;
+  template<int N>
+  using MatrixNx5d = Eigen::Matrix<double, N, 5>;
+  template<int N>
+  using VectorNd = Eigen::Matrix<double, N, 1>;
+  template<int N>
+  using VectorNplusONEd  = Eigen::Matrix<double, N+1, 1>;
+  template<int N>
+  using Vector2Nd = Eigen::Matrix<double, 2 * N, 1>;
+  template<int N>
+  using Vector3Nd = Eigen::Matrix<double, 3 * N, 1>;
+  template<int N>
+  using RowVectorNd = Eigen::Matrix<double, 1, 1, N>;
+  template<int N>
+  using RowVector2Nd = Eigen::Matrix<double, 1, 2 * N>;
+
+
+  using Matrix2x3d = Eigen::Matrix<double, 2, 3>;
+
+  
+  using Matrix3f = Eigen::Matrix3f;
+  using Vector3f = Eigen::Vector3f;
+  using Vector4f = Eigen::Vector4f;
+  using Vector6f = Eigen::Matrix<double, 6, 1>;
+
+
+
+  
+  using u_int = unsigned int;
+
+
+
   
   template <class C>
   __host__ __device__ void printIt(C* m, const char* prefix = "")
