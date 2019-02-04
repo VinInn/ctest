@@ -4,6 +4,8 @@
 
 #include "FitResult.h"
 
+#include "../choleskyInversion.h"
+
 
 namespace Rfit
 {
@@ -29,8 +31,6 @@ namespace Rfit
   using Matrix2xNd = Eigen::Matrix<double, 2, N>;
   template<int N>
   using Array2xNd = Eigen::Array<double, 2, N>;
-  template<int N>
-  using Matrix3xNd = Eigen::Matrix<double, 3, N>;
   template<int N>
   using MatrixNx3d = Eigen::Matrix<double, N, 3>;
   template<int N>

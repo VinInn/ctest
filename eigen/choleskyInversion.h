@@ -1,3 +1,6 @@
+#ifndef choleskyInversion_H
+#define choleskyInversion_H
+
 #include<cmath>
 #include <Eigen/Core>
 
@@ -345,3 +348,5 @@ namespace choleskyInversion {
 
   
 }
+
+#endif

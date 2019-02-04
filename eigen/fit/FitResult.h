@@ -24,7 +24,9 @@ namespace Rfit
   using Matrix6d = Eigen::Matrix<double, 6, 6>;
 
 
-
+ template<int N>
+ using Matrix3xNd = Eigen::Matrix<double, 3, N>; // used for inputs hits
+ 
 
   struct circle_fit
   {

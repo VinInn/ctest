@@ -348,7 +348,7 @@ void testFit() {
     // LINE_FIT GPU
   cudaMemcpy(line_fit_resultsGPUret, line_fit_resultsGPU, sizeof(Rfit::line_fit), cudaMemcpyDeviceToHost);
   std::cout << "Fitted values (LineFit) GPU:\n" << line_fit_resultsGPUret->par << std::endl;
-  assert(isEqualFuzzy(line_fit_results.par, line_fit_resultsGPUret->par));
+  assert(isEqualFuzzy(line_fit_results.par, line_fit_resultsGPUret->par, N==5 ? 1e-4 : 1e-6)); // requires fma on CPU
 
   
   std::cout << "Fitted cov (CircleFit) CPU:\n" << circle_fit_results.cov << std::endl;
