@@ -2,7 +2,6 @@
 #define RecoPixelVertexing_PixelTrackFitting_interface_RiemannFit_h
 
 #include "FitUtils.h"
-#include "../choleskyInversion.h"
 
 namespace Rfit
 {

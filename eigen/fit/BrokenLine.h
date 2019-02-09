@@ -9,8 +9,6 @@
 
 #include "FitUtils.h"
 
-#include "../choleskyInversion.h"
-
 namespace BrokenLine {
   
   using namespace Rfit;
@@ -472,7 +470,8 @@ namespace BrokenLine {
       line_results.chi2+=w(i)*sqr(Z(i)-u(i));
       if(i>0 && i<n-1) line_results.chi2+=sqr(u(i-1)/(S(i)-S(i-1))
 					      -u(i)*(S(i+1)-S(i-1))/((S(i+1)-S(i))*(S(i)-S(i-1)))
-					      +u(i+1)/(S(i+1)-S(i)))/VarBeta(i);
+					      +u(i+1)/(S(i+1)-S(i))
+					      )/VarBeta(i);
     }
     
     assert(line_results.chi2>=0);
@@ -513,7 +512,7 @@ namespace BrokenLine {
     \return (phi,Tip,p_t,cot(theta)),Zip), their covariance matrix and the chi2's of the circle and line fits.
   */
   template<int N>
-  inline helix_fit BL_Helix_fit(const Matrix3xNd<N>& hits, const Eigen::Matrix<float,6,4>& hits_ge, const double B)
+  inline helix_fit BL_Helix_fit(const Matrix3xNd<N>& hits, const Eigen::Matrix<float,6,N>& hits_ge, const double B)
 {
     helix_fit helix;
     Vector4d fast_fit;
