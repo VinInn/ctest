@@ -11,22 +11,6 @@ constexpr uint32_t maxN() { return 5*1024;}
 using V3 = Eigen::Vector3f;
 using V15 = Eigen::Matrix<float,15,1>;
 
-template<int S>
-using MapV3 =  Eigen::Map<V3,0,  Eigen::InnerStride<S>>;
-template<int S>
-using MapV15 =  Eigen::Map<V15, 0, Eigen::InnerStride<S>>;
-
-
-template<int S>
-struct BaseSOA {
-  static constexpr uint32_t stride() { return S;}
-  template<typename T>
-  static constexpr uint32_t size() { return sizeof(T)*stride();}
-  template<typename T>
-  static constexpr uint32_t off(uint32_t preOff) { return preOff+size<T>();}
-  
-  //  char * p;
-};
 
 
 struct TSOS {
@@ -36,32 +20,35 @@ struct TSOS {
   float charge;
 };
 
+template<typename M, int S>
+struct MatrixSOA {
+  using Scalar = typename M::Scalar; 
+  using Map = Eigen::Map<M, 0, Eigen::Stride<M::RowsAtCompileTime*S,S> >;
+  using CMap = Eigen::Map<const M, 0, Eigen::Stride<M::RowsAtCompileTime*S,S> >;
+
+  constexpr Map operator()(uint32_t i)  { return Map(data+i);}
+  constexpr CMap operator()(uint32_t i) const { return CMap(data+i);}
+
+  Scalar data[S*M::RowsAtCompileTime*M::ColsAtCompileTime];
+};
+
+template<typename M, int S>
+struct ScalarSOA {
+  using Scalar = M; 
+
+  constexpr Scalar & operator()(uint32_t i)  { return data[i];}
+  constexpr const Scalar operator()(uint32_t i) const { return data[i];}
+
+  Scalar data[S];
+};
 
 
 template<int S>
 struct TSOSsoa {
-  static constexpr uint32_t stride() { return S;}
-  template<typename T>
-  static constexpr uint32_t size() { return sizeof(T)*stride();}
-
-  static constexpr uint32_t posOff() {return 0;}
-  static constexpr uint32_t movOff() { return size<V3>();}
-  static constexpr uint32_t covOff() { return movOff()+size<V3>();}
-  static constexpr uint32_t chargeOff() { return covOff()+size<V15>();}
-  static constexpr uint32_t totSize() 
-  { return chargeOff()+size<float>();}
-
-  template<typename T>
-  constexpr T * loc(uint32_t off, uint32_t i) {
-    return ((T*)(data+off))+i;
-  }
-  
-  auto position(uint32_t i) { return MapV3<S>(loc<float>(posOff(),i));}
-  auto momentum(uint32_t i) { return MapV3<S>(loc<float>(movOff(),i));}
-  auto covariance(uint32_t i)  { return MapV15<S>(loc<float>(covOff(),i));}
-  auto charge(uint32_t i)  { return loc<float>(chargeOff(),i);}
-  
-  char data[totSize()];
+  MatrixSOA<V3,S> position;
+  MatrixSOA<V3,S> momentum;
+  MatrixSOA<V15,S> covariance;
+  ScalarSOA<float,S> charge;
 };
 
 
@@ -90,7 +77,7 @@ void doAOS(std::vector<TSOS> &trajs, Box const & b, std::vector<uint8_t> & res) 
 }
 
 
-void doSOA(TSOSsoa<maxN()> & trajSoa, Box const & b, uint32_t * res) {
+void doSOA(TSOSsoa<maxN()> const & trajSoa, Box const & b, uint32_t * res) {
 
   #pragma GCC ivdep
   for (auto i=0U; i<nTracks; ++i) {

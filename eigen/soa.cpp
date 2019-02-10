@@ -19,7 +19,7 @@ struct VectorSOA {
   constexpr Map operator()(uint32_t i)  { return Map(data+i);}
   constexpr CMap operator()(uint32_t i) const { return CMap(data+i);}
 
-  Scalar data[S*sizeof(M)];
+  Scalar data[S*M::RowsAtCompileTime];
 };
 
 
@@ -32,7 +32,7 @@ struct MatrixSOA {
   constexpr Map operator()(uint32_t i)  { return Map(data+i);}
   constexpr CMap operator()(uint32_t i) const { return CMap(data+i);}
 
-  Scalar data[S*sizeof(M)];
+  Scalar data[S*M::RowsAtCompileTime*M::ColsAtCompileTime];
 };
 
 
@@ -65,6 +65,8 @@ int main() {
   VectorSOA<Eigen::Vector3d,1024> mv3;
   MatrixSOA<Eigen::Vector3d,1024> mm3;
 
+  std::cout << "soa sizes " << sizeof(mv3) << ' ' << sizeof(mm3) << std::endl;
+  
   for (int i=0; i<1024; ++i) {
     mv3(i) << i*10,i*10+1,i*10+2;
     mm3(i) << i*10,i*10+1,i*10+2;
