@@ -43,9 +43,11 @@ void add(uint32_t * p, uint32_t n) {
 
    uint32_t l[8]; for (auto & i:l) i=0;
   
-   atomicAdd(&l[2+t%4],1);
+   l[2+t%4]++;
+   //atomicAdd(&l[2+t%4],1);
    assert(l[0]==0);
    assert(l[2+t%4]==1);
+
    for (uint32_t i=0; i<8; ++i) atomicAdd(&p[i],l[i]);
 
 }
