@@ -300,7 +300,7 @@ public:
   }
   __host__
 #endif
-  void finalize() {
+  void finalize(Counter *) {
     assert(off[totbins()-1]==0);
     for(uint32_t i=1; i<totbins(); ++i) off[i]+=off[i-1];
     assert(off[totbins()-1]==off[totbins()-2]);
