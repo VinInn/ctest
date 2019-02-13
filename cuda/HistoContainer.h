@@ -290,7 +290,7 @@ public:
     bins[w-1] = j;
   }
 
-  __device__ __host
+  __device__ __host__
   __forceinline__
   void finalize(Counter * ws) {
     assert(off[totbins()-1]==0);
@@ -301,7 +301,7 @@ public:
 #endif
     assert(off[totbins()-1]==off[totbins()-2]);
   }
-
+  
   constexpr auto size() const { return uint32_t(off[totbins()-1]);}
   constexpr auto size(uint32_t b) const { return off[b+1]-off[b];}
 
