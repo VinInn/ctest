@@ -5,11 +5,15 @@
 #include<algorithm>
 #include<cstring>
 
+#include "cuda_runtime.h"
+
 namespace cudaCompat {
 
+#ifndef __CUDA_RUNTIME_H__
   struct dim3{uint32_t x,y,z;};
-  constexpr dim3 threadIdx = {0,0,0};
-  constexpr dim3 blockDim = {1,1,1};
+#endif
+  const dim3 threadIdx = {0,0,0};
+  const dim3 blockDim = {1,1,1};
   thread_local dim3 blockIdx = {0,0,0};
   thread_local dim3 gridDim = {1,1,1};
 
@@ -43,7 +47,7 @@ namespace cudaCompat {
   
 }
 
-#ifndef __CUDACC__
+#ifndef __CUDA_RUNTIME_H__
 #define __host__
 #define __device__
 #define __global__
