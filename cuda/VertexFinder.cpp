@@ -73,8 +73,8 @@ int main() {
   memcpy(&nv, onGPU.nv, sizeof(uint32_t));
   float zv[nv];
   float	wv[nv];
-  memcpy(&zv, onGPU.zv, nv*sizeof(float));
-  memcpy(&wv, onGPU.wv, nv*sizeof(float));
+  memcpy(zv, onGPU.zv, nv*sizeof(float));
+  memcpy(wv, onGPU.wv, nv*sizeof(float));
 
   float tw=0;
   for (auto w : wv) tw+=w;

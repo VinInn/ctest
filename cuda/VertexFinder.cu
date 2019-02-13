@@ -82,8 +82,8 @@ int main() {
   cuda::memory::copy(&nv, onGPU.nv, sizeof(uint32_t));
   float zv[nv];
   float	wv[nv];
-  cuda::memory::copy(&zv, onGPU.zv, nv*sizeof(float));
-  cuda::memory::copy(&wv, onGPU.wv, nv*sizeof(float));
+  cuda::memory::copy(zv, onGPU.zv, nv*sizeof(float));
+  cuda::memory::copy(wv, onGPU.wv, nv*sizeof(float));
 
   float tw=0;
   for (auto w : wv) tw+=w;
