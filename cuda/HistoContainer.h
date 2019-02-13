@@ -12,8 +12,8 @@
 #endif // __CUDA_ARCH__
 
 #include "cudastdAlgorithm.h"
-#ifdef __CUDACC__
 #include "prefixScan.h"
+#ifdef __CUDACC__
 #include <cub/cub.cuh>
 #include "cudaCheck.h"
 #endif
@@ -294,11 +294,7 @@ public:
   __forceinline__
   void finalize(Counter * ws) {
     assert(off[totbins()-1]==0);
-#ifdef __CUDACC__
     blockPrefixScan(off,totbins(),ws);
-#else
-    for(uint32_t i=1; i<totbins(); ++i) off[i]+=off[i-1];
-#endif
     assert(off[totbins()-1]==off[totbins()-2]);
   }
   

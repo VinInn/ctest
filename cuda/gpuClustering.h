@@ -19,22 +19,22 @@ namespace gpuClustering {
                                int32_t * __restrict__ clusterId,
                                int numElements)
   {
-    int i = blockDim.x * blockIdx.x + threadIdx.x;
-    if (i >= numElements)
-      return;
-    clusterId[i] = i;
-    if (InvId == id[i])
-      return;
-    auto j = i - 1;
-    while (j >= 0 and id[j] == InvId)
-      --j;
-    if (j < 0 or id[j] != id[i]) {
-      // boundary...
-      auto loc = atomicInc(moduleStart, MaxNumModules);
-      moduleStart[loc + 1] = i;
+    int first = blockDim.x * blockIdx.x + threadIdx.x;
+    for (int i = first; i < numElements; i += gridDim.x*blockDim.x) {
+      clusterId[i] = i;
+      if (InvId == id[i])
+	continue;
+      auto j = i - 1;
+      while (j >= 0 and id[j] == InvId)
+	--j;
+      if (j < 0 or id[j] != id[i]) {
+	// boundary...
+	auto loc = atomicInc(moduleStart, MaxNumModules);
+	moduleStart[loc + 1] = i;
+      }
     }
   }
-
+  
   __global__
 //  __launch_bounds__(256,4)
   void findClus(uint16_t const * __restrict__ id,             // module id of each pixel
@@ -121,9 +121,12 @@ namespace gpuClustering {
           continue;
         hist.fill(y[i],i-firstPixel);
       }
-
+#ifdef __CUDA_ARCH__
     // assume that we can cover the whole module with up to 10 blockDim.x-wide iterations
     constexpr int maxiter = 10;
+#else
+    int maxiter = hist.size();
+#endif
     if (threadIdx.x==0) {
       assert((hist.size()/ blockDim.x) <= maxiter);
     }

@@ -4,7 +4,7 @@
 #include <cstdint>
 
 #include <cassert>
-
+#ifdef __CUDA_ARCH__
 template<typename T>
 __device__
 void 
@@ -19,16 +19,16 @@ warpPrefixScan(T * c, uint32_t i, uint32_t mask) {
    }
    c[i] = x;
 }
-
+#endif
 // limited to 32*32 elements....
 template<typename T>
-__device__
+__device__ __host__
 void
 __forceinline__
 blockPrefixScan(T * c, uint32_t size, T* ws) {
+#ifdef __CUDA_ARCH__
   assert(size<=1024);
   assert(0==blockDim.x%32);
-
   auto first = threadIdx.x;
   auto mask = __ballot_sync(0xffffffff,first<size);
 
@@ -49,6 +49,9 @@ blockPrefixScan(T * c, uint32_t size, T* ws) {
     c[i]+=ws[warpId-1];
   }
   __syncthreads();
+#else
+  for(uint32_t i=1; i<size; ++i) c[i]+=c[i-1];
+#endif
 }
 
 

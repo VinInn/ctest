@@ -13,7 +13,7 @@ template<int STRIDE, int NTTOT>
 void go(uint32_t * c_d, float const * z_d, float const * w_d, uint32_t * nss_d) {
 #ifdef VERIFY
   uint32_t counters[10];
-  cudaMemset(c_d,0,10*sizeof(uint32_t));
+  memset(c_d,0,10*sizeof(uint32_t));
 #endif
 
 
@@ -39,7 +39,7 @@ int main() {
 
   for (int i=0; i<16; ++i) {
 
-  cudaMemset(nns_d.get(),0,NTOT*sizeof(uint32_t));
+  memset(nns_d.get(),0,NTOT*sizeof(uint32_t));
 
   std::vector<float> z_h(NTOT);  // for "unclear" reasons this is now zeroed...
   std::mt19937 reng;
@@ -57,7 +57,6 @@ int main() {
  
  
   }
-  cudaDeviceSynchronize();
 
   return 0;
 
