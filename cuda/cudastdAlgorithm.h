@@ -3,7 +3,9 @@
 
 #include <utility>
 
+#ifdef __CUDACC__
 #include <cuda_runtime.h>
+#endif
 
 // reimplementation of std algorithms able to compile with CUDA and run on GPUs,
 // mostly by declaringthem constexpr

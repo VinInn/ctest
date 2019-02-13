@@ -1,7 +1,9 @@
 #ifndef HeterogeneousCoreCUDAUtilitiesAtomicPairCounter_H
 #define HeterogeneousCoreCUDAUtilitiesAtomicPairCounter_H
 
+#ifdef __CUDACC__
 #include <cuda_runtime.h>
+#endif
 #include <cstdint>
 
 class AtomicPairCounter {

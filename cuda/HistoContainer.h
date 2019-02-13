@@ -15,8 +15,8 @@
 #ifdef __CUDACC__
 #include "prefixScan.h"
 #include <cub/cub.cuh>
-#endif
 #include "cudaCheck.h"
+#endif
 
 #include "AtomicPairCounter.h"
 
