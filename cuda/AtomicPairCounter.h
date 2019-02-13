@@ -27,8 +27,6 @@ public:
     c_type ac;
   };
 
-#ifdef __CUDACC__
-
   static constexpr c_type incr = 1UL<<32;
 
   __device__ __host__
@@ -44,7 +42,6 @@ public:
     return ret.counters;
   }
 
-#endif
 
 private:
 

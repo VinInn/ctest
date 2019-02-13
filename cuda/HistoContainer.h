@@ -219,7 +219,6 @@ public:
   }
 
 
-#ifdef __CUDACC__
   __device__
   __forceinline__
   uint32_t bulkFill(AtomicPairCounter & apc, index_type const * v, uint32_t n) {
@@ -244,9 +243,6 @@ public:
      if (i>=totbins()) return;
      off[i]=n;
   }
-
-
-#endif
 
 
   __host__ __device__
