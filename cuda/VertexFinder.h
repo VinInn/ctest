@@ -128,14 +128,18 @@ void clusterTracks(int nt,
 
   assert(pdata);
   assert(zt);
+  assert(data.nv);
 
-  __shared__ HistoContainer<int8_t,8,5,8,uint16_t> hist;
+
+  using Hist=HistoContainer<uint8_t,256,16000,8,uint16_t>;
+
+  __shared__ Hist hist;
 
 //  if(0==threadIdx.x) printf("params %d %f\n",minT,eps);    
 //  if(0==threadIdx.x) printf("booked hist with %d bins, size %d for %d tracks\n",hist.nbins(),hist.binSize(),nt);
 
   // zero hist
-  __shared__ typename HistoContainer<int8_t,8,5,8,uint16_t>::Counter ws[32];
+  __shared__ typename Hist::Counter ws[32];
   for (auto k = threadIdx.x; k<hist.totbins(); k+=blockDim.x) hist.off[k]=0;
   __syncthreads();
 
@@ -146,29 +150,24 @@ void clusterTracks(int nt,
   for (int i = threadIdx.x; i < nt; i += blockDim.x) {
     assert(i<64000);
     int iz =  int(zt[i]*10.);
-    iz = std::max(iz,-127);
-    iz = std::min(iz,127);
+    iz = std::min(std::max(iz, INT8_MIN),INT8_MAX);
+    izt[i]=iz-INT8_MIN;
+    assert(iz-INT8_MIN >= 0);
+    assert(iz-INT8_MIN < 256);
     izt[i]=iz;
-    hist.count(int8_t(iz));
+    hist.count(izt[i]);
     iv[i]=i;
     nn[i]=0;
   }
   __syncthreads();
-    if (threadIdx.x<32) ws[threadIdx.x]=0;  // used by prefix scan...
-    __syncthreads();
-    hist.finalize(ws);
-    __syncthreads();
+  if (threadIdx.x<32) ws[threadIdx.x]=0;  // used by prefix scan...
+  __syncthreads();
+  hist.finalize(ws);
+  __syncthreads();
   
   // fill hist
   for (int i = threadIdx.x; i < nt; i += blockDim.x) {
-    assert(i<64000);
-    int iz =  int(zt[i]*10.);
-    iz = std::max(iz,-127);
-    iz = std::min(iz,127);
-    izt[i]=iz;
-    hist.fill(int8_t(iz),uint16_t(i));
-    iv[i]=i;
-    nn[i]=0;
+      hist.fill(izt[i],uint16_t(i));
   }
   __syncthreads();
   // count neighbours
