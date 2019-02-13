@@ -70,7 +70,10 @@ int main() {
 
 
   uint32_t nv;
+  assert(onGPU.nv);
   memcpy(&nv, onGPU.nv, sizeof(uint32_t));
+  assert(nv>0); assert(nv<256);
+  std::cout << "got "<< nv << " vertices" << std::endl;
   float zv[nv];
   float	wv[nv];
   memcpy(zv, onGPU.zv, nv*sizeof(float));

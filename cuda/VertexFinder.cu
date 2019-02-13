@@ -79,7 +79,9 @@ int main() {
 
 
   uint32_t nv;
+  assert(onGPU.nv);
   cuda::memory::copy(&nv, onGPU.nv, sizeof(uint32_t));
+  assert(nv>0); assert(nv<256);
   float zv[nv];
   float	wv[nv];
   cuda::memory::copy(zv, onGPU.zv, nv*sizeof(float));
