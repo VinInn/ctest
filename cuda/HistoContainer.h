@@ -290,19 +290,15 @@ public:
     bins[w-1] = j;
   }
 
-#ifdef __CUDACC__
-  __device__
+  __device__ __host
   __forceinline__
   void finalize(Counter * ws) {
     assert(off[totbins()-1]==0);
+#ifdef __CUDACC__
     blockPrefixScan(off,totbins(),ws);
-    assert(off[totbins()-1]==off[totbins()-2]);
-  }
-  __host__
-#endif
-  void finalize(Counter *) {
-    assert(off[totbins()-1]==0);
+#else
     for(uint32_t i=1; i<totbins(); ++i) off[i]+=off[i-1];
+#endif
     assert(off[totbins()-1]==off[totbins()-2]);
   }
 
