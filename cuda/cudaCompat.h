@@ -1,6 +1,8 @@
 #ifndef cudaCompat_H
 #define cudaCompat_H
 
+#ifndef __CUDA_ARCH__
+
 #include<cstdint>
 #include<algorithm>
 #include<cstring>
@@ -59,5 +61,8 @@ namespace cudaCompat {
 #ifndef __CUDA_ARCH__
 using namespace cudaCompat;
 #endif
+
+#endif
+
 
 #endif
