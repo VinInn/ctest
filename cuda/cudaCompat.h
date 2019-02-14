@@ -1,5 +1,12 @@
-#ifndef cudaCompat_H
-#define cudaCompat_H
+#ifndef HeterogeneousCore_CUDAUtilities_cudaCompat_H
+#define HeterogeneousCore_CUDAUtilities_cudaCompat_H
+
+/*
+ * Everything you need to run cuda code in plain sequential c++ code
+ */
+
+
+
 
 #ifndef __CUDA_ARCH__
 
