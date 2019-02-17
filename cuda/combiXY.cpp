@@ -1,11 +1,11 @@
-#include "cudaCompat.h"
 #include "combiXY.h"
-
-
 
 #include<iostream>
 #include<memory>
 #include<vector>
+
+
+#include "cudaCompat.cc"
 
 constexpr uint32_t NTOT = 1024*8;
 

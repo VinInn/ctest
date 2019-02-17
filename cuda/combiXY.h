@@ -4,6 +4,9 @@
 #include<random>
 #include<vector>
 
+#include "cudaCompat.h"
+
+
 // #define VERIFY
 
 #ifdef VERIFY

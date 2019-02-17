@@ -8,7 +8,8 @@
 
 
 
-#ifndef __CUDA_ARCH__
+// #ifndef __CUDA_ARCH__
+#ifndef __CUDACC__
 
 #include<cstdint>
 #include<algorithm>
@@ -23,13 +24,12 @@ namespace cudaCompat {
 #endif
   const dim3 threadIdx = {0,0,0};
   const dim3 blockDim = {1,1,1};
-  thread_local dim3 blockIdx = {0,0,0};
-  thread_local dim3 gridDim = {1,1,1};
 
-
+  extern thread_local dim3 blockIdx;
+  extern thread_local dim3 gridDim;
 
  template<typename T1, typename T2>
- T1  atomicInc(T1* a, T2 b) {auto ret=*a; if ((*a)<b) (*a)++; return ret;}
+ T1  atomicInc(T1* a, T2 b) {auto ret=*a; if ((*a)<T1(b)) (*a)++; return ret;}
 
   
   template<typename T1, typename T2>
@@ -45,15 +45,15 @@ namespace cudaCompat {
   T1  atomicMax(T1* a, T2 b) {auto ret=*a; a = std::max(*a,b);return ret;}
 
   
-  void __syncthreads(){}
-  bool __syncthreads_or(bool x) { return x;}
-  bool __syncthreads_and(bool x) { return x;}
+  inline void __syncthreads(){}
+  inline bool __syncthreads_or(bool x) { return x;}
+  inline bool __syncthreads_and(bool x) { return x;}
 
-  void resetGrid() {
+  inline void resetGrid() {
     blockIdx = {0,0,0};
     gridDim = {1,1,1};
   }
-  
+
 }
 
 #ifndef __CUDA_RUNTIME_H__
