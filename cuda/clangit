@@ -1,0 +1,6 @@
+clang++ -Icub \
+-I/home/cmssw/slc7_amd64_gcc700/external/cuda-api-wrappers/20180504-dlmfga/include \
+-DCUDA_ENABLE_DEPRECATED \
+--cuda-gpu-arch=sm_75 -O3 -std=c++14 $1 \
+-L/home/cmssw/slc7_amd64_gcc700/external/cuda/10.0.130-dlmfga/lib64 -lcudart_static -ldl -lrt -pthread
+
