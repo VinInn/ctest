@@ -20,7 +20,7 @@ void dummy(int){}
 template<int STRIDE, int NTTOT>
 __global__
 void nn(uint32_t * __restrict__ counters,
-float const * __restrict__ z, float const * __restrict__ w, uint32_t * __restrict__ nns, int ntot, float eps) {
+float const * __restrict__ z, float const * __restrict__ w, uint32_t * __restrict__ nns, uint32_t ntot, float eps) {
     COUNT(0);
     // this part is actually run blockDim.x times for each "z"
     auto id = blockIdx.y * blockDim.y + threadIdx.y;
