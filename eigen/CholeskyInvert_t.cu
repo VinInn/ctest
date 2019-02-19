@@ -107,7 +107,7 @@ void genMatrix(M  & m ) {
 
 
 template<int N>
-void go(bool soa, bool dym=false) {
+void go(bool soa, bool dyn=false) {
 
   constexpr unsigned int DIM = N;
   using MX =  MXN<DIM>;
