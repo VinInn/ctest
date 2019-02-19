@@ -19,11 +19,27 @@
 #include "cuda/api_wrappers.h"
 
 
+
+using DynStride = Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>;
 constexpr int stride() { return 5*1024;}
 template<int DIM>
 using MXN = Eigen::Matrix<double,DIM,DIM>;
 template<int DIM>
 using MapMX = Eigen::Map<MXN<DIM>, 0, Eigen::Stride<DIM*stride(),stride()> >;
+template<int DIM>
+using DynMapMX = Eigen::Map<MXN<DIM>, 0, DynStride >;
+
+template<int N>
+__global__
+void invertDynSOA(double * __restrict__ p, unsigned int n) {
+
+  auto i = blockIdx.x*blockDim.x + threadIdx.x;
+  if (i>=n) return;
+
+  DynMapMX<N> m(p+i, DynStride(N*n,n) );
+  choleskyInversion::invert(m,m);
+
+}
 
 
 template<int N>
@@ -91,7 +107,7 @@ void genMatrix(M  & m ) {
 
 
 template<int N>
-void go(bool soa) {
+void go(bool soa, bool dym=false) {
 
   constexpr unsigned int DIM = N;
   using MX =  MXN<DIM>;
@@ -116,7 +132,12 @@ void go(bool soa) {
   MX mm[stride()];  // just storage in case of SOA
   double * __restrict__ p = (double *)(mm);
 
-  if (soa) {
+  if (dyn) {
+    for (unsigned int i=0; i<SIZE; ++i) {
+      DynMapMX<N> m(p+i, DynStride(N*SIZE,SIZE) );
+      genMatrix(m);
+    }
+  } else if (soa) {
     for (unsigned int i=0; i<SIZE; ++i) {
       MapMX<N> m(p+i);
       genMatrix(m);
@@ -127,8 +148,13 @@ void go(bool soa) {
   }
 
   std::cout << mm[SIZE/2](1,1) << std::endl;
-
-  if (soa)
+  if (dyn)
+    for (unsigned int i=0; i<SIZE; ++i) {
+      DynMapMX<N> m(p+i, DynStride(N*SIZE,SIZE) );
+      choleskyInversion::invert(m,m);
+      choleskyInversion::invert(m,m);
+    }
+  else if (soa)
     for (unsigned int i=0; i<SIZE; ++i) {
       MapMX<N> m(p+i);
       choleskyInversion::invert(m,m);
@@ -158,8 +184,13 @@ void go(bool soa) {
     int blocksPerGrid = SIZE/threadsPerBlock;
     
     delta -= (std::chrono::high_resolution_clock::now()-start);
-    
-    if (soa)
+    if (dyn)
+      cuda::launch(
+                   invertDynSOA<DIM>,
+                   { blocksPerGrid, threadsPerBlock },
+                   m_d.get(),SIZE
+                   );
+    else if (soa)
       cuda::launch(
 		   invertSOA<DIM>,
 		   { blocksPerGrid, threadsPerBlock },
@@ -234,6 +265,13 @@ int main() {
   go<4>(true);
   go<5>(true);
   go<6>(true);
+
+
+  go<2>(true,true);
+  go<4>(true,true);
+  go<5>(true,true);
+  go<6>(true,true);
+
 
   // go<10>();
   return 0;
