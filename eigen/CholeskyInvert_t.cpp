@@ -16,11 +16,15 @@
 #include<iostream>
 #include<limits>
 
+using DynStride = Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>;
 constexpr int stride() { return 5*1024;}
 template<int DIM>
 using MXN = Eigen::Matrix<double,DIM,DIM>;
 template<int DIM>
 using MapMX = Eigen::Map<MXN<DIM>, 0, Eigen::Stride<DIM*stride(),stride()> >;
+template<int DIM>
+using DynMapMX = Eigen::Map<MXN<DIM>, 0, DynStride >;
+
 
 // generate matrices
 template<class M>
@@ -47,12 +51,12 @@ void genMatrix(M  & m ) {
 
 
 template<int N>
-void go(bool soa) {
+void go(bool soa, bool dyn=false) {
 
   constexpr unsigned int DIM = N;
   using MX =  MXN<DIM>;
   std::cout << "testing Matrix of dimension " << DIM << " size " << sizeof(MX) 
-            << " in " << (soa ? "SOA" : "AOS") << " mode"<< std::endl;
+            << " in " << (soa ? "SOA" : "AOS") << (dyn ? "Dyn" : "") << " mode"<< std::endl;
 
 
   auto start = std::chrono::high_resolution_clock::now();
@@ -66,7 +70,12 @@ void go(bool soa) {
   alignas(128) MX mm[stride()];  // just storage in case of SOA
   double * __restrict__ p = (double*)__builtin_assume_aligned(mm, 128);
 
-  if (soa) {
+  if (dyn) {
+    for (unsigned int i=0; i<SIZE; ++i) {
+      DynMapMX<N> m(p+i, DynStride(N*SIZE,SIZE) );
+      genMatrix(m);
+    }
+  } else if (soa) {
     for (unsigned int i=0; i<SIZE; ++i) {
       MapMX<N> m(p+i);
       genMatrix(m);
@@ -78,7 +87,13 @@ void go(bool soa) {
 
   std::cout << mm[SIZE/2](1,1) << std::endl;
 
-  if (soa)
+  if (dyn)
+    for (unsigned int i=0; i<SIZE; ++i) {
+      DynMapMX<N> m(p+i, DynStride(N*SIZE,SIZE) );
+      choleskyInversion::invert(m,m);
+      choleskyInversion::invert(m,m);
+    }
+  else if (soa)
     for (unsigned int i=0; i<SIZE; ++i) {
       MapMX<N> m(p+i);
       choleskyInversion::invert(m,m);
@@ -102,7 +117,14 @@ void go(bool soa) {
   for (int kk=0; kk<NKK; ++kk) {
   
     delta2 -= (std::chrono::high_resolution_clock::now()-start);
-    if (soa)
+    if (dyn)
+      #pragma GCC ivdep
+      #pragma clang loop vectorize(enable) interleave(enable)
+      for (unsigned int i=0; i<SIZE; ++i) {
+	DynMapMX<N> m(p+i, DynStride(N*SIZE,SIZE) );
+	choleskyInversion::invert(m,m);
+      }
+    else if (soa)
       #pragma GCC ivdep
       #pragma clang loop vectorize(enable) interleave(enable)
       for (unsigned int i=0; i<SIZE; ++i) {
@@ -142,6 +164,14 @@ int main() {
   go<5>(true);
   go<6>(true);
 
+
+  go<2>(true,true);
+  go<3>(true,true);
+  go<4>(true,true);
+  go<5>(true,true);
+  go<6>(true,true);
+
+  
   // go<10>();
   return 0;
 }
