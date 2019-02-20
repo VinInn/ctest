@@ -30,6 +30,7 @@ struct MatrixSOA {
   constexpr CMap operator()(uint32_t i) const { return CMap(data+i);}
 
   Scalar data[S*M::RowsAtCompileTime*M::ColsAtCompileTime];
+  static_assert(sizeof(data)%128==0);
 };
 
 template<typename M, int S>
@@ -40,6 +41,7 @@ struct ScalarSOA {
   constexpr const Scalar operator()(uint32_t i) const { return data[i];}
 
   Scalar data[S];
+  static_assert(sizeof(data)%128==0);
 };
 
 
