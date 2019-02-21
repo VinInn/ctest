@@ -33,6 +33,9 @@ void verifyloop(int i) {
 
 int main() {
 
+  tbb::task_scheduler_init init(tbb::task_scheduler_init::default_num_threads());  // Explicit number of threads
+
+
   c=0;
   tbb::parallel_for(
             tbb::blocked_range<size_t>(0,1000),
