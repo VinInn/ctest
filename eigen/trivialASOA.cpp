@@ -15,6 +15,10 @@ constexpr uint32_t ilog2(uint32_t v) {
   return r;
 }
 
+constexpr bool isPowerOf2(uint32_t v) {
+    return v && !(v & (v - 1));
+}
+
 
 template<uint32_t S>
 struct alignas(128) SOA {
@@ -27,7 +31,7 @@ struct alignas(128) SOA {
   float b[S];
 
   static_assert(S>1);
-  static_assert(S == 1<<ilog2(S));
+  static_assert(isPowerOf2(S));
   static_assert(sizeof(a)%128 == 0);
 };
 
@@ -47,11 +51,12 @@ void sum(V * psoa) {
   }
 }
 
+// should compile identically to above
 void sum0(V * psoa) {
   #pragma GCC ivdep
   for (uint32_t i=0; i<N; i++) {
-    auto j = i/S;
-    auto k = i%S;
+    auto j = i/V::stride();
+    auto k = i%V::stride();
     auto & soa = psoa[j];
     soa.b[k] += soa.a[k];
   }
@@ -66,7 +71,6 @@ void sum1(V * psoa) {
     if (k==V::stride()) {k=0; j++;}
   }
 }
-
 
 void sum2(V * psoa) {
   auto nb = (N+S-1)/S;

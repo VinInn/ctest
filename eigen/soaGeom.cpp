@@ -21,7 +21,7 @@ struct TSOS {
 };
 
 template<typename M, int S>
-struct MatrixSOA {
+struct alignas(128) MatrixSOA {
   using Scalar = typename M::Scalar; 
   using Map = Eigen::Map<M, 0, Eigen::Stride<M::RowsAtCompileTime*S,S> >;
   using CMap = Eigen::Map<const M, 0, Eigen::Stride<M::RowsAtCompileTime*S,S> >;
@@ -34,7 +34,7 @@ struct MatrixSOA {
 };
 
 template<typename M, int S>
-struct ScalarSOA {
+struct alignas(128) ScalarSOA {
   using Scalar = M; 
 
   constexpr Scalar & operator()(uint32_t i)  { return data[i];}
