@@ -47,6 +47,26 @@ void sum(V * psoa) {
   }
 }
 
+void sum0(V * psoa) {
+  #pragma GCC ivdep
+  for (uint32_t i=0; i<N; i++) {
+    auto j = i/S;
+    auto k = i%S;
+    auto & soa = psoa[j];
+    soa.b[k] += soa.a[k];
+  }
+}
+
+void sum1(V * psoa) {
+  #pragma GCC ivdep
+  for (uint32_t i=0, j=0, k=0; i<N; i++) {
+    auto & soa = psoa[j];
+    soa.b[k] += soa.a[k];
+    k++;
+    if (k==V::stride()) {k=0; j++;}
+  }
+}
+
 
 void sum2(V * psoa) {
   auto nb = (N+S-1)/S;
