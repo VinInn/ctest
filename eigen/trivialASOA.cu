@@ -1,5 +1,5 @@
 #include<cstdint>
-
+#include<algorithm>
 
 constexpr uint32_t ilog2(uint32_t v) {
 
@@ -32,29 +32,17 @@ struct alignas(128) SOA {
 
   static_assert(isPowerOf2(S),"stride not a power of 2");
   static_assert(sizeof(a)%128 == 0,"size not a multiple of 128");
-
 };
 
-
-constexpr uint32_t N = 1024;
 constexpr uint32_t S = 256;
 
 
 using V = SOA<S>;
-void sum(V * psoa) {
-  #pragma GCC ivdep
-  for (uint32_t i=0; i<N; i++) {
-    auto j = i>>V::shift();
-    auto k = i&V::mask();
-    auto & soa = psoa[j];
-    soa.b[k] += soa.a[k];
-  }
-}
 
-// should compile identically to above
-void sum0(V * psoa) {
-  #pragma GCC ivdep
-  for (uint32_t i=0; i<N; i++) {
+__global__
+void sum(V * psoa, int n) {
+  auto first = threadIdx.x + blockIdx.x*blockDim.x;
+  for (auto i=first; i<n; i+=blockDim.x*gridDim.x) {
     auto j = i/V::stride();
     auto k = i%V::stride();
     auto & soa = psoa[j];
@@ -62,24 +50,16 @@ void sum0(V * psoa) {
   }
 }
 
-void sum1(V * psoa) {
-  #pragma GCC ivdep
-  for (uint32_t i=0, j=0, k=0; i<N; i++) {
-    auto & soa = psoa[j];
-    soa.b[k] += soa.a[k];
-    k++;
-    if (k==V::stride()) {k=0; j++;}
-  }
-}
 
-void sum2(V * psoa) {
-  auto nb = (N+S-1)/S;
-  #pragma GCC ivdep
-  for (uint32_t j=0; j<nb; j++) {
+__global__
+void sum2(V * psoa, int n) {
+  auto nb = (n+V::stride()-1)/V::stride();
+  for (auto j=blockIdx.x; j<nb; j+=gridDim.x) {
     auto & soa = psoa[j];
-    auto kmax = std::min(V::stride(),N - j*V::stride());
-    for(uint32_t k=0; k<kmax; k++) {
+    auto kmax = std::min(V::stride(),n - j*V::stride());
+    for(uint32_t k=threadIdx.x; k<kmax; k+=blockDim.x) {
      soa.b[k] += soa.a[k];
     }
   }
 }
+
