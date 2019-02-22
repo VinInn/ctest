@@ -30,7 +30,6 @@ struct alignas(128) SOA {
   float a[S];
   float b[S];
 
-  static_assert(S>1);
   static_assert(isPowerOf2(S));
   static_assert(sizeof(a)%128 == 0);
 };
