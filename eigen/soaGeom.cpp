@@ -20,28 +20,32 @@ struct TSOS {
   float charge;
 };
 
+
 template<typename M, int S>
-struct alignas(128) MatrixSOA {
+class alignas(128) MatrixSOA {
+public:
   using Scalar = typename M::Scalar; 
   using Map = Eigen::Map<M, 0, Eigen::Stride<M::RowsAtCompileTime*S,S> >;
   using CMap = Eigen::Map<const M, 0, Eigen::Stride<M::RowsAtCompileTime*S,S> >;
 
-  constexpr Map operator()(uint32_t i)  { return Map(data+i);}
-  constexpr CMap operator()(uint32_t i) const { return CMap(data+i);}
+  constexpr Map operator()(uint32_t i)  { return Map(data_+i);}
+  constexpr CMap operator()(uint32_t i) const { return CMap(data_+i);}
 
-  Scalar data[S*M::RowsAtCompileTime*M::ColsAtCompileTime];
-  static_assert(sizeof(data)%128==0);
+private:
+  Scalar data_[S*M::RowsAtCompileTime*M::ColsAtCompileTime];
+  static_assert(sizeof(data_)%128==0);
 };
 
 template<typename M, int S>
-struct alignas(128) ScalarSOA {
+class alignas(128) ScalarSOA {
   using Scalar = M; 
 
-  constexpr Scalar & operator()(uint32_t i)  { return data[i];}
-  constexpr const Scalar operator()(uint32_t i) const { return data[i];}
+  constexpr Scalar & operator()(uint32_t i)  { return data_[i];}
+  constexpr const Scalar operator()(uint32_t i) const { return data_[i];}
 
-  Scalar data[S];
-  static_assert(sizeof(data)%128==0);
+private:
+  Scalar data_[S];
+  static_assert(sizeof(data_)%128==0);
 };
 
 
