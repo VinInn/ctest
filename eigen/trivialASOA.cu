@@ -119,7 +119,7 @@ void sum(V * psoa, int n) {
 __global__
 void sum(AV * pasoa) {
   auto & asoa = *pasoa;
-  auto first = threadIdx.x + blockIdx.x*blockDim.x;
+  int32_t first = threadIdx.x + blockIdx.x*blockDim.x;
   for (auto i=first,n=asoa.size(); i<n; i+=blockDim.x*gridDim.x) {
     auto jk = AV::indices(i);
     auto & soa = asoa[jk.j];
