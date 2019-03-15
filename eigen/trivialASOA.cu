@@ -118,13 +118,23 @@ void sum(V * psoa, int n) {
 
 __global__
 void sum(AV * pasoa) {
-  auto & asoa = pasoa;
+  auto & asoa = *pasoa;
   auto first = threadIdx.x + blockIdx.x*blockDim.x;
-  for (auto i=first,n=asoa.size() i<n; i+=blockDim.x*gridDim.x) {
+  for (auto i=first,n=asoa.size(); i<n; i+=blockDim.x*gridDim.x) {
     auto jk = AV::indices(i);
     auto & soa = asoa[jk.j];
-    soa.b[k] += soa.a[jk.k];
+    soa.b[jk.k] += soa.a[jk.k];
   }
+}
+
+__global__
+void fill(AV * pasoa) {
+  auto & asoa = *pasoa;
+  auto i = asoa.addOne();
+  if (i<0) return;
+  auto jk = AV::indices(i);
+  auto & soa = asoa[jk.j];
+  soa.b[jk.k] = soa.a[jk.k] = threadIdx.x + blockIdx.x*blockDim.x;;
 }
 
 
