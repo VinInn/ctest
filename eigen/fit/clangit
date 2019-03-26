@@ -1,5 +1,5 @@
 clang++ \
--I../cuda/cuda-api-wrappers/include/ \
+-I/home/cmssw/slc7_amd64_gcc700/external/cuda-api-wrappers/20180504-dlmfga/include \
 -I/home/cmssw/slc7_amd64_gcc700/external/eigen/e4c107b451c52c9ab2d7b7fa4194ee35332916ec-patatrack/include/eigen3 \
 -Icub -Icuda-api-wrappers/include/ --cuda-gpu-arch=sm_75 -O3 -std=c++14 $1 \
 -L/home/cmssw/slc7_amd64_gcc700/external/cuda/10.0.130/lib64 -lcudart_static -ldl -lrt -pthread \

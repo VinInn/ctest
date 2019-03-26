@@ -1,2 +1,2 @@
-nvcc -Icub -Icuda-api-wrappers/include/ -DCUDA_ENABLE_DEPRECATED \
+nvcc -Icub -I/data/cmssw/slc7_amd64_gcc700/external/cuda-api-wrappers/20180504-dlmfga/include  -DCUDA_ENABLE_DEPRECATED \
 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda $1
