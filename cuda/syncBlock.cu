@@ -48,7 +48,10 @@ void multiBlockReduction(int * v,  int * w, int * pc, int n) {
 
 int main() {
 
+
   int NTOT = 1024*48;
+
+  std::cout << "summing " << NTOT << " ones" << std::endl;
 
   if (cuda::device::count() == 0) {
     std::cerr << "No CUDA devices on this system" << "\n";
