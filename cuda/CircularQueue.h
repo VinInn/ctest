@@ -82,7 +82,7 @@ public:
     if (int(previous)-t < int(capacity())) {
       previous &= mask();
       m_data[previous] = element;
-//      if (head()>maxHead) reset(); // avoid wrapping
+      if (head()>maxHead) reset(); // avoid wrapping
       return true;
     } else {
       atomicAdd(headTail(), -(1UL));
