@@ -90,7 +90,8 @@ public:
   inline constexpr uint32_t mask() const { return m_capacity-1;}
   inline constexpr uint32_t mask2() const { return 2*m_capacity-1;}
 
-
+  inline constexpr uint32_t head() const { return m_head;}
+  inline constexpr uint32_t tail() const { return m_tail;}
 private:
 
   uint32_t m_head;
