@@ -56,9 +56,11 @@ public:
   __device__
   T pop() {
     auto t = tail();
+    auto tmx = end(t);
     auto const inv = invalid();
     auto val = m_data[t];
-    while(val!=inv &&  val!=atomicCAS(m_data+t,val,inv)) {++t; val = m_data[t];}
+    val=atomicCAS(m_data+t,val,inv);
+    while(t<tmx && val==inv) { ++t; val = m_data[t]; val=atomicCAS(m_data+t,val,inv); }
     update(1,t+1);
     if (val!=inv) return val;
     if (swap(t)) return pop();
