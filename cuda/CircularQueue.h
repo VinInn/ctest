@@ -7,6 +7,7 @@
 
 
 // a thread safe lock-free circular queue
+// will never work, easy to prove
 template<typename T, int MAXSIZE> 
 class CircularQueue {
 public:
