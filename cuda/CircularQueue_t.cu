@@ -14,67 +14,59 @@ void test0() {
   using Q = CircularQueue<int,1024>;
 
   __shared__ Q q;
-  assert(q.constructEmpty(1024));
+  assert(q.construct(1024));
+  for (int j=0;j<1024*2;++j) q.data()[j]=-1;
   printf("empty ht %d %d\n",*q.headTail());
   assert(q.empty());
   assert(!q.full());
   assert(q.size()==0);
   assert(q.capacity()==1024);
   assert(q.mask()==1023);
-  assert(q.head()==0);
+  assert(q.head()==1024);
   assert(q.tail()==0);
-  assert(-1==q.pop(-1));
+  assert(-1==q.pop());
   assert(q.empty());
+
+  printf("h,t s %d %d %d\n",q.head(),q.tail(),q.size());
 
   assert(q.push(1));
   printf("one ht %d %d\n",*q.headTail());
+
   assert(!q.empty());
   assert(!q.full());
   assert(q.size()==1);
   assert(q.capacity()==1024);
-  assert(1==q.pop(-1));
-  assert(q.empty());
-  assert(!q.full());
-  assert(q.size()==0);
-  assert(q.capacity()==1024);
-  assert(-1==q.pop(-1));
-  assert(q.empty());
+  assert(1==q.pop());
+  assert(-1==q.pop());
+  // assert(q.empty());
 
+  printf("h,t s %d %d %d\n",q.head(),q.tail(),q.size());
+  assert(-1==q.pop());
+  printf("h,t s %d %d %d\n",q.head(),q.tail(),q.size());
 
-
-  assert(q.constructFull(1024));
-  for (int j=0;j<1024;++j) q.data()[j]=j;
+  assert(q.construct(1024));
+  for (int j=0;j<1023;++j) q.data()[j]=j;
+  for (int j=1023;j<1024*2;++j) q.data()[j]=-1;
   printf("full ht %d %d\n",*q.headTail());
-  assert(!q.empty());
-  assert(q.full());
-  assert(q.size()==1024);
   assert(q.capacity()==1024);
   assert(q.head()==1024);
   assert(q.tail()==0);
-  assert(!q.push(1));
-  assert(q.full());
-  q.pop(-1);
+  assert(q.push(99991));
+  assert(0==q.pop());
+  assert(1==q.pop());
+  assert(q.size()==1);
+  assert(q.push(99992));
   assert(!q.empty());
   assert(!q.full());
-  assert(q.size()==1023);
-  assert(q.push(1));
-  assert(!q.empty());
-  assert(q.full());
-  assert(q.size()==1024);
+  assert(q.size()==2);
   assert(q.capacity()==1024);
-  assert(!q.push(1));
-  assert(q.full());
+  assert(q.push(99993));
+  assert(q.size()==3);
 
 
   printf("ht %d %d\n",*q.headTail());
 
-  auto const h1 = q.head();
-  auto const t1 = q.tail();
   printf("h,t s %d %d %d\n",q.head(),q.tail(),q.size());
-  q.reset();
-  printf("h,t s %d %d %d\n",q.head(),q.tail(),q.size());
-  assert(h1 == q.head());
-  assert(t1 == q.tail());
 
 
 
@@ -88,19 +80,23 @@ void testSimple() {
   using Q = CircularQueue<int,1024>;
 
   __shared__ Q q;
-  assert(q.constructFull(1024));
+  assert(q.construct(1024));
 
   int i = threadIdx.x;
   q.data()[i]=i;
+  q.data()[1023] = -1;
+  q.data()[i+1024]=-1;
   __syncthreads();
   if (0==i) printf("h,t %d %d\n",q.head(),q.tail());
   __syncthreads();
 
-  auto k = q.pop(-1);
-  assert(k>=0);assert(k<1024);
+  if(i!=0) {
+     auto k = q.pop();
+     assert(k>=0);assert(k<1024);
+  }
   __syncthreads();
   assert(q.empty());
-  assert(-1==q.pop(-1));
+  assert(-1==q.pop());
   __syncthreads();
   if (0==i) printf("h,t %d %d\n",q.head(),q.tail());
   __syncthreads();
@@ -114,37 +110,17 @@ void testSimple() {
   if (0==i) printf("h,t %d %d\n",q.head(),q.tail());
   __syncthreads();
 
-  /*
-  k = q.pop(-1);
-  assert(k>=0);
-  if (k%2) assert(q.push(k));
+  if(i!=0) {
+    auto k = q.pop();
+    assert(k>=0); assert(k<1024);
+    if (k%2) q.push(k);
+  }
   __syncthreads();
   assert(!q.full());
   assert(!q.empty());
   if (0==i) printf("h,t s %d %d %d\n",q.head(),q.tail(),q.size());
   __syncthreads();
-  k = q.pop(-1);
-  if (k>=0) assert(k%2);
-  __syncthreads();
-  assert(q.empty());
-  if (0==i) printf("h,t s %d %d %d\n",q.head(),q.tail(),q.size());
-  __syncthreads();
-
-  assert(q.push(i));
-  __syncthreads();
-  assert(q.full());
-  __syncthreads();
-  */
-
-  k = q.pop(-1);
-  assert(k>=0); assert(k<1024);
-  if (k%2) q.unsafePush(k);
-  __syncthreads();
-  assert(!q.full());
-  assert(!q.empty());
-  if (0==i) printf("h,t s %d %d %d\n",q.head(),q.tail(),q.size());
-  __syncthreads();
-  k = q.pop(-1);
+  auto k = q.pop();
   if (k>0) assert(k%2);
   __syncthreads();
   assert(q.empty());
@@ -160,7 +136,7 @@ void testSimple() {
       printf("jj %d: h,t s %d %d %d ",jj,q.head(),q.tail(),q.size()); 
       printf("ht %d %d\n",*q.headTail());
     }
-    k = q.pop(-1);
+    k = q.pop();
     if (k>=0 && k%2) q.push(k);
     q.push(jj);
     ++jj;
@@ -168,8 +144,8 @@ void testSimple() {
 
   // just a mess
   for (int kk=0; kk<32; ++kk) {
-    k = q.pop(-1);
-    if (k>=0 && k%2) q.unsafePush(k);
+    k = q.pop();
+    if (k>=0 && k%2) q.push(k);
     if (k>=0 && k%3) q.push(kk);
   }
   __syncthreads();
@@ -177,10 +153,13 @@ void testSimple() {
     printf("h,t s %d %d %d\n",q.head(),q.tail(),q.size());
     printf("ht %d %d\n",*q.headTail());
 
-    q.constructFull(1024);
+    q.construct(1024);
   }
 
   q.data()[i]=i;
+  q.data()[1023]=-1;
+  q.data()[i+1024]=-1;
+
   __shared__ int v[1024];
   __shared__ int vc;
   v[i]=-2;
@@ -193,9 +172,9 @@ void testSimple() {
   __syncthreads();
 
   for (int kk=0; kk<32; ++kk) {
-    k = q.pop(-1);
+    k = q.pop();
     if (k<0) continue;
-    if ((k+kk)%2) q.unsafePush(k);
+    if ((k+kk)%2) q.push(k);
     else {
       auto j = atomicAdd(&vc,1);
       assert(j<1024);
@@ -231,6 +210,9 @@ int main() {
    using Q = CircularQueue<int,1024>;
 
    std::cout << "Qmaxs " << Q::maxCapacity << ' ' << Q::maxHead << std::endl;
+
+   Q q; q.construct(1024);
+   std::cout << "seg " << q.segment(0) << ' ' << q.segment(1023) << ' ' << q.segment(1024) << ' ' << q.segment(1024+1023) << std::endl;
 
    std::cout << "\ntest0" << std::endl;
    test0<<<1,1,0>>>();   
