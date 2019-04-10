@@ -35,7 +35,7 @@ return sum;
 
 void testEx() {
 
-int e = std::fetestexcept(FE_ALL_EXCEPT);
+int e = fetestexcept(FE_ALL_EXCEPT);
     if (e & FE_DIVBYZERO) {
         std::cout << "division by zero\n";
     }
@@ -57,14 +57,24 @@ int e = std::fetestexcept(FE_ALL_EXCEPT);
 
 int main(void) {
 
+ ::printf("test(4, 6, 0) = %f\n", test(4,6,0));
+  ::printf("nan is  = %f\n", test(0, 2, 0) - test(-2,3,0));
+
 
   feenableexcept( FE_DIVBYZERO );
   feenableexcept( FE_INVALID );
   feenableexcept( FE_OVERFLOW );
   feenableexcept( FE_UNDERFLOW );
 
+ ::printf("test(4, 6, 0) = %f\n", test(4,6,0));
+  ::printf("nan is  = %f\n", test(0, 2, 0) - test(-2,3,0));
+
   testEx();
 
+ ::printf("test(4, 6, 0) = %f\n", test(4,6,0));
+  ::printf("nan is  = %f\n", test(0, 2, 0) - test(-2,3,0));
+
+  std::cout << " set sigactions" << std::endl;
   sigset_t *def_set;
   def_set=&termaction.sa_mask;
   sigfillset(def_set);
@@ -75,7 +85,7 @@ int main(void) {
 
   std::cout << log(0.) << " " << exp(log(0.)) << ' ' << sqrt(-1.) << std::endl;
 
-   testEx();
+  testEx();
 
   ::printf("test(4, 6, 0) = %f\n", test(4,6,0));
   ::printf("test(0, 2, 0) = %f\n", test(0,2,0));
