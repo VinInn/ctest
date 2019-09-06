@@ -17,8 +17,14 @@ thread_local std::unordered_map<unsigned long long,unsigned long long> * relocat
 template<typename T>
 class h_ptr {
 public:
-  h_ptr(T const * p=nullptr) : gpu_ptr(p){}
+#ifdef __CUDA_ARCH__
+  __device__ __forceinline__ h_ptr(T const * p=nullptr) : gpu_ptr(p){}
   __device__ __forceinline__ auto & operator=(T const * p) { gpu_ptr=p; return *this;}
+#else
+  __host__ __forceinline__ h_ptr(T const * p=nullptr) : host_ptr(p){}
+  __host__ __forceinline__ auto & operator=(T const * p) { host_ptr=p; return *this;}
+#endif
+
   constexpr T const * get() const {
 #ifdef __CUDA_ARCH__
     return gpu_ptr;
@@ -44,7 +50,7 @@ private:
   }
 #endif
 
-  T const * gpu_ptr;
+  T const * gpu_ptr = nullptr;
   mutable T const * host_ptr=nullptr;
 };
 #endif

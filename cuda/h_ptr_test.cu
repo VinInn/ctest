@@ -38,6 +38,17 @@ int main() {
 
  cudaDeviceSynchronize(); 
 
+ // this fake cpu wf
+ T ct;
+ V cv;
+ memset(&cv,0,sizeof(V)); 
+ ct.a=5;
+ cv.tref = &ct; 
+ // better to be ok
+ assert((&ct) == cv.tref.get());
+ assert(5 == cv.tref.get()->a);
+
+
  return 0;
 
 }
