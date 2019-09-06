@@ -24,6 +24,7 @@ public:
   __host__ __forceinline__ h_ptr(T const * p=nullptr) : host_ptr(p){}
   __host__ __forceinline__ auto & operator=(T const * p) { host_ptr=p; return *this;}
 #endif
+  __device__ __host__ __forceinline__ void setGPUptr(T const * p) { gpu_ptr=p;}  // views are filled on host...
 
   constexpr T const * get() const {
 #ifdef __CUDA_ARCH__

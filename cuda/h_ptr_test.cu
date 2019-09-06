@@ -14,6 +14,11 @@ __global__ void set(T * t, V* v) {
  
 }
 
+__global__ void get(T * t, V* v) {
+ assert(v->tref.get() == t);
+  assert(v->tref.get()->a == 5);
+}
+
 
 int main() {
 
@@ -21,11 +26,18 @@ int main() {
 
 
  T * gt;
- V * gv;
+ V * gv, *gv2;
  cudaMalloc(&gt,sizeof(T));
  cudaMalloc(&gv,sizeof(V));
  cudaMemset(gv,0,sizeof(V));
  set<<<1,1>>>(gt,gv);
+ get<<<1,1>>>(gt,gv);
+
+ V v2; v2.tref.setGPUptr(gt);
+ cudaMalloc(&gv2,sizeof(V));
+ cudaMemcpy(gv2,&v2,sizeof(V),cudaMemcpyHostToDevice);
+ get<<<1,1>>>(gt,gv2);
+
  T ht;
  V hv;
  cudaMemcpy(&hv,gv,sizeof(V),cudaMemcpyDeviceToHost);
