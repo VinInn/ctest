@@ -18,13 +18,13 @@ template<typename T>
 class h_ptr {
 public:
 #ifdef __CUDA_ARCH__
-  __device__ __forceinline__ h_ptr(T const * p=nullptr) : gpu_ptr(p){}
-  __device__ __forceinline__ auto & operator=(T const * p) { gpu_ptr=p; return *this;}
+  __device__ __forceinline__ h_ptr(T const * p=nullptr) : gpu_ptr(p), host_ptr(nullptr) {}
+  __device__ __forceinline__ auto & operator=(T const * p) { gpu_ptr=p; host_ptr=nullptr; return *this;}
 #else
-  __host__ __forceinline__ h_ptr(T const * p=nullptr) : host_ptr(p){}
-  __host__ __forceinline__ auto & operator=(T const * p) { host_ptr=p; return *this;}
+  __host__ __forceinline__ h_ptr(T const * p=nullptr) : gpu_ptr(nullptr), host_ptr(p){}
+  __host__ __forceinline__ auto & operator=(T const * p) { gpu_ptr=nullptr; host_ptr=p; return *this;}
 #endif
-  __device__ __host__ __forceinline__ void setGPUptr(T const * p) { gpu_ptr=p;}  // views are filled on host...
+  __device__ __host__ __forceinline__ void setGPUptr(T const * p) { gpu_ptr=p; host_ptr=nullptr;}  // views are filled on host...
 
   constexpr T const * get() const {
 #ifdef __CUDA_ARCH__
@@ -51,7 +51,7 @@ private:
   }
 #endif
 
-  T const * gpu_ptr = nullptr;
-  mutable T const * host_ptr=nullptr;
+  T const * gpu_ptr;
+  mutable T const * host_ptr;
 };
 #endif

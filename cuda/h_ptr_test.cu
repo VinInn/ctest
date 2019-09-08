@@ -29,7 +29,6 @@ int main() {
  V * gv, *gv2;
  cudaMalloc(&gt,sizeof(T));
  cudaMalloc(&gv,sizeof(V));
- cudaMemset(gv,0,sizeof(V));
  set<<<1,1>>>(gt,gv);
  get<<<1,1>>>(gt,gv);
 
@@ -53,7 +52,6 @@ int main() {
  // this fake cpu wf
  T ct;
  V cv;
- memset(&cv,0,sizeof(V)); 
  ct.a=5;
  cv.tref = &ct; 
  // better to be ok
