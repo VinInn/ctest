@@ -69,10 +69,6 @@ public :
     return *(begin()+i);
   }
 
-  T const & operator[](uint32_t i) const {
-    return *(begin()+i);
-  }
-
   uint32_t size() const {
     if(auto pval = std::get_if<Array>(&m_container))
        return pval->back();
