@@ -6,12 +6,14 @@
 #include<iostream>
 #include<cassert>
 
+
+// a mimimal smart vector that can be either an array or a vector
 template<typename T>
 class SmartVector {
 public :
-  using Vector = std::vector<uint8_t>;
-  static constexpr uint32_t maxSize = sizeof(Vector)-1;
-  using Array = std::array<uint8_t,sizeof(Vector)/sizeof(uint8_t)>;
+  using Vector = std::vector<T>;
+  static constexpr uint32_t maxSize = sizeof(Vector)/sizeof(T)-1;
+  using Array = std::array<T,sizeof(Vector)/sizeof(T)>;
   using Variant = std::variant<Vector,Array>;
 
   SmartVector(){}
@@ -24,7 +26,7 @@ public :
        std::copy(b,e,a.begin());
        a.back()=e-b;
      } else 
-       m_container.emplace<Vector>(b,e);
+       m_container. template emplace<Vector>(b,e);
   }
 
   template<typename Iter>
@@ -76,46 +78,53 @@ public :
 
 int main() {
 
-using Vector = std::vector<uint8_t>;
-using Array = std::array<uint8_t,sizeof(Vector)/sizeof(uint8_t)>;
-using Variant = SmartVector<uint8_t>;
+ using Vector = std::vector<uint8_t>;
+ using Array = std::array<uint8_t,sizeof(Vector)/sizeof(uint8_t)>;
+ using Variant = SmartVector<uint8_t>;
 
 
-std::cout << sizeof(Vector) <<' '<< sizeof(Array) <<' '<< sizeof(Variant) << std::endl;
+ std::cout << sizeof(Vector) <<' '<< sizeof(Array) <<' '<< sizeof(Variant) << std::endl;
 
-   Variant v;
+ Variant v;
 
-  uint8_t data[128];
-  for (int i=0; i<128; ++i) data[i]=i;
+ uint8_t data[128];
+ for (int i=0; i<128; ++i) data[i]=i;
 
  uint8_t i=0;
  Variant va(data,data+5);
- std::cout << "va " << va.size() << ' ' << va.end()-va.begin() << std::endl;
+ assert(5==va.size());
+ assert(5==va.end()-va.begin());
  assert(std::get_if<Array>(&va.m_container));
  i=0; for (auto c : va) assert(c==i++);
  Variant vb(data,data+24);
- std::cout << "vb " << vb.size() << ' ' << vb.end()-vb.begin() << std::endl;
+ assert(24==vb.size());
+ assert(24==vb.end()-vb.begin());
  assert(std::get_if<Vector>(&vb.m_container));
  i=0; for (auto c : vb) assert(c==i++);
  Variant vv(data,data+64);
- std::cout << "vv " << vv.size() << ' ' << vv.end()-vv.begin() << std::endl;
+ assert(64==vv.size());
+ assert(64==vv.end()-vv.begin());
  assert(std::get_if<Vector>(&vv.m_container));
  i=0; for (auto c : vv) assert(c==i++);
 
  va.extend(data+5,data+10);
- std::cout << "va " << va.size() << ' ' << va.end()-va.begin() << std::endl;
+ assert(10==va.size());
+ assert(10==va.end()-va.begin());
  assert(std::get_if<Array>(&va.m_container));
  i=0; for (auto c : va) assert(c==i++);
  va.extend(data+10,data+64);
- std::cout << "va " << va.size() << ' ' << va.end()-va.begin() << std::endl;
+ assert(64==va.size());
+ assert(64==va.end()-va.begin());
  assert(std::get_if<Vector>(&va.m_container));
  i=0; for (auto c : va) assert(c==i++);
 
  vv.extend(data+64,data+72); 
- std::cout << "vv " << vv.size() << ' ' << vv.end()-vv.begin() << std::endl;
+ assert(72==vv.size());
+ assert(72==vv.end()-vv.begin());
  assert(std::get_if<Vector>(&vv.m_container));
  i=0; for (auto c : vv) assert(c==i++);
 
+ return 0;
 
 }
 
