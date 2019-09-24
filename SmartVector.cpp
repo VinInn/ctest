@@ -48,9 +48,11 @@ public :
         v.insert(v.end(),b,e);
         m_container = std::move(v);
       }
-    }else {
-      auto & v = std::get<Vector>(m_container);
-      v.insert(v.end(),b,e);
+    }else if(auto pval = std::get_if<Vector>(&m_container)) {
+      pval->insert(pval->end(),b,e);
+    }
+    else {
+     initialize(b,e);
     }
   }
 
@@ -80,6 +82,9 @@ public :
        return std::get<Vector>(m_container).size();
   }
 
+
+  Variant const & container() const { return m_container;}
+private:
   Variant m_container;
 };
 
@@ -101,34 +106,34 @@ int main() {
  Variant va(data,data+5);
  assert(5==va.size());
  assert(5==va.end()-va.begin());
- assert(std::get_if<Array>(&va.m_container));
+ assert(std::get_if<Array>(&va.container()));
  i=0; for (auto c : va) assert(c==i++);
- Variant vb(data,data+24);
+ Variant vb; vb.initialize(data,data+24);
  assert(24==vb.size());
  assert(24==vb.end()-vb.begin());
- assert(std::get_if<Vector>(&vb.m_container));
+ assert(std::get_if<Vector>(&vb.container()));
  i=0; for (auto c : vb) assert(c==i++);
- Variant vv(data,data+64);
+ Variant vv; vv.extend(data,data+64);
  assert(64==vv.size());
  assert(64==vv.end()-vv.begin());
- assert(std::get_if<Vector>(&vv.m_container));
+ assert(std::get_if<Vector>(&vv.container()));
  i=0; for (auto c : vv) assert(c==i++);
 
  va.extend(data+5,data+10);
  assert(10==va.size());
  assert(10==va.end()-va.begin());
- assert(std::get_if<Array>(&va.m_container));
+ assert(std::get_if<Array>(&va.container()));
  i=0; for (auto c : va) assert(c==i++);
  va.extend(data+10,data+64);
  assert(64==va.size());
  assert(64==va.end()-va.begin());
- assert(std::get_if<Vector>(&va.m_container));
+ assert(std::get_if<Vector>(&va.container()));
  i=0; for (auto c : va) assert(c==i++);
 
  vv.extend(data+64,data+72); 
  assert(72==vv.size());
  assert(72==vv.end()-vv.begin());
- assert(std::get_if<Vector>(&vv.m_container));
+ assert(std::get_if<Vector>(&vv.container()));
  i=0; for (auto c : vv) assert(c==i++);
 
  return 0;
