@@ -20,12 +20,17 @@ public :
 
   template<typename Iter>
   SmartVector(Iter b, Iter e) {
+     initialize(b,e);
+  }
+
+  template<typename Iter>
+  void initialize(Iter b, Iter e) {
      if (e-b<=maxSize) {
        m_container = Array();
        auto & a = std::get<Array>(m_container);
        std::copy(b,e,a.begin());
        a.back()=e-b;
-     } else 
+     } else
        m_container. template emplace<Vector>(b,e);
   }
 
@@ -55,7 +60,6 @@ public :
        return pval->data();
     else
        return std::get<Vector>(m_container).data();
-
   }
 
   T const * end() const {
