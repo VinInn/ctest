@@ -83,14 +83,28 @@ public :
      initialize(b,e);
   }
 
+
+  void initialize(uint32_t size) {
+    if(!m_isArray) m_container.v.~Vector();
+    if (size<=maxSize) {
+      m_isArray=true;
+      m_container.a.back()=size;
+    } else {
+       m_isArray=false;
+       std::fill(m_container.a.begin(), m_container.a.end(),0);
+       m_container.v.resize(size);
+    }
+  }
+
   template<typename Iter>
   void initialize(Iter b, Iter e) {
-     if (e-b<=maxSize) {
+    if(!m_isArray) m_container.v.~Vector();
+    if (e-b<=maxSize) {
        m_isArray=true;
        auto & a = m_container.a;
        std::copy(b,e,a.begin());
        a.back()=e-b;
-     } else {
+    } else {
        m_isArray=false;
        std::fill(m_container.a.begin(), m_container.a.end(),0);
        m_container.v.insert(m_container.v.end(),b,e);
@@ -119,12 +133,23 @@ public :
     }
   }
 
-
-  T const * begin() const {
+  
+  T const * data() const {
     if(m_isArray)
        return m_container.a.data();
     else
        return m_container.v.data();
+  }
+
+  T * data()  {
+    if(m_isArray)
+       return m_container.a.data();
+    else
+       return m_container.v.data();
+  }
+
+  T const * begin() const {
+    return data();
   }
 
   T const * end() const {
@@ -184,6 +209,25 @@ int go() {
  assert(vc.isArray());
  i=0; for (auto c : vc) assert(c==i++);
 
+{
+ Variant vd;
+ vd.initialize(5);
+ for (int i=0; i<5; ++i)
+   vd.data()[i] = i;
+ assert(5==vd.size());
+ assert(5==vd.end()-vd.begin());
+ assert(vd.isArray());
+ i=0; for (auto c : vd) assert(c==i++);
+
+ vd.initialize(24);
+ for (int i=0; i<24; ++i)
+   vd.data()[i] = i;
+ assert(24==vd.size());
+ assert(24==vd.end()-vd.begin());
+ assert(!vd.isArray());
+ i=0; for (auto c : vd) assert(c==i++);
+
+}
 
 {
  Variant vb; vb.initialize(data,data+24);
