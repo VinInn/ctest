@@ -21,7 +21,9 @@ void compute(double const * __restrict__ v, int n, double * __restrict__ res) {
   auto first = blockIdx.x * blockDim.x + threadIdx.x;
   for (int i=first; i<n; i+=gridDim.x*blockDim.x)
     //  *res += (v[i]>0) ? 1./std::sqrt(v[i]) : 0;
-    if (v[i]>0) atomicAdd(res,1./std::sqrt(v[i]));
+    // if (v[i]>0) atomicAdd(res,1./std::sqrt(v[i]));
+    if (v[i]>0) res[i] = 1./std::sqrt(v[i]);
+
 }
 
 
@@ -35,11 +37,12 @@ int main(int argc, char**) {
   double * v;
   cudaMalloc(&v,(size+1)*sizeof(double));
 
-  double * res = v+size;
+  double * res; // = v+size;
+  cudaMalloc(&res,(size+1)*sizeof(double));
   set<<<256,48>>> (v,size,argc-1,res);  
 
   for (int i=0; i<500000; ++i) {
-    compute<<<64,8>>>(v,size,res);
+    compute<<<4,64>>>(v,size,res);
   }
 
   cudaFree(v);
