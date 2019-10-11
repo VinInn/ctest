@@ -1,3 +1,4 @@
+// nvcc -O3 -std=c++14 --expt-relaxed-constexpr -gencode arch=compute_70,code=sm_70 divergence.cu
 #include<cmath>
 #include<iostream>
 #include<memory>
@@ -20,7 +21,7 @@ void compute(double const * __restrict__ v, int n, double * __restrict__ res) {
   auto first = blockIdx.x * blockDim.x + threadIdx.x;
   for (int i=first; i<n; i+=gridDim.x*blockDim.x)
     //  *res += (v[i]>0) ? 1./std::sqrt(v[i]) : 0;
-    if (v[i]>0) *res += 1./std::sqrt(v[i]);
+    if (v[i]>0) atomicAdd(res,1./std::sqrt(v[i]));
 }
 
 
