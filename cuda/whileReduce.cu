@@ -2,9 +2,10 @@
 #include<cassert>
 __global__ void doit() {
 
-  auto nt = blockDim.x/2;
-  __shared__ int x[1024];
+  auto nt = blockDim.x;
+  __shared__ int x[2048];
   x[threadIdx.x]=1;
+  x[threadIdx.x+nt]=1;
   __syncthreads();
 
   int nl=0;
