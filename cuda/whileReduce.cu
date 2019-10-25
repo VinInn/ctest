@@ -8,7 +8,7 @@ __global__ void doit() {
   __syncthreads();
 
   int nl=0;
-  while (__syncthreads_or(threadIdx.x<nt)) {
+  while (__syncthreads_and(nt)) {
    if(threadIdx.x>=nt) continue;
    ++nl;
    x[threadIdx.x]+=x[threadIdx.x+nt];
