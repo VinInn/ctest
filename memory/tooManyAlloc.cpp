@@ -1,17 +1,17 @@
 #include<vector>
 #include<algorithm>
 #include<iostream>
-namespace {
-  int nm = 0;
-  int nma = 0;
-  int ns = 0;
-  int nis = 0;
-  int nd=0;
-  int nc=0;
-  int na=0;
-}
 
-void zero () {
+struct Count {
+  long long nm = 0;
+  long long nma = 0;
+  long long ns = 0;
+  long long nis = 0;
+  long long nd=0;
+  long long nc=0;
+  long long na=0;
+
+  void zero () {
   nm = 0;
   nma = 0;
   ns = 0;
@@ -19,29 +19,72 @@ void zero () {
   nd=0;
   nc=0;
   na=0;
+  }
 
-}
 
+  void print() const {
+    std::cout << "number of def constr " << nd << std::endl;
+    std::cout << "number of swaps " << ns << " " << nis << std::endl;
+    std::cout << "number of copy " << nc << " " << na << std::endl;
+    std::cout << "number of move " << nm << " " << nma  << std::endl;
+  }
+
+};
+
+
+   Count ca;
+   Count cb;
 
 //
 // there is a bug....
 //
 
+struct B {
+
+  B() : i(0) {++cb.nd;}
+  B(int ii) : i(ii) {}
+  B(const B& a) : i(a.i) {++cb.nc;}
+  B(const B&& a) noexcept : i(a.i) {++cb.nm;}
+  B& operator=(B const & a) {
+    i=a.i;
+    ++cb.na;
+    return *this;
+  }
+
+  B& operator=(B && a) noexcept {
+    i=a.i;
+    ++cb.nma;
+    return *this;
+  }
+
+
+  inline void swap(B&a) {
+    std::swap(i,a.i);
+    ++cb.ns;
+  }
+
+  int i;
+};
+
+
+//
+// there is a SERIOUS bug....
+//
 struct A {
   
-  A() : i(0), v(10000){++nd;}
+  A() : i(0), v(10000){++ca.nd;}
   explicit A(int ii, int s=10000) : i(ii), v(s){}
-  A(const A& a) : i(a.i), v(a.v) {++nc;}
-  A(const A&& a) noexcept : i(a.i), v(std::move(a.v)) {++nm;}
+  A(const A& a) : i(a.i), v(a.v) {++ca.nc;}
+  A(const A&& a) noexcept : i(a.i), v(std::move(a.v)) {++ca.nm;}
   A& operator=(A const & a) {
     i=a.i; v=a.v; 
-    ++na;
+    ++ca.na;
     return *this;
   }
 
   A& operator=(A && a) noexcept {
     i=a.i; v=std::move(a.v);
-    ++nma;
+    ++ca.nma;
     return *this;
   }
 
@@ -49,11 +92,11 @@ struct A {
   inline void swap(A&a) {
     std::swap(i,a.i);
     v.swap(a.v);
-    ++ns;
+    ++ca.ns;
   }
 
   int i;
-  std::vector<int> v;
+  std::vector<B> v;
 };
 
 inline bool operator<(A const& rh, A const& lh) {
@@ -75,10 +118,11 @@ int main() {
     std::cout << "oops" << std::endl;    
   }
 
+  std::cout << "stat for A" << std::endl;
   std::cout << "size " << a.size() << std::endl;
-  std::cout << "number of swaps " << ns << " " << nis << std::endl;
-  std::cout << "number of copy " << nc << " " << na << " " << nd << std::endl;
-  std::cout << "number of move " << nm << " " << nma  << std::endl;
+  ca.print();
+  std::cout << "stat for B" << std::endl;
+  cb.print();
 
   return 0;
 
