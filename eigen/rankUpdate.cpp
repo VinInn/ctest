@@ -66,9 +66,9 @@ int main() {
  std::cout << lu.rankUpdate(v2,1).matrixLLT() << std::endl << std::endl;
 
 
- std::cout << "now zero 2 and swap" << std::endl;
- m.col(2).setZero();
- m.row(2).setZero();
+ std::cout << "now  swap" << std::endl;
+ // m.col(2).setZero();
+ // m.row(2).setZero();
  m.col(2).swap(m.col(3));
  m.row(2).swap(m.row(3));
  m.col(4).swap(m.col(3));
