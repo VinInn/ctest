@@ -1,2 +1,2 @@
-c++  -Ofast  -g -mfma -mavx2 $1 -I/afs/cern.ch/user/i/innocent/eigen/ -Wno-enum-compare
+c++  -Wall -Ofast  -g -mfma -mavx2 $1 -I/afs/cern.ch/user/i/innocent/eigen/ -Wno-enum-compare
 # -I/data/vin/cmssw/slc7_amd64_gcc700/external/eigen/1f44b667dd9aeeb153284b15fc7fe159d2c09329-patatrack/include/eigen3 $1 \
