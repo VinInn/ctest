@@ -61,8 +61,8 @@ constexpr void choleskyShiftDown(M& r,int k, int l) {
         auto i = l - ii;
         assert(i>0);
         assert(j>=i);
-        t = c[ii]*r(j,i-1) + s[ii]*r(j,i);
-        r(j,i) = c[ii]*r(j,i) - s[ii]*r(j,i-1);
+        t = -c[ii]*r(j,i-1) - s[ii]*r(j,i);
+        r(j,i) = -c[ii]*r(j,i) + s[ii]*r(j,i-1);
         r(j,i-1) = t;
      }
    }
