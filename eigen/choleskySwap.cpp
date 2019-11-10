@@ -68,6 +68,16 @@ for (int im=0; im<100; ++im) {
    -2.0358e-05, -2.25869e-05,  7.16527e-05, -6.50032e-06,   3.2623e-06,  0.000292254,  0.000387729, -2.89142e-05,
    -3.09587e-05,  2.62186e-05,  5.80385e-05, -1.52493e-05, -8.04242e-06,  0.000387729,  0.000775488,  -4.7374e-05,
     6.5016e-05,  1.17919e-05, -9.67691e-06, -4.20482e-06, -6.16502e-06, -2.89142e-05,  -4.7374e-05,   0.00014075;
+ } else if (im==40) {
+    om <<
+ 8.29042e-06,  3.30608e-06,  6.29528-07,  1.66786e-07, -5.23755e-08, -1.12201e-07, -2.04543e-07, -2.84626e-07,
+ 3.30608e-06,  1.09074e-05,  3.28107e-06,   9.3326e-07,   1.3443e-07, -8.67955e-08, -2.56688e-07, -3.57188e-07,
+ 6.29528e-07,  3.28107e-06,  1.09091e-05,  5.08012e-06,  1.06032e-06,  -1.9255e-08, -1.72311e-07, -3.86656e-07,
+ 1.66786e-07,   9.3326e-07,  5.08012e-06,  1.65243e-05,  6.07789e-06,  1.57804e-07, -9.33208e-08, -2.61259e-07,
+-5.23755e-08,   1.3443e-07,  1.06032e-06,  6.07789e-06,  1.81996e-05,  1.27573e-06,  3.84391e-07,  2.37103e-08,
+-1.12201e-07, -8.67955e-08,  -1.9255e-08,  1.57804e-07,  1.27573e-06,  4.30836e-06,  2.48321e-06,  1.16214e-06,
+-2.04543e-07, -2.56688e-07, -1.72311e-07, -9.33208e-08,  3.84391e-07,  2.48321e-06,  8.66693e-06,  5.43413e-06,
+-2.84626e-07, -3.57188e-07, -3.86656e-07, -2.61259e-07,  2.37103e-08,  1.16214e-06,  5.43413e-06,  1.68775e-05;
  } else
    genMatrix(om);
 
@@ -75,6 +85,10 @@ for (int im=0; im<100; ++im) {
  if(im==4) std::cout << om << std::endl << std::endl;
 
  auto lu = om.llt();
+ if (lu.info() != Eigen::Success) {
+    std::cout << "numerical problem in first lu for " << im << std::endl;
+    continue;
+ }
 
  auto ori = lu.matrixLLT(); // a copy
  if(im==4) std::cout << ori << std::endl << std::endl;
@@ -83,7 +97,7 @@ for (int im=0; im<100; ++im) {
  for (int l=k+1; l<p; ++l) {
  auto m = om;
  if(im==4&&k==2&&l==4) std::cout << "shift up" << std::endl;
- auto & ru = const_cast<MXN<RANK>&>(lu.matrixLLT());
+ auto ru = const_cast<MXN<RANK>&>(lu.matrixLLT());
  choleskyShiftUp(ru,k,l); 
  if(im==4&&k==2&&l==4) std::cout << ru << std::endl << std::endl;
 
@@ -96,6 +110,11 @@ for (int im=0; im<100; ++im) {
 
  if(im==4&&k==2&&l==4) std::cout << m << std::endl << std::endl;
  auto lus = m.llt();
+ if (lus.info() != Eigen::Success) {
+    std::cout << "numerical problem in "<< k << ' ' << l << " lu for " << im << std::endl;
+    continue;
+ }
+
  if(im==4&&k==2&&l==4) std::cout << lus.matrixLLT() << std::endl << std::endl;
 
   auto & r = const_cast<MXN<RANK>&>(lus.matrixLLT());
