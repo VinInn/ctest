@@ -26,7 +26,7 @@ constexpr void choleskyShiftDown(M& r,int k, int l) {
   assert(l>k);
 
   using T = typename M::Scalar;
-  int p = r.rows();
+  constexpr int p = M::RowsAtCompileTime;
   
   // we assume r to be lower triangular
 
@@ -59,8 +59,8 @@ constexpr void choleskyShiftDown(M& r,int k, int l) {
      auto il = std::max(0,l-j);
      for (int ii = il; ii<lmk; ++ii) {
         auto i = l - ii;
-        assert(i>0);
-        assert(j>=i);
+        // assert(i>0);
+        // assert(j>=i);
         t =  c[ii]*r(j,i-1) + s[ii]*r(j,i);
         r(j,i) = -c[ii]*r(j,i) + s[ii]*r(j,i-1);
         r(j,i-1) = t;
@@ -79,7 +79,7 @@ constexpr void choleskyShiftUp(M& r,int k, int l) {
   assert(l>k);
 
   using T = typename M::Scalar;
-  int p = r.rows();
+  constexpr int p = M::RowsAtCompileTime;
 
   // we assume r to be lower triangular
 
@@ -114,8 +114,8 @@ constexpr void choleskyShiftUp(M& r,int k, int l) {
         auto iu = std::min(j,l);
         for (int i=k; i<iu; ++i) {
           auto ii = i - k;
-          assert(ii<j-k);
-          assert(j>=i+1);
+          // assert(ii<j-k);
+          // assert(j>=i+1);
           auto t = c[ii]*r(j,i) + s[ii]*r(j,i+1);
           r(j,i+1) = -c[ii]*r(j,i+1) + s[ii]*r(j,i);
           r(j,i) = t;

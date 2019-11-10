@@ -13,6 +13,10 @@
 #include<iostream>
 #include<limits>
 
+#include <vector>
+#include <array>
+
+
 
 #include "choleskyShift.h"
 
@@ -55,6 +59,11 @@ int main() {
 
  constexpr int RANK=8;
 
+ auto start = std::chrono::high_resolution_clock::now();
+ auto delta1 = start - start;
+ auto delta2 = delta1;
+ auto delta3 = delta1;
+ long long n1=0, n2=0, n3=0;
 
 for (int im=0; im<100; ++im) {
  MXN<RANK> om;
@@ -98,7 +107,10 @@ for (int im=0; im<100; ++im) {
  auto m = om;
  if(im==4&&k==2&&l==4) std::cout << "shift up" << std::endl;
  auto ru = const_cast<MXN<RANK>&>(lu.matrixLLT());
+ delta2 -= (std::chrono::high_resolution_clock::now() -start);
  choleskyShiftUp(ru,k,l); 
+ delta2 += (std::chrono::high_resolution_clock::now() -start);
+ n2++;
  if(im==4&&k==2&&l==4) std::cout << ru << std::endl << std::endl;
 
  if(im==4&&k==2&&l==4) std::cout << "now  shift" << std::endl;
@@ -109,7 +121,10 @@ for (int im=0; im<100; ++im) {
  }
 
  if(im==4&&k==2&&l==4) std::cout << m << std::endl << std::endl;
- auto lus = m.llt();
+   delta1 -= (std::chrono::high_resolution_clock::now() -start);
+   auto lus = m.llt();
+   delta1 += (std::chrono::high_resolution_clock::now() -start);
+   n1++;
  if (lus.info() != Eigen::Success) {
     std::cout << "numerical problem in "<< k << ' ' << l << " lu for " << im << std::endl;
     continue;
@@ -134,7 +149,10 @@ for (int im=0; im<100; ++im) {
   }
 
  if(im==4&&k==2&&l==4) std::cout << "shift down" <<    std::endl;
+ delta3 -= (std::chrono::high_resolution_clock::now() -start);
  choleskyShiftDown(ru,k,l);
+ delta3 += (std::chrono::high_resolution_clock::now() -start);
+ n3++;
  if(im==4&&k==2&&l==4) std::cout << ru << std::endl << std::endl;
 
  if (ok) {
@@ -160,6 +178,11 @@ for (int im=0; im<100; ++im) {
 
 }} // loops on k&l  
 } // loop on 100 matrices
+
+  std::cout << "llt  "  << std::chrono::duration_cast<std::chrono::nanoseconds>(delta1).count()/double(n1) << std::endl; 
+  std::cout << "up   "  << std::chrono::duration_cast<std::chrono::nanoseconds>(delta2).count()/double(n2) << std::endl;
+  std::cout << "down "  << std::chrono::duration_cast<std::chrono::nanoseconds>(delta3).count()/double(n3) << std::endl;
+
   return 0;
 }
 
