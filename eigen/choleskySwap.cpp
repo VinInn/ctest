@@ -139,7 +139,7 @@ for (int im=0; im<100; ++im) {
     auto d = (r-ru).eval();
     for (int j=0;j<p; ++j)
     for (int i=0;i<=j; ++i)
-       ok&=std::abs(d(j,i))<0.001;
+       ok&=std::abs(d(j,i)/r(j,i))<0.001;
     if(!ok) {
       std::cout << "mess in shift up " << im << ' ' << k << ' ' << l << std::endl;
       std::cout << r << std::endl<< std::endl;
@@ -159,7 +159,7 @@ for (int im=0; im<100; ++im) {
     auto d = (ori-ru).eval();
     for (int j=0;j<p; ++j)
     for (int i=0;i<=j; ++i)
-       ok&=std::abs(d(j,i))<0.001;
+       ok&=std::abs(d(j,i)/ori(j,i))<0.001;
     if(!ok) { 
       std::cout << "mess in shift down " << im << ' ' << k << ' ' << l << std::endl;
       std::cout << ori << std::endl<< std::endl;
