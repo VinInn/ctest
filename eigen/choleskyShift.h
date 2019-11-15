@@ -26,7 +26,8 @@ constexpr void choleskyShiftDown(M& r,int k, int l) {
   assert(l>k);
 
   using T = typename M::Scalar;
-  constexpr int p = M::RowsAtCompileTime;
+  // constexpr int p = M::RowsAtCompileTime;
+  int p = r.rows();
   
   // we assume r to be lower triangular
 
@@ -79,7 +80,8 @@ constexpr void choleskyShiftUp(M& r,int k, int l) {
   assert(l>k);
 
   using T = typename M::Scalar;
-  constexpr int p = M::RowsAtCompileTime;
+  //constexpr int p = M::RowsAtCompileTime;
+  int p = r.rows();
 
   // we assume r to be lower triangular
 

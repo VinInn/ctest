@@ -19,6 +19,7 @@
 
 
 #include "choleskyShift.h"
+#include "choleskyLLT.h"
 
 using DynStride = Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>;
 constexpr int stride() { return 5*1024;}
@@ -28,6 +29,8 @@ template<int DIM>
 using MapMX = Eigen::Map<MXN<DIM>, 0, Eigen::Stride<DIM*stride(),stride()> >;
 template<int DIM>
 using DynMapMX = Eigen::Map<MXN<DIM>, 0, DynStride >;
+template<int DIM>
+using MDN = Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic, 0, DIM,DIM>;
 
 
 // generate matrices
@@ -77,7 +80,7 @@ for (int im=0; im<100; ++im) {
    -2.0358e-05, -2.25869e-05,  7.16527e-05, -6.50032e-06,   3.2623e-06,  0.000292254,  0.000387729, -2.89142e-05,
    -3.09587e-05,  2.62186e-05,  5.80385e-05, -1.52493e-05, -8.04242e-06,  0.000387729,  0.000775488,  -4.7374e-05,
     6.5016e-05,  1.17919e-05, -9.67691e-06, -4.20482e-06, -6.16502e-06, -2.89142e-05,  -4.7374e-05,   0.00014075;
- } else if (im==40) {
+ } else if (im==400) {
     om <<
  8.29042e-06,  3.30608e-06,  6.29528-07,  1.66786e-07, -5.23755e-08, -1.12201e-07, -2.04543e-07, -2.84626e-07,
  3.30608e-06,  1.09074e-05,  3.28107e-06,   9.3326e-07,   1.3443e-07, -8.67955e-08, -2.56688e-07, -3.57188e-07,
@@ -99,19 +102,29 @@ for (int im=0; im<100; ++im) {
     continue;
  }
 
- auto ori = lu.matrixLLT(); // a copy
- if(im==4) std::cout << ori << std::endl << std::endl;
+ auto ldlt = om;
+ choleskyLLT(ldlt,ldlt.rows());
+
+ auto ori = ldlt; // a copy
+ if(im==4) std::cout << "ldlt\n"<< ori << std::endl << std::endl;
 
  for (int k=0; k<p-1; ++k) {
  for (int l=k+1; l<p; ++l) {
  auto m = om;
+
+ /*
+ choleskyShiftUp(ldlt,k,l);
+ if(im==4&&k==2&&l==4) std::cout << "ldlt up\n" << ldlt << std::endl << std::endl;
+ choleskyShiftDown(ldlt,k,l);
+ if(im==4&&k==2&&l==4) std::cout << "ldlt down\n" << ldlt << std::endl << std::endl;
+ */
+
  if(im==4&&k==2&&l==4) std::cout << "shift up" << std::endl;
- auto ru = const_cast<MXN<RANK>&>(lu.matrixLLT());
  delta2 -= (std::chrono::high_resolution_clock::now() -start);
- choleskyShiftUp(ru,k,l); 
+ choleskyShiftUp(ldlt,k,l); 
  delta2 += (std::chrono::high_resolution_clock::now() -start);
  n2++;
- if(im==4&&k==2&&l==4) std::cout << ru << std::endl << std::endl;
+ if(im==4&&k==2&&l==4) std::cout << ldlt << std::endl << std::endl;
 
  if(im==4&&k==2&&l==4) std::cout << "now  shift" << std::endl;
  
@@ -119,51 +132,50 @@ for (int im=0; im<100; ++im) {
    m.col(i).swap(m.col(i+1));
    m.row(i).swap(m.row(i+1));
  }
+ auto r = m;
 
  if(im==4&&k==2&&l==4) std::cout << m << std::endl << std::endl;
    delta1 -= (std::chrono::high_resolution_clock::now() -start);
-   auto lus = m.llt();
+   choleskyLLT(r,r.rows());
    delta1 += (std::chrono::high_resolution_clock::now() -start);
    n1++;
- if (lus.info() != Eigen::Success) {
-    std::cout << "numerical problem in "<< k << ' ' << l << " lu for " << im << std::endl;
-    continue;
- }
 
- if(im==4&&k==2&&l==4) std::cout << lus.matrixLLT() << std::endl << std::endl;
+ if(im==4&&k==2&&l==4) std::cout << r << std::endl << std::endl;
 
-  auto & r = const_cast<MXN<RANK>&>(lus.matrixLLT());
 
    bool ok=true;
   {
-    auto d = (r-ru).eval();
+    auto d = (r-ldlt).eval();
     for (int j=0;j<p; ++j)
     for (int i=0;i<=j; ++i)
        ok&=std::abs(d(j,i)/r(j,i))<0.001;
     if(!ok) {
       std::cout << "mess in shift up " << im << ' ' << k << ' ' << l << std::endl;
       std::cout << r << std::endl<< std::endl;
-      std::cout << ru << std::endl<< std::endl;
+      std::cout << ldlt << std::endl<< std::endl;
+      std::cout << ori << std::endl<< std::endl;
+      std::cout << lu.matrixLLT() << std::endl<< std::endl;
+      std::cout << om << std::endl<< std::endl;
       abort();
     }
   }
 
  if(im==4&&k==2&&l==4) std::cout << "shift down" <<    std::endl;
  delta3 -= (std::chrono::high_resolution_clock::now() -start);
- choleskyShiftDown(ru,k,l);
+ choleskyShiftDown(ldlt,k,l);
  delta3 += (std::chrono::high_resolution_clock::now() -start);
  n3++;
- if(im==4&&k==2&&l==4) std::cout << ru << std::endl << std::endl;
+ if(im==4&&k==2&&l==4) std::cout << ldlt << std::endl << std::endl;
 
  if (ok) {
-    auto d = (ori-ru).eval();
+    auto d = (ori-ldlt).eval();
     for (int j=0;j<p; ++j)
     for (int i=0;i<=j; ++i)
        ok&=std::abs(d(j,i)/ori(j,i))<0.001;
     if(!ok) { 
       std::cout << "mess in shift down " << im << ' ' << k << ' ' << l << std::endl;
       std::cout << ori << std::endl<< std::endl;
-      std::cout << ru << std::endl<< std::endl;
+      std::cout << ldlt << std::endl<< std::endl;
       abort();
     }
   }
@@ -173,13 +185,13 @@ for (int im=0; im<100; ++im) {
   r(0,0) = 45;
   std::cout << r(0,0) << std::endl;
   std::cout << r(1,0) << std::endl;
-  std::cout << lus.matrixLLT() << std::endl << std::endl;
+  std::cout << r << std::endl << std::endl;
   }
 
 }} // loops on k&l  
 } // loop on 100 matrices
 
-  std::cout << "llt  "  << std::chrono::duration_cast<std::chrono::nanoseconds>(delta1).count()/double(n1) << std::endl; 
+  std::cout << "ldlt  "  << std::chrono::duration_cast<std::chrono::nanoseconds>(delta1).count()/double(n1) << std::endl; 
   std::cout << "up   "  << std::chrono::duration_cast<std::chrono::nanoseconds>(delta2).count()/double(n2) << std::endl;
   std::cout << "down "  << std::chrono::duration_cast<std::chrono::nanoseconds>(delta3).count()/double(n3) << std::endl;
 
