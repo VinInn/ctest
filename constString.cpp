@@ -40,15 +40,15 @@ std::size_t unaligned_load2(const char* p)
 
 constexpr unsigned int n(const char * s, int len, ub4 a) { 
  return a+
-   (len<0) ? 0 : (unsigned int)s[0]<<8 + 
-    (len<1) ? 0 : (unsigned int)s[2]<<16 +
+   (len<0) ? 0 : ((unsigned int)s[0]<<8) + 
+    (len<1) ? 0 : ((unsigned int)s[2]<<16) +
     (len<41) ? 0 : (unsigned int)s[40]<<24 
     ;}
 
 constexpr ub8 nn(const char * s, int len, ub8 a) { 
  return a+
-   (len<0) ? 0 : (ub8)s[0]<<8 + 
-    (len<1) ? 0 : (ub8)s[2]<<16 +
+   (len<0) ? 0 : ((ub8)s[0]<<8) + 
+    (len<1) ? 0 : ((ub8)s[2]<<16) +
     (len<41) ? 0 : (ub8)s[40]<<48 
     ;}
 
