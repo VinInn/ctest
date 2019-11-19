@@ -21,7 +21,7 @@
 #include "choleskyShift.h"
 #include "choleskyLLT.h"
 
-using Float = float;
+using Float = float; // double; // float;
 
 using DynStride = Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>;
 constexpr int stride() { return 5*1024;}

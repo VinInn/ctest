@@ -1,3 +1,3 @@
-c++  -O3 -Wall -g -march=native $1 -I/Users/innocent/eigen-git-mirror -Wno-enum-compare -DEIGEN_NO_DEBUG
-#c++  -Ofast -mrecip -Wall -g -march=native $1 -I/Users/innocent/eigen-git-mirror -Wno-enum-compare -DEIGEN_NO_DEBUG
+#c++  -O3 -Wall -g -march=native $1 -I/Users/innocent/eigen-git-mirror -Wno-enum-compare -DEIGEN_NO_DEBUG
+c++  -Ofast -mrecip -Wall -g -march=native $1 -I/Users/innocent/eigen-git-mirror -Wno-enum-compare -DEIGEN_NO_DEBUG
 
