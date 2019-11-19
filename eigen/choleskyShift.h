@@ -1,5 +1,7 @@
 #include<cmath>
 
+#define FAST
+
 template<typename T>
 constexpr void rotg(T& sa, T& sb, T& c, T& s) {
 
@@ -7,8 +9,14 @@ constexpr void rotg(T& sa, T& sb, T& c, T& s) {
   // adapted from blas (simplified, assume no zero in input)
 
   auto roe = (std::abs(sa) > std::abs(sb)) ? sa : sb;
-  auto r = std::copysign(std::sqrt(sa*sa + sb*sb),roe);
+  auto r = sa*sa + sb*sb;
+#ifdef FAST
+  auto ir = std::copysign(T(1)/std::sqrt(r),roe);
+  r *= ir;
+#else
+  r = std::copysign(std::sqrt(r),roe);
   auto ir = T(1)/r;
+#endif
   c = sa*ir;
   s = sb*ir;
   auto z = (std::abs(sa) > std::abs(sb)) ? s : T(1)/c;

@@ -21,16 +21,18 @@
 #include "choleskyShift.h"
 #include "choleskyLLT.h"
 
+using Float = float;
+
 using DynStride = Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>;
 constexpr int stride() { return 5*1024;}
 template<int DIM>
-using MXN = Eigen::Matrix<double,DIM,DIM>;
+using MXN = Eigen::Matrix<Float,DIM,DIM>;
 template<int DIM>
 using MapMX = Eigen::Map<MXN<DIM>, 0, Eigen::Stride<DIM*stride(),stride()> >;
 template<int DIM>
 using DynMapMX = Eigen::Map<MXN<DIM>, 0, DynStride >;
 template<int DIM>
-using MDN = Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic, 0, DIM,DIM>;
+using MDN = Eigen::Matrix<Float,Eigen::Dynamic,Eigen::Dynamic, 0, DIM,DIM>;
 
 
 // generate matrices
@@ -44,12 +46,12 @@ void genMatrix(M  & m ) {
 
   // generate first diagonal elemets
   for (int i = 0; i < n; ++i) {
-    double maxVal = i*10000/(n-1) + 1;  // max condition is 10^4
+    Float maxVal = i*10000/(n-1) + 1;  // max condition is 10^4
     m(i,i) = maxVal*rgen(eng);
   }
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < i; ++j) {
-      double v = 0.3*std::sqrt( m(i,i) * m(j,j) ); // this makes the matrix pos defined
+      Float v = 0.3*std::sqrt( m(i,i) * m(j,j) ); // this makes the matrix pos defined
       m(i,j) = v*rgen(eng);
       m(j,i) = m(i,j);
     }
@@ -70,7 +72,7 @@ int main() {
 
 for (int im=0; im<100; ++im) {
  MXN<RANK> om;
- if (im==4) {
+ if (im==4000) {
    om <<
    7.06342e-05,  2.40066e-05, -6.30805e-06, -3.05303e-06, -4.46876e-06,  -2.0358e-05, -3.09587e-05,   6.5016e-05,
    2.40066e-05,  0.000154432, -6.36697e-06, -5.33037e-06, -4.85508e-06, -2.25869e-05,  2.62186e-05,  1.17919e-05,
