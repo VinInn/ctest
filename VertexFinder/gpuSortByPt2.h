@@ -27,8 +27,8 @@ namespace gpuVertexFinder {
     float* __restrict__ ptv2 = data.ptv2;
     uint16_t* __restrict__ sortInd = data.sortInd;
 
-    // if (threadIdx.x == 0)
-    //    printf("sorting %d vertices\n",nvFinal);
+    if (threadIdx.x == 0)
+        printf("sorting %d vertices for %d tracks\n",nvFinal,nt);
 
     if (nvFinal < 1)
       return;

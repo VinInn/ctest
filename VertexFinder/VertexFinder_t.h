@@ -125,7 +125,7 @@ int main() {
       ::memcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) * ev.ztrack.size());
       ::memcpy(LOC_WS(ezt2), ev.eztrack.data(), sizeof(float) * ev.eztrack.size());
       ::memcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) * ev.eztrack.size());
-      for (int i=0; i<nt; ++i) onGPU_d->idv[i] = -1;  // FIXME do the same on GPU....
+      for (int16_t i=0; i<nt; ++i) {  ws_d->itrk[i]=i; onGPU_d->idv[i] = -1;}  // FIXME do the same on GPU....
 #endif
 
       std::cout << "M eps, pset " << kk << ' ' << eps << ' ' << (iii % 4) << std::endl;
@@ -324,31 +324,45 @@ int main() {
       // matching-merging metrics
       struct Match { Match() {for (auto&e:vid)e=-1; for (auto&e:nt)e=0;} std::array<int,8> vid; std::array<int,8> nt; };
 
+      auto nnn=0;
       Match matches[nv]; for (auto kv = 0U; kv < nv; ++kv) { matches[kv] =  Match();}  
       for (int it=0; it<nt; ++it) {
         auto const iv = idv[it];
         if (iv>9990) continue;
         assert(iv<int(nv));
-        assert(iv>-2);
         if (iv<0) continue;
         auto const tiv = ev.ivert[it];
-        if (tiv<0) continue;
+        if (tiv>9990) continue;
+        assert(tiv>=0);
+        ++nnn;
         for (int i=0; i<8; ++i) { 
           if (matches[iv].vid[i]<0) { matches[iv].vid[i]=tiv; matches[iv].nt[i]=1; break;}
           else if (tiv==matches[iv].vid[i]) { ++(matches[iv].nt[i]); break;}
         }
       }
    
-      float frac[nv];   
+      float frac[nv];
+      int nok=0; int merged=0;
       for (auto kv = 0U; kv < nv; ++kv) {
         auto mx = std::max_element(matches[kv].nt.begin(),matches[kv].nt.end())-matches[kv].nt.begin();
         assert(mx>=0 && mx<8);
+        if (0==matches[kv].nt[mx]) std::cout <<"????? " << kv << ' ' << matches[kv].vid[mx] << ' ' << matches[kv].vid[0] << std::endl;
         auto tv = matches[kv].vid[mx];
         frac[kv] = tv<0 ? 0.f : float(matches[kv].nt[mx])/float(ev.itrack[tv]);
-        if (frac[kv]>0.9f) std::cout << "frac " << kv << ' ' << tv << ' ' << matches[kv].nt[mx] << ' ' << ev.itrack[tv] << std::endl;
         assert(frac[kv]<1.1f);
+        if (frac[kv]>0.75f) ++nok;
+        int nm=0;
+        for (int i=0; i<8; ++i) {
+          auto tv = matches[kv].vid[mx];
+          float f = tv<0 ? 0.f : float(matches[kv].nt[i])/float(ev.itrack[tv]);
+          if (f>0.75f) ++nm;
+        }
+        if (nm>1) ++merged;
       }
-      
+      // for (auto f: frac) std::cout << f << ' ';
+      // std::cout << std::endl;
+      std::cout << "matched/merged " << nok << '/' << merged << std::endl;      
+
 
     }  // loop on events
   }    // lopp on ave vert
