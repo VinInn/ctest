@@ -41,8 +41,8 @@ struct ClusterGenerator {
     ev.eztrack.clear();
     ev.ivert.clear();
     for (int iv = 0; iv < nclus; ++iv) {
-      auto nt = trackGen(reng);
-      ev.itrack[nclus] = nt;
+      auto nt = 2 + trackGen(reng); // avoid zeros
+      ev.itrack[iv] = nt;
       for (int it = 0; it < nt; ++it) {
         auto err = errgen(reng);  // reality is not flat....
         ev.ztrack.push_back(ev.zvert[iv] + err * gauss(reng));
@@ -125,6 +125,7 @@ int main() {
       ::memcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) * ev.ztrack.size());
       ::memcpy(LOC_WS(ezt2), ev.eztrack.data(), sizeof(float) * ev.eztrack.size());
       ::memcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) * ev.eztrack.size());
+      for (int i=0; i<nt; ++i) onGPU_d->idv[i] = -1;  // FIXME do the same on GPU....
 #endif
 
       std::cout << "M eps, pset " << kk << ' ' << eps << ' ' << (iii % 4) << std::endl;
@@ -323,9 +324,12 @@ int main() {
       // matching-merging metrics
       struct Match { Match() {for (auto&e:vid)e=-1; for (auto&e:nt)e=0;} std::array<int,8> vid; std::array<int,8> nt; };
 
-      Match matches[nv];
+      Match matches[nv]; for (auto kv = 0U; kv < nv; ++kv) { matches[kv] =  Match();}  
       for (int it=0; it<nt; ++it) {
         auto const iv = idv[it];
+        if (iv>9990) continue;
+        assert(iv<int(nv));
+        assert(iv>-2);
         if (iv<0) continue;
         auto const tiv = ev.ivert[it];
         if (tiv<0) continue;
@@ -341,6 +345,7 @@ int main() {
         assert(mx>=0 && mx<8);
         auto tv = matches[kv].vid[mx];
         frac[kv] = tv<0 ? 0.f : float(matches[kv].nt[mx])/float(ev.itrack[tv]);
+        if (frac[kv]>0.9f) std::cout << "frac " << kv << ' ' << tv << ' ' << matches[kv].nt[mx] << ' ' << ev.itrack[tv] << std::endl;
         assert(frac[kv]<1.1f);
       }
       
