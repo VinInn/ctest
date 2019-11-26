@@ -4,8 +4,8 @@
 #include <cstdint>
 
 
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
+#include "cudaCompat.h"
+#include "cuda_assert.h"
 
 
 #ifdef __CUDA_ARCH__
@@ -126,41 +126,45 @@ blockPrefixScan(T * c, uint32_t size, T* ws
 #endif
 }
 
-
 // limited to 1024*1024 elements....
-template<typename T>
-__global__
-void
-multiBlockPrefixScan(T const * __restrict__ ci, T * __restrict__ co, int32_t size, int32_t * pc) {
+template <typename T>
+__global__ void multiBlockPrefixScan(T const* __restrict__ ci, T* __restrict__ co, int32_t size, int32_t* pc) {
+  __shared__ T ws[32];
+  // first each block does a scan of size 1024; (better be enough blocks....)
+  assert(1024 * gridDim.x >= size);
+  int off = 1024 * blockIdx.x;
+  if (size - off > 0)
+    blockPrefixScan(ci + off, co + off, std::min(1024, size - off), ws);
 
-   __shared__ T ws[32];
-   // first each block does a scan of size 1024;
-  int off = 1024*blockIdx.x; 
-  if (size-off >0) blockPrefixScan(ci+off,co+off,std::min(1024,size-off),ws);
+  // count blocks that finished
+  __shared__ bool isLastBlockDone;
+  if (0 == threadIdx.x) {
+    auto value = atomicAdd(pc, 1);  // block counter
+    isLastBlockDone = (value == (int(gridDim.x) - 1));
+  }
 
-  if (0==threadIdx.x) atomicAdd(pc,1);  // block counter
-   if (blockIdx.x>0) return;
+  __syncthreads();
 
-   if (0==threadIdx.x) while((*c)<gridDim.x) {}
-   __syncthreads();
- 
-   // good each block has done its work and now we are left in block 0
+  if (!isLastBlockDone)
+    return;
 
-   // let's get the partial sums from each block
-   __shared__ T psum[1024];
-   for (int i=threadIdx.x; i<gridDim.x; i+=blockDim.x) {
-     auto j = 1024*i+1023;
-     psum[i] = (j<size) ? co[j] : 0;
-   }
-   __syncthreads();
-   blockPrefixScan(psum,psum,gridDim.x,ws);
-   
-   // now it would have been handy to have the other block around...
-   for (int i=first+1024; i<size; i+=blockDim.x) {
-       auto k = i/1024; // block
-       co[i]+=psum[k-1];     
-   }
+  // good each block has done its work and now we are left in last block
 
+  // let's get the partial sums from each block
+  __shared__ T psum[1024];
+  for (int i = threadIdx.x, ni = gridDim.x; i < ni; i += blockDim.x) {
+    auto j = 1024 * i + 1023;
+    psum[i] = (j < size) ? co[j] : T(0);
+  }
+  __syncthreads();
+  blockPrefixScan(psum, psum, gridDim.x, ws);
+
+  // now it would have been handy to have the other blocks around...
+  int first = threadIdx.x;                                 // + blockDim.x * blockIdx.x
+  for (int i = first + 1024; i < size; i += blockDim.x) {  //  *gridDim.x) {
+    auto k = i / 1024;                                     // block
+    co[i] += psum[k - 1];
+  }
 }
 
 #endif

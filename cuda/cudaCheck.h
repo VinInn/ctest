@@ -2,8 +2,11 @@
 #define HeterogeneousCore_CUDAUtilities_cudaCheck_h
 
 #include <iostream>
+
+#ifdef __CUDACC__
 #include <cuda.h>
 #include <cuda_runtime.h>
+
 
 inline
 bool cudaCheck_(const char* file, int line, const char* cmd, CUresult result)
@@ -36,5 +39,7 @@ bool cudaCheck_(const char* file, int line, const char* cmd, cudaError_t result)
 }
 
 #define cudaCheck(ARG) (cudaCheck_(__FILE__, __LINE__, #ARG, (ARG)))
+
+#endif
 
 #endif // HeterogeneousCore_CUDAUtilities_cudaCheck_h

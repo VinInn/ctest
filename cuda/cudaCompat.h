@@ -15,7 +15,8 @@
 #include<algorithm>
 #include<cstring>
 
-#include "cuda_runtime.h"
+// uncomment in case cuda is included
+// #include "cuda_runtime.h"
 
 namespace cudaCompat {
 

@@ -7,6 +7,8 @@
 #include <cuda_runtime.h>
 #endif
 
+#include "cudaCompat.h"
+
 // reimplementation of std algorithms able to compile with CUDA and run on GPUs,
 // mostly by declaringthem constexpr
 

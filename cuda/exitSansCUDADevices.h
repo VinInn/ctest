@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <iostream>
 
+// if cuda is included remove ifdef
+#ifdef __CUDACC__
 #include <cuda_runtime.h>
 
 void exitSansCUDADevices() {
@@ -15,3 +17,9 @@ void exitSansCUDADevices() {
     exit(EXIT_SUCCESS);
   }
 }
+#else
+void exitSansCUDADevices(){ 
+    std::cerr << "No CUDA devices available, the test will be skipped." << "\n";
+    exit(EXIT_SUCCESS);
+}
+#endif

@@ -1,0 +1,1 @@
+c++ -Ofast -march=native -Wall ../cuda/cudaCompat.cc -I../cuda/ $1
