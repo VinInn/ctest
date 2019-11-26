@@ -342,7 +342,7 @@ int main() {
       }
    
       float frac[nv];
-      int nok=0; int merged=0;
+      int nok=0; int merged=0; int nmess=0;
       for (auto kv = 0U; kv < nv; ++kv) {
         auto mx = std::max_element(matches[kv].nt.begin(),matches[kv].nt.end())-matches[kv].nt.begin();
         assert(mx>=0 && mx<8);
@@ -351,6 +351,7 @@ int main() {
         frac[kv] = tv<0 ? 0.f : float(matches[kv].nt[mx])/float(ev.itrack[tv]);
         assert(frac[kv]<1.1f);
         if (frac[kv]>0.75f) ++nok;
+        if (frac[kv]<0.5f) ++nmess;
         int nm=0;
         for (int i=0; i<8; ++i) {
           auto tv = matches[kv].vid[mx];
@@ -361,7 +362,7 @@ int main() {
       }
       // for (auto f: frac) std::cout << f << ' ';
       // std::cout << std::endl;
-      std::cout << "matched/merged " << nok << '/' << merged << std::endl;      
+      std::cout << "matched/merged/random " << nok << '/' << merged  << '/' << nmess << std::endl;      
 
 
     }  // loop on events
