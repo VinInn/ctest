@@ -101,8 +101,8 @@ int main() {
   for (int nav = 30; nav < 80; nav += 20) {
     ClusterGenerator gen(nav, 10);
 
-    for (int i = 8; i < 20; ++i) {
-      auto kk = i / 4;  // M param
+    for (int iii = 8; iii < 20; ++iii) {
+      auto kk = iii / 4;  // M param
 
       gen(ev);
 
@@ -114,7 +114,7 @@ int main() {
 #endif
 
       std::cout << "v,t size " << ev.zvert.size() << ' ' << ev.ztrack.size() << std::endl;
-      auto nt = ev.ztrack.size();
+      int nt = ev.ztrack.size();
 #ifdef __CUDACC__
       cudaCheck(cudaMemcpy(LOC_WS(ntrks), &nt, sizeof(uint32_t), cudaMemcpyHostToDevice));
       cudaCheck(cudaMemcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
@@ -127,15 +127,15 @@ int main() {
       ::memcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) * ev.eztrack.size());
 #endif
 
-      std::cout << "M eps, pset " << kk << ' ' << eps << ' ' << (i % 4) << std::endl;
+      std::cout << "M eps, pset " << kk << ' ' << eps << ' ' << (iii % 4) << std::endl;
 
-      if ((i % 4) == 0)
+      if ((iii % 4) == 0)
         par = {{eps, 0.02f, 12.0f}};
-      if ((i % 4) == 1)
+      if ((iii % 4) == 1)
         par = {{eps, 0.02f, 9.0f}};
-      if ((i % 4) == 2)
+      if ((iii % 4) == 2)
         par = {{eps, 0.01f, 9.0f}};
-      if ((i % 4) == 3)
+      if ((iii % 4) == 3)
         par = {{0.7f * eps, 0.01f, 9.0f}};
 
       uint32_t nv = 0;
@@ -167,6 +167,7 @@ int main() {
         continue;
       }
 
+      int16_t * idv = nullptr;
       float* zv = nullptr;
       float* wv = nullptr;
       float* ptv2 = nullptr;
@@ -177,18 +178,21 @@ int main() {
       float chi2[2 * nv];  // make space for splitting...
 
 #ifdef __CUDACC__
+      int16_t hidv[nt];
       float hzv[2 * nv];
       float hwv[2 * nv];
       float hptv2[2 * nv];
       int32_t hnn[2 * nv];
       uint16_t hind[2 * nv];
 
+      idv = hidv;
       zv = hzv;
       wv = hwv;
       ptv2 = hptv2;
       nn = hnn;
       ind = hind;
 #else
+      idv = onGPU_d->idv;
       zv = onGPU_d->zv;
       wv = onGPU_d->wv;
       ptv2 = onGPU_d->ptv2;
@@ -264,6 +268,7 @@ int main() {
       }
 
 #ifdef __CUDACC__
+      cudaCheck(cudaMemcpy(idv, LOC_ONGPU(idv), nt * sizeof(int16_t), cudaMemcpyDeviceToHost));
       cudaCheck(cudaMemcpy(zv, LOC_ONGPU(zv), nv * sizeof(float), cudaMemcpyDeviceToHost));
       cudaCheck(cudaMemcpy(wv, LOC_ONGPU(wv), nv * sizeof(float), cudaMemcpyDeviceToHost));
       cudaCheck(cudaMemcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float), cudaMemcpyDeviceToHost));
@@ -291,6 +296,7 @@ int main() {
                   << ind[nv - 1] << std::endl;
       }
 
+      // ????? 
       float dd[nv];
       for (auto kv = 0U; kv < nv; ++kv) {
         auto zr = zv[kv];
@@ -301,7 +307,7 @@ int main() {
         }
         dd[kv] = md;
       }
-      if (i == 6) {
+      if (iii == 6) {
         for (auto d : dd)
           std::cout << d << ' ';
         std::cout << std::endl;
@@ -312,6 +318,32 @@ int main() {
         rms += d * d;
       rms = std::sqrt(rms) / (nv - 1);
       std::cout << "min max rms " << *mx.first << ' ' << *mx.second << ' ' << rms << std::endl;
+      // ????
+
+      // matching-merging metrics
+      struct Match { Match() {for (auto&e:vid)e=-1; for (auto&e:nt)e=0;} std::array<int,8> vid; std::array<int,8> nt; };
+
+      Match matches[nv];
+      for (int it=0; it<nt; ++it) {
+        auto const iv = idv[it];
+        if (iv<0) continue;
+        auto const tiv = ev.ivert[it];
+        if (tiv<0) continue;
+        for (int i=0; i<8; ++i) { 
+          if (matches[iv].vid[i]<0) { matches[iv].vid[i]=tiv; matches[iv].nt[i]=1; break;}
+          else if (tiv==matches[iv].vid[i]) { ++(matches[iv].nt[i]); break;}
+        }
+      }
+   
+      float frac[nv];   
+      for (auto kv = 0U; kv < nv; ++kv) {
+        auto mx = std::max_element(matches[kv].nt.begin(),matches[kv].nt.end())-matches[kv].nt.begin();
+        assert(mx>=0 && mx<8);
+        auto tv = matches[kv].vid[mx];
+        frac[kv] = tv<0 ? 0.f : float(matches[kv].nt[mx])/float(ev.itrack[tv]);
+        assert(frac[kv]<1.1f);
+      }
+      
 
     }  // loop on events
   }    // lopp on ave vert
