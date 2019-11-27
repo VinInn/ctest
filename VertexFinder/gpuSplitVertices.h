@@ -35,6 +35,10 @@ namespace gpuVertexFinder {
     assert(pdata);
     assert(ozt);
 
+    // metric: use sigmas of beamspot
+    constexpr auto zs = 1.f/3.5f;
+    constexpr auto ts = 1.f/200.f;
+
     // one vertex per block
     for ( auto kv = blockIdx.x; kv<nvFinal; kv += gridDim.x) {
 
@@ -61,11 +65,11 @@ namespace gpuVertexFinder {
     for (auto k = threadIdx.x; k < nt; k += blockDim.x) {
       if (iv[k] == int(kv)) {
         auto old = atomicInc(&nq, MAXTK);
-        zz[old] = ozt[k] - zv[kv];
-        tt[old] = ott[k] - tv[kv];
+        zz[old] = zs*(ozt[k] - zv[kv]);
+        tt[old] = ts*(ott[k] - tv[kv]);
         newV[old] = zz[old] < 0 ? 0 : 1;
-        ww[old] = 1.f / ezt2[k];
-        tww[old] = 1.f / ett2[k];
+        ww[old] = 1.f/(zs*zs*ezt2[k]);
+        tww[old] = 1.f/(ts*ts*ett2[k]);
         it[old] = k;
       }
     }
@@ -90,7 +94,6 @@ namespace gpuVertexFinder {
         tnew[1] = 0;
         twnew[0] = 0;
         twnew[1] = 0;
-
       }
       __syncthreads();
       for (auto k = threadIdx.x; k < nq; k += blockDim.x) {
@@ -132,7 +135,7 @@ namespace gpuVertexFinder {
 
 
     if (verbose && 0 == threadIdx.x)
-      printf("inter %d %f %f,%f\n", 20 - maxiter, chi2Dist, dist2 * wv[kv], tdist2 * wtv[kv]);
+      printf("inter %d %f %f,%f\n", 20 - maxiter, chi2Dist, dist2*wv[kv]/(zs*zs), tdist2*wtv[kv]/(zs*zs));
 
     if (chi2Dist < 8)
       continue;
