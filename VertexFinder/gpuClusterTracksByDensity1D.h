@@ -37,8 +37,6 @@ namespace gpuVertexFinder {
     auto nt = ws.ntrks;
     float const* __restrict__ zt = ws.zt;
     float const* __restrict__ ezt2 = ws.ezt2;
-    float const* __restrict__ tt = ws.tt;
-    float const* __restrict__ ett2 = ws.ett2;
 
     uint32_t& nvFinal = data.nvFinal;
     uint32_t& nvIntermediate = ws.nvIntermediate;
@@ -95,13 +93,10 @@ namespace gpuVertexFinder {
       auto loop = [&](uint32_t j) {
         if (i == j)
           return;
-        auto distZ = std::abs(zt[i] - zt[j]);
-        if (distZ > eps)
+        auto dist = std::abs(zt[i] - zt[j]);
+        if (dist > eps)
           return;
-        auto distT = std::abs(tt[i] - tt[j]);
-        if (distT > 100.f)
-          return;
-        if ( (distZ * distZ)/(ezt2[i] + ezt2[j]) + (distT * distT)/(ett2[i] + ett2[j]) > 2.f*chi2max)
+        if (dist * dist > chi2max * (ezt2[i] + ezt2[j]))
           return;
         nn[i]++;
       };
@@ -119,14 +114,12 @@ namespace gpuVertexFinder {
           return;
         if (nn[j] == nn[i] && zt[j] >= zt[i])
           return;  // if equal use natural order...
-        auto distZ = std::abs(zt[i] - zt[j]);
-        auto distT = std::abs(tt[i] - tt[j]);
-        // auto dist = 0.5*(distZ + 3.5f*distT/200.f);
-        if (distZ > mdist)
+        auto dist = std::abs(zt[i] - zt[j]);
+        if (dist > mdist)
           return;
-       if ( (distZ * distZ)/(ezt2[i] + ezt2[j]) + (distT * distT)/(ett2[i] + ett2[j]) > 2.f*chi2max)
+        if (dist * dist > chi2max * (ezt2[i] + ezt2[j]))
           return;  // (break natural order???)
-        mdist = distZ;
+        mdist = dist;
         iv[i] = j;  // assign to cluster (better be unique??)
       };
       forEachInBins(hist, izt[i], 1, loop);

@@ -94,7 +94,7 @@ namespace gpuVertexFinder {
       auto ct = tv[iv[i]] - tt[i];
       ct *= ct / ett2[i];
       auto c2 = cz+ct;
-      if (c2 > 2.f*chi2Max) {
+      if (c2 > 10.f*chi2Max) {
         iv[i] = 9999;
         continue;
       }

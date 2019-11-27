@@ -52,7 +52,7 @@ struct ClusterGenerator {
       ev.itrack[iv] = nt;
       for (int it = 0; it < nt; ++it) {
         auto err = errgen(reng);  // reality is not flat....
-        auto terr = 35.f;
+        auto terr = 25.f;
         ev.ztrack.push_back(ev.zvert[iv] + err * gauss(reng));
         ev.eztrack.push_back(err * err);
         ev.ttrack.push_back(ev.tvert[iv] + terr * gauss(reng));
@@ -259,7 +259,8 @@ int main() {
      auto verifyMatch = [&]() {
 
       // matching-merging metrics
-      struct Match { Match() {for (auto&e:vid)e=-1; for (auto&e:nt)e=0;} std::array<int,8> vid; std::array<int,8> nt; };
+      constexpr int MAXMA = 16;
+      struct Match { Match() {for (auto&e:vid)e=-1; for (auto&e:nt)e=0;} std::array<int,MAXMA> vid; std::array<int,MAXMA> nt; };
 
       auto nnn=0;
       Match matches[nv]; for (auto kv = 0U; kv < nv; ++kv) { matches[kv] =  Match();}
@@ -272,7 +273,7 @@ int main() {
         if (tiv>9990) continue;
         assert(tiv>=0);
         ++nnn;
-        for (int i=0; i<8; ++i) {
+        for (int i=0; i<MAXMA; ++i) {
           if (matches[iv].vid[i]<0) { matches[iv].vid[i]=tiv; matches[iv].nt[i]=1; break;}
           else if (tiv==matches[iv].vid[i]) { ++(matches[iv].nt[i]); break;}
         }
@@ -282,7 +283,7 @@ int main() {
       int nok=0; int merged=0; int nmess=0;
       for (auto kv = 0U; kv < nv; ++kv) {
         auto mx = std::max_element(matches[kv].nt.begin(),matches[kv].nt.end())-matches[kv].nt.begin();
-        assert(mx>=0 && mx<8);
+        assert(mx>=0 && mx<MAXMA);
         if (0==matches[kv].nt[mx]) std::cout <<"????? " << kv << ' ' << matches[kv].vid[mx] << ' ' << matches[kv].vid[0] << std::endl;
         auto tv = matches[kv].vid[mx];
         frac[kv] = tv<0 ? 0.f : float(matches[kv].nt[mx])/float(ev.itrack[tv]);
@@ -290,7 +291,7 @@ int main() {
         if (frac[kv]>0.75f) ++nok;
         if (frac[kv]<0.5f) ++nmess;
         int nm=0;
-        for (int i=0; i<8; ++i) {
+        for (int i=0; i<MAXMA; ++i) {
           auto tv = matches[kv].vid[mx];
           float f = tv<0 ? 0.f : float(matches[kv].nt[i])/float(ev.itrack[tv]);
           if (f>0.75f) ++nm;
