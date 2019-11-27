@@ -41,7 +41,7 @@ struct ClusterGenerator {
     ev.eztrack.clear();
     ev.ivert.clear();
     for (int iv = 0; iv < nclus; ++iv) {
-      auto nt = 2 + trackGen(reng); // avoid zeros
+      auto nt = 4 + trackGen(reng); // avoid zeros
       ev.itrack[iv] = nt;
       for (int it = 0; it < nt; ++it) {
         auto err = errgen(reng);  // reality is not flat....
@@ -115,6 +115,8 @@ int main() {
 
       std::cout << "v,t size " << ev.zvert.size() << ' ' << ev.ztrack.size() << std::endl;
       int nt = ev.ztrack.size();
+      int nvori = ev.zvert.size();
+      int ntori = nt;
 #ifdef __CUDACC__
       cudaCheck(cudaMemcpy(LOC_WS(ntrks), &nt, sizeof(uint32_t), cudaMemcpyHostToDevice));
       cudaCheck(cudaMemcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
@@ -362,7 +364,7 @@ int main() {
       }
       // for (auto f: frac) std::cout << f << ' ';
       // std::cout << std::endl;
-      std::cout << "matched/merged/random " << nok << '/' << merged  << '/' << nmess << std::endl;      
+      std::cout << "ori/tot/matched/merged/random " << nvori << '/' << nv << '/' << nok << '/' << merged  << '/' << nmess << std::endl;      
 
 
     }  // loop on events
