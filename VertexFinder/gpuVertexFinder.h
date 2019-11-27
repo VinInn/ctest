@@ -19,6 +19,8 @@ namespace gpuVertexFinder {
     uint16_t itrk[MAXTRACKS];  // index of original track
     float zt[MAXTRACKS];       // input track z at bs
     float ezt2[MAXTRACKS];     // input error^2 on the above
+    float tt[MAXTRACKS];       // input track time at bs
+    float ett2[MAXTRACKS];     // input error^2 on the above
     float ptt2[MAXTRACKS];     // input pt^2 on the above
     uint8_t izt[MAXTRACKS];    // interized z-position of input tracks
     int32_t iv[MAXTRACKS];     // vertex index for each associated track

@@ -22,8 +22,12 @@ namespace gpuVertexFinder {
     auto nt = ws.ntrks;
     float const* __restrict__ zt = ws.zt;
     float const* __restrict__ ezt2 = ws.ezt2;
+    float const* __restrict__ tt = ws.tt;
+    float const* __restrict__ ett2 = ws.ett2;
     float* __restrict__ zv = data.zv;
     float* __restrict__ wv = data.wv;
+    float* __restrict__ tv = data.tv;
+    float* __restrict__ wtv = data.wtv;
     float* __restrict__ chi2 = data.chi2;
     uint32_t& nvFinal = data.nvFinal;
     uint32_t& nvIntermediate = ws.nvIntermediate;
@@ -42,7 +46,10 @@ namespace gpuVertexFinder {
     for (auto i = threadIdx.x; i < foundClusters; i += blockDim.x) {
       zv[i] = 0;
       wv[i] = 0;
+      tv[i] = 0;
+      wtv[i] = 0;
       chi2[i] = 0;
+      nn[i] = -2;  // ndof  (reuse it)
     }
 
     // only for test
@@ -61,17 +68,19 @@ namespace gpuVertexFinder {
       }
       assert(iv[i] >= 0);
       assert(iv[i] < int(foundClusters));
-      auto w = 1.f / ezt2[i];
-      atomicAdd(&zv[iv[i]], zt[i] * w);
-      atomicAdd(&wv[iv[i]], w);
+      auto wz = 1.f / ezt2[i];
+      auto wt = 1.f / ett2[i];
+      atomicAdd(&zv[iv[i]], zt[i] * wz);
+      atomicAdd(&wv[iv[i]], wz);
+      atomicAdd(&tv[iv[i]], tt[i] * wt);
+      atomicAdd(&wtv[iv[i]], wt);
     }
 
     __syncthreads();
-    // reuse nn
     for (auto i = threadIdx.x; i < foundClusters; i += blockDim.x) {
-      assert(wv[i] > 0.f);
+      if (wv[i] == 0.f) continue;
       zv[i] /= wv[i];
-      nn[i] = -1;  // ndof
+      tv[i] /= wtv[i];
     }
     __syncthreads();
 
@@ -80,14 +89,17 @@ namespace gpuVertexFinder {
       if (iv[i] > 9990)
         continue;
 
-      auto c2 = zv[iv[i]] - zt[i];
-      c2 *= c2 / ezt2[i];
-      if (c2 > chi2Max) {
+      auto cz = zv[iv[i]] - zt[i];
+      cz *= cz / ezt2[i];
+      auto ct = tv[iv[i]] - tt[i];
+      ct *= ct / ett2[i];
+      auto c2 = cz+ct;
+      if (c2 > 2.f*chi2Max) {
         iv[i] = 9999;
         continue;
       }
       atomicAdd(&chi2[iv[i]], c2);
-      atomicAdd(&nn[iv[i]], 1);
+      atomicAdd(&nn[iv[i]], 2);
     }
     __syncthreads();
     for (auto i = threadIdx.x; i < foundClusters; i += blockDim.x)

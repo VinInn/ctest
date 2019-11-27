@@ -18,9 +18,12 @@ using namespace gpuVertexFinder;
 
 struct Event {
   std::vector<float> zvert;
+  std::vector<float> tvert;
   std::vector<uint16_t> itrack;
   std::vector<float> ztrack;
   std::vector<float> eztrack;
+  std::vector<float> ttrack;
+  std::vector<float> ettrack;
   std::vector<float> pttrack;
   std::vector<uint16_t> ivert;
 };
@@ -32,9 +35,13 @@ struct ClusterGenerator {
   void operator()(Event& ev) {
     int nclus = clusGen(reng);
     ev.zvert.resize(nclus);
+    ev.tvert.resize(nclus);
     ev.itrack.resize(nclus);
     for (auto& z : ev.zvert) {
       z = 3.5f * gauss(reng);
+    }
+    for (auto& t : ev.tvert) {
+      t = 200.f * gauss(reng);
     }
 
     ev.ztrack.clear();
@@ -45,8 +52,11 @@ struct ClusterGenerator {
       ev.itrack[iv] = nt;
       for (int it = 0; it < nt; ++it) {
         auto err = errgen(reng);  // reality is not flat....
+        auto terr = 35.f;
         ev.ztrack.push_back(ev.zvert[iv] + err * gauss(reng));
         ev.eztrack.push_back(err * err);
+        ev.ttrack.push_back(ev.tvert[iv] + terr * gauss(reng));
+        ev.ettrack.push_back(terr * terr);
         ev.ivert.push_back(iv);
         ev.pttrack.push_back((iv == 5 ? 1.f : 0.5f) + ptGen(reng));
         ev.pttrack.back() *= ev.pttrack.back();
@@ -56,8 +66,11 @@ struct ClusterGenerator {
     auto nt = 2 * trackGen(reng);
     for (int it = 0; it < nt; ++it) {
       auto err = 0.03f;
+      auto terr = 35.f;
       ev.ztrack.push_back(rgen(reng));
       ev.eztrack.push_back(err * err);
+      ev.ttrack.push_back(200.f * gauss(reng));
+      ev.ettrack.push_back(terr * terr);
       ev.ivert.push_back(9999);
       ev.pttrack.push_back(0.5f + ptGen(reng));
       ev.pttrack.back() *= ev.pttrack.back();
@@ -121,11 +134,15 @@ int main() {
       cudaCheck(cudaMemcpy(LOC_WS(ntrks), &nt, sizeof(uint32_t), cudaMemcpyHostToDevice));
       cudaCheck(cudaMemcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
       cudaCheck(cudaMemcpy(LOC_WS(ezt2), ev.eztrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(LOC_WS(tt), ev.ttrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(LOC_WS(ett2), ev.ettrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
       cudaCheck(cudaMemcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
 #else
       ::memcpy(LOC_WS(ntrks), &nt, sizeof(uint32_t));
       ::memcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) * ev.ztrack.size());
       ::memcpy(LOC_WS(ezt2), ev.eztrack.data(), sizeof(float) * ev.eztrack.size());
+      ::memcpy(LOC_WS(tt), ev.ttrack.data(), sizeof(float) * ev.ztrack.size());
+      ::memcpy(LOC_WS(ett2), ev.ettrack.data(), sizeof(float) * ev.eztrack.size());
       ::memcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) * ev.eztrack.size());
       for (int16_t i=0; i<nt; ++i) {  ws_d->itrk[i]=i; onGPU_d->idv[i] = -1;}  // FIXME do the same on GPU....
 #endif
@@ -237,6 +254,57 @@ int main() {
         std::cout << "before splitting nv, min max chi2 " << nv << " " << *mx.first << ' ' << *mx.second << std::endl;
       }
 
+
+      sortByPt2(onGPU_d.get(), ws_d.get());
+     auto verifyMatch = [&]() {
+
+      // matching-merging metrics
+      struct Match { Match() {for (auto&e:vid)e=-1; for (auto&e:nt)e=0;} std::array<int,8> vid; std::array<int,8> nt; };
+
+      auto nnn=0;
+      Match matches[nv]; for (auto kv = 0U; kv < nv; ++kv) { matches[kv] =  Match();}
+      for (int it=0; it<nt; ++it) {
+        auto const iv = idv[it];
+        if (iv>9990) continue;
+        assert(iv<int(nv));
+        if (iv<0) continue;
+        auto const tiv = ev.ivert[it];
+        if (tiv>9990) continue;
+        assert(tiv>=0);
+        ++nnn;
+        for (int i=0; i<8; ++i) {
+          if (matches[iv].vid[i]<0) { matches[iv].vid[i]=tiv; matches[iv].nt[i]=1; break;}
+          else if (tiv==matches[iv].vid[i]) { ++(matches[iv].nt[i]); break;}
+        }
+      }
+
+      float frac[nv];
+      int nok=0; int merged=0; int nmess=0;
+      for (auto kv = 0U; kv < nv; ++kv) {
+        auto mx = std::max_element(matches[kv].nt.begin(),matches[kv].nt.end())-matches[kv].nt.begin();
+        assert(mx>=0 && mx<8);
+        if (0==matches[kv].nt[mx]) std::cout <<"????? " << kv << ' ' << matches[kv].vid[mx] << ' ' << matches[kv].vid[0] << std::endl;
+        auto tv = matches[kv].vid[mx];
+        frac[kv] = tv<0 ? 0.f : float(matches[kv].nt[mx])/float(ev.itrack[tv]);
+        assert(frac[kv]<1.1f);
+        if (frac[kv]>0.75f) ++nok;
+        if (frac[kv]<0.5f) ++nmess;
+        int nm=0;
+        for (int i=0; i<8; ++i) {
+          auto tv = matches[kv].vid[mx];
+          float f = tv<0 ? 0.f : float(matches[kv].nt[i])/float(ev.itrack[tv]);
+          if (f>0.75f) ++nm;
+        }
+        if (nm>1) ++merged;
+      }
+      // for (auto f: frac) std::cout << f << ' ';
+      // std::cout << std::endl;
+      std::cout << "ori/tot/matched/merged/random " << nvori << '/' << nv << '/' << nok << '/' << merged  << '/' << nmess << std::endl;
+      }; // verifyMatch
+
+
+      verifyMatch();
+
 #ifdef __CUDACC__
       // one vertex per block!!!
  //     cudautils::launch(splitVerticesKernel, {1, 256}, onGPU_d.get(), ws_d.get(), 9.f);
@@ -323,49 +391,7 @@ int main() {
       std::cout << "min max rms " << *mx.first << ' ' << *mx.second << ' ' << rms << std::endl;
       // ????
 
-      // matching-merging metrics
-      struct Match { Match() {for (auto&e:vid)e=-1; for (auto&e:nt)e=0;} std::array<int,8> vid; std::array<int,8> nt; };
-
-      auto nnn=0;
-      Match matches[nv]; for (auto kv = 0U; kv < nv; ++kv) { matches[kv] =  Match();}  
-      for (int it=0; it<nt; ++it) {
-        auto const iv = idv[it];
-        if (iv>9990) continue;
-        assert(iv<int(nv));
-        if (iv<0) continue;
-        auto const tiv = ev.ivert[it];
-        if (tiv>9990) continue;
-        assert(tiv>=0);
-        ++nnn;
-        for (int i=0; i<8; ++i) { 
-          if (matches[iv].vid[i]<0) { matches[iv].vid[i]=tiv; matches[iv].nt[i]=1; break;}
-          else if (tiv==matches[iv].vid[i]) { ++(matches[iv].nt[i]); break;}
-        }
-      }
-   
-      float frac[nv];
-      int nok=0; int merged=0; int nmess=0;
-      for (auto kv = 0U; kv < nv; ++kv) {
-        auto mx = std::max_element(matches[kv].nt.begin(),matches[kv].nt.end())-matches[kv].nt.begin();
-        assert(mx>=0 && mx<8);
-        if (0==matches[kv].nt[mx]) std::cout <<"????? " << kv << ' ' << matches[kv].vid[mx] << ' ' << matches[kv].vid[0] << std::endl;
-        auto tv = matches[kv].vid[mx];
-        frac[kv] = tv<0 ? 0.f : float(matches[kv].nt[mx])/float(ev.itrack[tv]);
-        assert(frac[kv]<1.1f);
-        if (frac[kv]>0.75f) ++nok;
-        if (frac[kv]<0.5f) ++nmess;
-        int nm=0;
-        for (int i=0; i<8; ++i) {
-          auto tv = matches[kv].vid[mx];
-          float f = tv<0 ? 0.f : float(matches[kv].nt[i])/float(ev.itrack[tv]);
-          if (f>0.75f) ++nm;
-        }
-        if (nm>1) ++merged;
-      }
-      // for (auto f: frac) std::cout << f << ' ';
-      // std::cout << std::endl;
-      std::cout << "ori/tot/matched/merged/random " << nvori << '/' << nv << '/' << nok << '/' << merged  << '/' << nmess << std::endl;      
-
+      verifyMatch();
 
     }  // loop on events
   }    // lopp on ave vert
