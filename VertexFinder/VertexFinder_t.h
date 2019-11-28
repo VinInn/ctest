@@ -1,5 +1,6 @@
 #include "cudaCheck.h"
 #include "exitSansCUDADevices.h"
+#include "gpuClusterTracksByDensity1D.h"
 #include "gpuClusterTracksByDensity.h"
 #define CLUSTERIZE clusterTracksByDensityKernel
 #include "gpuFitVertices.h"
@@ -166,35 +167,6 @@ int main() {
       if ((iii % 4) == 3)
         par = {{0.7f * eps, 0.01f, 9.0f}};
 
-      uint32_t nv = 0;
-#ifdef __CUDACC__
-      print<<<1, 1, 0, 0>>>(onGPU_d.get(), ws_d.get());
-      cudaCheck(cudaGetLastError());
-      cudaDeviceSynchronize();
-
-      cudautils::launch(CLUSTERIZE, {1, 512 + 256}, onGPU_d.get(), ws_d.get(), kk, par[0], par[1], par[2]);
-      print<<<1, 1, 0, 0>>>(onGPU_d.get(), ws_d.get());
-
-      cudaCheck(cudaGetLastError());
-      cudaDeviceSynchronize();
-
-      cudautils::launch(fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
-      cudaCheck(cudaGetLastError());
-      cudaCheck(cudaMemcpy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t), cudaMemcpyDeviceToHost));
-
-#else
-      print(onGPU_d.get(), ws_d.get());
-      CLUSTERIZE(onGPU_d.get(), ws_d.get(), kk, par[0], par[1], par[2]);
-      print(onGPU_d.get(), ws_d.get());
-      fitVertices(onGPU_d.get(), ws_d.get(), 50.f);
-      nv = onGPU_d->nvFinal;
-#endif
-
-      if (nv == 0) {
-        std::cout << "NO VERTICES???" << std::endl;
-        continue;
-      }
-
       int16_t * idv = nullptr;
       float* zv = nullptr;
       float* wv = nullptr;
@@ -204,16 +176,16 @@ int main() {
       uint16_t* ind = nullptr;
 
       // keep chi2 separated...
-      float chi2[2 * nv];  // make space for splitting...
+      float chi2[ZVertexSoA::MAXVTX];  // make space for splitting...
 
 #ifdef __CUDACC__
-      int16_t hidv[nt];
-      float hzv[2 * nv];
-      float hwv[2 * nv];
-      float htv[2 * nv];
-      float hptv2[2 * nv];
-      int32_t hnn[2 * nv];
-      uint16_t hind[2 * nv];
+      int16_t hidv[16000];
+      float hzv[ZVertexSoA::MAXVTX];
+      float hwv[ZVertexSoA::MAXVTX];
+      float htv[ZVertexSoA::MAXVTX];
+      float hptv2[ZVertexSoA::MAXVTX];
+      int32_t hnn[ZVertexSoA::MAXVTX];
+      uint16_t hind[ZVertexSoA::MAXVTX];
 
       idv = hidv;
       zv = hzv;
@@ -232,44 +204,11 @@ int main() {
       ind = onGPU_d->sortInd;
 #endif
 
-#ifdef __CUDACC__
-      cudaCheck(cudaMemcpy(nn, LOC_ONGPU(ndof), nv * sizeof(int32_t), cudaMemcpyDeviceToHost));
-      cudaCheck(cudaMemcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float), cudaMemcpyDeviceToHost));
-#else
-      memcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float));
-#endif
-
-      for (auto j = 0U; j < nv; ++j)
-        if (nn[j] > 0)
-          chi2[j] /= float(nn[j]);
-      {
-        auto mx = std::minmax_element(chi2, chi2 + nv);
-        std::cout << "after fit nv, min max chi2 " << nv << " " << *mx.first << ' ' << *mx.second << std::endl;
-      }
-
-#ifdef __CUDACC__
-      cudautils::launch(fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
-      cudaCheck(cudaMemcpy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t), cudaMemcpyDeviceToHost));
-      cudaCheck(cudaMemcpy(nn, LOC_ONGPU(ndof), nv * sizeof(int32_t), cudaMemcpyDeviceToHost));
-      cudaCheck(cudaMemcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float), cudaMemcpyDeviceToHost));
-#else
-      fitVertices(onGPU_d.get(), ws_d.get(), 50.f);
-      nv = onGPU_d->nvFinal;
-      memcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float));
-#endif
-
-      for (auto j = 0U; j < nv; ++j)
-        if (nn[j] > 0)
-          chi2[j] /= float(nn[j]);
-
-      {
-        auto mx = std::minmax_element(chi2, chi2 + nv);
-        std::cout << "before splitting nv, min max chi2 " << nv << " " << *mx.first << ' ' << *mx.second << std::endl;
-      }
+      uint32_t nv=0;
 
 
-      sortByPt2(onGPU_d.get(), ws_d.get());
-     auto verifyMatch = [&]() {
+
+    auto verifyMatch = [&]() {
 
       // matching-merging metrics
       constexpr int MAXMA = 32;
@@ -324,12 +263,99 @@ int main() {
       }
       // for (auto f: frac) std::cout << f << ' ';
       // std::cout << std::endl;
-      std::cout << "ori/tot/matched/merged5//merged7/random/dz/dt " 
+      std::cout << "ori/tot/matched/merged5//merged7/random/dz/dt "
                 << nvori << '/' << nv << '/' << nok << '/' << merged50 << '/' << merged75  << '/' << nmess
                 << '/' << dz << '/' << dt << std::endl;
       }; // verifyMatch
 
 
+
+
+
+#ifdef __CUDACC__
+      print<<<1, 1, 0, 0>>>(onGPU_d.get(), ws_d.get());
+      cudaCheck(cudaGetLastError());
+      cudaDeviceSynchronize();
+
+      cudautils::launch(CLUSTERIZE, {1, 512 + 256}, onGPU_d.get(), ws_d.get(), kk, par[0], par[1], par[2]);
+      print<<<1, 1, 0, 0>>>(onGPU_d.get(), ws_d.get());
+
+      cudaCheck(cudaGetLastError());
+      cudaDeviceSynchronize();
+
+      cudautils::launch(fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
+      cudaCheck(cudaGetLastError());
+      cudaCheck(cudaMemcpy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t), cudaMemcpyDeviceToHost));
+
+#else
+      std::cout << "ONE dim" << std::endl;
+      print(onGPU_d.get(), ws_d.get());
+      clusterTracksByDensityKernel1D(onGPU_d.get(), ws_d.get(), kk, par[0], par[1], par[2]);
+      print(onGPU_d.get(), ws_d.get());
+      fitVertices(onGPU_d.get(), ws_d.get(), 50.f);
+      nv = onGPU_d->nvFinal;
+      sortByPt2(onGPU_d.get(), ws_d.get());
+      verifyMatch();
+      splitVertices(onGPU_d.get(), ws_d.get(), 9.f);
+      nv = ws_d->nvIntermediate;
+      fitVertices(onGPU_d.get(), ws_d.get(), 5000.f);
+      sortByPt2(onGPU_d.get(), ws_d.get());
+      nv = onGPU_d->nvFinal;
+      memcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float));
+      verifyMatch();
+
+      std::cout << "TWHO dim" << std::endl;
+      print(onGPU_d.get(), ws_d.get());
+      CLUSTERIZE(onGPU_d.get(), ws_d.get(), kk, par[0], par[1], par[2]);
+      print(onGPU_d.get(), ws_d.get());
+      fitVertices(onGPU_d.get(), ws_d.get(), 50.f);
+      nv = onGPU_d->nvFinal;
+#endif
+
+      if (nv == 0) {
+        std::cout << "NO VERTICES???" << std::endl;
+        continue;
+      }
+
+
+
+#ifdef __CUDACC__
+      cudaCheck(cudaMemcpy(nn, LOC_ONGPU(ndof), nv * sizeof(int32_t), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float), cudaMemcpyDeviceToHost));
+#else
+      memcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float));
+#endif
+
+      for (auto j = 0U; j < nv; ++j)
+        if (nn[j] > 0)
+          chi2[j] /= float(nn[j]);
+      {
+        auto mx = std::minmax_element(chi2, chi2 + nv);
+        std::cout << "after fit nv, min max chi2 " << nv << " " << *mx.first << ' ' << *mx.second << std::endl;
+      }
+
+#ifdef __CUDACC__
+      cudautils::launch(fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
+      cudaCheck(cudaMemcpy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(nn, LOC_ONGPU(ndof), nv * sizeof(int32_t), cudaMemcpyDeviceToHost));
+      cudaCheck(cudaMemcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float), cudaMemcpyDeviceToHost));
+#else
+      fitVertices(onGPU_d.get(), ws_d.get(), 50.f);
+      nv = onGPU_d->nvFinal;
+      memcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float));
+#endif
+
+      for (auto j = 0U; j < nv; ++j)
+        if (nn[j] > 0)
+          chi2[j] /= float(nn[j]);
+
+      {
+        auto mx = std::minmax_element(chi2, chi2 + nv);
+        std::cout << "before splitting nv, min max chi2 " << nv << " " << *mx.first << ' ' << *mx.second << std::endl;
+      }
+
+
+      sortByPt2(onGPU_d.get(), ws_d.get());
       verifyMatch();
 
 #ifdef __CUDACC__

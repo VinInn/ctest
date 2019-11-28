@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelVertexFinding_src_gpuClusterTracksByDensity_h
-#define RecoPixelVertexing_PixelVertexFinding_src_gpuClusterTracksByDensity_h
+#ifndef RecoPixelVertexing_PixelVertexFinding_src_gpuClusterTracksByDensity1D_h
+#define RecoPixelVertexing_PixelVertexFinding_src_gpuClusterTracksByDensity1D_h
 
 #include <algorithm>
 #include <cmath>
@@ -17,7 +17,7 @@ namespace gpuVertexFinder {
   //
   // based on Rodrighez&Laio algo
   //
-  __device__ __forceinline__ void clusterTracksByDensity(gpuVertexFinder::ZVertices* pdata,
+  __device__ __forceinline__ void clusterTracksByDensity1D(gpuVertexFinder::ZVertices* pdata,
                                          gpuVertexFinder::WorkSpace* pws,
                                          int minT,      // min number of neighbours to be "seed"
                                          float eps,     // max absolute distance to cluster
@@ -219,14 +219,14 @@ namespace gpuVertexFinder {
       printf("found %d proto vertices\n", foundClusters);
   }
 
-  __global__ void clusterTracksByDensityKernel(gpuVertexFinder::ZVertices* pdata,
+  __global__ void clusterTracksByDensityKernel1D(gpuVertexFinder::ZVertices* pdata,
                                          gpuVertexFinder::WorkSpace* pws,
                                          int minT,    // min number of neighbours to be "seed"
                                          float eps,     // max absolute distance to cluster
                                          float errmax,  // max error to be "seed"
                                          float chi2max  // max normalized distance to cluster
   ) {
-   clusterTracksByDensity(pdata,pws,minT,eps,errmax,chi2max);
+   clusterTracksByDensity1D(pdata,pws,minT,eps,errmax,chi2max);
  }
 
 }  // namespace gpuVertexFinder
