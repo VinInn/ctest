@@ -54,7 +54,7 @@ struct ClusterGenerator {
       ev.itrack[iv] = nt;
       for (int it = 0; it < nt; ++it) {
         auto err = errgen(reng);  // reality is not flat....
-        auto terr = 15.f;
+        auto terr = 35.f;
         ev.ztrack.push_back(ev.zvert[iv] + err * gauss(reng));
         ev.eztrack.push_back(err * err);
         ev.ttrack.push_back(ev.tvert[iv] + terr * gauss(reng));
@@ -64,7 +64,7 @@ struct ClusterGenerator {
         ev.pttrack.back() *= ev.pttrack.back();
       }
     }
-    /*
+    
     // add noise
     auto nt = 2 * trackGen(reng);
     for (int it = 0; it < nt; ++it) {
@@ -78,7 +78,7 @@ struct ClusterGenerator {
       ev.pttrack.push_back(0.5f + ptGen(reng));
       ev.pttrack.back() *= ev.pttrack.back();
     }
-    */
+    
   }
 
   std::mt19937 reng;
@@ -115,7 +115,7 @@ int main() {
 
   float eps = 0.1f;
   std::array<float, 3> par{{eps, 0.01f, 9.0f}};
-  for (int nav = 30; nav < 80; nav += 20) {
+  for (int nav = 30; nav < 260; nav += 20) {
     ClusterGenerator gen(nav, 10);
 
     for (int iii = 8; iii < 20; ++iii) {
@@ -134,6 +134,9 @@ int main() {
       int nt = ev.ztrack.size();
       int nvori = ev.zvert.size();
       int ntori = nt;
+      assert(ntori<ZVertexSoA::MAXTRACKS);
+      assert(nvori< ZVertexSoA::MAXVTX);
+
 #ifdef __CUDACC__
       cudaCheck(cudaMemcpy(LOC_WS(ntrks), &nt, sizeof(uint32_t), cudaMemcpyHostToDevice));
       cudaCheck(cudaMemcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
@@ -257,6 +260,7 @@ int main() {
       for (auto j = 0U; j < nv; ++j)
         if (nn[j] > 0)
           chi2[j] /= float(nn[j]);
+
       {
         auto mx = std::minmax_element(chi2, chi2 + nv);
         std::cout << "before splitting nv, min max chi2 " << nv << " " << *mx.first << ' ' << *mx.second << std::endl;
@@ -267,7 +271,7 @@ int main() {
      auto verifyMatch = [&]() {
 
       // matching-merging metrics
-      constexpr int MAXMA = 16;
+      constexpr int MAXMA = 32;
       struct Match { Match() {for (auto&e:vid)e=-1; for (auto&e:nt)e=0;} std::array<int,MAXMA> vid; std::array<int,MAXMA> nt; };
 
       auto nnn=0;

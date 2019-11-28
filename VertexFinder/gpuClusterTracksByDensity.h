@@ -25,7 +25,7 @@ namespace gpuVertexFinder {
                                          float chi2max  // max normalized distance to cluster
   ) {
     using namespace gpuVertexFinder;
-    constexpr bool verbose = false;  // in principle the compiler should optmize out if false
+    constexpr bool verbose = true; // false;  // in principle the compiler should optmize out if false
 
     if (verbose && 0 == threadIdx.x)
       printf("params %d %f %f %f\n", minT, eps, errmax, chi2max);
@@ -34,7 +34,7 @@ namespace gpuVertexFinder {
 
     auto& __restrict__ data = *pdata;
     auto& __restrict__ ws = *pws;
-    auto nt = ws.ntrks;
+    auto const nt = ws.ntrks;
     float const* __restrict__ zt = ws.zt;
     float const* __restrict__ ezt2 = ws.ezt2;
     float const* __restrict__ tt = ws.tt;
@@ -77,6 +77,7 @@ namespace gpuVertexFinder {
       nn[i] = 0;
     }
     __syncthreads();
+
     if (threadIdx.x < 32)
       hws[threadIdx.x] = 0;  // used by prefix scan...
     __syncthreads();
@@ -87,7 +88,6 @@ namespace gpuVertexFinder {
       hist.fill(izt[i], uint16_t(i));
     }
     __syncthreads();
-
 
     auto boxAndChi2 = [&](int i, int j) -> float {
       auto distZ = std::abs(zt[i] - zt[j]);
@@ -223,6 +223,7 @@ namespace gpuVertexFinder {
     }
 
     nvIntermediate = nvFinal = foundClusters;
+    assert(nt == ws.ntrks);
 
     if (verbose && 0 == threadIdx.x)
       printf("found %d proto vertices\n", foundClusters);
