@@ -88,6 +88,23 @@ namespace gpuVertexFinder {
     }
     __syncthreads();
 
+
+    auto boxAndChi2 = [&](int i, int j) -> float {
+      auto distZ = std::abs(zt[i] - zt[j]);
+      auto distT = std::abs(tt[i] - tt[j]);
+      auto chi2 = (distZ * distZ)/(ezt2[i] + ezt2[j]) + (distT * distT)/(ett2[i] + ett2[j]);
+      return distZ > eps || distT > 100.f || chi2 > 2.f*chi2max;
+    };
+
+    auto chi2andCuts = [&](int i, int j) -> float {
+      float chi2 = 10.f*chi2max;
+      auto distZ = std::abs(zt[i] - zt[j]);
+      auto distT = std::abs(tt[i] - tt[j]);
+      if (distZ > eps || distT > 100.f) return chi2;
+      chi2 = (distZ * distZ)/(ezt2[i] + ezt2[j]) + (distT * distT)/(ett2[i] + ett2[j]);
+      return chi2;
+    };
+
     // count neighbours
     for (auto i = threadIdx.x; i < nt; i += blockDim.x) {
       if (ezt2[i] > er2mx)
@@ -95,14 +112,7 @@ namespace gpuVertexFinder {
       auto loop = [&](uint32_t j) {
         if (i == j)
           return;
-        auto distZ = std::abs(zt[i] - zt[j]);
-        if (distZ > eps)
-          return;
-        auto distT = std::abs(tt[i] - tt[j]);
-        if (distT > 100.f)
-          return;
-        if ( (distZ * distZ)/(ezt2[i] + ezt2[j]) + (distT * distT)/(ett2[i] + ett2[j]) > 2.f*chi2max)
-          return;
+        if (boxAndChi2(i,j)) return;
         nn[i]++;
       };
 
@@ -113,20 +123,15 @@ namespace gpuVertexFinder {
 
     // find closest above me .... (we ignore the possibility of two j at same distance from i)
     for (auto i = threadIdx.x; i < nt; i += blockDim.x) {
-      float mdist = eps;
+      float mdist = 2.f*chi2max;
       auto loop = [&](uint32_t j) {
         if (nn[j] < nn[i])
           return;
         if (nn[j] == nn[i] && zt[j] >= zt[i])
           return;  // if equal use natural order...
-        auto distZ = std::abs(zt[i] - zt[j]);
-        auto distT = std::abs(tt[i] - tt[j]);
-        // auto dist = 0.5*(distZ + 3.5f*distT/200.f);
-        if (distZ > mdist)
-          return;
-       if ( (distZ * distZ)/(ezt2[i] + ezt2[j]) + (distT * distT)/(ett2[i] + ett2[j]) > 2.f*chi2max)
-          return;  // (break natural order???)
-        mdist = distZ;
+        auto chi2 = chi2andCuts(i,j);
+        if (chi2>=mdist) return; 
+        mdist = chi2;
         iv[i] = j;  // assign to cluster (better be unique??)
       };
       forEachInBins(hist, izt[i], 1, loop);
@@ -164,17 +169,14 @@ namespace gpuVertexFinder {
     // and verify that we did not spit any cluster...
     for (auto i = threadIdx.x; i < nt; i += blockDim.x) {
       auto minJ = i;
-      auto mdist = eps;
+      auto mdist = 2.f*chi2max;
       auto loop = [&](uint32_t j) {
         if (nn[j] < nn[i])
           return;
         if (nn[j] == nn[i] && zt[j] >= zt[i])
           return;  // if equal use natural order...
-        auto dist = std::abs(zt[i] - zt[j]);
-        if (dist > mdist)
-          return;
-        if (dist * dist > chi2max * (ezt2[i] + ezt2[j]))
-          return;
+        auto dist = chi2andCuts(i,j);
+        if (dist>=mdist) return;
         mdist = dist;
         minJ = j;
       };

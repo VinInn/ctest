@@ -30,7 +30,7 @@ struct Event {
 
 struct ClusterGenerator {
   explicit ClusterGenerator(float nvert, float ntrack)
-      : rgen(-13., 13), errgen(0.005, 0.025), clusGen(nvert), trackGen(ntrack), gauss(0., 1.), ptGen(1.) {}
+      : rgen(-13., 13), errgen(0.005, 0.015), clusGen(nvert), trackGen(ntrack), gauss(0., 1.), ptGen(1.) {}
 
   void operator()(Event& ev) {
     int nclus = clusGen(reng);
@@ -46,13 +46,15 @@ struct ClusterGenerator {
 
     ev.ztrack.clear();
     ev.eztrack.clear();
+    ev.ttrack.clear();
+    ev.ettrack.clear();
     ev.ivert.clear();
     for (int iv = 0; iv < nclus; ++iv) {
       auto nt = 4 + trackGen(reng); // avoid zeros
       ev.itrack[iv] = nt;
       for (int it = 0; it < nt; ++it) {
         auto err = errgen(reng);  // reality is not flat....
-        auto terr = 25.f;
+        auto terr = 15.f;
         ev.ztrack.push_back(ev.zvert[iv] + err * gauss(reng));
         ev.eztrack.push_back(err * err);
         ev.ttrack.push_back(ev.tvert[iv] + terr * gauss(reng));
@@ -62,6 +64,7 @@ struct ClusterGenerator {
         ev.pttrack.back() *= ev.pttrack.back();
       }
     }
+    /*
     // add noise
     auto nt = 2 * trackGen(reng);
     for (int it = 0; it < nt; ++it) {
@@ -75,6 +78,7 @@ struct ClusterGenerator {
       ev.pttrack.push_back(0.5f + ptGen(reng));
       ev.pttrack.back() *= ev.pttrack.back();
     }
+    */
   }
 
   std::mt19937 reng;
@@ -150,13 +154,13 @@ int main() {
       std::cout << "M eps, pset " << kk << ' ' << eps << ' ' << (iii % 4) << std::endl;
 
       if ((iii % 4) == 0)
-        par = {{eps, 0.02f, 12.0f}};
+        par = {{eps, 0.02f, 25.0f}};
       if ((iii % 4) == 1)
-        par = {{eps, 0.02f, 9.0f}};
+        par = {{eps, 0.02f, 16.0f}};
       if ((iii % 4) == 2)
-        par = {{eps, 0.01f, 9.0f}};
+        par = {{eps, 0.01f, 16.0f}};
       if ((iii % 4) == 3)
-        par = {{0.7f * eps, 0.01f, 9.0f}};
+        par = {{0.7f * eps, 0.01f, 16.0f}};
 
       uint32_t nv = 0;
 #ifdef __CUDACC__
@@ -190,6 +194,7 @@ int main() {
       int16_t * idv = nullptr;
       float* zv = nullptr;
       float* wv = nullptr;
+      float* tv = nullptr;
       float* ptv2 = nullptr;
       int32_t* nn = nullptr;
       uint16_t* ind = nullptr;
@@ -201,6 +206,7 @@ int main() {
       int16_t hidv[nt];
       float hzv[2 * nv];
       float hwv[2 * nv];
+      float htv[2 * nv];
       float hptv2[2 * nv];
       int32_t hnn[2 * nv];
       uint16_t hind[2 * nv];
@@ -208,6 +214,7 @@ int main() {
       idv = hidv;
       zv = hzv;
       wv = hwv;
+      tv = htv;
       ptv2 = hptv2;
       nn = hnn;
       ind = hind;
@@ -215,6 +222,7 @@ int main() {
       idv = onGPU_d->idv;
       zv = onGPU_d->zv;
       wv = onGPU_d->wv;
+      tv = onGPU_d->tv;
       ptv2 = onGPU_d->ptv2;
       nn = onGPU_d->ndof;
       ind = onGPU_d->sortInd;
@@ -280,27 +288,36 @@ int main() {
       }
 
       float frac[nv];
-      int nok=0; int merged=0; int nmess=0;
+      int nok=0; int merged50=0; int merged75=0; int nmess=0;
+      float dz=0; float dt = 0;
       for (auto kv = 0U; kv < nv; ++kv) {
         auto mx = std::max_element(matches[kv].nt.begin(),matches[kv].nt.end())-matches[kv].nt.begin();
         assert(mx>=0 && mx<MAXMA);
         if (0==matches[kv].nt[mx]) std::cout <<"????? " << kv << ' ' << matches[kv].vid[mx] << ' ' << matches[kv].vid[0] << std::endl;
-        auto tv = matches[kv].vid[mx];
-        frac[kv] = tv<0 ? 0.f : float(matches[kv].nt[mx])/float(ev.itrack[tv]);
+        auto itv = matches[kv].vid[mx];
+        frac[kv] = itv<0 ? 0.f : float(matches[kv].nt[mx])/float(ev.itrack[itv]);
         assert(frac[kv]<1.1f);
         if (frac[kv]>0.75f) ++nok;
         if (frac[kv]<0.5f) ++nmess;
-        int nm=0;
+        auto ldz = std::abs(zv[kv] - ev.zvert[itv]);
+        auto ldt = std::abs(tv[kv] - ev.tvert[itv]);
+        dz = std::max(dz,ldz);
+        dt = std::max(dt,ldt);
+        int nm5=0; int nm7=0;
         for (int i=0; i<MAXMA; ++i) {
-          auto tv = matches[kv].vid[mx];
-          float f = tv<0 ? 0.f : float(matches[kv].nt[i])/float(ev.itrack[tv]);
-          if (f>0.75f) ++nm;
+          auto itv = matches[kv].vid[i];
+          float f = itv<0 ? 0.f : float(matches[kv].nt[i])/float(ev.itrack[itv]);
+          if (f>0.5f) ++nm5;
+          if (f>0.75f) ++nm7;
         }
-        if (nm>1) ++merged;
+        if (nm5>1) ++merged50;
+        if (nm7>1) ++merged75;
       }
       // for (auto f: frac) std::cout << f << ' ';
       // std::cout << std::endl;
-      std::cout << "ori/tot/matched/merged/random " << nvori << '/' << nv << '/' << nok << '/' << merged  << '/' << nmess << std::endl;
+      std::cout << "ori/tot/matched/merged5//merged7/random/dz/dt " 
+                << nvori << '/' << nv << '/' << nok << '/' << merged50 << '/' << merged75  << '/' << nmess
+                << '/' << dz << '/' << dt << std::endl;
       }; // verifyMatch
 
 
