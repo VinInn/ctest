@@ -1,0 +1,8 @@
+nvcc -dc --generate-line-info --source-in-ptx --cudart=shared --compiler-options '-O2 -pthread -fPIC' -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda dynCrash.cu -o dynCrash.o
+nvcc --compiler-options '-O2 -pthread -fPIC' -dlink -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda dynCrash.o -o dynCrash_dlink.o
+nvcc -dc --generate-line-info --source-in-ptx --cudart=shared --compiler-options '-O2 -pthread -fPIC' -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda foo.cu -o foo.o
+nvcc --compiler-options '-O2 -pthread -fPIC' -dlink -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda foo.o -o foo_dlink.o
+c++ -O2 -pthread -fPIC --shared dynCrash.o dynCrash_dlink.o -o libdynCrash.so -L/data/cmssw/slc7_amd64_gcc820/cms/cmssw/CMSSW_11_0_0_pre11_Patatrack/external/slc7_amd64_gcc820/lib/ -lcudart -lcudadevrt
+c++ -O2 -pthread -fPIC --shared foo.o foo_dlink.o -o libfoo.so -L/data/cmssw/slc7_amd64_gcc820/cms/cmssw/CMSSW_11_0_0_pre11_Patatrack/external/slc7_amd64_gcc820/lib/ -lcudart -lcudadevrt
+c++ -O2 -pthread aMain.cpp libfoo.so -ldl
+# nvcc --cudart=shared -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 dynCrash.cu foo.cu aMain.cpp -ldl -L/data/cmssw/slc7_amd64_gcc820/cms/cmssw/CMSSW_11_0_0_pre11_Patatrack/external/slc7_amd64_gcc820/lib/ -lcudart -lcudadevrt -rdc=true
