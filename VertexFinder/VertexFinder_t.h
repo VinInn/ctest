@@ -164,7 +164,7 @@ int main() {
       if ((iii % 4) == 2)
         par = {{eps, 0.01f, 16.0f}};
       if ((iii % 4) == 3)
-        par = {{0.7f * eps, 0.01f, 16.0f}};
+        par = {{0.7f * eps, 0.01f, 9.0f}};
 
       uint32_t nv = 0;
 #ifdef __CUDACC__
@@ -358,6 +358,20 @@ int main() {
       sortByPt2(onGPU_d.get(), ws_d.get());
       nv = onGPU_d->nvFinal;
       memcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float));
+      verifyMatch();
+
+      splitVertices(onGPU_d.get(), ws_d.get(), 9.f);
+      nv = ws_d->nvIntermediate;
+      fitVertices(onGPU_d.get(), ws_d.get(), 5000.f);
+      sortByPt2(onGPU_d.get(), ws_d.get());
+      nv = onGPU_d->nvFinal;
+      memcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float));
+      verifyMatch();
+      fitVertices(onGPU_d.get(), ws_d.get(), 25.f);
+      sortByPt2(onGPU_d.get(), ws_d.get());
+      nv = onGPU_d->nvFinal;
+      memcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float));
+
 #endif
 
       if (nv == 0) {

@@ -35,9 +35,16 @@ namespace gpuVertexFinder {
     assert(pdata);
     assert(ozt);
 
+    /*
     // metric: use sigmas of beamspot
     constexpr auto zs = 1.f/3.5f;
     constexpr auto ts = 1.f/200.f;
+    */
+
+   // metric: use "errors"
+    constexpr auto zs = 1.f/0.010f;
+    constexpr auto ts = 1.f/35.f;
+
 
     // one vertex per block
     for ( auto kv = blockIdx.x; kv<nvFinal; kv += gridDim.x) {
