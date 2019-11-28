@@ -51,6 +51,7 @@ struct ClusterGenerator {
     ev.ivert.clear();
     for (int iv = 0; iv < nclus; ++iv) {
       auto nt = 4 + trackGen(reng); // avoid zeros
+      if (iv == 5) nt *= 4;
       ev.itrack[iv] = nt;
       for (int it = 0; it < nt; ++it) {
         auto err = errgen(reng);  // reality is not flat....
@@ -60,7 +61,7 @@ struct ClusterGenerator {
         ev.ttrack.push_back(ev.tvert[iv] + terr * gauss(reng));
         ev.ettrack.push_back(terr * terr);
         ev.ivert.push_back(iv);
-        ev.pttrack.push_back((iv == 5 ? 1.f : 0.5f) + ptGen(reng));
+        ev.pttrack.push_back((iv == 5 ? 1.f : 0.5f) + 2.f*ptGen(reng));
         ev.pttrack.back() *= ev.pttrack.back();
       }
     }
@@ -276,6 +277,7 @@ int main() {
 
       auto nnn=0;
       Match matches[nv]; for (auto kv = 0U; kv < nv; ++kv) { matches[kv] =  Match();}
+      auto iPV =  ind[nv - 1];
       for (int it=0; it<nt; ++it) {
         auto const iv = idv[it];
         if (iv>9990) continue;
@@ -308,7 +310,9 @@ int main() {
         dz = std::max(dz,ldz);
         dt = std::max(dt,ldt);
         int nm5=0; int nm7=0;
+        int ntt=0;
         for (int i=0; i<MAXMA; ++i) {
+          ntt+=matches[kv].nt[i];
           auto itv = matches[kv].vid[i];
           float f = itv<0 ? 0.f : float(matches[kv].nt[i])/float(ev.itrack[itv]);
           if (f>0.5f) ++nm5;
@@ -316,6 +320,7 @@ int main() {
         }
         if (nm5>1) ++merged50;
         if (nm7>1) ++merged75;
+        if (kv ==  iPV ) std::cout << "PV " << itv << ' ' << float(ntt)/float(ev.itrack[itv]) << '/' <<  frac[kv] << '/' << nm5 << '/' << nm7 << ' ' << dz << '/' << dt << std::endl;
       }
       // for (auto f: frac) std::cout << f << ' ';
       // std::cout << std::endl;
