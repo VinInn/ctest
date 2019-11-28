@@ -18,7 +18,7 @@ void fooWrapper() {
 
 
 void docheck() {
-
+  cudaDeviceSynchronize();
   cudaCheck(cudaGetLastError());
 
 }
