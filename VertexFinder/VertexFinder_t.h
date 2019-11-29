@@ -52,7 +52,7 @@ struct ClusterGenerator {
     ev.ivert.clear();
     for (int iv = 0; iv < nclus; ++iv) {
       auto nt = 4 + trackGen(reng); // avoid zeros
-      if (iv == 5) nt *= 4;
+      if (iv == 5) nt *= 5;
       ev.itrack[iv] = nt;
       for (int it = 0; it < nt; ++it) {
         auto err = errgen(reng);  // reality is not flat....
@@ -62,7 +62,7 @@ struct ClusterGenerator {
         ev.ttrack.push_back(ev.tvert[iv] + terr * gauss(reng));
         ev.ettrack.push_back(terr * terr);
         ev.ivert.push_back(iv);
-        ev.pttrack.push_back((iv == 5 ? 1.f : 0.5f) + 2.f*ptGen(reng));
+        ev.pttrack.push_back((iv == 5 ? 1.f : 0.5f) + 5.f*ptGen(reng));
         ev.pttrack.back() *= ev.pttrack.back();
       }
     }
@@ -118,7 +118,7 @@ int main() {
   float eps = 0.1f;
   std::array<float, 3> par{{eps, 0.01f, 9.0f}};
   for (int nav = 30; nav < 260; nav += 20) {
-    ClusterGenerator gen(nav, 10);
+    ClusterGenerator gen(nav, 20);
 
     for (int iii = 8; iii < 20; ++iii) {
       auto kk = iii / 4;  // M param
