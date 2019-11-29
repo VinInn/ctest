@@ -31,7 +31,7 @@ struct Event {
 
 struct ClusterGenerator {
   explicit ClusterGenerator(float nvert, float ntrack)
-      : rgen(-13., 13), errgen(0.005, 0.015), clusGen(nvert), trackGen(ntrack), gauss(0., 1.), ptGen(1.) {}
+      : rgen(-13., 13), errgen(0.005, 0.015), clusGen(nvert), trackGen(ntrack), gauss(0., 1.), ptGen(0.,1.) {}
 
   void operator()(Event& ev) {
     int nclus = clusGen(reng);
@@ -62,7 +62,7 @@ struct ClusterGenerator {
         ev.ttrack.push_back(ev.tvert[iv] + terr * gauss(reng));
         ev.ettrack.push_back(terr * terr);
         ev.ivert.push_back(iv);
-        ev.pttrack.push_back((iv == 5 ? 1.f : 0.5f) + 5.f*ptGen(reng));
+        ev.pttrack.push_back(std::pow(ptGen(reng),iv==5 ?-1.f,-0.5f));
         ev.pttrack.back() *= ev.pttrack.back();
       }
     }
@@ -77,7 +77,7 @@ struct ClusterGenerator {
       ev.ttrack.push_back(200.f * gauss(reng));
       ev.ettrack.push_back(terr * terr);
       ev.ivert.push_back(9999);
-      ev.pttrack.push_back(0.5f + ptGen(reng));
+      ev.pttrack.push_back(std::pow(ptGen(reng),-0.5f));
       ev.pttrack.back() *= ev.pttrack.back();
     }
     
@@ -89,7 +89,8 @@ struct ClusterGenerator {
   std::poisson_distribution<int> clusGen;
   std::poisson_distribution<int> trackGen;
   std::normal_distribution<float> gauss;
-  std::exponential_distribution<float> ptGen;
+//  std::exponential_distribution<float> ptGen;
+  std::uniform_real_distribution<float> ptGen;
 };
 
 // a macro SORRY
@@ -118,7 +119,7 @@ int main() {
   float eps = 0.1f;
   std::array<float, 3> par{{eps, 0.01f, 9.0f}};
   for (int nav = 30; nav < 260; nav += 20) {
-    ClusterGenerator gen(nav, 20);
+    ClusterGenerator gen(nav, 10);
 
     for (int iii = 8; iii < 20; ++iii) {
       auto kk = iii / 4;  // M param
