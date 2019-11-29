@@ -31,7 +31,7 @@ struct Event {
 
 struct ClusterGenerator {
   explicit ClusterGenerator(float nvert, float ntrack)
-      : rgen(-13., 13), errgen(0.005, 0.015), clusGen(nvert), trackGen(ntrack), gauss(0., 1.), ptGen(0.,1.) {}
+      : rgen(-13., 13.), errgen(0.005, 0.015), clusGen(nvert), trackGen(ntrack), gauss(0., 1.), ptGen(0.001,1.) {}
 
   void operator()(Event& ev) {
     int nclus = clusGen(reng);
@@ -51,8 +51,8 @@ struct ClusterGenerator {
     ev.ettrack.clear();
     ev.ivert.clear();
     for (int iv = 0; iv < nclus; ++iv) {
-      auto nt = 4 + trackGen(reng); // avoid zeros
-      if (iv == 5) nt *= 5;
+      auto nt = 2 + trackGen(reng); // avoid zeros
+      if (iv == 5) nt *= 8;
       ev.itrack[iv] = nt;
       for (int it = 0; it < nt; ++it) {
         auto err = errgen(reng);  // reality is not flat....
@@ -62,7 +62,7 @@ struct ClusterGenerator {
         ev.ttrack.push_back(ev.tvert[iv] + terr * gauss(reng));
         ev.ettrack.push_back(terr * terr);
         ev.ivert.push_back(iv);
-        ev.pttrack.push_back(std::pow(ptGen(reng),iv==5 ?-1.f,-0.5f));
+        ev.pttrack.push_back(std::pow(ptGen(reng),iv==5 ?-1.5f:-0.5f));
         ev.pttrack.back() *= ev.pttrack.back();
       }
     }
@@ -119,7 +119,7 @@ int main() {
   float eps = 0.1f;
   std::array<float, 3> par{{eps, 0.01f, 9.0f}};
   for (int nav = 30; nav < 260; nav += 20) {
-    ClusterGenerator gen(nav, 10);
+    ClusterGenerator gen(nav, 6);
 
     for (int iii = 8; iii < 20; ++iii) {
       auto kk = iii / 4;  // M param
@@ -260,7 +260,7 @@ int main() {
         }
         if (nm5>1) ++merged50;
         if (nm7>1) ++merged75;
-        if (kv ==  iPV ) std::cout << "PV " << itv << ' ' << float(ntt)/float(ev.itrack[itv]) << '/' <<  frac[kv] << '/' << nm5 << '/' << nm7 << ' ' << dz << '/' << dt << std::endl;
+        if (kv ==  iPV ) std::cout << "PV " << itv << ' ' << std::sqrt(ptv2[kv]) << ' ' << float(ntt)/float(ev.itrack[itv]) << '/' <<  frac[kv] << '/' << nm5 << '/' << nm7 << ' ' << dz << '/' << dt << std::endl;
       }
       // for (auto f: frac) std::cout << f << ' ';
       // std::cout << std::endl;
