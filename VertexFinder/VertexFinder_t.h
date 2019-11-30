@@ -50,10 +50,13 @@ struct ClusterGenerator {
     ev.ttrack.clear();
     ev.ettrack.clear();
     ev.ivert.clear();
+    ev.pttrack.clear();
+    float ptMax=0; float pt5=0;
     for (int iv = 0; iv < nclus; ++iv) {
       auto nt = 2 + trackGen(reng); // avoid zeros
-      if (iv == 5) nt *= 8;
+      if (iv == 5) nt *= 5;
       ev.itrack[iv] = nt;
+      float ptSum=0;
       for (int it = 0; it < nt; ++it) {
         auto err = errgen(reng);  // reality is not flat....
         auto terr = 35.f;
@@ -62,10 +65,14 @@ struct ClusterGenerator {
         ev.ttrack.push_back(ev.tvert[iv] + terr * gauss(reng));
         ev.ettrack.push_back(terr * terr);
         ev.ivert.push_back(iv);
-        ev.pttrack.push_back(std::pow(ptGen(reng),iv==5 ?-1.5f:-0.5f));
+        ev.pttrack.push_back(std::pow(ptGen(reng),iv==5 ?-1.0f:-0.5f));
         ev.pttrack.back() *= ev.pttrack.back();
+        ptSum += ev.pttrack.back();
       }
+      ptMax = std::max(ptMax,ptSum);
+      if (iv == 5) pt5 = ptSum;
     }
+    std::cout << "PV, ptMax " << std::sqrt(pt5) << ' ' << std::sqrt(ptMax) << std::endl;    
     
     // add noise
     auto nt = 2 * trackGen(reng);
@@ -119,7 +126,7 @@ int main() {
   float eps = 0.1f;
   std::array<float, 3> par{{eps, 0.01f, 9.0f}};
   for (int nav = 30; nav < 260; nav += 20) {
-    ClusterGenerator gen(nav, 6);
+    ClusterGenerator gen(nav, 10);
 
     for (int iii = 8; iii < 20; ++iii) {
       auto kk = iii / 4;  // M param
@@ -142,18 +149,18 @@ int main() {
 
 #ifdef __CUDACC__
       cudaCheck(cudaMemcpy(LOC_WS(ntrks), &nt, sizeof(uint32_t), cudaMemcpyHostToDevice));
-      cudaCheck(cudaMemcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
-      cudaCheck(cudaMemcpy(LOC_WS(ezt2), ev.eztrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
-      cudaCheck(cudaMemcpy(LOC_WS(tt), ev.ttrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
-      cudaCheck(cudaMemcpy(LOC_WS(ett2), ev.ettrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
-      cudaCheck(cudaMemcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) *ntori, cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(LOC_WS(ezt2), ev.eztrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(LOC_WS(tt), ev.ttrack.data(), sizeof(float) *ntori, cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(LOC_WS(ett2), ev.ettrack.data(), sizeof(float) * ntori, cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) * ntori, cudaMemcpyHostToDevice));
 #else
       ::memcpy(LOC_WS(ntrks), &nt, sizeof(uint32_t));
-      ::memcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) * ev.ztrack.size());
-      ::memcpy(LOC_WS(ezt2), ev.eztrack.data(), sizeof(float) * ev.eztrack.size());
-      ::memcpy(LOC_WS(tt), ev.ttrack.data(), sizeof(float) * ev.ztrack.size());
-      ::memcpy(LOC_WS(ett2), ev.ettrack.data(), sizeof(float) * ev.eztrack.size());
-      ::memcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) * ev.eztrack.size());
+      ::memcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) *ntori);
+      ::memcpy(LOC_WS(ezt2), ev.eztrack.data(), sizeof(float) * ntori);
+      ::memcpy(LOC_WS(tt), ev.ttrack.data(), sizeof(float) *ntori);
+      ::memcpy(LOC_WS(ett2), ev.ettrack.data(), sizeof(float) *ntori);
+      ::memcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) *ntori);
       for (int16_t i=0; i<nt; ++i) {  ws_d->itrk[i]=i; onGPU_d->idv[i] = -1;}  // FIXME do the same on GPU....
 #endif
 
