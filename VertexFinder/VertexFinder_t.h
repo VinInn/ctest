@@ -54,7 +54,7 @@ struct ClusterGenerator {
     float ptMax=0; float pt5=0;
     for (int iv = 0; iv < nclus; ++iv) {
       auto nt = 2 + trackGen(reng); // avoid zeros
-      if (iv == 5) nt *= 5;
+      if (iv == 5) nt *= 3;
       ev.itrack[iv] = nt;
       float ptSum=0;
       for (int it = 0; it < nt; ++it) {
