@@ -31,7 +31,7 @@ struct Event {
 
 struct ClusterGenerator {
   explicit ClusterGenerator(float nvert, float ntrack)
-      : rgen(-13., 13), errgen(0.005, 0.015), clusGen(nvert), trackGen(ntrack), gauss(0., 1.), ptGen(1.) {}
+      : rgen(-13., 13.), errgen(0.005, 0.015), clusGen(nvert), trackGen(ntrack), gauss(0., 1.), ptGen(0.001,1.) {}
 
   void operator()(Event& ev) {
     int nclus = clusGen(reng);
@@ -50,10 +50,13 @@ struct ClusterGenerator {
     ev.ttrack.clear();
     ev.ettrack.clear();
     ev.ivert.clear();
+    ev.pttrack.clear();
+    float ptMax=0; float pt5=0;
     for (int iv = 0; iv < nclus; ++iv) {
-      auto nt = 4 + trackGen(reng); // avoid zeros
-      if (iv == 5) nt *= 4;
+      auto nt = 2 + trackGen(reng); // avoid zeros
+      if (iv == 5) nt *= 3;
       ev.itrack[iv] = nt;
+      float ptSum=0;
       for (int it = 0; it < nt; ++it) {
         auto err = errgen(reng);  // reality is not flat....
         auto terr = 35.f;
@@ -62,10 +65,14 @@ struct ClusterGenerator {
         ev.ttrack.push_back(ev.tvert[iv] + terr * gauss(reng));
         ev.ettrack.push_back(terr * terr);
         ev.ivert.push_back(iv);
-        ev.pttrack.push_back((iv == 5 ? 1.f : 0.5f) + 2.f*ptGen(reng));
+        ev.pttrack.push_back(std::pow(ptGen(reng),iv==5 ?-1.0f:-0.5f));
         ev.pttrack.back() *= ev.pttrack.back();
+        ptSum += ev.pttrack.back();
       }
+      ptMax = std::max(ptMax,ptSum);
+      if (iv == 5) pt5 = ptSum;
     }
+    std::cout << "PV, ptMax " << std::sqrt(pt5) << ' ' << std::sqrt(ptMax) << std::endl;    
     
     // add noise
     auto nt = 2 * trackGen(reng);
@@ -77,7 +84,7 @@ struct ClusterGenerator {
       ev.ttrack.push_back(200.f * gauss(reng));
       ev.ettrack.push_back(terr * terr);
       ev.ivert.push_back(9999);
-      ev.pttrack.push_back(0.5f + ptGen(reng));
+      ev.pttrack.push_back(std::pow(ptGen(reng),-0.5f));
       ev.pttrack.back() *= ev.pttrack.back();
     }
     
@@ -89,7 +96,8 @@ struct ClusterGenerator {
   std::poisson_distribution<int> clusGen;
   std::poisson_distribution<int> trackGen;
   std::normal_distribution<float> gauss;
-  std::exponential_distribution<float> ptGen;
+//  std::exponential_distribution<float> ptGen;
+  std::uniform_real_distribution<float> ptGen;
 };
 
 // a macro SORRY
@@ -141,18 +149,18 @@ int main() {
 
 #ifdef __CUDACC__
       cudaCheck(cudaMemcpy(LOC_WS(ntrks), &nt, sizeof(uint32_t), cudaMemcpyHostToDevice));
-      cudaCheck(cudaMemcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
-      cudaCheck(cudaMemcpy(LOC_WS(ezt2), ev.eztrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
-      cudaCheck(cudaMemcpy(LOC_WS(tt), ev.ttrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
-      cudaCheck(cudaMemcpy(LOC_WS(ett2), ev.ettrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
-      cudaCheck(cudaMemcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) * ev.eztrack.size(), cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) *ntori, cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(LOC_WS(ezt2), ev.eztrack.data(), sizeof(float) * ev.ztrack.size(), cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(LOC_WS(tt), ev.ttrack.data(), sizeof(float) *ntori, cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(LOC_WS(ett2), ev.ettrack.data(), sizeof(float) * ntori, cudaMemcpyHostToDevice));
+      cudaCheck(cudaMemcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) * ntori, cudaMemcpyHostToDevice));
 #else
       ::memcpy(LOC_WS(ntrks), &nt, sizeof(uint32_t));
-      ::memcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) * ev.ztrack.size());
-      ::memcpy(LOC_WS(ezt2), ev.eztrack.data(), sizeof(float) * ev.eztrack.size());
-      ::memcpy(LOC_WS(tt), ev.ttrack.data(), sizeof(float) * ev.ztrack.size());
-      ::memcpy(LOC_WS(ett2), ev.ettrack.data(), sizeof(float) * ev.eztrack.size());
-      ::memcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) * ev.eztrack.size());
+      ::memcpy(LOC_WS(zt), ev.ztrack.data(), sizeof(float) *ntori);
+      ::memcpy(LOC_WS(ezt2), ev.eztrack.data(), sizeof(float) * ntori);
+      ::memcpy(LOC_WS(tt), ev.ttrack.data(), sizeof(float) *ntori);
+      ::memcpy(LOC_WS(ett2), ev.ettrack.data(), sizeof(float) *ntori);
+      ::memcpy(LOC_WS(ptt2), ev.pttrack.data(), sizeof(float) *ntori);
       for (int16_t i=0; i<nt; ++i) {  ws_d->itrk[i]=i; onGPU_d->idv[i] = -1;}  // FIXME do the same on GPU....
 #endif
 
@@ -259,7 +267,7 @@ int main() {
         }
         if (nm5>1) ++merged50;
         if (nm7>1) ++merged75;
-        if (kv ==  iPV ) std::cout << "PV " << itv << ' ' << float(ntt)/float(ev.itrack[itv]) << '/' <<  frac[kv] << '/' << nm5 << '/' << nm7 << ' ' << dz << '/' << dt << std::endl;
+        if (kv ==  iPV ) std::cout << "PV " << itv << ' ' << std::sqrt(ptv2[kv]) << ' ' << float(ntt)/float(ev.itrack[itv]) << '/' <<  frac[kv] << '/' << nm5 << '/' << nm7 << ' ' << dz << '/' << dt << std::endl;
       }
       // for (auto f: frac) std::cout << f << ' ';
       // std::cout << std::endl;
