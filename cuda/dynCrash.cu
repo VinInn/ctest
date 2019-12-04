@@ -9,16 +9,18 @@ void bar() {
   printf("bar\n");
 }
 
+
+/*
 __global__
 void crash() {
   bar<<<1,1>>>();
   cudaDeviceSynchronize();
 }
-
+*/
 
 #include "cudaCheck.h"
 void wrapper() {
-//  bar<<<1,1>>>();
+  bar<<<1,1>>>();
   cudaCheck(cudaGetLastError());
   cudaDeviceSynchronize();
   cudaCheck(cudaGetLastError());
