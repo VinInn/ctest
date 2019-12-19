@@ -5,8 +5,11 @@
 #include<cstdio>
 
 __global__
-void bar() {
-  printf("bar\n");
+void bar(int i) {
+  extern __shared__  unsigned char shared_mem[];
+  shared_mem[threadIdx.x]=1;
+  __syncthreads();
+  printf("bar %d\n", shared_mem[0]);
 }
 
 
@@ -20,7 +23,7 @@ void crash() {
 
 #include "cudaCheck.h"
 void wrapper() {
-  bar<<<1,1>>>();
+  bar<<<1,1,1024,0>>>(1);
   cudaCheck(cudaGetLastError());
   cudaDeviceSynchronize();
   cudaCheck(cudaGetLastError());
