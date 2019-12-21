@@ -18,5 +18,5 @@
 __device__ bool inplace_fnnls(SampleMatrix const& A,
                               SampleVector const& b,
                               PulseMatrix & pulse_matrix) {
-
+  return true;
 }
