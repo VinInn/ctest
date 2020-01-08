@@ -15,8 +15,9 @@
     typedef Eigen::LLT<PulseMatrix> PulseDecompLLT;
     typedef Eigen::LDLT<PulseMatrix> PulseDecompLDLT;
 
-__device__ bool inplace_fnnls(SampleMatrix const& A,
-                              SampleVector const& b,
-                              PulseMatrix & pulse_matrix) {
-  return true;
-}
+    __device__ SampleVector::Scalar compute_chi2(SampleDecompLLT& covariance_decomposition,
+                                                                 PulseMatrix const& pulse_matrix,
+                                                                 SampleVector const& amplitudes,
+                                                                 SampleVector const& samples) {
+      return covariance_decomposition.matrixL().solve(pulse_matrix * amplitudes - samples).squaredNorm();
+    }
