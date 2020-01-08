@@ -1,3 +1,26 @@
+// some  not needed as done by cuda runtime...
+#ifndef __CUDA_RUNTIME_H__
+#define __host__
+#define __device__
+#define __global__
+#define __shared__
+#define __forceinline__
+#endif
+
+#ifndef __CUDA_RUNTIME_H__
+  struct dim3 {
+    int x, y, z;
+  };
+  const dim3 threadIdx = {0, 0, 0};
+#endif
+
+// make sure function are inlined to avoid multiple definition
+#ifndef __CUDA_ARCH__
+#undef __forceinline__
+#define __forceinline__ inline __attribute__((always_inline))
+#endif
+
+#define EIGEN_NO_DEBUG
 #include <Eigen/Dense>
 
     constexpr int SampleVectorSize = 10;

@@ -8,8 +8,7 @@
     }
 
 
-__global__
-void go(SampleMatrix * inverse_cov, PulseMatrix * pulse_matrix, SampleVector * samples,  SampleVector * amplitudes, BXVector * bxs, int max_iterations)  {
+void goCC(SampleMatrix * inverse_cov, PulseMatrix * pulse_matrix, SampleVector * samples,  SampleVector * amplitudes, BXVector * bxs, int max_iterations)  {
 
     int iter=0;
     while (true) {
