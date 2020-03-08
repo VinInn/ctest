@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#ifdef __CUDACC__
+// #ifdef __CUDACC__
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -40,6 +40,6 @@ bool cudaCheck_(const char* file, int line, const char* cmd, cudaError_t result)
 
 #define cudaCheck(ARG) (cudaCheck_(__FILE__, __LINE__, #ARG, (ARG)))
 
-#endif
+// #endif
 
 #endif // HeterogeneousCore_CUDAUtilities_cudaCheck_h
