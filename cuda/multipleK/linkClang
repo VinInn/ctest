@@ -1,0 +1,4 @@
+clang++ --cuda-path=/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/cuda/10.1.168 -O3 -Wall -DCUDA_ENABLE_DEPRECATED --cuda-gpu-arch=sm_60 --cuda-gpu-arch=sm_70 -std=c++17 -fcuda-rdc -fPIC -pthread -mllvm -inline-threshold=100000 -c a.cu -o a.o
+clang++ --cuda-path=/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/cuda/10.1.168 -O3 -Wall -DCUDA_ENABLE_DEPRECATED --cuda-gpu-arch=sm_60 --cuda-gpu-arch=sm_70 -std=c++17 -fcuda-rdc -fPIC -pthread -mllvm -inline-threshold=100000 -c b.cu -o b.o
+nvcc --compiler-options '-O2 -pthread -fPIC' -dlink -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda a.o b.o -o ab_dlink.o -lcudadevrt
+
