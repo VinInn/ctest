@@ -25,7 +25,7 @@ inline __attribute__((always_inline)) cudaError_t PtxVersion(int &ptx_version)
 
     cudaError_t error = cudaSuccess;
     cudaFuncAttributes empty_kernel_attrs;
-    error = cudaFuncGetAttributes(&empty_kernel_attrs, EmptyKernel<void>))) ;
+    error = cudaFuncGetAttributes(&empty_kernel_attrs, EmptyKernel<void>) ;
     if(!error) ptx_version = empty_kernel_attrs.ptxVersion * 10;
 
     return error;

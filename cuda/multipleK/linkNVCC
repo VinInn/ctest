@@ -1,0 +1,3 @@
+nvcc -dc --generate-line-info --source-in-ptx --cudart=shared --compiler-options '-O2 -pthread -fPIC' -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda a.cu -o a.o
+nvcc -dc --generate-line-info --source-in-ptx --cudart=shared --compiler-options '-O2 -pthread -fPIC' -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda b.cu -o b.o
+nvcc --compiler-options '-O2 -pthread -fPIC' -dlink -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda a.o b.o -o ab_dlink.o -lcudadevrt
