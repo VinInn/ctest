@@ -8,7 +8,21 @@ template <typename T>
 #ifndef __NVCC__ 
 __attribute__((weak))
 #endif
-__global__ void EmptyKernel(void) { }
+__global__ void EmptyKernel(void) {
+
+#ifdef TEST_MACRO
+
+#ifndef __CUDA_ARCH__
+  #warning in kernel inside "ifndef  __CUDA_ARCH__"
+#endif
+
+#ifndef __CUDA__
+  #warning in kernel inside "ifndef  __CUDA__"
+#endif
+
+#endif
+
+}
 
 
 inline __attribute__((always_inline)) cudaError_t PtxVersion(int &ptx_version)
