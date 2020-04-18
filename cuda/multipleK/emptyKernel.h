@@ -5,6 +5,9 @@
 
 
 template <typename T>
+#ifndef __NVCC__ 
+__attribute__((weak))
+#endif
 __global__ void EmptyKernel(void) { }
 
 
