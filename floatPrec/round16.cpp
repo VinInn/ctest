@@ -21,7 +21,6 @@ float roundit(float x) {
   uint32_t i; memcpy(&i, &x, sizeof(x));
 
   i += (i>=0) ? mask : -mask;
-  memcpy(&i, &x, sizeof(x));
   i>>=shift; i<<=shift;
   memcpy(&x, &i, sizeof(x));
 
