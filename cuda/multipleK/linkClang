@@ -1,4 +1,7 @@
 clang++ --cuda-path=/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/cuda/10.1.168 -O3 -Wall -DCUDA_ENABLE_DEPRECATED --cuda-gpu-arch=sm_60 --cuda-gpu-arch=sm_70 -std=c++17 -fcuda-rdc -fPIC -pthread -mllvm -inline-threshold=100000 -c a.cu -o a.o
 clang++ --cuda-path=/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/cuda/10.1.168 -O3 -Wall -DCUDA_ENABLE_DEPRECATED --cuda-gpu-arch=sm_60 --cuda-gpu-arch=sm_70 -std=c++17 -fcuda-rdc -fPIC -pthread -mllvm -inline-threshold=100000 -c b.cu -o b.o
-nvcc --compiler-options '-O2 -pthread -fPIC' -dlink -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda a.o b.o -o ab_dlink.o -lcudadevrt
+clang++ --cuda-path=/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/cuda/10.1.168 -O3 -Wall -DCUDA_ENABLE_DEPRECATED --cuda-gpu-arch=sm_60 --cuda-gpu-arch=sm_70 -std=c++17 -fcuda-rdc -fPIC -pthread -mllvm -inline-threshold=100000 -c c.cu -o c.o
 
+nvcc --compiler-options '-O2 -pthread -fPIC' -dlink -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda a.o b.o c.o -o abc_dlink.o -lcudadevrt
+c++ -O2 -pthread -fPIC -Wl,-E -Wl,-z,defs -Wl,--hash-style=gnu --shared -rdynamic a.o b.o c.o abc_dlink.o -o libabc.so  -L/cvmfs/cms.cern.ch/slc7_amd64_gcc820/cms/cmssw/CMSSW_11_1_0_pre5_Patatrack/external/slc7_amd64_gcc820/lib -lcudart -lcudadevrt -lnvToolsExt
+c++ -O2 -pthread -fPIC main.cpp libabc.so -ldl -rdynamic
