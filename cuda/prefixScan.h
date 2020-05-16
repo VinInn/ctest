@@ -229,7 +229,7 @@ namespace cms {
       if (isLastBlockDone) {
         assert(0==(*flag));
 
-        // assert(int(gridDim.x) == *pc);
+        assert(int(gridDim.x) == *pc);
 
         // good each block has done its work and now we are left in last block
 
