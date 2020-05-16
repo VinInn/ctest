@@ -179,6 +179,78 @@ namespace cms {
         co[i] += psum[k];
       }
     }
+
+
+    // in principle not limited....
+    template <typename T>
+    __global__ void multiTaskPrefixScan(T const* ci, T* co, int32_t size, int32_t* ews) {
+    
+      auto pWork = ews;
+      auto pc = ews+1;
+      __shared__ int iWork;
+ 
+      bool done=false;
+
+      __shared__ bool isLastBlockDone;
+      __shared__ T ws[32];
+
+      isLastBlockDone = false;
+
+      while(__syncthreads_and(!done)) {
+      if (0 == threadIdx.x) {
+        iWork = atomicAdd(pWork, 1) ;
+      }
+      __syncthreads();
+
+      assert(iWork >=0);
+
+      done = iWork >=int(gridDim.x); 
+      
+      if (!done) {
+
+#ifdef __CUDA_ARCH__
+      assert(sizeof(T) * gridDim.x <= dynamic_smem_size());  // size of psum below
+#endif
+      assert(blockDim.x * gridDim.x >= size);
+      // first each block does a scan
+      int off = blockDim.x * iWork;
+      if (size - off > 0)
+        blockPrefixScan(ci + off, co + off, std::min(int(blockDim.x), size - off), ws);
+
+      // count blocks that finished
+      if (0 == threadIdx.x) {
+        auto value = atomicAdd(pc, 1);  // block counter
+        isLastBlockDone = (value == (int(gridDim.x) - 1));
+      }
+      } // done
+
+      } // while
+
+      __syncthreads();
+
+      if (!isLastBlockDone)
+        return;
+
+      // assert(int(gridDim.x) == *pc);
+
+      // good each block has done its work and now we are left in last block
+
+      // let's get the partial sums from each block
+      extern __shared__ T psum[];
+      for (int i = threadIdx.x, ni = gridDim.x; i < ni; i += blockDim.x) {
+        auto j = blockDim.x * i + blockDim.x - 1;
+        psum[i] = (j < size) ? co[j] : T(0);
+      }
+      __syncthreads();
+      blockPrefixScan(psum, psum, gridDim.x, ws);
+
+      // now it would have been handy to have the other blocks around...
+      for (int i = threadIdx.x + blockDim.x, k = 0; i < size; i += blockDim.x, ++k) {
+        co[i] += psum[k];
+      }
+    }
+
+
   }  // namespace cuda
 }  // namespace cms
 
