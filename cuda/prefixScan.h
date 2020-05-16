@@ -252,7 +252,8 @@ namespace cms {
       __syncthreads();
 
       assert(1==(*flag));
-      // now it would have been handy to have the other blocks around...
+
+      // now it is very handy to have the other blocks around...
       {
         auto first = (blockIdx.x+1) * blockDim.x + threadIdx.x;
         for (int i=first; i<size; i+=gridDim.x*blockDim.x) {
