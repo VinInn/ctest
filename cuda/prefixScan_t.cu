@@ -131,7 +131,7 @@ int main() {
 
     // the block counter
     int32_t *d_pc;
-    cudaCheck(cudaMalloc(&d_pc, 2*sizeof(int32_t)));
+    cudaCheck(cudaMalloc(&d_pc, 3*sizeof(int32_t)));
  
     cudaCheck(cudaMemset(d_pc, 0, sizeof(int32_t)));
     nthreads = 1024;
@@ -143,12 +143,14 @@ int main() {
     cudaCheck(cudaGetLastError());
     cudaDeviceSynchronize();
 
+    uint32_t * psum;
 
-    cudaCheck(cudaMemset(d_pc, 0, 2*sizeof(int32_t)));
+    cudaCheck(cudaMemset(d_pc, 0, 3*sizeof(int32_t)));
     nthreads = 1024;
     nblocks = (num_items + nthreads - 1) / nthreads;
+    cudaCheck(cudaMalloc(&psum, 4 * nblocks));
     std::cout << "launch multiTaskPrefixScan " << num_items << ' ' << nblocks << std::endl;
-    multiTaskPrefixScan<<<nblocks, nthreads, 4 * nblocks>>>(d_in, d_out2, num_items, d_pc);
+    multiTaskPrefixScan<<<nblocks, nthreads>>>(d_in, d_out2, num_items, d_pc, psum);
     cudaCheck(cudaGetLastError());
     verify<<<nblocks, nthreads, 0>>>(d_out2, num_items);
     cudaCheck(cudaGetLastError());

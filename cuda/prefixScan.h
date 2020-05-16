@@ -183,10 +183,11 @@ namespace cms {
 
     // in principle not limited....
     template <typename T>
-    __global__ void multiTaskPrefixScan(T const* ci, T* co, int32_t size, int32_t* ews) {
+    __global__ void multiTaskPrefixScan(T const* ci, T* co, int32_t size, int32_t* ews, T * psum) {
     
       auto pWork = ews;
       auto pc = ews+1;
+      auto flag = ews+2;
       __shared__ int iWork;
  
       bool done=false;
@@ -208,9 +209,6 @@ namespace cms {
       
       if (!done) {
 
-#ifdef __CUDA_ARCH__
-      assert(sizeof(T) * gridDim.x <= dynamic_smem_size());  // size of psum below
-#endif
       assert(blockDim.x * gridDim.x >= size);
       // first each block does a scan
       int off = blockDim.x * iWork;
@@ -228,28 +226,41 @@ namespace cms {
 
       __syncthreads();
 
-      if (!isLastBlockDone)
-        return;
+      if (isLastBlockDone) {
+        assert(0==(*flag));
 
-      // assert(int(gridDim.x) == *pc);
+        // assert(int(gridDim.x) == *pc);
 
-      // good each block has done its work and now we are left in last block
+        // good each block has done its work and now we are left in last block
 
-      // let's get the partial sums from each block
-      extern __shared__ T psum[];
-      for (int i = threadIdx.x, ni = gridDim.x; i < ni; i += blockDim.x) {
-        auto j = blockDim.x * i + blockDim.x - 1;
-        psum[i] = (j < size) ? co[j] : T(0);
+        // let's get the partial sums from each block
+        for (int i = threadIdx.x, ni = gridDim.x; i < ni; i += blockDim.x) {
+          auto j = blockDim.x * i + blockDim.x - 1;
+          psum[i] = (j < size) ? co[j] : T(0);
+        }
+        __syncthreads();
+        blockPrefixScan(psum, psum, gridDim.x, ws);
+        __syncthreads();
+        if (0 == threadIdx.x) *flag = 1;        
+        __syncthreads();
       }
+
       __syncthreads();
-      blockPrefixScan(psum, psum, gridDim.x, ws);
 
+      // we need to wait the one above...
+      while (0 == (*flag)) { __threadfence();}
+      __syncthreads();
+
+      assert(1==(*flag));
       // now it would have been handy to have the other blocks around...
-      for (int i = threadIdx.x + blockDim.x, k = 0; i < size; i += blockDim.x, ++k) {
-        co[i] += psum[k];
+      {
+        auto first = (blockIdx.x+1) * blockDim.x + threadIdx.x;
+        for (int i=first; i<size; i+=gridDim.x*blockDim.x) {
+          co[i] += psum[blockIdx.x];
+        }
       }
-    }
 
+    }
 
   }  // namespace cuda
 }  // namespace cms
