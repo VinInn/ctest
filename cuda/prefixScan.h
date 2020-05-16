@@ -249,6 +249,8 @@ namespace cms {
 
       // we need to wait the one above...
       while (0 == (*flag)) { __threadfence();}
+
+      __threadfence();  // needed for psum? 
       __syncthreads();
 
       assert(1==(*flag));
