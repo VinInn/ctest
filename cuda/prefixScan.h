@@ -6,6 +6,8 @@
 #include "cudaCompat.h"
 #include "cuda_assert.h"
 
+#include "CUDATask.h"
+
 #ifdef __CUDA_ARCH__
 
 template <typename T>
@@ -183,77 +185,30 @@ namespace cms {
 
     // in principle not limited....
     template <typename T>
-    __global__ void multiTaskPrefixScan(T const* ci, T* co, int32_t size, int32_t* ews, T * psum) {
-    
-      auto pWork = ews;
-      auto pc = ews+1;
-      auto flag = ews+2;
-      __shared__ int iWork;
- 
-      bool done=false;
+    __global__ void multiTaskPrefixScan(T const* ci, T* co, int32_t size, CUDATask * task, T * psum) {
 
-      __shared__ bool isLastBlockDone;
       __shared__ T ws[32];
 
-      isLastBlockDone = false;
+      auto body = [&](int32_t iWork) {
+        assert(blockDim.x * gridDim.x >= size);
+        // first each block does a scan
+        int off = blockDim.x * iWork;
+        if (size - off > 0)
+          blockPrefixScan(ci + off, co + off, std::min(int(blockDim.x), size - off), ws);
+      };
 
-      while(__syncthreads_and(!done)) {
-      if (0 == threadIdx.x) {
-        iWork = atomicAdd(pWork, 1) ;
-      }
-      __syncthreads();
+      auto tail = [&]() {
+         // let's get the partial sums from each block
+         for (int i = threadIdx.x, ni = gridDim.x; i < ni; i += blockDim.x) {
+           auto j = blockDim.x * i + blockDim.x - 1;
+           psum[i] = (j < size) ? co[j] : T(0);
+         }
+         __syncthreads();
+         blockPrefixScan(psum, psum, gridDim.x, ws);
+         __syncthreads();
+       };
 
-      assert(iWork >=0);
-
-      done = iWork >=int(gridDim.x); 
-      
-      if (!done) {
-
-      assert(blockDim.x * gridDim.x >= size);
-      // first each block does a scan
-      int off = blockDim.x * iWork;
-      if (size - off > 0)
-        blockPrefixScan(ci + off, co + off, std::min(int(blockDim.x), size - off), ws);
-
-      // count blocks that finished
-      if (0 == threadIdx.x) {
-        auto value = atomicAdd(pc, 1);  // block counter
-        isLastBlockDone = (value == (int(gridDim.x) - 1));
-      }
-      } // done
-
-      } // while
-
-      __syncthreads();
-
-      if (isLastBlockDone) {
-        assert(0==(*flag));
-
-        assert(int(gridDim.x) == *pc);
-
-        // good each block has done its work and now we are left in last block
-
-        // let's get the partial sums from each block
-        for (int i = threadIdx.x, ni = gridDim.x; i < ni; i += blockDim.x) {
-          auto j = blockDim.x * i + blockDim.x - 1;
-          psum[i] = (j < size) ? co[j] : T(0);
-        }
-        __syncthreads();
-        blockPrefixScan(psum, psum, gridDim.x, ws);
-        __syncthreads();
-        if (0 == threadIdx.x) *flag = 1;        
-        __syncthreads();
-      }
-
-      __syncthreads();
-
-      // we need to wait the one above...
-      while (0 == (*flag)) { __threadfence();}
-
-      __threadfence();  // needed for psum? 
-      __syncthreads();
-
-      assert(1==(*flag));
+       task->doit(body,tail);
 
       // now it is very handy to have the other blocks around...
       {
