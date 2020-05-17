@@ -151,7 +151,7 @@ int main() {
     nblocks = (num_items + nthreads - 1) / nthreads;
     cudaCheck(cudaMalloc(&psum, 4 * nblocks));
     std::cout << "launch multiTaskPrefixScan " << num_items << ' ' << nblocks << std::endl;
-    multiTaskPrefixScan<<<nblocks, nthreads>>>(d_in, d_out2, num_items, task, psum);
+    multiTaskPrefixScanKernel<<<nblocks, nthreads>>>(d_in, d_out2, num_items, task, psum);
     cudaCheck(cudaGetLastError());
     verify<<<nblocks, nthreads, 0>>>(d_out2, num_items);
     cudaCheck(cudaGetLastError());
