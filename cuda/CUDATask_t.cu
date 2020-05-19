@@ -7,6 +7,9 @@ __global__ void one(int32_t *d_in, int32_t *d_out,  int32_t n) {
     // standard loop  (iWork instead of blockIdx.x)
     auto first = iWork * blockDim.x + threadIdx.x;
    for (int i=first; i<n; i+=gridDim.x*blockDim.x) { d_in[i]=-1; d_out[i]=-5;}
+   d_in[3333]=-4;  // touch it everywhere
+   if (15==d_in[1234]) d_in[1234]=33;
+   if (15==d_out[200234]) d_out[200234]=33;
   };
 
   init(blockIdx.x);
@@ -19,6 +22,9 @@ __global__ void two(int32_t *d_in, int32_t *d_out,  int32_t n) {
     // standard loop  (iWork instead of blockIdx.x)
     auto first = iWork * blockDim.x + threadIdx.x;
    for (int i=first; i<n; i+=gridDim.x*blockDim.x) d_in[i]=5;
+   d_in[5324]=4;  // should fail
+   if (15==d_in[10234]) d_in[10234]=33;
+   if (15==d_out[10234]) d_out[10234]=33;
   };
 
   setIt(blockIdx.x);
@@ -49,6 +55,9 @@ __global__ void testTask(int32_t *d_in, int32_t *d_out,  int32_t n, CUDATask * t
     auto first = iWork * blockDim.x + threadIdx.x;
    for (int i=first; i<n; i+=gridDim.x*blockDim.x) { d_in[i]=-1; d_out[i]=-5;}  
    d_in[3333]=-4;  // touch it everywhere
+   if (15==d_in[1234]) d_in[1234]=33;
+   if (15==d_out[200234]) d_out[200234]=33;
+
   };
 
 
@@ -57,6 +66,9 @@ __global__ void testTask(int32_t *d_in, int32_t *d_out,  int32_t n, CUDATask * t
     auto first = iWork * blockDim.x + threadIdx.x;
    for (int i=first; i<n; i+=gridDim.x*blockDim.x) d_in[i]=5;
    d_in[5324]=4;  // should fail
+   if (15==d_in[10234]) d_in[10234]=33;
+   if (15==d_out[10234]) d_out[10234]=33;
+
   };
 
   auto testIt1 = [&](int32_t iWork) {
