@@ -43,6 +43,7 @@ __global__ void three(int32_t *d_in, int32_t *d_out,  int32_t n) {
 
 }
 
+template<int N>
 __global__ void testTask(int32_t *d_in, int32_t *d_out,  int32_t n, CUDATask * task1, CUDATask * task2) {
 
   auto voidTail = [](){};
@@ -117,10 +118,6 @@ int main() {
   auto nthreads = 256;
   auto nblocks = (num_items + nthreads - 1) / nthreads;
 
-  auto mblocks = nblocks/32;
-
-  std::cout << "scheduling " << nblocks << '/' << mblocks << " blocks of " << nthreads << " threads"<< std::endl;
-
   CUDATask * task1;
   cudaCheck(cudaMalloc(&task1, sizeof(CUDATask)));
   cudaCheck(cudaMemset(task1, 0, sizeof(CUDATask)));
@@ -134,6 +131,7 @@ int main() {
   cudaCheck(cudaMemset(d_out1, 0, num_items*sizeof(int32_t)));
 
   {
+  std::cout << "scheduling " << nblocks << " blocks of " << nthreads << " threads"<< std::endl;
   cudaDeviceSynchronize();
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
   one<<<nblocks, nthreads, 0>>>(d_in, d_out1, num_items);
@@ -154,15 +152,32 @@ int main() {
   cudaCheck(cudaMemset(d_out1, 0, num_items*sizeof(int32_t)));
 
   {
+  std::cout << "scheduling " << nblocks << " blocks of " << nthreads << " threads"<< std::endl;
   cudaDeviceSynchronize();
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
-  testTask<<<mblocks, nthreads, 0>>>(d_in, d_out1, num_items, task1, task2);
+  testTask<1> <<<nblocks, nthreads, 0>>>(d_in, d_out1, num_items, task1, task2);
   cudaDeviceSynchronize();
   high_resolution_clock::time_point t2 = high_resolution_clock::now();
   cudaCheck(cudaGetLastError());
   verify<<<nblocks, nthreads, 0>>>(d_out1, num_items);
   cudaCheck(cudaGetLastError());
   cudaDeviceSynchronize(); 
+  auto delta = duration_cast<duration<double>>(t2 - t1).count();
+  std::cout << "task kernel took " << delta << std::endl;
+  }
+
+  {
+  nblocks /= 32;
+  std::cout << "scheduling " << nblocks << " blocks of " << nthreads << " threads"<< std::endl;
+  cudaDeviceSynchronize();
+  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+  testTask<2> <<<nblocks, nthreads, 0>>>(d_in, d_out1, num_items, task1, task2);
+  cudaDeviceSynchronize();
+  high_resolution_clock::time_point t2 = high_resolution_clock::now();
+  cudaCheck(cudaGetLastError());
+  verify<<<nblocks, nthreads, 0>>>(d_out1, num_items);
+  cudaCheck(cudaGetLastError());
+  cudaDeviceSynchronize();
   auto delta = duration_cast<duration<double>>(t2 - t1).count();
   std::cout << "task kernel took " << delta << std::endl;
   }
