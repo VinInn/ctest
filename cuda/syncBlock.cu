@@ -25,7 +25,7 @@ void multiBlockReduction(int * v,  int * w, int * pc, int n) {
 
    auto & c = *pc;  
    
-   for (int i=first; i<n; i+=gridDim.x*blockDim.x) atomicAdd(&w[blockIdx.x],v[i]);;
+   for (int i=first; i<n; i+=gridDim.x*blockDim.x) atomicAdd_block(&w[blockIdx.x],v[i]);;
 
    if (0==threadIdx.x) atomicAdd(pc,1);
 
@@ -36,14 +36,13 @@ void multiBlockReduction(int * v,  int * w, int * pc, int n) {
    __syncthreads();
 
    for (int i=first; i<gridDim.x; i+=blockDim.x)
-     atomicAdd(&w[gridDim.x],w[i]);
+     atomicAdd_grid(&w[gridDim.x],w[i]);
 
    __syncthreads();
 
    if (0==first) printf("finished %d\n",w[gridDim.x]);
 } 
 
-#include <cuda/api_wrappers.h>
 #include<iostream>
 
 int main() {
@@ -53,19 +52,12 @@ int main() {
 
   std::cout << "summing " << NTOT << " ones" << std::endl;
 
-  if (cuda::device::count() == 0) {
-    std::cerr << "No CUDA devices on this system" << "\n";
-    exit(EXIT_FAILURE);
-  }
+  int *  v_d;  cudaMalloc(&v_d, sizeof(int)*NTOT);
+  int *  w_d;  cudaMalloc(&w_d, sizeof(int)*1025);
+  int *  c_d;  cudaMalloc(&c_d, sizeof(int));
 
-  auto current_device = cuda::device::current::get();
-
-  auto v_d = cuda::memory::device::make_unique<int[]>(current_device, NTOT);
-  auto w_d = cuda::memory::device::make_unique<int[]>(current_device, 1025);
-  auto c_d = cuda::memory::device::make_unique<int[]>(current_device, 1);
-
-  init<<<48,256>>>(v_d.get(),w_d.get(),c_d.get(),NTOT);
-  multiBlockReduction<<<48,256>>>(v_d.get(),w_d.get(),c_d.get(),NTOT);
+  init<<<48,256>>>(v_d,w_d,c_d,NTOT);
+  multiBlockReduction<<<48,256>>>(v_d,w_d,c_d,NTOT);
   cudaDeviceSynchronize();
 
 

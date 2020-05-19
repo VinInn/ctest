@@ -10,6 +10,9 @@ class CUDATask {
 
 public: 
 
+  // better to be called in the tail of the previous task...
+  __device__ void __forceinline__ zero() { nWork=0; nDone=0; allDone=0;}
+
   template<typename BODY, typename TAIL>
   __device__ void __forceinline__ doit(BODY body, TAIL tail) {
 

@@ -23,13 +23,13 @@ __global__ void warpMin() {
     x[threadIdx.x] = value;
 
     if (threadIdx.x < 60) {
-    // auto mask = __activemask(); // not needed!
-    // Use XOR mode to perform butterfly reduction
+      auto mask = __activemask(); // definetively needed on volta!
+      // Use XOR mode to perform butterfly reduction
       for (int i=16; i>=1; i/=2)
-          value = std::min(value,__shfl_xor_sync(0xffffffff, value, i, 32));
+          value = std::min(value,__shfl_xor_sync(mask, value, i, 32));
     }
 
-    // "value" now contains the sum across all threads
+    // "value" now contains the min across all threads
     printf("Thread %d final value = %d\n", threadIdx.x, value);
 
    __shared__ int min;
@@ -47,6 +47,7 @@ __global__ void warpMin() {
 
 int main() {
     warpReduce<<< 1, 32 >>>();
+    cudaDeviceSynchronize();
     warpMin<<< 1, 64 >>>();
     cudaDeviceSynchronize();
 
