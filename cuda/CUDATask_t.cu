@@ -83,7 +83,9 @@ __global__ void verify(int32_t *d_out,  int32_t n) {
 
 #include "cudaCheck.h"
 #include "requireDevices.h"
+#include <chrono>
 
+using namespace std::chrono;
 
 
 int main() {
@@ -103,9 +105,9 @@ int main() {
   auto nthreads = 256;
   auto nblocks = (num_items + nthreads - 1) / nthreads;
 
-  nblocks /= 16;
+  auto mblocks = nblocks/32;
 
-  std::cout << "scheduling " << nblocks << " blocks" << std::endl;
+  std::cout << "scheduling " << nblocks << '/' << mblocks << " blocks of " << nthreads << " threads"<< std::endl;
 
   CUDATask * task1;
   cudaCheck(cudaMalloc(&task1, sizeof(CUDATask)));
@@ -119,24 +121,39 @@ int main() {
   cudaCheck(cudaMemset(d_in, 0, num_items*sizeof(int32_t)));
   cudaCheck(cudaMemset(d_out1, 0, num_items*sizeof(int32_t)));
 
+  {
+  cudaDeviceSynchronize();
+  high_resolution_clock::time_point t1 = high_resolution_clock::now();
   one<<<nblocks, nthreads, 0>>>(d_in, d_out1, num_items);
   two<<<nblocks, nthreads, 0>>>(d_in, d_out1, num_items);
   three<<<nblocks, nthreads, 0>>>(d_in, d_out1, num_items);
+  cudaDeviceSynchronize();
+  high_resolution_clock::time_point t2 = high_resolution_clock::now();
+
   cudaCheck(cudaGetLastError());
   verify<<<nblocks, nthreads, 0>>>(d_out1, num_items);
   cudaCheck(cudaGetLastError());
   cudaDeviceSynchronize();
-
+  auto delta = duration_cast<duration<double>>(t2 - t1).count();
+  std::cout << "three kernels took " << delta << std::endl;
+  }
 
   cudaCheck(cudaMemset(d_in, 0, num_items*sizeof(int32_t)));
   cudaCheck(cudaMemset(d_out1, 0, num_items*sizeof(int32_t)));
 
-  testTask<<<nblocks, nthreads, 0>>>(d_in, d_out1, num_items, task1, task2);
+  {
+  cudaDeviceSynchronize();
+  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+  testTask<<<mblocks, nthreads, 0>>>(d_in, d_out1, num_items, task1, task2);
+  cudaDeviceSynchronize();
+  high_resolution_clock::time_point t2 = high_resolution_clock::now();
   cudaCheck(cudaGetLastError());
   verify<<<nblocks, nthreads, 0>>>(d_out1, num_items);
   cudaCheck(cudaGetLastError());
   cudaDeviceSynchronize(); 
-
+  auto delta = duration_cast<duration<double>>(t2 - t1).count();
+  std::cout << "task kernel took " << delta << std::endl;
+  }
 
   return 0;
 };
