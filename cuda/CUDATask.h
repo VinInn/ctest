@@ -22,6 +22,15 @@ public:
 
      isLastBlockDone = false;
 
+     /*
+     //  fast jump for late blocks??  (worth only if way to many blocks scheduled)
+     if (0 == threadIdx.x) {
+          iWork = nWork;
+     }
+     __syncthreads();
+     done = iWork >=int(gridDim.x);
+     */
+
       while(__syncthreads_and(!done)) {
         if (0 == threadIdx.x) {
           iWork = atomicAdd(&nWork, 1) ;
@@ -51,7 +60,6 @@ public:
 
         // good each block has done its work and now we are left in last block
         tail();
-        __syncthreads();
         if (0 == threadIdx.x) allDone = 1;
         __syncthreads();
       }
@@ -59,8 +67,7 @@ public:
       // we need to wait the one above...
       while (0 == (allDone)) { __threadfence();}
 
-      // __threadfence();  // needed for whatever done in Tail?
-      __syncthreads();
+      __syncthreads();  // at some point we must decide who sync
 
       assert(1==allDone);
 
