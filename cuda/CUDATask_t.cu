@@ -16,12 +16,12 @@ __global__ void one(int32_t *d_in, int32_t *d_out,  int32_t n) {
 }
 
 
-__global__ void two(int32_t *d_in, int32_t *d_out,  int32_t n) {
+__global__ void two(int32_t *d_in, int32_t *d_out,  int32_t *one, int32_t n) {
 
   auto setIt = [&](int32_t iWork) {
     // standard loop  (iWork instead of blockIdx.x)
     auto first = iWork * blockDim.x + threadIdx.x;
-   for (int i=first; i<n; i+=gridDim.x*blockDim.x) d_in[i]=5;
+   for (int i=first; i<n; i+=gridDim.x*blockDim.x) {d_in[i]=5; ++one[i];}
    d_in[5324]=4;  // should fail
    if (15==d_in[10234]) d_in[10234]=33;
    if (15==d_out[10234]) d_out[10234]=33;
@@ -44,11 +44,9 @@ __global__ void three(int32_t *d_in, int32_t *d_out,  int32_t n) {
 }
 
 template<int N>
-__global__ void testTask(int32_t *d_in, int32_t *d_out,  int32_t n, CUDATask * task1, CUDATask * task2) {
+__global__ void testTask(int32_t *d_in, int32_t *d_out,  int32_t *one, int32_t n, CUDATask * task) {
 
   auto voidTail = [](){};
-  auto zero1 = [&](){task1->zero();};
-  auto zero2 = [&](){task2->zero();};
 
 
   auto init = [&](int32_t iWork) {
@@ -65,7 +63,7 @@ __global__ void testTask(int32_t *d_in, int32_t *d_out,  int32_t n, CUDATask * t
   auto setIt = [&](int32_t iWork) {
     // standard loop  (iWork instead of blockIdx.x)
     auto first = iWork * blockDim.x + threadIdx.x;
-   for (int i=first; i<n; i+=gridDim.x*blockDim.x) d_in[i]=5;
+   for (int i=first; i<n; i+=gridDim.x*blockDim.x) {d_in[i]=5; ++one[i];}
    d_in[5324]=4;  // should fail
    if (15==d_in[10234]) d_in[10234]=33;
    if (15==d_out[10234]) d_out[10234]=33;
@@ -78,17 +76,19 @@ __global__ void testTask(int32_t *d_in, int32_t *d_out,  int32_t n, CUDATask * t
     for (int i=first; i<n; i+=gridDim.x*blockDim.x) if (5==d_in[i]) d_out[i]=5;
   };
 
-  task1->doit(init,zero2);
-  task2->doit(setIt,zero1);
-  task1->doit(testIt1,zero2);
+  task[0].doit(init,voidTail);
+  task[1].doit(setIt,voidTail);
+  task[2].doit(testIt1,voidTail);
 
 }
 
 
-__global__ void verify(int32_t *d_out,  int32_t n) {
+__global__ void verify(int32_t *d_out, int32_t * one, int32_t n) {
    auto first = blockIdx.x * blockDim.x + threadIdx.x;
-   for (int i=first; i<n; i+=gridDim.x*blockDim.x) if (5!=d_out[i]) printf("failed %d %d/%d\n",i,blockIdx.x,threadIdx.x);
-
+   for (int i=first; i<n; i+=gridDim.x*blockDim.x) {
+     if (5!=d_out[i]) printf("out failed %d %d/%d\n",i,blockIdx.x,threadIdx.x);
+     if (1!=one[i]) printf("one failed %d %d/%d\n",i,blockIdx.x,threadIdx.x);
+   }
 }
 
 
@@ -118,48 +118,47 @@ int main() {
   auto nthreads = 256;
   auto nblocks = (num_items + nthreads - 1) / nthreads;
 
-  CUDATask * task1;
-  cudaCheck(cudaMalloc(&task1, sizeof(CUDATask)));
-  cudaCheck(cudaMemset(task1, 0, sizeof(CUDATask)));
-
-  CUDATask * task2;
-  cudaCheck(cudaMalloc(&task2, sizeof(CUDATask)));
-  cudaCheck(cudaMemset(task2, 0, sizeof(CUDATask)));
-
+  CUDATask * task;  // 3 of them
+  cudaCheck(cudaMalloc(&task, 3*sizeof(CUDATask)));
+  cudaCheck(cudaMemset(task, 0, 3*sizeof(CUDATask)));
 
   cudaCheck(cudaMemset(d_in, 0, num_items*sizeof(int32_t)));
   cudaCheck(cudaMemset(d_out1, 0, num_items*sizeof(int32_t)));
+  cudaCheck(cudaMemset(d_out2, 0, num_items*sizeof(int32_t)));
 
   {
   std::cout << "scheduling " << nblocks << " blocks of " << nthreads << " threads"<< std::endl;
   cudaDeviceSynchronize();
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
   one<<<nblocks, nthreads, 0>>>(d_in, d_out1, num_items);
-  two<<<nblocks, nthreads, 0>>>(d_in, d_out1, num_items);
+  two<<<nblocks, nthreads, 0>>>(d_in, d_out1, d_out2, num_items);
   three<<<nblocks, nthreads, 0>>>(d_in, d_out1, num_items);
   cudaDeviceSynchronize();
   high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
   cudaCheck(cudaGetLastError());
-  verify<<<nblocks, nthreads, 0>>>(d_out1, num_items);
+  verify<<<nblocks, nthreads, 0>>>(d_out1, d_out2, num_items);
   cudaCheck(cudaGetLastError());
   cudaDeviceSynchronize();
   auto delta = duration_cast<duration<double>>(t2 - t1).count();
   std::cout << "three kernels took " << delta << std::endl;
   }
 
-  cudaCheck(cudaMemset(d_in, 0, num_items*sizeof(int32_t)));
-  cudaCheck(cudaMemset(d_out1, 0, num_items*sizeof(int32_t)));
 
   {
+  cudaCheck(cudaMemset(d_in, 0, num_items*sizeof(int32_t)));
+  cudaCheck(cudaMemset(d_out1, 0, num_items*sizeof(int32_t)));
+  cudaCheck(cudaMemset(d_out2, 0, num_items*sizeof(int32_t)));
+  cudaCheck(cudaMemset(task, 0, 3*sizeof(CUDATask)));
+
   std::cout << "scheduling " << nblocks << " blocks of " << nthreads << " threads"<< std::endl;
   cudaDeviceSynchronize();
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
-  testTask<1> <<<nblocks, nthreads, 0>>>(d_in, d_out1, num_items, task1, task2);
+  testTask<1> <<<nblocks, nthreads, 0>>>(d_in, d_out1, d_out2, num_items, task);
   cudaDeviceSynchronize();
   high_resolution_clock::time_point t2 = high_resolution_clock::now();
   cudaCheck(cudaGetLastError());
-  verify<<<nblocks, nthreads, 0>>>(d_out1, num_items);
+  verify<<<nblocks, nthreads, 0>>>(d_out1, d_out2, num_items);
   cudaCheck(cudaGetLastError());
   cudaDeviceSynchronize(); 
   auto delta = duration_cast<duration<double>>(t2 - t1).count();
@@ -167,15 +166,20 @@ int main() {
   }
 
   {
-  nblocks /= 32;
+     nblocks /= 32;
+  cudaCheck(cudaMemset(d_in, 0, num_items*sizeof(int32_t)));
+  cudaCheck(cudaMemset(d_out1, 0, num_items*sizeof(int32_t)));
+  cudaCheck(cudaMemset(d_out2, 0, num_items*sizeof(int32_t)));
+  cudaCheck(cudaMemset(task, 0, 3*sizeof(CUDATask)));
+
   std::cout << "scheduling " << nblocks << " blocks of " << nthreads << " threads"<< std::endl;
   cudaDeviceSynchronize();
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
-  testTask<2> <<<nblocks, nthreads, 0>>>(d_in, d_out1, num_items, task1, task2);
+  testTask<2> <<<nblocks, nthreads, 0>>>(d_in, d_out1, d_out2, num_items, task);
   cudaDeviceSynchronize();
   high_resolution_clock::time_point t2 = high_resolution_clock::now();
   cudaCheck(cudaGetLastError());
-  verify<<<nblocks, nthreads, 0>>>(d_out1, num_items);
+  verify<<<nblocks, nthreads, 0>>>(d_out1, d_out2, num_items);
   cudaCheck(cudaGetLastError());
   cudaDeviceSynchronize();
   auto delta = duration_cast<duration<double>>(t2 - t1).count();
