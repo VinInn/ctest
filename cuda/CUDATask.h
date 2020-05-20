@@ -59,7 +59,7 @@ public:
       // we need to wait the one above...
       while (0 == (allDone)) { __threadfence();}
 
-      __threadfence();  // needed for whatever done in Tail?
+      // __threadfence();  // needed for whatever done in Tail?
       __syncthreads();
 
       assert(1==allDone);

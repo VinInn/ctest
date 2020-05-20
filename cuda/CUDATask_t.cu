@@ -107,6 +107,13 @@ int main() {
 
   cms::cudatest::requireDevices();
 
+  cudaDeviceProp deviceProp;
+  cudaGetDeviceProperties(&deviceProp, 0);
+  std::cout << "Running on Device " << ' ' << " with "
+  << "\nmultiProcessorCount " << deviceProp.multiProcessorCount
+  << "\nmaxThreadsPerMultiProcessor " << deviceProp.maxThreadsPerMultiProcessor 
+  << std::endl;
+
   int32_t *d_in;
   int32_t *d_out1;
   int32_t *d_out2;
