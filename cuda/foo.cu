@@ -1,7 +1,15 @@
 #include <cstdio>
+
+#include <cooperative_groups.h>
+using namespace cooperative_groups;
+
 __global__ 
 void foo() {
-   printf("Hello\n");
+  grid_group grid = this_grid();
+  if (0==blockIdx.x) printf("Hello\n");
+  grid.sync();
+  if (1==blockIdx.x) printf("Hello\n");
+  grid.sync();
 }
 
 #include<cuda.h>

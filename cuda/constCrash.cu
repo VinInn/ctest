@@ -30,3 +30,18 @@
     }
 
 
+
+#include <cooperative_groups.h>
+using namespace cooperative_groups;
+
+__global__
+void coop2(int * i) {
+
+  grid_group grid = this_grid();
+
+  i[hashedIndexEE(blockIdx.x)] =0;
+  grid.sync();
+  i[hashedIndexEE(blockIdx.x+threadIdx.x)] =3;
+  grid.sync();
+
+}
