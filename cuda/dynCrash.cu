@@ -22,8 +22,8 @@ struct Go {
 
 __constant__ int q[] = {0,1,2,3,4};
 
-__global__
-void bar(int * i) {
+__device__  __forceinline__
+void barf(int * i) {
   extern __shared__  unsigned char shared_mem[];
   shared_mem[threadIdx.x]=i[threadIdx.x]*q[2]*hashedIndexEE(i[7]);
   __syncthreads();
@@ -39,6 +39,14 @@ void bar(int * i) {
   }
   delete [] q;
 }
+
+
+
+__global__
+void bar(int * i) {
+  barf(i);
+}
+
 
 struct Large {
   int v[100];
@@ -63,13 +71,28 @@ void huge(int * i,
 }
 
 
-/*
+
 __global__
-void crash() {
-  bar<<<1,1>>>();
+void crash(int * i) {
+  bar<<<1,1>>>(i);
   cudaDeviceSynchronize();
 }
-*/
+
+#include <cooperative_groups.h>
+using namespace cooperative_groups;
+
+__global__
+void coop(int * i) {
+
+  grid_group grid = this_grid();
+
+  barf(i);
+  grid.sync();
+  barf(i);
+  grid.sync();
+
+}
+
 
 #include "cudaCheck.h"
 void wrapper() {
