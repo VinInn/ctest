@@ -1,6 +1,4 @@
-nvcc $1 -I/home/cmssw/slc7_amd64_gcc700/external/cuda-api-wrappers/20180504-dlmfga/include  \
--Icub \
--I/home/cmssw/slc7_amd64_gcc700/external/eigen/e4c107b451c52c9ab2d7b7fa4194ee35332916ec-patatrack/include/eigen3 \
+nvcc $1 \
 -gencode arch=compute_75,code=sm_75 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda --generate-line-info --source-in-ptx \
 --compiler-options '-O3 -Wall -g -mfma -mavx2'
 # --compiler-options '-O3 -Wall -g'

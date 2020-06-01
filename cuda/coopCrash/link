@@ -1,8 +1,8 @@
 nvcc -dc --generate-line-info --source-in-ptx --cudart=shared --compiler-options '-O2 -pthread -fPIC' -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda dynCrash.cu -o dynCrash.o
-nvcc --compiler-options '-O2 -pthread -fPIC' -dlink -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda dynCrash.o -lcudadevrt -o dynCrash_dlink.o -lnvToolsExt
+nvcc --compiler-options '-O2 -pthread -fPIC' -dlink -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda dynCrash.o -lcudadevrt -o dynCrash_dlink.o
 
 nvcc -dc --generate-line-info --source-in-ptx --cudart=shared --compiler-options '-O2 -pthread -fPIC' -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda foo.cu -o foo.o
 nvcc --compiler-options '-O2 -pthread -fPIC' -dlink -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda foo.o -o foo_dlink.o -lcudadevrt
-c++ -O2 -pthread -fPIC -Wl,-E -Wl,-z,defs -Wl,--hash-style=gnu --shared -rdynamic dynCrash.o dynCrash_dlink.o  -o libdynCrash.so -L/data/cmssw/slc7_amd64_gcc820/cms/cmssw/CMSSW_11_0_0_pre11_Patatrack/external/slc7_amd64_gcc820/lib/ -lcudart -lcudadevrt -lnvToolsExt
+c++ -O2 -pthread -fPIC -Wl,-E -Wl,-z,defs -Wl,--hash-style=gnu --shared -rdynamic dynCrash.o dynCrash_dlink.o  -o libdynCrash.so -L/data/cmssw/slc7_amd64_gcc820/cms/cmssw/CMSSW_11_0_0_pre11_Patatrack/external/slc7_amd64_gcc820/lib/ -lcudart -lcudadevrt
 c++ -O2 -pthread -fPIC -Wl,-E -Wl,-z,defs -Wl,--hash-style=gnu --shared -rdynamic foo.o foo_dlink.o -o libfoo.so -L/data/cmssw/slc7_amd64_gcc820/cms/cmssw/CMSSW_11_0_0_pre11_Patatrack/external/slc7_amd64_gcc820/lib/ -lcudart -lcudadevrt -lnvToolsExt
 c++ -O2 -pthread -fPIC aMain.cpp libfoo.so -ldl -rdynamic
