@@ -1,11 +1,11 @@
-setenv PATH /usr/local/cuda-11.0/bin:${PATH}
-setenv LD_LIBRARY_PATH  ./:/usr/local/cuda-11.0/lib64:${LD_LIBRARY_PATH}
+#setenv PATH /usr/local/cuda-11.0/bin:${PATH}
+#setenv LD_LIBRARY_PATH  ./:/usr/local/cuda-11.0/lib64:${LD_LIBRARY_PATH}
 rm *.so *.o a.out
 nvcc -dc --generate-line-info --source-in-ptx --cudart=shared --compiler-options '-O2 -pthread -fPIC' -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda dynCrash.cu -o dynCrash.o
 nvcc --compiler-options '-O2 -pthread -fPIC' -dlink -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda dynCrash.o -lcudadevrt -o dynCrash_dlink.o
 
 nvcc -dc --generate-line-info --source-in-ptx --cudart=shared --compiler-options '-O2 -pthread -fPIC' -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda foo.cu -o foo.o
 nvcc --compiler-options '-O2 -pthread -fPIC' -dlink -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda foo.o -o foo_dlink.o -lcudadevrt
-c++ -O2 -pthread -fPIC -Wl,-E -Wl,-z,defs -Wl,--hash-style=gnu --shared -rdynamic dynCrash.o dynCrash_dlink.o  -o libdynCrash.so -L/usr/local/cuda/lib64 -lcudart -lcudadevrt
-c++ -O2 -pthread -fPIC -Wl,-E -Wl,-z,defs -Wl,--hash-style=gnu --shared -rdynamic foo.o foo_dlink.o -o libfoo.so -L/usr/local/cuda/lib64 -lcudart -lcudadevrt -lnvToolsExt
+c++ -O2 -pthread -fPIC -Wl,-E -Wl,-z,defs -Wl,--hash-style=gnu --shared -rdynamic dynCrash.o dynCrash_dlink.o  -o libdynCrash.so -L/usr/local/cuda-10.2/lib64 -lcudart -lcudadevrt
+c++ -O2 -pthread -fPIC -Wl,-E -Wl,-z,defs -Wl,--hash-style=gnu --shared -rdynamic foo.o foo_dlink.o -o libfoo.so -L/usr/local/cuda-10.2/lib64 -lcudart -lcudadevrt -lnvToolsExt
 c++ -O2 -pthread -fPIC aMain.cpp libfoo.so -ldl -rdynamic

@@ -71,14 +71,16 @@ void huge(int * i,
 }
 
 
-/*
+
 __global__
 void crash(int * i) {
   bar<<<1,1>>>(i);
   cudaDeviceSynchronize();
 }
-*/
 
+
+
+/*
 #include <cooperative_groups.h>
 using namespace cooperative_groups;
 
@@ -93,6 +95,7 @@ void coop(int * i) {
   grid.sync();
 
 }
+*/
 
 
 #include "cudaCheck.h"
