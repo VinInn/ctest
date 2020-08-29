@@ -3,6 +3,7 @@
 #include <cooperative_groups.h>
 using namespace cooperative_groups;
 
+
 __global__ 
 void foo() {
   grid_group grid = this_grid();
@@ -14,10 +15,11 @@ void foo() {
 
 #include<cuda.h>
 #include "cudaCheck.h"
+#include "launch.h"
 
 void fooWrapper() {
 
-  foo<<<1,1>>>();
+  cms::cuda::launch_cooperative(foo,{1,1});
   cudaCheck(cudaGetLastError());
   cudaDeviceSynchronize();
  

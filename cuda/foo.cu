@@ -17,7 +17,7 @@ void foo() {
 
 void fooWrapper() {
 
-  foo<<<1,1>>>();
+//  foo<<<1,1>>>();
   cudaCheck(cudaGetLastError());
   cudaDeviceSynchronize();
  
