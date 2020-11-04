@@ -1,3 +1,4 @@
+//  c++ -Ofast -march=skylake-avx512 sinperf.cpp -fopt-info-vec -mprefer-vector-width=512 -I../../vdt/include/
 #include<cmath>
 #include "vdtMath.h"
 
