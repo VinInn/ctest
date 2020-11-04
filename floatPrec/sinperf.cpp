@@ -1,4 +1,6 @@
 #include<cmath>
+#include "vdtMath.h"
+
 int main() {
 
   double res=0;
@@ -11,8 +13,9 @@ int main() {
       for (int j=0; j<1024; ++j) x[j]+=inc;
       for (int j=0; j<1024; ++j) {
          auto y = 1./std::sqrt(std::sqrt(0.0001*x[j]));
-         y = std::sin(y);
-         res+=y;
+         auto y1 = std::sin(y);
+         auto y2 = vdt::fast_sin(y);
+         res+=std::abs(y2-y1);
       }
   }
 
