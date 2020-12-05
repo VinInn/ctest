@@ -1,4 +1,4 @@
 c++ -O3 -march=native -Wall \
--I/home/cmssw/slc7_amd64_gcc700/external/cuda/10.0.130-dlmfga/include/ \
+-I/usr/local/cuda/include/ \
 $1
 
