@@ -21,6 +21,20 @@ int main() {
 
   assert(v.data()==a.data());
 
+  a[4]=42;
+
+  assert(42==a[4]);
+  assert(42==v[4]);
+
+  auto const & ac = a;
+  auto const & vc = v;
+
+  assert(42==ac[4]);
+  assert(42==vc[4]);
+
+  assert(ac.data()==vc.data());
+
+
   return 0;
 
 
