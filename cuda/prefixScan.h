@@ -3,8 +3,8 @@
 
 #include <cstdint>
 
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
+#include "cudaCompat.h"
+#include "cuda_assert.h"
 
 #ifdef __CUDA_ARCH__
 

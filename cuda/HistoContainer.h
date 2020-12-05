@@ -9,11 +9,11 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "HeterogeneousCore/CUDAUtilities/interface/AtomicPairCounter.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
+#include "AtomicPairCounter.h"
+#include "cudaCheck.h"
+#include "cuda_assert.h"
+#include "cudastdAlgorithm.h"
+#include "prefixScan.h"
 
 namespace cms {
   namespace cuda {
