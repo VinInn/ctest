@@ -3,10 +3,8 @@
 
 #include <cstdint>
 
-#include "cudaCompat.h"
-#include "cuda_assert.h"
-
-#include "CUDATask.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 #ifdef __CUDA_ARCH__
 
@@ -43,9 +41,9 @@ namespace cms {
   namespace cuda {
 
     // limited to 32*32 elements....
-    template <typename T>
-    __host__ __device__ __forceinline__ void blockPrefixScan(T const* __restrict__ ci,
-                                                             T* __restrict__ co,
+    template <typename VT, typename T>
+    __host__ __device__ __forceinline__ void blockPrefixScan(VT const* ci,
+                                                             VT* co,
                                                              uint32_t size,
                                                              T* ws
 #ifndef __CUDA_ARCH__
@@ -140,7 +138,9 @@ namespace cms {
 
     // in principle not limited....
     template <typename T>
-    __global__ void multiBlockPrefixScan(T const* ci, T* co, int32_t size, int32_t* pc) {
+    __global__ void multiBlockPrefixScan(T const* ici, T* ico, int32_t size, int32_t* pc) {
+      volatile T const* ci = ici;
+      volatile T* co = ico;
       __shared__ T ws[32];
 #ifdef __CUDA_ARCH__
       assert(sizeof(T) * gridDim.x <= dynamic_smem_size());  // size of psum below
@@ -154,6 +154,7 @@ namespace cms {
       // count blocks that finished
       __shared__ bool isLastBlockDone;
       if (0 == threadIdx.x) {
+        __threadfence();
         auto value = atomicAdd(pc, 1);  // block counter
         isLastBlockDone = (value == (int(gridDim.x) - 1));
       }
@@ -181,52 +182,6 @@ namespace cms {
         co[i] += psum[k];
       }
     }
-
-
-    // in principle not limited....
-    template <typename T>
-    __device__ void __forceinline__ multiTaskPrefixScan(T const* ci, T* co, int32_t size, CUDATask * task, T * psum) {
-
-      __shared__ T ws[32];
-
-      auto body = [&](int32_t iWork) {
-        assert(blockDim.x * gridDim.x >= size);
-        // first each block does a scan
-        int off = blockDim.x * iWork;
-        if (size - off > 0)
-          blockPrefixScan(ci + off, co + off, std::min(int(blockDim.x), size - off), ws);
-      };
-
-      auto tail = [&]() {
-         // let's get the partial sums from each block
-         for (int i = threadIdx.x, ni = gridDim.x; i < ni; i += blockDim.x) {
-           auto j = blockDim.x * i + blockDim.x - 1;
-           psum[i] = (j < size) ? co[j] : T(0);
-         }
-         __syncthreads();
-         blockPrefixScan(psum, psum, gridDim.x, ws);
-         __syncthreads();
-       };
-
-       task->doit(body,tail);
-
-      // now it is very handy to have the other blocks around...
-      {
-        auto first = (blockIdx.x+1) * blockDim.x + threadIdx.x;
-        for (int i=first; i<size; i+=gridDim.x*blockDim.x) {
-          co[i] += psum[blockIdx.x];
-        }
-      }
-
-    }
-
-    // in principle not limited....
-    template <typename T>
-    __global__ void multiTaskPrefixScanKernel(T const* ci, T* co, int32_t size, CUDATask * task, T * psum) {
-       multiTaskPrefixScan(ci, co, size, task, psum);
-    }
-
-
   }  // namespace cuda
 }  // namespace cms
 
