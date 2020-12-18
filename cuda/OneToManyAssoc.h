@@ -20,72 +20,108 @@ namespace cms {
   namespace cuda {
 
     template <typename Assoc>
-    __global__ void zeroAndInit(
-        Assoc *h, typename Assoc::index_type *mem, int s, typename Assoc::Counter *c, int32_t n) {
-      int first = blockDim.x * blockIdx.x + threadIdx.x;
+    struct OneToManyAssocView {
+      using Counter = typename Assoc::Counter;
+      using index_type = typename Assoc::index_type;
+
+      Assoc *assoc = nullptr;
+      Counter *offStorage = nullptr;
+      index_type *contentStorage = nullptr;
+      int32_t offSize = -1;
+      int32_t contentSize = -1;
+    };
+
+    // this MUST BE DONE in a single block (or in two kernels!)
+    template <typename Assoc>
+    __global__ void zeroAndInit(OneToManyAssocView<Assoc> view) {
+      auto h = view.assoc;
+      assert(1 == gridDim.x);
+      assert(0 == blockIdx.x);
+
+      int first = threadIdx.x;
 
       if (0 == first) {
         h->psws = 0;
-        h->initStorage(c, n, mem, s);
+        h->initStorage(view);
       }
       __syncthreads();
-      for (int i = first, nt = h->totOnes(); i < nt; i += gridDim.x * blockDim.x) {
+      for (int i = first, nt = h->totOnes(); i < nt; i += blockDim.x) {
         h->off[i] = 0;
       }
     }
 
     template <typename Assoc>
-    inline __attribute__((always_inline)) void launchZero(Assoc *__restrict__ h,
-                                                          typename Assoc::index_type *mem,
-                                                          int s,
-                                                          typename Assoc::Counter *c,
-                                                          int32_t n,
+    inline __attribute__((always_inline)) void launchZero(Assoc *h,
                                                           cudaStream_t stream
 #ifndef __CUDACC__
                                                           = cudaStreamDefault
 #endif
     ) {
+      typename Assoc::View view = {h, nullptr, nullptr, -1, -1};
+      launchZero(view, stream);
+    }
+    template <typename Assoc>
+    inline __attribute__((always_inline)) void launchZero(OneToManyAssocView<Assoc> view,
+                                                          cudaStream_t stream
+#ifndef __CUDACC__
+                                                          = cudaStreamDefault
+#endif
+    ) {
+
       if constexpr (Assoc::ctCapacity() < 0) {
-        assert(mem);
-        assert(s > 0);
+        assert(view.contentStorage);
+        assert(view.contentSize > 0);
       }
       auto nOnes = Assoc::ctNOnes();
       if constexpr (Assoc::ctNOnes() < 0) {
-        assert(c);
-        assert(n > 0);
-        nOnes = n;
+        assert(view.offStorage);
+        assert(view.offSize > 0);
+        nOnes = view.offSize;
       }
       assert(nOnes > 0);
 #ifdef __CUDACC__
       auto nthreads = 1024;
-      auto nblocks = (nOnes + nthreads - 1) / nthreads;
-      zeroAndInit<<<nblocks, nthreads, 0, stream>>>(h, mem, s, c, n);
+      auto nblocks = 1;  // MUST BE ONE as memory is initialize in thread 0 (alternative is two kernels);
+      zeroAndInit<<<nblocks, nthreads, 0, stream>>>(view);
       cudaCheck(cudaGetLastError());
 #else
-      h->initStorage(c, n, mem, s);
+      auto h = view.assoc;
+      assert(h);
+      h->initStorage(view);
       h->zero();
       h->psws = 0;
 #endif
     }
 
     template <typename Assoc>
-    inline __attribute__((always_inline)) void launchFinalize(Assoc *__restrict__ h,
-                                                              typename Assoc::Counter *c,
-                                                              int32_t n,
+    inline __attribute__((always_inline)) void launchFinalize(Assoc *h,
                                                               cudaStream_t stream
 #ifndef __CUDACC__
                                                               = cudaStreamDefault
 #endif
     ) {
+      typename Assoc::View view = {h, nullptr, nullptr, -1, -1};
+      launchFinalize(view, stream);
+    }
+
+    template <typename Assoc>
+    inline __attribute__((always_inline)) void launchFinalize(OneToManyAssocView<Assoc> view,
+                                                              cudaStream_t stream
+#ifndef __CUDACC__
+                                                              = cudaStreamDefault
+#endif
+    ) {
+      auto h = view.assoc;
+      assert(h);
 #ifdef __CUDACC__
       using Counter = typename Assoc::Counter;
-      auto nOnes = Assoc::ctNOnes();
       Counter *poff = (Counter *)((char *)(h) + offsetof(Assoc, off));
+      auto nOnes = Assoc::ctNOnes();
       if constexpr (Assoc::ctNOnes() < 0) {
-        assert(c);
-        assert(n > 0);
-        nOnes = n;
-        poff = c;
+        assert(view.offStorage);
+        assert(view.offSize > 0);
+        nOnes = view.offSize;
+        poff = view.offStorage;
       }
       assert(nOnes > 0);
       int32_t *ppsws = (int32_t *)((char *)(h) + offsetof(Assoc, psws));
@@ -104,11 +140,12 @@ namespace cms {
     }
 
     template <typename I,    // type stored in the container (usually an index in a vector of the input values)
-              int32_t ONES,  // number of "Ones" If -1 is initialized at runtime using external storage
+              int32_t ONES,  // number of "Ones"  +1. If -1 is initialized at runtime using external storage
               int32_t SIZE   // max number of element. If -1 is initialized at runtime using external storage
               >
     class OneToManyAssoc {
     public:
+      using View = OneToManyAssocView<OneToManyAssoc<I, ONES, SIZE>>;
       using Counter = uint32_t;
 
       using CountersOnly = OneToManyAssoc<I, ONES, 0>;
@@ -134,20 +171,19 @@ namespace cms {
       static constexpr int32_t ctCapacity() { return SIZE; }
       constexpr auto capacity() const { return content.capacity(); }
 
-      __host__ __device__ void initStorage(Counter *c, int32_t n, I *d, int32_t s) {
-        if constexpr (ctNOnes() < 0) {
-          assert(c);
-          assert(n > 0);
-          off.init(c, n);
-        }
+      __host__ __device__ void initStorage(View view) {
+        assert(view.assoc == this);
         if constexpr (ctCapacity() < 0) {
-          assert(d);
-          assert(s > 0);
-          content.init(d, s);
+          assert(view.contentStorage);
+          assert(view.contentSize > 0);
+          content.init(view.contentStorage, view.contentSize);
+        }
+        if constexpr (ctNOnes() < 0) {
+          assert(view.offStorage);
+          assert(view.offSize > 0);
+          off.init(view.offStorage, view.offSize);
         }
       }
-
-      __host__ __device__ void initStorage(I *d, int32_t s) { content.init(d, s); }
 
       __host__ __device__ void zero() {
         for (int32_t i = 0; i < totOnes(); ++i) {
