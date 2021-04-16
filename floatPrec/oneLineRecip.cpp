@@ -4,8 +4,7 @@
 #include <x86intrin.h>
 
 int main(int n, char * v[]) {
-   float fn = n - 1.f;
-   float k = 0.1f + fn;
+   float k = float(n)*0.0118255867f;
 
    float y;
    _mm_store_ss( &y, _mm_rsqrt_ss( _mm_load_ss( &k ) ) );
