@@ -1,0 +1,4 @@
+nvcc -DCUDA_ENABLE_DEPRECATED \
+--cudart shared -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda \
+--compiler-options="-O3 -lmpfr -lgmp -lm -fopenmp" $1
+
