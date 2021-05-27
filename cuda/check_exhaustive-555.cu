@@ -104,8 +104,6 @@ float * ypH[maxNumOfThreads];
 #ifdef __CUDACC__
 #include<cuda.h>
 #include <cuda_runtime.h>
-const int maxNumOfThreads = 256;
-const int bunchSize = 1024;
 
 cudaStream_t streams[maxNumOfThreads];
 __global__ void kernel_foo(unsigned int n, float * py) {
@@ -325,7 +323,7 @@ check (unsigned int n, int rnd)
         {
           maxerr_u = err;
           maxerr = (err_double > 0.5) ? err_double : 0.5;
-          nmax = n;
+          nmax = u.n;
         }
     }
   } // loop
