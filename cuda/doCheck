@@ -5,3 +5,5 @@ for f in acos acosh asin asinh atan atanh cbrt cos cosh erf erfc exp exp10 exp2 
    time ./a.out
 done
 
+#egrep "checking|Total" fullCheck.log  | sed 's/checking/Q/g' |  tr '\n' ' ' | tr 'Q' '\n'
+
