@@ -26,6 +26,7 @@ typedef union { unsigned int n; float x; } union_t;
 #ifdef __CUDACC__
 #include<cuda.h>
 #include<cuda_runtime.h>
+#include <cuda_runtime_api.h>
 #include<iostream>
 inline
 bool cudaCheck_(const char* file, int line, const char* cmd, CUresult result)
@@ -123,14 +124,14 @@ void  kernel_foo(unsigned int n, float * py) {
 }
 #endif
 
-float * wrap_foo(float x) {
+float * wrap_foo(unsigned int n) {
   int nt = omp_get_thread_num();
 #ifdef __CUDACC__
-  kernel_foo<<<1024/128,128,nt>>>(x, ypD[nt]);
+  kernel_foo<<<1024/128,128,nt>>>(n, ypD[nt]);
   cudaCheck(cudaMemcpyAsync(ypH[nt], ypD[nt], bunchSize*sizeof(float), cudaMemcpyDeviceToHost, streams[nt]));
   cudaStreamSynchronize(streams[nt]);
 #else
-  kernel_foo(x, ypH[nt]);
+  kernel_foo(n, ypH[nt]);
 #endif
 //  std::cout << nt << ' ' << x << ' ' << *ypH[nt[0]] << std::endl;
   return ypH[nt];
@@ -422,27 +423,31 @@ main (int argc, char *argv[])
 
 #ifdef __INTEL_COMPILER
   printf ("Using Intel Math Library\n");
-#else
-#ifdef AMD
+#elif AMD
   printf ("Using AMD's library\n");
-#else
-#ifdef NEWLIB
+#elif NEWLIB
   printf ("Using RedHat newlib\n");
   // __fdlib_version = -1; /* __fdlibm_ieee */
-#else
-#ifdef OPENLIBM
+#elif OPENLIBM
   printf ("Using OpenLibm\n");
-#else
-#ifdef MUSL
+#elif MUSL
   printf ("Using Musl\n");
+#elif __CUDACC__
+#ifndef CUDART_VERSION
+ #warning "no " CUDART_VERSION
+#endif
+  printf ("Using CUDA %d\n",CUDART_VERSION);
+  int cuda_device = 0;
+  cudaDeviceProp deviceProp;
+  cudaGetDeviceProperties(&deviceProp, cuda_device);
+  printf("CUDA Capable: SM %d.%d hardware\n", deviceProp.major, deviceProp.minor);
+  
 #else
   printf ("GNU libc version: %s\n", gnu_get_libc_version ());
   printf ("GNU libc release: %s\n", gnu_get_libc_release ());
 #endif
-#endif
-#endif
-#endif
-#endif
+
+
   printf ("MPFR library: %-12s\nMPFR header:  %s (based on %d.%d.%d)\n",
           mpfr_get_version (), MPFR_VERSION_STRING, MPFR_VERSION_MAJOR,
           MPFR_VERSION_MINOR, MPFR_VERSION_PATCHLEVEL);
