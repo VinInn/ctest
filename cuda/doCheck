@@ -7,4 +7,4 @@ done
 
 #egrep "checking|Total" fullCheck.log  | sed 's/checking/Q/g' |  tr '\n' ' ' | tr 'Q' '\n'
 #egrep "checking|Total" fullCheck.log  | sed 's/checking/Q/g' |  tr '\n' ' ' | tr 'Q' '\n' | sed 's/=/ /g' | cut -f 3,6,9,11 -d' '
-
+#egrep "checking|Total" fullCheck.log  | sed 's/checking/Q/g' |  tr '\n' ' ' | tr 'Q' '\n' | sed 's/=/ /g' | cut -f 3,6,9,11 -d' ' | sed 's/ / \& /g' | sed 's/$/ \\\\/g'
