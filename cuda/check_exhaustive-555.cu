@@ -8,6 +8,7 @@
 
    $ gcc -DSTR=acos -O3 check_exhaustive.c -lmpfr -lgmp -lm -fopenmp
    $ icc -DSTR=acos -no-ftz -O3 check_exhaustive.c -lmpfr -lgmp -fopenmp
+   $ nvcc -DSTR=acos check_exhaustive.cu --cudart shared -gencode arch=compute_70,code=sm_70 -O3 -std=c++17 --compiler-options="-O3 -lmpfr -lgmp -lm -fopenmp"
 
    By default it uses all threads available. To use for example 32 threads:
 
@@ -61,7 +62,9 @@ bool cudaCheck_(const char* file, int line, const char* cmd, cudaError_t result)
 #endif
 
 #ifndef __INTEL_COMPILER
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #endif
 
 #include <stdio.h>
