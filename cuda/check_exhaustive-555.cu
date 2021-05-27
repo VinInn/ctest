@@ -20,6 +20,9 @@
 #error "please provide a value for STR"
 #endif
 
+typedef union { unsigned int n; float x; } union_t;
+
+
 #ifdef __CUDACC__
 #include<cuda.h>
 #include<cuda_runtime.h>
@@ -84,7 +87,7 @@ int* __errno () { return &errno; }
 #define FLOAT f
 #define CAT1(X,Y) X ## Y
 #define CAT2(X,Y) CAT1(X,Y)
-#define FOO2 CAT2(STR,FLOAT)
+#define FOO CAT2(STR,FLOAT)
 #ifndef MPFR_FOO
 #define MPFR_FOO CAT2(mpfr_,STR)
 #endif
@@ -92,30 +95,49 @@ int* __errno () { return &errno; }
 #define TOSTRING(x) STRINGIFY(x)
 #define NAME TOSTRING(STR)
 
-#ifdef __CUDACC__
-#include<cuda.h>
-#include <cuda_runtime.h>
-const int maxNumOfThreads = 1024;
+
+const int maxNumOfThreads = 256;
+const int bunchSize = 1024;
 float * ypD[maxNumOfThreads];
 float * ypH[maxNumOfThreads];
 
+#ifdef __CUDACC__
+#include<cuda.h>
+#include <cuda_runtime.h>
+const int maxNumOfThreads = 256;
+const int bunchSize = 1024;
+
 cudaStream_t streams[maxNumOfThreads];
-__global__ void kernel_foo(float x, float * py) {
-  *py = FOO2(x);
+__global__ void kernel_foo(unsigned int n, float * py) {
+   int first = blockIdx.x * blockDim.x + threadIdx.x;
+   for (int i=first; i<bunchSize; i+=gridDim.x*blockDim.x) {
+     union_t u; u.n = n+i; float x = u.x;
+     py[i] = FOO(x);
+   }
+}
+#else // CPU version
+void  kernel_foo(unsigned int n, float * py) {
+   int first = 0;
+   for (int i=first; i<bunchSize; i++) {
+     union_t u;    u.n = n+i; float x = u.x;
+     py[i] = FOO(x);
+   }
+}
+#endif
+
+float * wrap_foo(float x) {
+  int nt = omp_get_thread_num();
+#ifdef __CUDACC__
+  kernel_foo<<<1024/128,128,nt>>>(x, ypD[nt]);
+  cudaCheck(cudaMemcpyAsync(ypH[nt], ypD[nt], bunchSize*sizeof(float), cudaMemcpyDeviceToHost, streams[nt]));
+  cudaStreamSynchronize(streams[nt]);
+#else
+  kernel_foo(x, ypH[nt]);
+#endif
+//  std::cout << nt << ' ' << x << ' ' << *ypH[nt[0]] << std::endl;
+  return ypH[nt];
 }
 
-float wrap_foo(float x) {
-  int nt = omp_get_thread_num();
-  kernel_foo<<<1,1,nt>>>(x, ypD[nt]);
-  cudaCheck(cudaMemcpyAsync(ypH[nt], ypD[nt], sizeof(float), cudaMemcpyDeviceToHost, streams[nt]));
-  cudaStreamSynchronize(streams[nt]);
-//  std::cout << nt << ' ' << x << ' ' << *ypH[nt] << std::endl;
-  return *ypH[nt];
-}
-#define FOO wrap_foo
-#else
-#define FOO FOO2
-#endif
 
 
 int rnd1[] = { FE_TONEAREST, FE_TOWARDZERO, FE_UPWARD, FE_DOWNWARD };
@@ -258,15 +280,18 @@ unsigned long maxerr_u = 0;
 unsigned int nmax = 0;
 double maxerr = 0;
 
-typedef union { unsigned int n; float x; } union_t;
-
 static void
 check (unsigned int n, int rnd)
 {
+
+  fesetround (rnd1[rnd]);
+  float * yp = wrap_foo(n);
+
+  for (int i=0; i<bunchSize; ++i) {
   union_t u;
   float x, y, z;
 
-  u.n = n;
+  u.n = n+i;
   x = u.x;
 
   assert (!isnanf (x));
@@ -277,8 +302,7 @@ check (unsigned int n, int rnd)
     return;
 #endif
 
-  fesetround (rnd1[rnd]);
-  y = FOO (x);
+  y = yp[i];
   z = cr_foo (x, rnd);
 
   if (y != z && !(isnanf (y) && isnanf (z)))
@@ -304,6 +328,8 @@ check (unsigned int n, int rnd)
           nmax = n;
         }
     }
+  } // loop
+
 }
 
 static void
@@ -320,7 +346,8 @@ print_maximal_error (unsigned int n, int rnd)
   x = u.x;
 
   fesetround (rnd1[rnd]);
-  y = FOO (x);
+  float * yp = wrap_foo(n);
+  y = yp[0];
   z = cr_foo (x, rnd);
   err = ulp_error (y, z, x);
   err_double = ulp_error_double (y, x);
@@ -342,14 +369,21 @@ int
 main (int argc, char *argv[])
 {
 
-#ifdef __CUDACC__
   int nstreams = omp_get_max_threads();
+  assert(maxNumOfThreads>nstreams);
+
+#ifdef __CUDACC__
   for (int i = 0; i < nstreams; i++)
     {
         cudaCheck(cudaStreamCreate(&(streams[i])));
-        cudaCheck(cudaMalloc((void **)&ypD[i], sizeof(float)));
-        cudaCheck(cudaMallocHost((void **)&ypH[i], sizeof(float)));
+        cudaCheck(cudaMalloc((void **)&ypD[i], bunchSize*sizeof(float)));
+        cudaCheck(cudaMallocHost((void **)&ypH[i], bunchSize*sizeof(float)));
 
+    }
+#else
+ for (int i = 0; i < nstreams; i++)
+    {
+      ypH[i] = (float *)malloc(bunchSize*sizeof(float));
     }
 #endif
 
@@ -419,9 +453,9 @@ main (int argc, char *argv[])
   fflush (stdout);
 
 #define MAXN 2139095040U
-#define INCR 1024
-#pragma omp parallel for schedule(dynamic,128)
-  for (unsigned int n = 0; n < MAXN; n+=INCR)
+#define INCR 128
+#pragma omp parallel for schedule(dynamic,32)
+  for (unsigned int n = 0; n < MAXN; n+=INCR*bunchSize)
     {
       /* we have to set emin/emax here, so that it is thread-local */
       mpfr_set_emin (-148);
