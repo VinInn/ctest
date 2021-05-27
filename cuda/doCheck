@@ -6,4 +6,5 @@ for f in acos acosh asin asinh atan atanh cbrt cos cosh erf erfc exp exp10 exp2 
 done
 
 #egrep "checking|Total" fullCheck.log  | sed 's/checking/Q/g' |  tr '\n' ' ' | tr 'Q' '\n'
+#egrep "checking|Total" fullCheck.log  | sed 's/checking/Q/g' |  tr '\n' ' ' | tr 'Q' '\n' | sed 's/=/ /g' | cut -f 3,6,9,11 -d' '
 
