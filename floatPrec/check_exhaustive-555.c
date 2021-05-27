@@ -340,8 +340,9 @@ main (int argc, char *argv[])
   fflush (stdout);
 
 #define MAXN 2139095040U
+#define INCR 1
 #pragma omp parallel for schedule(dynamic,128)
-  for (unsigned int n = 0; n < MAXN; n++)
+  for (unsigned int n = 0; n < MAXN; n+=INCR)
     {
       /* we have to set emin/emax here, so that it is thread-local */
       mpfr_set_emin (-148);

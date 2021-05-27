@@ -456,7 +456,7 @@ main (int argc, char *argv[])
   fflush (stdout);
 
 #define MAXN 2139095040U
-#define INCR 128
+#define INCR 1
 #pragma omp parallel for schedule(dynamic,32)
   for (unsigned int n = 0; n < MAXN; n+=INCR*bunchSize)
     {
