@@ -133,7 +133,7 @@ float * wrap_foo(unsigned int n) {
 #else
   kernel_foo(n, ypH[nt]);
 #endif
-//  std::cout << nt << ' ' << x << ' ' << *ypH[nt[0]] << std::endl;
+//  std::cout << nt << ' ' << n << ' ' << ypH[nt][0] << std::endl;
   return ypH[nt];
 }
 
