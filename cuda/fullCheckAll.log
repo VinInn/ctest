@@ -1,0 +1,386 @@
+Intel(R) Xeon(R) Gold 6148
+NVidia Tesla V100-SXM2
+NVIDIA-SMI 460.32.03    Driver Version: 460.32.03    CUDA Version: 11.2
+
+
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  acos
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function acos with MPFR_RNDN
+libm wrong by up to 1.69e+00 ulp(s) [2] for x=0x1.23c928p-1
+acosf     gives 0x1.edc864p-1
+mpfr_acos gives 0x1.edc86p-1
+Total: errors=162888432 (3.81%) errors2=1461 maxerr=1.69e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  acosh
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function acosh with MPFR_RNDN
+libm wrong by up to 2.18e+00 ulp(s) [2] for x=0x1.067c4ap+0
+acoshf     gives 0x1.cc0722p-3
+mpfr_acosh gives 0x1.cc0726p-3
+Total: errors=243330719 (5.69%) errors2=4123 maxerr=2.18e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  asin
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function asin with MPFR_RNDN
+libm wrong by up to 2.05e+00 ulp(s) [2] for x=0x1.ae2f42p-1
+asinf     gives 0x1.fecd4ap-1
+mpfr_asin gives 0x1.fecd46p-1
+Total: errors=21377944 (0.50%) errors2=358624 maxerr=2.05e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  asinh
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function asinh with MPFR_RNDN
+libm wrong by up to 1.78e+00 ulp(s) [2] for x=0x1.04c892p-1
+asinhf     gives 0x1.f54d48p-2
+mpfr_asinh gives 0x1.f54d44p-2
+Total: errors=151988118 (3.55%) errors2=5660 maxerr=1.78e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  atan
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function atan with MPFR_RNDN
+libm wrong by up to 2.06e+00 ulp(s) [2] for x=0x1.0bd5d6p+0
+atanf     gives 0x1.9db09ap-1
+mpfr_atan gives 0x1.9db096p-1
+Total: errors=181296102 (4.24%) errors2=101660 maxerr=2.06e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  atanh
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function atanh with MPFR_RNDN
+libm wrong by up to 3.16e+00 ulp(s) [3] for x=0x1.fc607ep-8
+atanhf     gives 0x1.fc6314p-8
+mpfr_atanh gives 0x1.fc631ap-8
+Total: errors=190056816 (4.44%) errors2=7899670 maxerr=3.16e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  cbrt
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function cbrt with MPFR_RNDN
+libm wrong by up to 1.17e+00 ulp(s) [1] for x=0x1.e60b8p+5
+cbrtf     gives 0x1.f732a4p+1
+mpfr_cbrt gives 0x1.f732a6p+1
+Total: errors=551571624 (12.89%) errors2=0 maxerr=1.17e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  cos
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function cos with MPFR_RNDN
+libm wrong by up to 1.52e+00 ulp(s) [2] for x=0x1.173412p+16
+cosf     gives 0x1.fee37ep-4
+mpfr_cos gives 0x1.fee37ap-4
+Total: errors=429339510 (10.04%) errors2=8 maxerr=1.52e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  cosh
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function cosh with MPFR_RNDN
+libm wrong by up to 2.34e+00 ulp(s) [2] for x=0x1.b9b52cp+2
+coshf     gives 0x1.f0f932p+8
+mpfr_cosh gives 0x1.f0f936p+8
+Total: errors=65403872 (1.53%) errors2=286368 maxerr=2.34e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  erf
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function erf with MPFR_RNDN
+libm wrong by up to 1.14e+00 ulp(s) [1] for x=0x1.02032ep+0
+erff     gives 0x1.b11ed8p-1
+mpfr_erf gives 0x1.b11ed6p-1
+Total: errors=364685356 (8.52%) errors2=0 maxerr=1.14e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  erfc
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function erfc with MPFR_RNDN
+libm wrong by up to 4.49e+00 ulp(s) [4] for x=0x1.5bdddcp+1
+erfcf     gives 0x1.fce6eap-14
+mpfr_erfc gives 0x1.fce6f2p-14
+Total: errors=230105768 (5.38%) errors2=23856924 maxerr=4.49e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  exp
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function exp with MPFR_RNDN
+libm wrong by up to 1.94e+00 ulp(s) [2] for x=-0x1.bcc73p+3
+expf     gives 0x1.edb66ap-21
+mpfr_exp gives 0x1.edb666p-21
+Total: errors=159912805 (3.74%) errors2=95287 maxerr=1.94e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  exp10
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function exp10 with MPFR_RNDN
+libm wrong by up to 2.07e+00 ulp(s) [2] for x=0x1.34200cp+5
+exp10f     gives 0x1.ed434ep+127
+mpfr_exp10 gives 0x1.ed434ap+127
+Total: errors=162340068 (3.79%) errors2=104557 maxerr=2.07e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  exp2
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function exp2 with MPFR_RNDN
+libm wrong by up to 2.39e+00 ulp(s) [2] for x=-0x1.f8a014p+6
+exp2f     gives 0x1.cb6bccp-127
+mpfr_exp2 gives 0x1.cb6bd4p-127
+Total: errors=189192458 (4.42%) errors2=983637 maxerr=2.39e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  expm1
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function expm1 with MPFR_RNDN
+libm wrong by up to 1.45e+00 ulp(s) [1] for x=0x1.10a71ap+4
+expm1f     gives 0x1.7fec3cp+24
+mpfr_expm1 gives 0x1.7fec3ap+24
+Total: errors=26510788 (0.62%) errors2=0 maxerr=1.45e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  j0
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function j0 with MPFR_RNDN
+libm wrong by up to 3.78e+10 ulp(s) [37756755968] for x=0x1.e9e462p+10
+j0f     gives -0x1.196924p-20
+mpfr_j0 gives -0x1.9d8902p-32
+Total: errors=3530150566 (82.52%) errors2=893872806 maxerr=3.78e+10 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  j1
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function j1 with MPFR_RNDN
+libm wrong by up to 7.48e+09 ulp(s) [7478024704] for x=0x1.5d3528p+11
+j1f     gives -0x1.bd13dcp-20
+mpfr_j1 gives 0x1.4b7cep-29
+Total: errors=1743976120 (40.76%) errors2=871824990 maxerr=7.48e+09 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  log
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function log with MPFR_RNDN
+libm wrong by up to 8.65e-01 ulp(s) [1] for x=0x1.476956p-1
+logf     gives -0x1.c9d668p-2
+mpfr_log gives -0x1.c9d666p-2
+Total: errors=72516687 (1.70%) errors2=0 maxerr=8.65e-01 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  log10
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function log10 with MPFR_RNDN
+libm wrong by up to 2.09e+00 ulp(s) [2] for x=0x1.59d1f8p-2
+log10f     gives -0x1.e2c3b4p-2
+mpfr_log10 gives -0x1.e2c3bp-2
+Total: errors=763162986 (17.84%) errors2=10416179 maxerr=2.09e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  log1p
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function log1p with MPFR_RNDN
+libm wrong by up to 8.87e-01 ulp(s) [1] for x=-0x1.7a4af2p-2
+log1pf     gives -0x1.d8315p-2
+mpfr_log1p gives -0x1.d8314ep-2
+Total: errors=42499890 (0.99%) errors2=0 maxerr=8.87e-01 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  log2
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function log2 with MPFR_RNDN
+libm wrong by up to 9.19e-01 ulp(s) [1] for x=0x1.66fd7cp-1
+log2f     gives -0x1.063fp-1
+mpfr_log2 gives -0x1.063f02p-1
+Total: errors=12044078 (0.28%) errors2=0 maxerr=9.19e-01 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  sin
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function sin with MPFR_RNDN
+libm wrong by up to 1.50e+00 ulp(s) [1] for x=0x1.8f5c76p+21
+sinf     gives 0x1.ff42bap-4
+mpfr_sin gives 0x1.ff42b8p-4
+Total: errors=426015576 (9.96%) errors2=0 maxerr=1.50e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  sinh
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function sinh with MPFR_RNDN
+libm wrong by up to 2.94e+00 ulp(s) [3] for x=0x1.6dfdap+0
+sinhf     gives 0x1.f80b7cp+0
+mpfr_sinh gives 0x1.f80b76p+0
+Total: errors=38397002 (0.90%) errors2=411336 maxerr=2.94e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  sqrt
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function sqrt with MPFR_RNDN
+Total: errors=0 (0.00%) errors2=0 maxerr=0.00e+00 ulp(s)
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  tan
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function tan with MPFR_RNDN
+libm wrong by up to 3.10e+00 ulp(s) [3] for x=0x1.f93ac6p+124
+tanf     gives -0x1.f0751p+1
+mpfr_tan gives -0x1.f07516p+1
+Total: errors=836917130 (19.56%) errors2=30145620 maxerr=3.10e+00 ulp(s)
+
+real	20m13.194s
+user	804m20.019s
+sys	0m11.454s
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  tanh
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function tanh with MPFR_RNDN
+libm wrong by up to 1.82e+00 ulp(s) [2] for x=0x1.405748p-1
+tanhf     gives 0x1.1c30ecp-1
+mpfr_tanh gives 0x1.1c30e8p-1
+Total: errors=39501004 (0.92%) errors2=948272 maxerr=1.82e+00 ulp(s)
+
+real	2m41.263s
+user	102m11.283s
+sys	0m14.390s
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  y0
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function y0 with MPFR_RNDN
+libm wrong by up to 2.36e+10 ulp(s) [23540996096] for x=0x1.650fc8p+11
+y0f     gives -0x1.5eff3p-21
+mpfr_y0 gives -0x1.ab4edp-32
+Total: errors=1630315303 (38.11%) errors2=629603489 maxerr=2.36e+10 ulp(s)
+
+real	33m8.723s
+user	1323m56.204s
+sys	0m39.520s
+check_exhaustive-555.cu(214): warning: variable "inex" was set but never used
+
+checking  y1
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2       
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function y1 with MPFR_RNDN
+libm wrong by up to 4.96e+10 ulp(s) [49509351424] for x=0x1.6713p+12
+y1f     gives -0x1.70c31cp-21
+mpfr_y1 gives 0x1.c7b196p-33
+Total: errors=1403359302 (32.80%) errors2=603385922 maxerr=4.96e+10 ulp(s)
+
+real	27m28.123s
+user	1097m3.466s
+sys	0m22.680s
+
+checking  lgamma
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function lgamma with MPFR_RNDN
+libm wrong by up to 1.35e+07 ulp(s) [13473902] for x=-0x1.3a7fcap+1
+lgammaf     gives -0x1.cp-23
+mpfr_lgamma gives -0x1.e4cf24p-24
+Total: errors=705883207 (16.50%) errors2=49167626 maxerr=1.35e+07 ulp(s)
+
+real    36m16.064s
+user    1449m24.912s
+sys    0m2.236s
+check_exhaustive-555.cu(229): warning: variable "inex" was set but never used
+
+checking  tgamma
+Using CUDA 11020
+CUDA Capable: SM 7.0 hardware
+MPFR library: 4.0.2
+MPFR header:  4.0.2 (based on 4.0.2)
+Checking function tgamma with MPFR_RNDN
+libm wrong by up to 1.15e+01 ulp(s) [11] for x=-0x1.ffd388p+4
+tgammaf     gives 0x1.e350bep-112
+mpfr_tgamma gives 0x1.e350a8p-112
+Total: errors=316531085 (7.40%) errors2=15827516 maxerr=1.15e+01 ulp(s)
+
+real    21m50.732s
+user    872m57.545s
+sys    0m3.104s
+
