@@ -99,6 +99,21 @@ int* __errno () { return &errno; }
 #define TOSTRING(x) STRINGIFY(x)
 #define NAME TOSTRING(STR)
 
+inline
+int
+mpfr_lgamma (mpfr_t y, mpfr_t x, mpfr_rnd_t r)
+{
+int s;
+return mpfr_lgamma (y, &s, x, r);
+}
+
+inline
+int
+mpfr_tgamma (mpfr_t y, mpfr_t x, mpfr_rnd_t r)
+{
+return mpfr_gamma (y, x, r);
+}
+
 
 const int maxNumOfThreads = 256;
 const int bunchSize = 1024;
