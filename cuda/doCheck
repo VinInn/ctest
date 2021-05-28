@@ -9,5 +9,4 @@ done
 #egrep "checking|Total|wrong" fullCheck.log  | sed 's/checking/Q/g' | sed 's/^.*x=/x=/g' |  tr '\n' ' ' | tr 'Q' '\n'
 #egrep "checking|Total" fullCheck.log  | sed 's/checking/Q/g' |  tr '\n' ' ' | tr 'Q' '\n' | sed 's/=/ /g' | cut -f 3,6,9,11 -d' '
 #egrep "checking|Total" fullCheck.log  | sed 's/checking/Q/g' |  tr '\n' ' ' | tr 'Q' '\n' | sed 's/=/ /g' | cut -f 3,6,9,11 -d' ' | sed 's/ / \& /g' | sed 's/$/ \\\\/g'
-#egrep "checking|Total|wrong" fullCheckAll.log  | sed 's/checking/Q/g' | sed 's/^.*x=/x=/g' |  tr '\n' ' ' | tr 'Q' '\n' | tr '=' ' ' | sed 's/x /x=/g' | awk '{print $1,"&", $5,"&", $8,"&", $10, "\\ %",  $2 }'
-
+#egrep "checking|Total|wrong" fullCheckAll.log  | sed 's/checking/Q/g' | sed 's/^.*x=/x=/g' |  tr '\n' ' ' | tr 'Q' '\n' | tr '=' ' ' | sed 's/x /x=/g' | awk '{print $1,"&", $5,"&", $8,"&", $10, "\\\\ %",  $2 }' | sort
