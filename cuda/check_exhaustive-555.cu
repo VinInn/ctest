@@ -124,6 +124,29 @@ float * ypH[maxNumOfThreads];
 #include<cuda.h>
 #include <cuda_runtime.h>
 
+
+__global__ void kernel_fsqrt(unsigned int n, float * py, int rd) {
+  //__fsqrt_[rn,rz,ru,rd](x)
+  auto fn = __fsqrt_rn;
+  switch (rd) {
+  case 0:
+    fn = __fsqrt_rn; break;
+  case 1:
+    fn = __fsqrt_rz; break;
+  case 2:
+    fn = __fsqrt_ru; break;
+  case 3:
+    fn = __fsqrt_rd; break;
+  default :
+   fn = __fsqrt_rn; break;
+  }
+   int first = blockIdx.x * blockDim.x + threadIdx.x;
+   for (int i=first; i<bunchSize; i+=gridDim.x*blockDim.x) {
+     union_t u; u.n = n+i; float x = u.x;
+     py[i] = fn(x);
+  }
+}
+
 cudaStream_t streams[maxNumOfThreads];
 __global__ void kernel_foo(unsigned int n, float * py) {
    int first = blockIdx.x * blockDim.x + threadIdx.x;
@@ -142,10 +165,14 @@ void  kernel_foo(unsigned int n, float * py) {
 }
 #endif
 
-float * wrap_foo(unsigned int n) {
+float * wrap_foo(unsigned int n, int rd) {
   int nt = omp_get_thread_num();
 #ifdef __CUDACC__
+#ifdef DO_SQRT
+  kernel_fsqrt<<<1024/128,128,nt>>>(n, ypD[nt],rd);
+#else
   kernel_foo<<<1024/128,128,nt>>>(n, ypD[nt]);
+#endif
   cudaCheck(cudaMemcpyAsync(ypH[nt], ypD[nt], bunchSize*sizeof(float), cudaMemcpyDeviceToHost, streams[nt]));
   cudaStreamSynchronize(streams[nt]);
 #else
@@ -302,7 +329,7 @@ check (unsigned int n, int rnd)
 {
 
   fesetround (rnd1[rnd]);
-  float * yp = wrap_foo(n);
+  float * yp = wrap_foo(n,rnd);
 
   for (int i=0; i<bunchSize; ++i) {
   union_t u;
@@ -363,7 +390,7 @@ print_maximal_error (unsigned int n, int rnd)
   x = u.x;
 
   fesetround (rnd1[rnd]);
-  float * yp = wrap_foo(n);
+  float * yp = wrap_foo(n,rnd);
   y = yp[0];
   z = cr_foo (x, rnd);
   err = ulp_error (y, z, x);
