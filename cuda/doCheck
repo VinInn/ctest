@@ -1,6 +1,10 @@
 #!/bin/bash
 
-export CCAP=61
+lscpu
+nvidia-smi
+echo  " "
+
+export CCAP=80
 export MPFR_DIR=/cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/gcc/9.3.0/lib
 for f in acos acosh asin asinh atan atanh cbrt cos cosh erf erfc exp exp10 exp2 expm1 j0 j1 log log10 log1p log2 sin sinh sqrt tan tanh y0 y1 lgamma tgamma; do
    nvcc -DSTR=$f check_exhaustive-555.cu --cudart shared -gencode arch=compute_$CCAP,code=sm_$CCAP -O3 -std=c++17 --compiler-options="-O3 -L$MPFR_DIR -lmpfr -lgmp -lm -fopenmp"
