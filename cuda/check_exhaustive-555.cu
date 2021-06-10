@@ -156,13 +156,18 @@ __global__ void kernel_foo(unsigned int n, float * py) {
    }
 }
 #else // CPU version
-void  kernel_foo(unsigned int n, float * py) {
+void  kernel_foo(unsigned int n, float * py) 
+#ifdef VECTORIZE
+;
+#else
+{
    int first = 0;
    for (int i=first; i<bunchSize; i++) {
      union_t u;    u.n = n+i; float x = u.x;
      py[i] = FOO(x);
    }
 }
+#endif
 #endif
 
 float * wrap_foo(unsigned int n, int rd) {
