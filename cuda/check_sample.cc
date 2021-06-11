@@ -1242,7 +1242,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.002ed02c0c632p-1,  /* OpenLibm 0.7.0 */
     -0x1.002ed02c0c632p-1,  /* Musl */
     -0x1.8d313198a2e02p-53, /* Apple 1.05153 */
-    -1 0x1.2666460168ba8p-1,  /* CUDA 11.2 */
+     0x1.2666460168ba8p-1,  /* CUDA 11.2 */
     /* acosh */
     0x1.0001ff6afc4bap+0,   /* GNU libc */
     0x1.01825ca7da7e5p+0,   /* icc 19.1.3.304 */
