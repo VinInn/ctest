@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export CCAP=70
+export CCAP=60
 export MPFR_DIR=/cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/gcc/9.3.0/lib
    nvcc -DFOO=$1 -DUSE_DOUBLE -DWORST check_sample.cu --cudart shared -gencode arch=compute_$CCAP,code=sm_$CCAP -O3 -std=c++17 --compiler-options="-O3 -L$MPFR_DIR -lmpfr -lgmp -lm -fopenmp"
    # c++ -DFOO=$f -DUSE_DOUBLE -DWORST -O3 check_sample.cc -lmpfr -lgmp -lm -fopenmp

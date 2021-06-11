@@ -4,11 +4,11 @@ lscpu
 nvidia-smi
 echo  " "
 
-export CCAP=70
+export CCAP=60
 export MPFR_DIR=/cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/gcc/9.3.0/lib
 for f in acos acosh asin asinh atan atanh cbrt cos cosh erf erfc exp exp10 exp2 expm1 j0 j1 log log10 log1p log2 sin sinh sqrt tan tanh y0 y1 lgamma tgamma; do
-   nvcc -DFOO=$f -DUSE_DOUBLE -DWORSE check_sample.cu --cudart shared -gencode arch=compute_$CCAP,code=sm_$CCAP -O3 -std=c++17 --compiler-options="-O3 -L$MPFR_DIR -lmpfr -lgmp -lm -fopenmp"
-   # c++ -DFOO=$f -DUSE_DOUBLE -DWORSE -O3 check_sample.cc -lmpfr -lgmp -lm -fopenmp
+   nvcc -DFOO=$f -DUSE_DOUBLE -DWORST check_sample.cu --cudart shared -gencode arch=compute_$CCAP,code=sm_$CCAP -O3 -std=c++17 --compiler-options="-O3 -L$MPFR_DIR -lmpfr -lgmp -lm -fopenmp"
+   # c++ -DFOO=$f -DUSE_DOUBLE -DWORST -O3 check_sample.cc -lmpfr -lgmp -lm -fopenmp
    echo " "
    echo "checking " $f
    time ./a.out -v -threshold 20000 -seed 266916
