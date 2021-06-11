@@ -1925,7 +1925,7 @@ TYPE extra[SIZE_EXTRA] = {
           Xmax = x[i];
         }
     }
-    printf("initial worse at %a is %a %a\n",Xmax,Dbest0,Dbest);
+    printf("initial worse at %a is %f %f\n",Xmax,Dbest0,Dbest);
 #endif /* WORST */
 
   int nthreads, n;
