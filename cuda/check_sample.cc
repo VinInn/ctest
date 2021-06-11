@@ -1183,7 +1183,7 @@ main (int argc, char *argv[])
     printf ("Using seed %lu\n", seed);
 
 #if defined(USE_FLOAT) || defined(USE_DOUBLE) || defined(USE_LDOUBLE)
-#define NLIBS 7
+#define NLIBS 8
 #else
 #define	NLIBS 2 /* only glibc and icc do provide binary128 */
 #endif
@@ -1215,8 +1215,11 @@ main (int argc, char *argv[])
 #define NUMBER 7
 #endif
 #ifndef NUMBER
-#error "NUMBER undefined"
+#warning  "Library undefined. Set to GLIBC"
+#define GLIBC
+#define NUMBER 0
 #endif
+
 #define SIZE_EXTRA 12
 #ifdef USE_FLOAT
   TYPE worst[SIZE] = {
@@ -1239,6 +1242,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.002ed02c0c632p-1,  /* OpenLibm 0.7.0 */
     -0x1.002ed02c0c632p-1,  /* Musl */
     -0x1.8d313198a2e02p-53, /* Apple 1.05153 */
+    0x1.26665e8b2d487p-1,  /* CUDA 11.2 */
     /* acosh */
     0x1.0001ff6afc4bap+0,   /* GNU libc */
     0x1.01825ca7da7e5p+0,   /* icc 19.1.3.304 */
@@ -1246,7 +1250,8 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.0001ff6afc4bap+0,   /* Newlib */
     0x1.0001ff6afc4bap+0,   /* OpenLibm 0.7.0 */
     0x1.0001ff6afc4bap+0,   /* Musl 1.2.1 */
-    0x1.001f1234c557p+0,    /* Apple 2.19887 */
+    0x1.001f1234c557p+0,    /* Apple 2.19887 */ 
+    0x1.1e2b17a0868aap+0,  /* CUDA 11.2 */
     /* asin */
 #ifndef GLIBC_NEW
     0x1.f6e5a0d80501ap-4,   /* GNU libc 0.500017 */
@@ -1259,6 +1264,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.004d1c5a9400bp-1,  /* OpenLibm 0.7.0 */
     -0x1.004d1c5a9400bp-1,  /* Musl 1.2.1 */
     -0x1.eae73c700c2f6p-2,  /* Apple 0.743983 */
+     0x1.2ef63ec3ba1fap-1,  /* CUDA 11.2 */
     /* asinh */
     -0x1.02657ff36d5f3p-2,  /* GNU libc */
     -0x1.00064c7d4d16ep-4,  /* icc */
@@ -1267,6 +1273,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.02657ff36d5f3p-2,  /* OpenLibm 0.7.0 */
     -0x1.0240f2bdb3f25p-2,  /* Musl 1.2.1 */
     0x1.fadea351d1db1p-3,   /* Apple 1.56419 */
+    -0x1.091f7703d0773p-1,  /* CUDA 11.2 */
     /* atan */
 #ifndef GLIBC_NEW
     0x1.20538781986c3p+51,  /* GNU libc 0.5 */
@@ -1279,7 +1286,8 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.607f02c43788dp-1,  /* OpenLibm */
     -0x1.607f02c43788dp-1,  /* Musl */
     0x1.13958c08ab64ap+1,   /* Apple 0.863559 */
-    /* atanh */
+    -0x1.54cde4bc5a521p+0,  /* CUDA 11.2 */
+   /* atanh */
     -0x1.f97fabc0650c4p-4,  /* GNU libc */
     -0x1.e93525563e6ffp-9,  /* icc */
     -0x1.34144d5b303b4p-1,  /* AMD LibM */
@@ -1287,7 +1295,8 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.eb21a5af3f144p-4,  /* OpenLibm 0.7.0 */
     -0x1.f8a404597baf4p-4,  /* Musl 1.2.1 */
     0x1.ffd834a270fp-10,    /* Apple 2.00021 */
-    /* cbrt */
+    0x1.f55ef33b32a1ep-3 ,  /* CUDA 11.2 */
+   /* cbrt */
     0x1.7a13d2b82be1ap-254,  /* GNU libc */
     0x1.f7b65d51efca8p+548,  /* icc 19.1.3.304 */
     0x1.09806cdccbfa1p-748,  /* AMD LibM */
@@ -1295,6 +1304,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.2bf9d2510bed4p+798, /* OpenLibm 0.7.0 */
     -0x1.2bf9d2510bed4p+798, /* Musl 1.2.1 */
     0x1.facda6d71fdcfp-988,  /* Apple 0.728607 */
+    0x1.8bea12d76753p+834,  /* CUDA 11.2 */
     /* cos */
     0x1.1feeccb9e4bf7p+5,    /* GNU libc */
     -0x1.1f766f67555c1p+104, /* icc 19.1.3.304 */
@@ -1303,6 +1313,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.34e729fd08086p+21,  /* OpenLibm */
     -0x1.34e729fd08086p+21,  /* Musl */
     0x1.2f29ff7e1c49fp+7,    /* Apple 0.945054 */
+    0x1.8ad56f78d6f4ap+6,  /* CUDA 11.2 */
     /* cosh */
     -0x1.633c654fee2bap+9,   /* GNU libc */
     -0x1.5a364e6b98134p+9,   /* icc 19.1.3.304 */
@@ -1311,6 +1322,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.6310ab92794a8p+9,   /* OpenLibm 0.7.0 */
     0x1.502b6c6156f9fp+0,    /* Musl 1.2.1 */
     -0x1.62c79cd1d386cp-2,   /* Apple 0.522110 */
+    0x1.e7fb557543454p+1,  /* CUDA 11.2 */
     /* erf */
     0x1.c332bde7ca515p-5,    /* GNU libc */
     0x1.00b4ce467e371p+2,    /* icc */
@@ -1319,6 +1331,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.c57541b55c8ebp-16,  /* OpenLibm 0.7.0 */
     -0x1.c57541b55c8ebp-16,  /* Musl 1.2.1 */
     -0x1.e1500cfaad20ep-2,   /* Apple 6.16980 */
+    0x1.321a11445f63fp-2,  /* CUDA 11.2 */
     /* erfc */
     0x1.3ff86013cf2bap+0,    /* GNU libc */
     0x1.5d7f2dfe3b94ep-1,    /* icc 19.1.3.304 */
@@ -1327,6 +1340,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.531fe30327333p+0,    /* OpenLibm 0.7.0 */
     0x1.527f4fb0d9331p+0,    /* Musl 1.2.1 */
     0x1.bba28df12b2d7p+1,    /* Apple 10.3248 */
+    0x1.f666ebe136c4ap-7,  /* CUDA 11.2 */
     /* exp */
     -0x1.571eb1496dab3p+9,   /* GNU libc */
     0x1.fce66609f7428p+5,    /* icc 19.1.3.304 */
@@ -1335,6 +1349,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.6f5ea0e012c38p+6,    /* OpenLibm 0.7.0 */
     -0x1.1820ac5084912p+6,   /* Musl 1.2.1 */
     -0x1.f8ee4b949bf25p-29,  /* Apple 0.519719 */
+    0x1.e7fb382169bc1p+1,  /* CUDA 11.2 */
     /* exp10 */
     0x1.334ab33a9aaep-2,     /* GNU libc */
     0x1.302160f9d4c47p+0,    /* icc */
@@ -1343,6 +1358,7 @@ TYPE extra[SIZE_EXTRA] = {
     0,                       /* OpenLibm 0.7.0 */
     -0x1.fe8cc6dccb491p+3,   /* Musl 1.2.1 */
     0,                       /* Apple */
+    0x1.5c1ef9dc31a01p+0,  /* CUDA 11.2 */
     /* exp2 */
     -0x1.1b214e75178c4p-5,   /* GNU libc */
     0x1.f3ffd85f33423p-1,    /* icc 19.1.3.304 */
@@ -1351,6 +1367,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.ff1eb5acee46bp+9,   /* OpenLibm 0.7.0 */
     -0x1.1b214e75178c4p-5,   /* Musl */
     -0x1.d2bfcb0ff982fp-13,  /* Apple 0.519617 */
+    0x1.ff3d7b8f8198p+9,  /* CUDA 11.2 */
     /* expm1 */
     0x1.62f69d171fa65p-2,    /* GNU libc */
     -0x1.635e445cc416bp-8,   /* icc 19.1.3.304 */
@@ -1359,6 +1376,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.63d05581e2f84p-2,    /* OpenLibm 0.7.0 */
     0x1.63d05581e2f84p-2,    /* Musl 1.2.2 */
     0x1.e7ebb59408602p-5,    /* Apple 0.702290 */
+    0x1.2984a10a3c349p+5,  /* CUDA 11.2 */
     /* j0 */
     0x1.33d152e971b4p+1,     /* GNU libc */
     0x1.d6d8a4b5aa0e2p+9,    /* icc */
@@ -1367,6 +1385,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.33d152e971b4p+1,     /* OpenLibm 0.7.0 */
     -0x1.33d152e971b4p+1,    /* Musl 1.2.1 */
     0x1.33d152e971b4p+1,     /* Apple */
+   -0x1.03163dca16356p+25,  /* CUDA 11.2 */
     /* j1 */
     -0x1.ea75575af6f09p+1,   /* GNU libc */
     -0x1.67b5541c7d8b7p+7,   /* icc 19.1.3.304 */
@@ -1375,6 +1394,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.ea75575af6f09p+1,   /* OpenLibm 0.7.0 */
     0x1.ea75575af6f09p+1,    /* Musl 1.2.1 */
     -0x1.ea75575af6f09p+1,   /* Apple */
+    -0x1.6b6d192ad2eefp+26,  /* CUDA 11.2 */
     /* lgamma */
     -0x1.f60a8d4969457p+1,   /* GNU libc */
     -0x1.3f62c60e23b31p+2,   /* icc 19.1.3.304 */
@@ -1383,6 +1403,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.3a7fc9600f86cp+1,   /* OpenLibm 0.7.0 */
     -0x1.3a7fc9600f86cp+1,   /* Musl 1.2.1 */
     -0x1.bffcbf76b86fp+2,    /* Apple 2.32471e+16 */
+    -0x1.fa471547c2fe5p+1,  /* CUDA 11.2 */
     /* log */
     0x1.1211bef8f68e9p+0,    /* GNU libc */
     0x1.008000db2e8bep+0,    /* icc 19.1.3.304 */
@@ -1391,6 +1412,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.48652aa7cf249p+0,    /* OpenLibm 0.7.0 */
     0x1.dc06b15bb66e2p-1,    /* Musl */
     0x1.43096728988p-1,      /* Apple 0.507836 */
+    0x1.689ef337a0589p-1,  /* CUDA 11.2 */
     /* log10 */
     0x1.de00583c54794p-1,    /* GNU libc */
     0x1.feda7b62c1033p-1,    /* icc 19.1.3.304 */
@@ -1399,6 +1421,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.5536e3c4fc059p+0,    /* OpenLibm 0.7.0 */
     0x1.5536e3c4fc059p+0,    /* Musl 1.2.1 */
     0x1.25025b738b51dp-1,    /* Apple 0.512936 */
+    0x1.8c223f0a82905p+421,  /* CUDA 11.2 */
     /* log1p */
     -0x1.2c10396268852p-2,   /* GNU libc */
     0x1.000aee2a2757fp-9,    /* icc */
@@ -1407,6 +1430,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.2bf5e2b0dab12p-2,   /* OpenLibm */
     -0x1.2c19ff3584c92p-2,   /* Musl */
     -0x1.fffffb3ffffa5p-28,  /* Apple 0.666667 */
+    -0x1.fffffa9bab3e5p-2,  /* CUDA 11.2 */
     /* log2 */
     0x1.0b534e1fc0fe2p+0,    /* GNU libc */
     0x1.00ffdc158ff0dp+0,    /* icc 19.1.3.304 */
@@ -1415,6 +1439,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.69ca14ce191b7p+0,    /* OpenLibm 0.7.0 */
     0x1.0b548b52d2c46p+0,    /* Musl 1.2.1 */
     0x1.6b01a081c3022p-1,    /* Apple 0.514464 */
+    0x1.40a116c951bp-215,  /* CUDA 11.2 */
     /* sin */
     -0x1.f8b791cafcdefp+4,   /* GNU libc */
     -0x1.0e16eb809a35dp+944, /* icc 19.1.3.304 */
@@ -1423,6 +1448,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.b8b6d07237443p+21,   /* OpenLibm 0.7.0 */
     0x1.b8b6d07237443p+21,   /* Musl 1.2.1 */
     -0x1.07e432e88a6e7p+4,   /* Apple 0.940497 */
+    0x1.cfa11ebe115dcp+16,  /* CUDA 11.2 */
     /* sinh */
     -0x1.633c654fee2bap+9,   /* GNU libc */
     -0x1.adc135eb544c1p-2,   /* icc */
@@ -1431,6 +1457,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.6320943636f24p-1,    /* OpenLibm 0.7.0 */
     0x1.6320943636f24p-1,    /* Musl 1.2.1 */
     0x1.623853046e994p-2,    /* Apple 0.534360 */
+    0x1.bda830d0e2c74p+0,  /* CUDA 11.2 */
     /* sqrt */
     0x1.fffffffffffffp-1,    /* GNU libc */
     0x1.fffffffffffffp-1,    /* icc 19.1.3.304 */
@@ -1439,6 +1466,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.fffffffffffffp-1,    /* OpenLibm 0.7.0 */
     0x1.fffffffffffffp-1,    /* Musl 1.2.1 */
     0x1.fffffffffffffp-1,    /* Apple */
+    0x1.e91c9d18b0096p+353,  /* CUDA 11.2 */
     /* tan */
 #ifndef GLIBC_NEW
     0x1.50486b2f87014p-5,    /* GNU libc 2.32 0.5 */
@@ -1451,6 +1479,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.3f9605aaeb51bp+21,   /* OpenLibm 0.7.0 */
     0x1.3f9605aaeb51bp+21,   /* Musl 1.2.2 */
     -0x1.a81d88f3375ep+6,    /* Apple 3.49177 */
+    -0x1.fd08517eeabf9p+22,  /* CUDA 11.2 */
     /* tanh */
     0x1.e0f65b6ce8826p-3,    /* GNU libc */
     -0x1.0018308fc500dp+0,   /* icc */
@@ -1459,6 +1488,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.e100f835705efp-3,    /* OpenLibm 0.7.0 */
     0x1.e100f835705efp-3,    /* Musl 1.2.1 */
     0x1.00cf9f273d84p+1,     /* Apple 0.612229 */
+    0x1.1917834b6f97bp-1,  /* CUDA 11.2 */
     /* tgamma */
     -0x1.c033cc426752fp+2,   /* GNU libc */
     -0x1.3e002bee87875p+6,   /* icc 19.1.3.304 */
@@ -1467,6 +1497,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.540b170c4e65ep+7,   /* OpenLibm 0.7.0 */
     -0x1.ff29534000245p+2,   /* Musl */
     -0x1.55f5b67b0b1edp+7,   /* Apple */
+    -0x1.2baa15eec9f9bp+7,  /* CUDA 11.2 */
     /* y0 */
     0x1.c982eb8d417eap-1,    /* GNU libc */
     0x1.f78ea64a68b96p-63,   /* icc */
@@ -1475,6 +1506,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.c982eb8d417eap-1,    /* OpenLibm 0.7.0 */
     0x1.c982eb8d417eap-1,    /* Musl 1.2.1 */
     0x1.c982eb8d417eap-1,    /* Apple */
+    0x1.337dfc96af776p+25,  /* CUDA 11.2 */
     /* y1 */
     0x1.193bed4dff243p+1,    /* GNU libc */
     0x1.c50658fc9bc2dp+0,    /* icc */
@@ -1483,6 +1515,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.193bed4dff243p+1,    /* OpenLibm 0.7.0 */
     0x1.193bed4dff243p+1,    /* Musl 1.2.1 */
     0x1.193bed4dff243p+1,    /* Apple */
+    0x1.2333038fbcb7ep+26,  /* CUDA 11.2 */
   };
 TYPE extra[SIZE_EXTRA] = {
   /* don't remove the following values: they should give an error > 0.5 for
@@ -1848,46 +1881,51 @@ TYPE extra[SIZE_EXTRA] = {
   };
 #endif
   
-  TYPE x;
-  double d, Dbest0;
+  int nt = omp_get_thread_num();
+  TYPE * x = xpH[nt];
+  double d[2*SIZE];  // more than enough
+  double Dbest0;
   int i;
   /* first check the 'worst' values for the given library, with the given
      rounding mode */
   fesetround (rnd1[rnd]);
+  int nval=0;
   for (i = NUMBER; i < SIZE; i+=NLIBS)
     {
-      x = worst[i];
-      d = distance (x);
-      if (d > Dbest)
+      x[nval++] = worst[i];
+    }
+    assert(nval<2*SIZE);
+    distance (x,d,nval);
+    for (i=0; i<nval; ++i) {
+      if (d[i] > Dbest)
         {
-          Dbest = d;
-          Xmax = x;
+          Dbest = d[i];
+          Xmax = x[i];
         }
     }
   Dbest0 = Dbest;
   /* then check the 'worst' values for the other libraries */
+  nval=0;
   for (i = 0; i < SIZE; i++)
     {
       if ((i % NLIBS) == NUMBER)
         continue;
-      x = worst[i];
-      d = distance (x);
-      if (d > Dbest)
-        {
-          Dbest = d;
-          Xmax = x;
-        }
+      x[nval++] = worst[i];
     }
-  for (i = 0; i < SIZE_EXTRA; i++)
+   for (i = 0; i < SIZE_EXTRA; i++)
     {
-      x = extra[i];
-      d = distance (x);
-      if (d > Dbest)
+      x[nval++] = extra[i];
+    }
+    assert(nval<2*SIZE);
+    distance (x,d,nval);
+    for (i=0; i<nval; ++i) {
+      if (d[i] > Dbest)
         {
-          Dbest = d;
-          Xmax = x;
+          Dbest = d[i];
+          Xmax = x[i];
         }
     }
+    printf("initial worse at %a is %a %a\n",Xmax,Dbest0,Dbest);
 #endif /* WORST */
 
   int nthreads, n;
