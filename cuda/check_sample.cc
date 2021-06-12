@@ -1242,7 +1242,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.002ed02c0c632p-1,  /* OpenLibm 0.7.0 */
     -0x1.002ed02c0c632p-1,  /* Musl */
     -0x1.8d313198a2e02p-53, /* Apple 1.05153 */
-     0x1.2666460168ba8p-1,  /* CUDA 11.2 */
+     0x1.266648b1a1ef4p-1,  /* CUDA 11.2 */
     /* acosh */
     0x1.0001ff6afc4bap+0,   /* GNU libc */
     0x1.01825ca7da7e5p+0,   /* icc 19.1.3.304 */
@@ -1313,7 +1313,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.34e729fd08086p+21,  /* OpenLibm */
     -0x1.34e729fd08086p+21,  /* Musl */
     0x1.2f29ff7e1c49fp+7,    /* Apple 0.945054 */
-    0x1.8ad56f78d6f4ap+6,  /* CUDA 11.2 */
+    0x1.8ad6465692984p+6,  /* CUDA 11.2 */
     /* cosh */
     -0x1.633c654fee2bap+9,   /* GNU libc */
     -0x1.5a364e6b98134p+9,   /* icc 19.1.3.304 */
@@ -1322,7 +1322,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.6310ab92794a8p+9,   /* OpenLibm 0.7.0 */
     0x1.502b6c6156f9fp+0,    /* Musl 1.2.1 */
     -0x1.62c79cd1d386cp-2,   /* Apple 0.522110 */
-    0x1.e7fa5a892c6eep+1,  /* CUDA 11.2 */
+    -0x1.e800c88ccc189p+1,  /* CUDA 11.2 */
     /* erf */
     0x1.c332bde7ca515p-5,    /* GNU libc */
     0x1.00b4ce467e371p+2,    /* icc */
@@ -1331,7 +1331,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.c57541b55c8ebp-16,  /* OpenLibm 0.7.0 */
     -0x1.c57541b55c8ebp-16,  /* Musl 1.2.1 */
     -0x1.e1500cfaad20ep-2,   /* Apple 6.16980 */
-    0x1.321a11445f63fp-2,  /* CUDA 11.2 */
+    -0x1.32a154fb79376p-2,  /* CUDA 11.2 */
     /* erfc */
     0x1.3ff86013cf2bap+0,    /* GNU libc */
     0x1.5d7f2dfe3b94ep-1,    /* icc 19.1.3.304 */
@@ -1349,7 +1349,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.6f5ea0e012c38p+6,    /* OpenLibm 0.7.0 */
     -0x1.1820ac5084912p+6,   /* Musl 1.2.1 */
     -0x1.f8ee4b949bf25p-29,  /* Apple 0.519719 */
-    0x1.e7fb382169bc1p+1,  /* CUDA 11.2 */
+     0x1.e7fa7540df2p+1,  /* CUDA 11.2 */
     /* exp10 */
     0x1.334ab33a9aaep-2,     /* GNU libc */
     0x1.302160f9d4c47p+0,    /* icc */
@@ -1367,7 +1367,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.ff1eb5acee46bp+9,   /* OpenLibm 0.7.0 */
     -0x1.1b214e75178c4p-5,   /* Musl */
     -0x1.d2bfcb0ff982fp-13,  /* Apple 0.519617 */
-    0x1.ff3dfe82cdd4ap+9,  /* CUDA 11.2 */
+    -0x1.7c93b41fdabacp+0,  /* CUDA 11.2 */
     /* expm1 */
     0x1.62f69d171fa65p-2,    /* GNU libc */
     -0x1.635e445cc416bp-8,   /* icc 19.1.3.304 */
@@ -1430,7 +1430,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.2bf5e2b0dab12p-2,   /* OpenLibm */
     -0x1.2c19ff3584c92p-2,   /* Musl */
     -0x1.fffffb3ffffa5p-28,  /* Apple 0.666667 */
-    -0x1.fffffd1d75b15p-2,  /* CUDA 11.2 */
+    -0x1.f281e54f5ebc5p-809,  /* CUDA 11.2 */
     /* log2 */
     0x1.0b534e1fc0fe2p+0,    /* GNU libc */
     0x1.00ffdc158ff0dp+0,    /* icc 19.1.3.304 */
@@ -1439,7 +1439,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.69ca14ce191b7p+0,    /* OpenLibm 0.7.0 */
     0x1.0b548b52d2c46p+0,    /* Musl 1.2.1 */
     0x1.6b01a081c3022p-1,    /* Apple 0.514464 */
-    0x1.40a116c951bp-215,  /* CUDA 11.2 */
+     0x1.5aabed481cd8fp+0,  /* CUDA 11.2 */
     /* sin */
     -0x1.f8b791cafcdefp+4,   /* GNU libc */
     -0x1.0e16eb809a35dp+944, /* icc 19.1.3.304 */
@@ -1488,7 +1488,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.e100f835705efp-3,    /* OpenLibm 0.7.0 */
     0x1.e100f835705efp-3,    /* Musl 1.2.1 */
     0x1.00cf9f273d84p+1,     /* Apple 0.612229 */
-    0x1.18f6142fb3ac4p-1,  /* CUDA 11.2 */
+    -0x1.1931761a1bbe8p-1,  /* CUDA 11.2 */
     /* tgamma */
     -0x1.c033cc426752fp+2,   /* GNU libc */
     -0x1.3e002bee87875p+6,   /* icc 19.1.3.304 */
@@ -1515,7 +1515,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.193bed4dff243p+1,    /* OpenLibm 0.7.0 */
     0x1.193bed4dff243p+1,    /* Musl 1.2.1 */
     0x1.193bed4dff243p+1,    /* Apple */
-    0x1.2333038fbcb7ep+26,  /* CUDA 11.2 */
+    0x1.136296483fa33p+26,  /* CUDA 11.2 */
   };
 TYPE extra[SIZE_EXTRA] = {
   /* don't remove the following values: they should give an error > 0.5 for
