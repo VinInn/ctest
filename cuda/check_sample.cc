@@ -44,7 +44,7 @@
 #endif
 #include <mpfr.h>
 #include <math.h>
-#include <assert.h>
+#include <cassert>
 #include <sys/types.h>
 #include <unistd.h>
 #ifndef NO_OPENMP
@@ -58,6 +58,10 @@
 #include <gnu/libc-version.h>
 #endif
 
+
+#include<fstream>
+#include<map>
+#include<iostream>
 
 #ifdef __CUDACC__
 #include<cuda.h>
@@ -1056,6 +1060,9 @@ main (int argc, char *argv[])
   int verbose = 0;
   long seed = 0;
 
+  std::ifstream ifile;
+  std::ofstream ofile;
+  std::map<std::string,TYPE> worst_map;
   while (argc >= 2 && argv[1][0] == '-')
     {
       if (argc >= 3 && strcmp (argv[1], "-threshold") == 0)
@@ -1104,6 +1111,20 @@ main (int argc, char *argv[])
       else if (strcmp (argv[1], "-rndd") == 0)
         {
           rnd = mpfr_rnd_t(3);
+          argc --;
+          argv ++;
+        }
+      else if (strcmp (argv[1], "-ifile") == 0)
+        {
+          ifile.open(argv[2]);
+          assert(ifile.good());
+          argc --;
+          argv ++;
+        }
+      else if (strcmp (argv[1], "-ofile") == 0)
+        {
+          ofile.open(argv[2]);
+          assert(ofile.good());
           argc --;
           argv ++;
         }
@@ -1881,6 +1902,22 @@ TYPE extra[SIZE_EXTRA] = {
   };
 #endif
   
+  if (ifile) {
+    for (int i = NUMBER; i < SIZE; i+=NLIBS) {
+      std::string name; TYPE val;
+      std::string line;
+      // ifile.setf(std::ios_base::fixed | std::ios_base::scientific, std::ios_base::floatfield);
+      std::getline(ifile,line);
+      char cname[20];
+      sscanf(line.c_str(),"%s %*s %a", cname, &val);
+      name = cname;
+      // std::cout << name << ' ' << val << std::endl;
+      worst_map[name]=val;
+      worst[i] = val;
+    }
+    ifile.close();
+  }
+
   int nt = omp_get_thread_num();
   TYPE * x = xpH[nt];
   double d[2*SIZE];  // more than enough
@@ -1937,10 +1974,22 @@ TYPE extra[SIZE_EXTRA] = {
 #pragma omp parallel for
   for (n = 0; n < nthreads; n++)
     doit (seed + n);
+
 #ifdef WORST
   if (Dbest > Dbest0)
     printf ("NEW ");
+
+  if (ofile.is_open()) {
+    worst_map[NAME] = Dbest;
+    assert(ofile.good());
+    for (auto const & v : worst_map) {
+      ofile <<  v.first << std::hexfloat << v.second << std::endl;
+    }
+    ofile.close();
+  }
 #endif
+
+
   fesetround (FE_TONEAREST);
   printf ("%s %d %d ", NAME, mode_best, Rbest);
   print_type_hex (Xmax);
