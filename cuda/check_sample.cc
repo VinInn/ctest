@@ -1118,15 +1118,15 @@ main (int argc, char *argv[])
         {
           ifile.open(argv[2]);
           assert(ifile.good());
-          argc --;
-          argv ++;
+          argc -=2;
+          argv +=2;
         }
       else if (strcmp (argv[1], "-ofile") == 0)
         {
           ofile.open(argv[2]);
           assert(ofile.good());
-          argc --;
-          argv ++;
+          argc -=2;
+          argv +=2;
         }
       else
         {
@@ -1500,7 +1500,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.3f9605aaeb51bp+21,   /* OpenLibm 0.7.0 */
     0x1.3f9605aaeb51bp+21,   /* Musl 1.2.2 */
     -0x1.a81d88f3375ep+6,    /* Apple 3.49177 */
-    0x1.002fe407a7e48p+12  /* CUDA 11.2 */
+    0x1.002fe407a7e48p+12,  /* CUDA 11.2 */
     /* tanh */
     0x1.e0f65b6ce8826p-3,    /* GNU libc */
     -0x1.0018308fc500dp+0,   /* icc */
@@ -1909,13 +1909,14 @@ TYPE extra[SIZE_EXTRA] = {
       // ifile.setf(std::ios_base::fixed | std::ios_base::scientific, std::ios_base::floatfield);
       std::getline(ifile,line);
       char cname[20];
-      sscanf(line.c_str(),"%s %*s %a", cname, &val);
+      sscanf(line.c_str(),"%s %*s %da", cname, &val);
       name = cname;
-      // std::cout << name << ' ' << val << std::endl;
+      std::cout << name << ' ' << std::hexfloat << val << std::endl;
       worst_map[name]=val;
       worst[i] = val;
     }
     ifile.close();
+    std::cout << "map size " << worst_map.size() << std::endl;
   }
 
   int nt = omp_get_thread_num();
@@ -1983,7 +1984,7 @@ TYPE extra[SIZE_EXTRA] = {
     worst_map[NAME] = Dbest;
     assert(ofile.good());
     for (auto const & v : worst_map) {
-      ofile <<  v.first << std::hexfloat << v.second << std::endl;
+      ofile <<  v.first << ' ' << std::hexfloat << v.second << std::endl;
     }
     ofile.close();
   }
