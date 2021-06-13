@@ -1917,7 +1917,7 @@ TYPE extra[SIZE_EXTRA] = {
       auto x    = worst[floc];
       TYPE y = wrap_foo(x);
       // y = FOO2 (x);
-      printf ("\nin file worst at %a ", x);
+      printf ("in file worst at %a ", x);
       printf ("gives %a\n", y);
     }
   }
