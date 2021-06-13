@@ -6,7 +6,7 @@ export MPFR_DIR=/cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/gcc/9.3.0/lib
    # c++ -DFOO=$f -DUSE_DOUBLE -DWORST -O3 check_sample.cc -lmpfr -lgmp -lm -fopenmp
    echo " "
    echo "checking " $1
-   time ./a.out -v -threshold 2000 -ofile worst.val0
+   time ./a.out -v -threshold 2000 -ifile worst.val0
 
 
 
