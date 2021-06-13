@@ -60,8 +60,10 @@
 
 
 #include<fstream>
-#include<map>
+#include<iomanip>
+#include<algorithm>
 #include<iostream>
+
 
 #ifdef __CUDACC__
 #include<cuda.h>
@@ -1062,7 +1064,9 @@ main (int argc, char *argv[])
 
   std::ifstream ifile;
   std::ofstream ofile;
-  std::map<std::string,TYPE> worst_map;
+  std::string const names[] = {
+    "acos", "acosh", "asin", "asinh", "atan", "atanh", "cbrt", "cos", "cosh", "erf", "erfc", "exp", "exp10", "exp2", "expm1", "j0", "j1", "lgamma", "log", "log10", "log1p", "log2", "sin", "sinh", "sqrt", "tan", "tanh", "tgamma", "y0", "y1"};
+
   while (argc >= 2 && argv[1][0] == '-')
     {
       if (argc >= 3 && strcmp (argv[1], "-threshold") == 0)
@@ -1116,14 +1120,14 @@ main (int argc, char *argv[])
         }
       else if (strcmp (argv[1], "-ifile") == 0)
         {
-          ifile.open(argv[2]);
+          ifile.open(argv[2],std::ios::binary);
           assert(ifile.good());
           argc -=2;
           argv +=2;
         }
       else if (strcmp (argv[1], "-ofile") == 0)
         {
-          ofile.open(argv[2]);
+          ofile.open(argv[2],std::ios::binary);
           assert(ofile.good());
           argc -=2;
           argv +=2;
@@ -1164,16 +1168,6 @@ main (int argc, char *argv[])
     }
 #endif
 
-    {
-      int nt = omp_get_thread_num();
-      TYPE x = 0.5;
-      TYPE y = wrap_foo(x);
-      // y = FOO2 (Xmax);
-      printf ("\n%d at %a ", nt, x);
-      printf ("libm gives %a\n\n", y);
-    }
-
-
  if (verbose)
     {
 #ifdef GLIBC
@@ -1209,6 +1203,10 @@ main (int argc, char *argv[])
 #define	NLIBS 2 /* only glibc and icc do provide binary128 */
 #endif
 #define SIZE (30*NLIBS)
+  assert(30==sizeof(names)/sizeof(names[0]));
+  std::string const name = NAME;
+  int const findex = std::find(std::begin(names),std::end(names),name)-std::begin(names);
+  assert(findex>=0 && findex<30);
 
 #ifdef WORST
 #ifdef GLIBC
@@ -1901,22 +1899,27 @@ TYPE extra[SIZE_EXTRA] = {
   0
   };
 #endif
+
+  int floc = NUMBER+findex*NLIBS;
+  if (verbose) {
+      auto x = worst[floc];
+      TYPE y = wrap_foo(x);
+      // y = FOO2 (x);
+      printf ("%s: in code worst at %a ", names[findex].c_str(),x);
+      printf ("gives %a\n", y);
+  }
   
-  if (ifile) {
-    for (int i = NUMBER; i < SIZE; i+=NLIBS) {
-      std::string name; TYPE val;
-      std::string line;
-      // ifile.setf(std::ios_base::fixed | std::ios_base::scientific, std::ios_base::floatfield);
-      std::getline(ifile,line);
-      char cname[20];
-      sscanf(line.c_str(),"%s %*s %da", cname, &val);
-      name = cname;
-      std::cout << name << ' ' << std::hexfloat << val << std::endl;
-      worst_map[name]=val;
-      worst[i] = val;
-    }
+  if (ifile.is_open()) {
+    ifile.read((char*)worst, sizeof(worst));
+    assert(ifile.good());
     ifile.close();
-    std::cout << "map size " << worst_map.size() << std::endl;
+    if (verbose) {
+      auto x    = worst[floc];
+      TYPE y = wrap_foo(x);
+      // y = FOO2 (x);
+      printf ("\nin file worst at %a ", x);
+      printf ("gives %a\n", y);
+    }
   }
 
   int nt = omp_get_thread_num();
@@ -1981,11 +1984,10 @@ TYPE extra[SIZE_EXTRA] = {
     printf ("NEW ");
 
   if (ofile.is_open()) {
-    worst_map[NAME] = Dbest;
+    worst[floc] = Xmax;
     assert(ofile.good());
-    for (auto const & v : worst_map) {
-      ofile <<  v.first << ' ' << std::hexfloat << v.second << std::endl;
-    }
+    ofile.write((const char*)worst, sizeof(worst));
+    assert(ofile.good());
     ofile.close();
   }
 #endif
