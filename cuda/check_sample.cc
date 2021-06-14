@@ -1332,7 +1332,7 @@ TYPE extra[SIZE_EXTRA] = {
     -0x1.34e729fd08086p+21,  /* OpenLibm */
     -0x1.34e729fd08086p+21,  /* Musl */
     0x1.2f29ff7e1c49fp+7,    /* Apple 0.945054 */
-    0x1.2fb0525633b3bp+7,  /* CUDA 11.2 */
+    0x1.2fb003a663392p+7,  /* CUDA 11.2 */
     /* cosh */
     -0x1.633c654fee2bap+9,   /* GNU libc */
     -0x1.5a364e6b98134p+9,   /* icc 19.1.3.304 */
@@ -1359,7 +1359,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.531fe30327333p+0,    /* OpenLibm 0.7.0 */
     0x1.527f4fb0d9331p+0,    /* Musl 1.2.1 */
     0x1.bba28df12b2d7p+1,    /* Apple 10.3248 */
-    0x1.00acf029836c5p-6,  /* CUDA 11.2 */
+    0x1.c50cb31b67cp-7,  /* CUDA 11.2 */
     /* exp */
     -0x1.571eb1496dab3p+9,   /* GNU libc */
     0x1.fce66609f7428p+5,    /* icc 19.1.3.304 */
@@ -1377,7 +1377,7 @@ TYPE extra[SIZE_EXTRA] = {
     0,                       /* OpenLibm 0.7.0 */
     -0x1.fe8cc6dccb491p+3,   /* Musl 1.2.1 */
     0,                       /* Apple */
-    0x1.5c73697a6233dp+0,  /* CUDA 11.2 */
+    0x1.5bf35e4c5aa17p+0,  /* CUDA 11.2 */
     /* exp2 */
     -0x1.1b214e75178c4p-5,   /* GNU libc */
     0x1.f3ffd85f33423p-1,    /* icc 19.1.3.304 */
@@ -1458,7 +1458,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.69ca14ce191b7p+0,    /* OpenLibm 0.7.0 */
     0x1.0b548b52d2c46p+0,    /* Musl 1.2.1 */
     0x1.6b01a081c3022p-1,    /* Apple 0.514464 */
-    0x1.6c1d79413366bp-1,  /* CUDA 11.2 */
+    0x1.6c8a106f949fdp-1,  /* CUDA 11.2 */
     /* sin */
     -0x1.f8b791cafcdefp+4,   /* GNU libc */
     -0x1.0e16eb809a35dp+944, /* icc 19.1.3.304 */
@@ -1467,7 +1467,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.b8b6d07237443p+21,   /* OpenLibm 0.7.0 */
     0x1.b8b6d07237443p+21,   /* Musl 1.2.1 */
     -0x1.07e432e88a6e7p+4,   /* Apple 0.940497 */
-    0x1.cfa11eaee6ff8p+16,  /* CUDA 11.2 */
+    0x1.cfa11e52cd2d4p+16,  /* CUDA 11.2 */
     /* sinh */
     -0x1.633c654fee2bap+9,   /* GNU libc */
     -0x1.adc135eb544c1p-2,   /* icc */
@@ -1498,7 +1498,7 @@ TYPE extra[SIZE_EXTRA] = {
     0x1.3f9605aaeb51bp+21,   /* OpenLibm 0.7.0 */
     0x1.3f9605aaeb51bp+21,   /* Musl 1.2.2 */
     -0x1.a81d88f3375ep+6,    /* Apple 3.49177 */
-    0x1.002fe55ae61f2p+12,  /* CUDA 11.2 */
+    0x1.002fe57357f4ep+12,  /* CUDA 11.2 */
     /* tanh */
     0x1.e0f65b6ce8826p-3,    /* GNU libc */
     -0x1.0018308fc500dp+0,   /* icc */
