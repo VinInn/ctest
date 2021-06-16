@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# run the sampling multiple times for each functions updating the worst values in a file
+#produce a new file fo worst value, do not overwrite the original one.
+
 lscpu
 nvidia-smi
 echo  " "
