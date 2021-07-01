@@ -6,7 +6,7 @@
 
 inline std::string format_vstring(const std::vector<std::string>& v)  {
     std::string retVal;
-    auto ss = std::accumulate(v.begin(),v.end(),2,[](int a,std::string const & s){return a+s.length()+2;});
+    auto ss = accumulate(v.begin(),v.end(),2,[](int a,std::string const & s){return a+s.length()+2;});
     retVal.reserve(ss);
 
     std::cout << retVal.capacity() << std::endl;
