@@ -166,10 +166,11 @@ float * wrap_foo(unsigned int n, int rd) {
 #endif
   cudaCheck(hipMemcpyAsync(ypH[nt], ypD[nt], bunchSize*sizeof(float), hipMemcpyDeviceToHost, streams[nt]));
   hipStreamSynchronize(streams[nt]);
+  // std::cout << "from GPU " << nt << ' ' << n << ' ' << ypH[nt][0] << std::endl;
 #else
   kernel_foo(n, ypH[nt]);
+  // std::cout << "from CPU "<< nt << ' ' << n << ' ' << ypH[nt][0] << std::endl;
 #endif
-//  std::cout << nt << ' ' << n << ' ' << ypH[nt][0] << std::endl;
   return ypH[nt];
 }
 
@@ -423,6 +424,7 @@ main (int argc, char *argv[])
   assert(maxNumOfThreads>nstreams);
 
 #ifdef __HIPCC__
+  std::cout << "compiled with HIP " << std::endl;
   for (int i = 0; i < nstreams; i++)
     {
         cudaCheck(hipStreamCreate(&(streams[i])));
