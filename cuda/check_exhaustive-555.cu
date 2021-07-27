@@ -174,9 +174,9 @@ float * wrap_foo(unsigned int n, int rd) {
   int nt = omp_get_thread_num();
 #ifdef __CUDACC__
 #ifdef DO_SQRT
-  kernel_fsqrt<<<1024/128,128,nt>>>(n, ypD[nt],rd);
+  kernel_fsqrt<<<1024/128,128,0,streams[nt]>>>(n, ypD[nt],rd);
 #else
-  kernel_foo<<<1024/128,128,nt>>>(n, ypD[nt]);
+  kernel_foo<<<1024/128,128,0,streams[nt]>>>(n, ypD[nt]);
 #endif
   cudaCheck(cudaMemcpyAsync(ypH[nt], ypD[nt], bunchSize*sizeof(float), cudaMemcpyDeviceToHost, streams[nt]));
   cudaStreamSynchronize(streams[nt]);
