@@ -218,13 +218,28 @@ static unsigned long
 ulp_error (float y, float z, float x)
 {
   float err, ulp;
+  if (y == z)
+    return 0;
   if (isinff (z))
     {
-      /* we divide everything by 2, taking as reference the double function */
-      assert (isinff (y) == 0);
+      mpfr_t zz;
+      if (isinff (y)) /* then y and z are of different signs */
+      {
+        assert (y * z < 0);
+        return ULONG_MAX;
+      }
+      /* we divide everything by 2, taking as reference the MPFR function */
       y = y / 2;
-      z = (float) (STR ((double) x) / 2);
-      assert (isinff (z) == 0);
+      mpfr_init2 (zz, 24);
+      mpfr_set_flt (zz, x, MPFR_RNDN);
+      MPFR_FOO (zz, zz, rnd2[rnd]);
+      // z = (float) (STR ((double) x) / 2);
+      mpfr_div_2ui (zz, zz, 1, MPFR_RNDN);
+      z = mpfr_get_flt (zz, MPFR_RNDN);
+      /* If z is +Inf or -Inf, set it to +/-2^127 (since we divided y by 2) */
+      if (isinff (z))
+        z = (z > 0) ? 0x1p127 : -0x1p127;
+      mpfr_clear (zz);
     }
   if (isinff (y))
     {
