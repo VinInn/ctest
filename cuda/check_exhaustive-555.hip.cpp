@@ -160,9 +160,9 @@ float * wrap_foo(unsigned int n, int rd) {
   int nt = omp_get_thread_num();
 #ifdef __HIPCC__
 #ifdef DO_SQRT
-  hipLaunchKernelGGL(kernel_fsqrt, dim3(1024/128), dim3(128), nt, 0, n, ypD[nt],rd);
+  hipLaunchKernelGGL(kernel_fsqrt, dim3(1024/128), dim3(128), 0, streams[nt], n, ypD[nt],rd);
 #else
-  hipLaunchKernelGGL(kernel_foo, dim3(1024/128), dim3(128), nt, 0, n, ypD[nt]);
+  hipLaunchKernelGGL(kernel_foo, dim3(1024/128), dim3(128), 0, streams[nt], n, ypD[nt]);
 #endif
   cudaCheck(hipMemcpyAsync(ypH[nt], ypD[nt], bunchSize*sizeof(float), hipMemcpyDeviceToHost, streams[nt]));
   hipStreamSynchronize(streams[nt]);
