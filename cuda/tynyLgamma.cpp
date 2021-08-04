@@ -3,26 +3,6 @@
 #include <iostream>
 #include <limits>
 
-double ngamma(double x) {
-    double ax = fabs(x);
-    // uint hax = AS_UINT2(ax).hi;
-    struct ID { double d; unsigned long long u;};
-    ID id; id.d = ax; uint32_t hax = (id.u >> 32);
-    double ret=0;
-
-if (hax < 0x43300000) { // x > -0x1.0p+52
-        double t = sinpi(x);
-        double negadj = log(M_PI/fabs(t * x)));
-        ret = negadj - ret;
-        // bool z = BUILTIN_FRACTION_F64(x) == 0.0;
-        // ret = z ? AS_DOUBLE(PINFBITPATT_DP64) : ret;
-        s = t < 0.0 ? -1 : 1;
-        // s = z ? 0 : s;
-    } else std::cout << x << "too large" << std::endl;
-return ret;
-}
-
-
 double gamma(double x) {
     const double z1  = -0x1.2788cfc6fb619p-1;
     const double z2  =  0x1.a51a6625307d3p-1;
@@ -48,11 +28,35 @@ double gamma(double x) {
 }
 
 
+double ngamma(double x) {
+    double ax = fabs(x);
+    // uint hax = AS_UINT2(ax).hi;
+    struct ID { double d; unsigned long long u;};
+    ID id; id.d = ax; uint32_t hax = (id.u >> 32);
+    double ret=0;
+    int s;
+
+if (hax < 0x43300000) { // x > -0x1.0p+52
+        //double t = sinpi(x);
+        double t = sin(M_PI*x);
+        double negadj = -2.*log(-x);  // log(M_PI/fabs(t * x));
+        ret = negadj - gamma(x);
+        // bool z = BUILTIN_FRACTION_F64(x) == 0.0;
+        // ret = z ? AS_DOUBLE(PINFBITPATT_DP64) : ret;
+        s = t < 0.0 ? -1 : 1;
+        // s = z ? 0 : s;
+       std::cout << "in func " << t << ' ' << negadj << ' ' << t*x << std::endl;
+    } else std::cout << x << "too large" << std::endl;
+return ret;
+}
+
+
 #include<cstdio>
 int main() {
 
   double x= -0x1.5efad5491a79bp-1022;
-  std::cout  <<" lgamma for " << x << " = " << gamma(x) << " " << ngamma(x) << ' ' << log(fabs(x)) << std::endl;
+  double n = ngamma(x);
+  std::cout  <<" lgamma for " << x << " = " << gamma(x) << " " << n << ' ' << log(fabs(x)) << std::endl;
 
   printf("x log(fabs(x)) %a %a\n",x,log(fabs(x)));
 

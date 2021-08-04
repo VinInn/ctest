@@ -1,5 +1,10 @@
-#include <hip/hip_runtime.h>
-#include<cmath>
+//#include <hip/hip_runtime.h>
+//#include<cmath>
+
+#define __HIP__
+#define __device__
+#define __global__
+#include<__clang_hip_math.h>
 
 __global__ void doit(float x, float * y) {
    *y = acoshf(x);
