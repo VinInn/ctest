@@ -519,8 +519,9 @@ main (int argc, char *argv[])
 
       check (n, rnd);
       check (0x80000000 + n, rnd); /* negative values */
+      if (0==n%1000000) std::cout << '.' << std::flush;
     }
-
+  std::cout << std::endl;
   if (maxerr > 0.5)
     print_maximal_error (nmax, rnd);
 
