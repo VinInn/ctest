@@ -1,5 +1,3 @@
-#include "hip/hip_runtime.h"
-
 /* Search worst cases of a univariate binary32 function, by exhaustive search.
 
    This program is open-source software distributed under the terms 
@@ -24,9 +22,9 @@
 
 typedef union { unsigned int n; float x; } union_t;
 
+#include<iostream>
 
 #ifdef __HIPCC__
-#include<hip/hip_runtime.h>
 #include<hip/hip_runtime.h>
 #include <hip/hip_runtime_api.h>
 #include<iostream>
@@ -156,7 +154,7 @@ void  kernel_foo(unsigned int n, float * py)
 #endif
 #endif
 
-float * wrap_foo(unsigned int n, int rd) {
+float * wrap_foo(unsigned int n, int rd, bool one) {
   int nt = omp_get_thread_num();
 #ifdef __HIPCC__
 #ifdef DO_SQRT
@@ -164,7 +162,7 @@ float * wrap_foo(unsigned int n, int rd) {
 #else
   hipLaunchKernelGGL(kernel_foo, dim3(1024/128), dim3(128), 0, streams[nt], n, ypD[nt]);
 #endif
-  cudaCheck(hipMemcpyAsync(ypH[nt], ypD[nt], bunchSize*sizeof(float), hipMemcpyDeviceToHost, streams[nt]));
+  cudaCheck(hipMemcpyAsync(ypH[nt], ypD[nt], one ? sizeof(float) : bunchSize*sizeof(float), hipMemcpyDeviceToHost, streams[nt]));
   hipStreamSynchronize(streams[nt]);
   // std::cout << "from GPU " << nt << ' ' << n << ' ' << ypH[nt][0] << std::endl;
 #else
@@ -332,12 +330,15 @@ unsigned int nmax = 0;
 double maxerr = 0;
 
 static void
+print_maximal_error (unsigned int n, int rnd);
+
+static void
 check (unsigned int n, int rnd)
 {
 
   fesetround (rnd1[rnd]);
-  float * yp = wrap_foo(n,rnd);
-
+  float const * yp = wrap_foo(n,rnd,false);
+  float const y2 = yp[1];
   for (int i=0; i<bunchSize; ++i) {
   union_t u;
   float x, y, z;
@@ -372,12 +373,19 @@ check (unsigned int n, int rnd)
         errors2 ++;
       err_double = ulp_error_double (y, x);
 #pragma omp critical
+      {
       if (err > maxerr_u || (err == maxerr_u && err_double > maxerr))
         {
+          static int count = 0;
+          count++;
+          printf("report %d, %d, %a %a %a, %ul %ul, %f %f\n",count,i, x,y,z, err, maxerr_u, err_double,maxerr);
           maxerr_u = err;
           maxerr = (err_double > 0.5) ? err_double : 0.5;
           nmax = u.n;
+          print_maximal_error (nmax,rnd);
+          assert( y2 == yp[1]); 
         }
+     }
     }
   } // loop
 
@@ -397,7 +405,7 @@ print_maximal_error (unsigned int n, int rnd)
   x = u.x;
 
   fesetround (rnd1[rnd]);
-  float * yp = wrap_foo(n,rnd);
+  float * yp = wrap_foo(n,rnd,true);
   y = yp[0];
   z = cr_foo (x, rnd);
   err = ulp_error (y, z, x);
@@ -406,8 +414,8 @@ print_maximal_error (unsigned int n, int rnd)
   mpfr_init2 (e, 53);
   ret = mpfr_set_d (e, err_double, MPFR_RNDN);
   if (ret != 0)
-    mpfr_printf ("x=%a y=%a z=%a err=%lu err_double=%a e=%Re\n", x, y, z, err, err_double, e);
-  assert (ret == 0);
+    mpfr_printf ("mpfr_set_d falied: x=%a y=%a z=%a err=%lu err_double=%a e=%Re\n", x, y, z, err, err_double, e);
+  // assert (ret == 0);
   mpfr_printf ("libm wrong by up to %.2RUe ulp(s) [%lu] for x=%a\n",
                e, err, x);
   printf ("%sf     gives %a\n", NAME, y);
@@ -518,10 +526,11 @@ main (int argc, char *argv[])
       mpfr_set_emax (128);
 
       check (n, rnd);
-      check (0x80000000 + n, rnd); /* negative values */
-      if (0==n%1000000) std::cout << '.' << std::flush;
+      // check (0x80000000 + n, rnd); /* negative values */
+     if (0==n%1000000) std::cout << '.' << std::flush;
     }
   std::cout << std::endl;
+
   if (maxerr > 0.5)
     print_maximal_error (nmax, rnd);
 

@@ -7,7 +7,7 @@
 
 __global__ void doit() {
 
-  printf("hurra %f\n", std::sinf(0.45f));
+  printf("hurra %f\n", sinf(0.45f));
 
 
 }
