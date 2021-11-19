@@ -16,7 +16,7 @@
 #include<iostream>
 #include<limits>
 
-#include "cuda/api_wrappers.h"
+#include "cuda/runtime_api.hpp"
 
 
 
@@ -147,7 +147,7 @@ void go(bool soa, bool dyn=false) {
       genMatrix(m);
   }
 
-  std::cout << mm[SIZE/2](1,1) << std::endl;
+  std::cout << "ori " << mm[SIZE/2](1,1) << std::endl;
   if (dyn)
     for (unsigned int i=0; i<SIZE; ++i) {
       DynMapMX<N> m(p+i, DynStride(N*SIZE,SIZE) );
@@ -166,7 +166,7 @@ void go(bool soa, bool dyn=false) {
       choleskyInversion::invert(m,m);
     }
 
-  std::cout << mm[SIZE/2](1,1) << std::endl;
+  std::cout << "2I cpu " << mm[SIZE/2](1,1) << std::endl;
 
   auto m_d = cuda::memory::device::make_unique<double[]>(current_device, DIM*DIM*stride());
   cuda::memory::copy(m_d.get(), (double const*)(mm), stride()*sizeof(MX));
@@ -206,7 +206,7 @@ void go(bool soa, bool dyn=false) {
     cuda::memory::copy(&mm, m_d.get(),stride()*sizeof(MX));
     delta += (std::chrono::high_resolution_clock::now()-start);
     
-    if (0==kk) std::cout << mm[SIZE/2](1,1) << std::endl;
+    if (0==kk) std::cout << "I gpu " << mm[SIZE/2](1,1) << std::endl;
     
     if (!soa) {
       
@@ -223,7 +223,7 @@ void go(bool soa, bool dyn=false) {
 #endif
       delta1 += (std::chrono::high_resolution_clock::now()-start);
       
-      if (0==kk) std::cout << mm[SIZE/2](1,1) << std::endl;
+      if (0==kk) std::cout << "back GPU " << mm[SIZE/2](1,1) << std::endl;
     }
   
     delta2 -= (std::chrono::high_resolution_clock::now()-start);
@@ -260,18 +260,20 @@ int main() {
   go<4>(false);
   go<5>(false);
   go<6>(false);
+  go<10>(false);
 
   go<2>(true);
   go<4>(true);
   go<5>(true);
   go<6>(true);
+  go<10>(true);
 
 
   go<2>(true,true);
   go<4>(true,true);
   go<5>(true,true);
   go<6>(true,true);
-
+  go<10>(true,true);
 
   // go<10>();
   return 0;

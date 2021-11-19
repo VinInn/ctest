@@ -85,7 +85,7 @@ void go(bool soa, bool dyn=false) {
       genMatrix(m);
   }
 
-  std::cout << mm[SIZE/2](1,1) << std::endl;
+  std::cout << "ori " << mm[SIZE/2](1,1) << std::endl;
 
   if (dyn)
     for (unsigned int i=0; i<SIZE; ++i) {
@@ -105,7 +105,7 @@ void go(bool soa, bool dyn=false) {
       choleskyInversion::invert(m,m);
     }
 
-  std::cout << mm[SIZE/2](1,1) << std::endl;
+  std::cout << "2I " << mm[SIZE/2](1,1) << std::endl;
 
 
   constexpr int NKK = 
@@ -138,10 +138,9 @@ void go(bool soa, bool dyn=false) {
       }
     
     delta2 += (std::chrono::high_resolution_clock::now()-start);
-
+    if (0==kk) std::cout << "I " << mm[SIZE/2](1,1) << std::endl;
   }
   
-  std::cout << mm[SIZE/2](1,1) << std::endl; 
   
   double DNNK = NKK;
   std::cout <<"x86 computation took "

@@ -17,11 +17,10 @@
  */
 namespace choleskyInversion {
 
-  template<typename M1, typename M2>
+  template<typename M1, typename M2, int N=M2::ColsAtCompileTime>
   inline constexpr
   void invertNN(M1 const & src, M2 & dst) {
     using T = typename M2::Scalar;
-    auto N = M2::ColsAtCompileTime;
 
   T a[N][N];
   for (int i=0; i<N; ++i) {
@@ -44,7 +43,7 @@ namespace choleskyInversion {
     }
   }
 
-  if(N==1)  { dst(0,0) = a[0][0]; return; }
+  if constexpr (N==1)  { dst(0,0) = a[0][0]; return; }
   a[0][1]  =  -a[0][1];
   a[1][0]  =   a[0][1]*a[1][1];
   for (int j=2; j<N; ++j) {
