@@ -19,7 +19,7 @@ namespace choleskyInversion {
 
   template<typename M1, typename M2, int N=M2::ColsAtCompileTime>
   __host__ __device__
-//  inline constexpr
+  inline constexpr
   void invertNN(M1 const & src, M2 & dst) {
     using T = typename M2::Scalar;
 

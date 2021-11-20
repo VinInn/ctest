@@ -1,4 +1,4 @@
-
+/*
 template<typename M1, typename M2, int N=M2::ColsAtCompileTime>
 // __host__ __device__
 constexpr
@@ -60,8 +60,11 @@ void invertNN(M1 const & src, M2 & dst) {
   dst(j,j)=a[j][j];
 
 }
+*/
 
+#include "choleskyInversion.h"
 
+using namespace choleskyInversion;
 
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
@@ -91,7 +94,7 @@ void invert (M * mm, int n) {
 
   invertNN(m,m);
 
-  printf("before %d %f %f %f\n",N,m(0,0),m(1,0),m(1,1));
+  printf("after %d %f %f %f\n",N,m(0,0),m(1,0),m(1,1));
 
 }
 
@@ -134,6 +137,13 @@ int main() {
   M m;
 
   genMatrix(m);
+
+  printf("on CPU before %d %f %f %f\n",DIM,m(0,0),m(1,0),m(1,1));
+
+  invertNN(m,m);
+
+  printf("on CPU after %d %f %f %f\n",DIM,m(0,0),m(1,0),m(1,1));
+
 
   double * d;
   cudaMalloc(&d,sizeof(M));
