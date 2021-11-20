@@ -98,6 +98,23 @@ void invert (M * mm, int n) {
 
 }
 
+template<typename M, int N>
+__global__
+void invertE (M * mm, int n) {
+
+  auto i = blockIdx.x*blockDim.x + threadIdx.x;
+  if (i>=n) return;
+
+  auto & m = mm[i];
+
+  printf("before %d %f %f %f\n",N,m(0,0),m(1,0),m(1,1));
+
+  m = m.inverse();
+
+  printf("after %d %f %f %f\n",N,m(0,0),m(1,0),m(1,1));
+
+}
+
 // generate matrices
 template<class M>
 void genMatrix(M  & m ) {
@@ -129,7 +146,7 @@ using MXN = Eigen::Matrix<double,DIM,DIM>;
 
 int main() {
 
-  constexpr int DIM = 2;
+  constexpr int DIM = 6;
 
 
   using M = MXN<DIM>;
@@ -149,6 +166,8 @@ int main() {
   cudaMalloc(&d,sizeof(M));
   cudaMemcpy(d,&m,sizeof(M),cudaMemcpyHostToDevice);
   invert<M,DIM><<<1,1>>>((M*)d,1);
+  cudaDeviceSynchronize();
+  invertE<M,DIM><<<1,1>>>((M*)d,1);
   cudaDeviceSynchronize();
 
   return 0;
