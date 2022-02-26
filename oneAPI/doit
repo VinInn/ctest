@@ -1,0 +1,3 @@
+source /opt/intel/oneapi/setvars.sh
+source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2022/setvars.sh
+dpcpp -O2 -std=c++17
