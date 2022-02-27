@@ -18,9 +18,15 @@
 // which '()' returned the highest number, is selected. If a negative number
 // was returned for all devices, then the selection process will cause an
 // exception.
+
+namespace myDevice {
+  enum type {gpu, acc, cpu, host};
+}
+
 class MyDeviceSelector : public cl::sycl::device_selector {
  public:
-  MyDeviceSelector() {}
+  MyDeviceSelector(myDevice::type t) : m_type(t) { }
+  myDevice::type m_type;
 
   // This is the function which gives a "rating" to devices.
   virtual int operator()(const cl::sycl::device &device) const override {
@@ -34,10 +40,10 @@ class MyDeviceSelector : public cl::sycl::device_selector {
     std::cout << "  Vendor: "
               << device.get_info<cl::sycl::info::device::vendor>() << "\n";
 
-    if (device.is_gpu()) return 500;
-    if (device.is_accelerator()) return 400;
-    if (device.is_cpu()) return 600;
-    if (device.is_host()) return 100;
+    if (m_type==myDevice::gpu &&  device.is_gpu()) return 5000;
+    if (m_type==myDevice::acc && device.is_accelerator()) return 400;
+    if (m_type==myDevice::cpu && device.is_cpu()) return 300;
+    if (m_type==myDevice::host && device.is_host()) return 100;
     return -1;
   }
 };

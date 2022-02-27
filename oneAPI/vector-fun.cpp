@@ -54,7 +54,7 @@ static auto exception_handler = [](sycl::exception_list e_list) {
 //************************************
 // Vector add in DPC++ on device: returns sum in 4th parameter "sum".
 //************************************
-void VectorAdd(queue &q, const float *a, float *sum, size_t size) {
+void VectorAdd(queue &q, const int * k, const float *a, float *sum, size_t size) {
   // Create the range object for the arrays.
   range<1> num_items{size};
 
@@ -64,7 +64,7 @@ void VectorAdd(queue &q, const float *a, float *sum, size_t size) {
   //    2nd parameter is the kernel, a lambda that specifies what to do per
   //    work item. the parameter of the lambda is the work item id.
   // DPC++ supports unnamed lambda kernel by default.
-  auto e = q.parallel_for(num_items, [=](auto i) { sum[i] = cos(a[i]); });
+  auto e = q.parallel_for(num_items, [=](auto i) { sum[i] = cos(a[k[i]]); });
 
   // q.parallel_for() is an asynchronous call. DPC++ runtime enqueues and runs
   // the kernel asynchronously. Wait for the asynchronous call to complete.
@@ -74,8 +74,8 @@ void VectorAdd(queue &q, const float *a, float *sum, size_t size) {
 //************************************
 // Initialize the array from 0 to array_size - 1
 //************************************
-void InitializeArray(float *a, size_t size) {
-  for (size_t i = 0; i < size; i++) a[i] = 0.001f*i;
+void InitializeArray(int *  k, float *a, size_t size) {
+  for (size_t i = 0; i < size; i++) { k[i]=i; a[i] = 0.001f*i; }
 }
 
 //************************************
@@ -83,7 +83,8 @@ void InitializeArray(float *a, size_t size) {
 //************************************
 int main(int argc, char* argv[]) {
   // Change array_size if it was passed as argument
-  if (argc > 1) array_size = std::stoi(argv[1]);
+  myDevice::type dev = myDevice::gpu;
+  if (argc > 1) dev = (myDevice::type)(std::stoi(argv[1]));
   // Create device selector for the device of your interest.
 #if FPGA_EMULATOR
   // DPC++ extension: FPGA emulator selector on systems without FPGA card.
@@ -96,7 +97,7 @@ int main(int argc, char* argv[]) {
   default_selector d_selector;
 #endif
 
-    MyDeviceSelector sel;
+    MyDeviceSelector sel(dev);
 
 #ifdef __INTEL_COMPILER
   std::cout << "intel compiler defined" << std::endl;
@@ -112,15 +113,15 @@ int main(int argc, char* argv[]) {
 
     // Create arrays with "array_size" to store input and output data. Allocate
     // unified shared memory so that both CPU and device can access them.
-    float *a = malloc_shared<float>(array_size, q);
-    float *b = malloc_shared<float>(array_size, q);
-    float *sum_sequential = malloc_shared<float>(array_size, q);
-    float *sum_parallel = malloc_shared<float>(array_size, q);
+    auto *a = malloc_shared<float>(array_size, q);
+    auto *k = malloc_shared<int>(array_size, q);
+    auto *sum_sequential = malloc_shared<float>(array_size, q);
+    auto *sum_parallel = malloc_shared<float>(array_size, q);
 
-    if ((a == nullptr) || (b == nullptr) || (sum_sequential == nullptr) ||
+    if ((a == nullptr) || (k == nullptr) || (sum_sequential == nullptr) ||
         (sum_parallel == nullptr)) {
       if (a != nullptr) free(a, q);
-      if (b != nullptr) free(b, q);
+      if (k != nullptr) free(k, q);
       if (sum_sequential != nullptr) free(sum_sequential, q);
       if (sum_parallel != nullptr) free(sum_parallel, q);
 
@@ -129,17 +130,16 @@ int main(int argc, char* argv[]) {
     }
 
     // Initialize input arrays with values from 0 to array_size - 1
-    InitializeArray(a, array_size);
-    InitializeArray(b, array_size);
+    InitializeArray(k, a, array_size);
 
-    for (int k=0; k<100; ++k) {
+    for (int j=0; j<100; ++j) {
     // Compute the sum of two arrays in sequential for validation.
-    for (size_t i = 0; i < array_size; i++) sum_sequential[i] = sin(a[i]);
+    for (size_t i = 0; i < array_size; i++) sum_sequential[i] = sin(a[k[i]]);
 
     // Vector addition in DPC++.
-    VectorAdd(q, a, sum_parallel, array_size);
+    VectorAdd(q, k, a, sum_parallel, array_size);
 
-    printf("res %a %a %a\n",a[1],sum_parallel[1], sum_sequential[1]);
+    if (0==j%100) printf("res %a %a %a\n",a[1],sum_parallel[1], sum_sequential[1]);
 
     }
     
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
     
 
     free(a, q);
-    free(b, q);
+    free(k, q);
     free(sum_sequential, q);
     free(sum_parallel, q);
   } catch (exception const &e) {
