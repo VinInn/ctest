@@ -68,7 +68,7 @@ void VectorAdd(queue &q, const int * k, const float *a, float *sum, size_t size)
   //    2nd parameter is the kernel, a lambda that specifies what to do per
   //    work item. the parameter of the lambda is the work item id.
   // DPC++ supports unnamed lambda kernel by default.
-  auto e = q.parallel_for(num_items, [=](auto i) { sum[i] = cosf(a[k[i]]); });
+  auto e = q.parallel_for(num_items, [=](auto i) { sum[i] = as_logf(a[k[i]]); });
 
   // q.parallel_for() is an asynchronous call. DPC++ runtime enqueues and runs
   // the kernel asynchronously. Wait for the asynchronous call to complete.
