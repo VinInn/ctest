@@ -19,6 +19,8 @@
 //
 // SPDX-License-Identifier: MIT
 // =============================================================
+// #include "oneapi/tbb.h"
+
 #include <CL/sycl.hpp>
 #include <array>
 #include <iostream>
@@ -29,6 +31,8 @@
 #endif
 
 #include "device_selector.hpp"
+
+#include "cr_log.h"
 
 
 using namespace sycl;
@@ -64,7 +68,7 @@ void VectorAdd(queue &q, const int * k, const float *a, float *sum, size_t size)
   //    2nd parameter is the kernel, a lambda that specifies what to do per
   //    work item. the parameter of the lambda is the work item id.
   // DPC++ supports unnamed lambda kernel by default.
-  auto e = q.parallel_for(num_items, [=](auto i) { sum[i] = acosh(a[k[i]]); });
+  auto e = q.parallel_for(num_items, [=](auto i) { sum[i] = cosf(a[k[i]]); });
 
   // q.parallel_for() is an asynchronous call. DPC++ runtime enqueues and runs
   // the kernel asynchronously. Wait for the asynchronous call to complete.
@@ -82,7 +86,10 @@ void InitializeArray(int *  k, float *a, size_t size) {
 // Demonstrate vector add both in sequential on CPU and in parallel on device.
 //************************************
 int main(int argc, char* argv[]) {
-  // Change array_size if it was passed as argument
+
+  // oneapi::tbb::global_control global_limit(oneapi::tbb::global_control::max_allowed_parallelism, 1);
+
+  // select device
   myDevice::type dev = myDevice::gpu;
   if (argc > 1) dev = (myDevice::type)(std::stoi(argv[1]));
   // Create device selector for the device of your interest.
@@ -109,7 +116,10 @@ int main(int argc, char* argv[]) {
     // Print out the device information used for the kernel code.
     std::cout << "Running on device: "
               << q.get_device().get_info<info::device::name>() << "\n";
-    std::cout << "Vector size: " << array_size << "\n";
+    std::cout << "max_work_group_size : "<< q.get_device().get_info<cl::sycl::info::device::max_work_group_size>() << "\n";
+    std::cout << "Vector size: " << array_size << std::endl;
+
+
 
     // Create arrays with "array_size" to store input and output data. Allocate
     // unified shared memory so that both CPU and device can access them.
