@@ -93,12 +93,13 @@ int main(int argc, char* argv[]) {
 
   try {
     auto sdev = sel.select_device();
-    if (sdev.is_cpu()) {
-      auto devs = sdev.create_sub_devices<cl::sycl::info::partition_property::partition_equally>(1);
-      std::cout << "got " << devs.size() << " sub devices" << std::endl;
-      sdev = devs[0];
+    if (argc == 2) {
+      if (sdev.is_cpu()) {
+        auto devs = sdev.create_sub_devices<cl::sycl::info::partition_property::partition_equally>(1);
+        std::cout << "got " << devs.size() << " sub devices" << std::endl;
+        sdev = devs[0];
+      }
     }
-    
 
     sycl::queue q(sdev, exception_handler);
 
