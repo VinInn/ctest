@@ -27,7 +27,11 @@ static auto exception_handler = [](sycl::exception_list e_list) {
 
 
 // the function to test) 
-inline float foo(float x)  { return as_logf(x); }
+inline float foo(float x)  { return 
+   as_logf(x); 
+   // acosh(x);
+   // x*x;
+  }
 
 void wrapper(sycl::queue &q, const int * k, const float *a, float * ret, size_t size) {
 
