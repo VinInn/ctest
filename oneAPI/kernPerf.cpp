@@ -57,7 +57,7 @@ void wrapper(sycl::queue &q, const int * k, const float *a, float * ret, size_t 
     e.wait();
     delta += (std::chrono::high_resolution_clock::now()-start);
   }
-  std::cout <<"Computation took "
+  std::cout <<"On device Computation took "
             << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
             << " ms" << std::endl;
 
@@ -69,7 +69,7 @@ void wrapper(sycl::queue &q, const int * k, const float *a, float * ret, size_t 
   q.wait();
   delta += (std::chrono::high_resolution_clock::now()-start);
   
-  std::cout <<"Computation took "
+  std::cout <<"On device Computation took "
                << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
             << " ms" << std::endl;
 
@@ -121,6 +121,19 @@ int main(int argc, char* argv[]) {
 
     // on host with host compiler
     for (size_t i = 0; i < array_size; i++) res_sequential[i] = foo(a[i]);
+
+     auto start = std::chrono::high_resolution_clock::now();
+     auto delta = start - start;
+     for (int j=0; j<100; ++j) {
+       delta -= (std::chrono::high_resolution_clock::now()-start);
+       for (size_t i = 0; i < array_size; i++) res_sequential[i] = foo(a[i]);
+       delta += (std::chrono::high_resolution_clock::now()-start);
+     }
+     std::cout <<"On host Computation took "
+               << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
+               << " ms" << std::endl;
+
+
 
 
     // on device
