@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
-
+#include <chrono>
 
 #include "device_selector.hpp"
 
@@ -38,8 +38,36 @@ void wrapper(sycl::queue &q, const int * k, const float *a, float * ret, size_t 
   
 
   // warm
-  auto e = q.parallel_for(num_items,kernel);
-  e.wait();
+  for (int j=0; j<10; ++j) {
+    auto e = q.parallel_for(num_items,kernel);
+    e.wait();
+  }
+
+  auto start = std::chrono::high_resolution_clock::now();
+  auto delta = start - start;
+
+
+  for (int j=0; j<100; ++j) {
+    delta -= (std::chrono::high_resolution_clock::now()-start);
+    auto e = q.parallel_for(num_items,kernel);
+    e.wait();
+    delta += (std::chrono::high_resolution_clock::now()-start);
+  }
+  std::cout <<"Computation took "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
+            << " ms" << std::endl;
+
+  delta = start-start;;
+  delta -= (std::chrono::high_resolution_clock::now()-start);
+  for (int j=0; j<100; ++j) {
+    auto e = q.submit([&](auto &h) {h.parallel_for(num_items,kernel);});
+  }
+  q.wait();
+  delta += (std::chrono::high_resolution_clock::now()-start);
+  
+  std::cout <<"Computation took "
+               << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
+            << " ms" << std::endl;
 
 }
 
@@ -66,6 +94,7 @@ int main(int argc, char* argv[]) {
       std::cout << "got " << devs.size() << " sub devices" << std::endl;
       sdev = devs[0];
     }
+    
 
     sycl::queue q(sdev, exception_handler);
 
