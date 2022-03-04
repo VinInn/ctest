@@ -59,6 +59,9 @@ static auto exception_handler = [](sycl::exception_list e_list) {
 // Vector add in DPC++ on device: returns sum in 4th parameter "sum".
 //************************************
 void VectorAdd(queue &q, const int * k, const float *a, float *sum, size_t size) {
+
+  std::cout << "in the kernel wrapper" << std::endl;
+
   // Create the range object for the arrays.
   range<1> num_items{size};
 
@@ -68,7 +71,21 @@ void VectorAdd(queue &q, const int * k, const float *a, float *sum, size_t size)
   //    2nd parameter is the kernel, a lambda that specifies what to do per
   //    work item. the parameter of the lambda is the work item id.
   // DPC++ supports unnamed lambda kernel by default.
-  auto e = q.parallel_for(num_items, [=](auto i) { sum[i] = as_logf(a[k[i]]); });
+  auto e = q.parallel_for(num_items, [=](auto i) {
+        if (0==i) {
+#ifdef __SSE__
+#warning compile for cpu???
+           printf("in kernel on CPU\n");
+          // std::cout << "in kernel on CPU " << i << std::endl;
+#else
+#warning compile for cpu???
+           printf("in kernel on GPU\n");
+          //std::cout << "in kernel on CPU " << i << std::endl;
+#endif
+        } 
+        sum[i] = as_logf(a[k[i]]); 
+
+        });
 
   // q.parallel_for() is an asynchronous call. DPC++ runtime enqueues and runs
   // the kernel asynchronously. Wait for the asynchronous call to complete.
@@ -111,7 +128,13 @@ int main(int argc, char* argv[]) {
 #endif
 
   try {
-    queue q(sel, exception_handler);
+    auto sdev = sel.select_device();
+    if (sdev.is_cpu()) {
+      auto devs = sdev.create_sub_devices<info::partition_property::partition_equally>(1);
+      std::cout << "got " << devs.size() << " sub devices" << std::endl;
+      sdev = devs[0];
+    }
+    queue q(sdev, exception_handler);
 
     // Print out the device information used for the kernel code.
     std::cout << "Running on device: "
