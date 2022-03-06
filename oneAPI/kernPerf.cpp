@@ -31,6 +31,7 @@ inline float foo(float x)  { return
    as_logf(x); 
    // acosh(x);
    // x*x;
+  // std::fma(x,x,0);
   }
 
 void wrapper(sycl::queue &q, const int * k, const float *a, float * ret, size_t size) {
@@ -121,12 +122,14 @@ int main(int argc, char* argv[]) {
     init(k, a, array_size);
 
     // on host with host compiler
-    for (size_t i = 0; i < array_size; i++) res_sequential[i] = foo(a[i]);
+    for (int j=0; j<100; ++j) 
+      for (size_t i = 0; i < array_size; i++) res_sequential[i] = foo(a[i]);
 
      auto start = std::chrono::high_resolution_clock::now();
      auto delta = start - start;
      for (int j=0; j<100; ++j) {
        delta -= (std::chrono::high_resolution_clock::now()-start);
+       // #pragma clang loop unroll_count(4)
        for (size_t i = 0; i < array_size; i++) res_sequential[i] = foo(a[i]);
        delta += (std::chrono::high_resolution_clock::now()-start);
      }

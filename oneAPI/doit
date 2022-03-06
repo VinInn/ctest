@@ -1,3 +1,4 @@
 source /opt/intel/oneapi/setvars.sh
 source /cvmfs/projects.cern.ch/intelsw/oneAPI/linux/x86_64/2022/setvars.sh
 dpcpp -O2 -std=c++17
+dpcpp -Ofast -std=c++17 kernPerf.cpp -xHost -Wall -fsycl-targets=spir64_x86_64  -Xs "--verbose"
