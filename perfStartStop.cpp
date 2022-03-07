@@ -16,6 +16,17 @@ int main() {
    for  (int i=0; i<1024*1024; ++i) k += sin(i*00001);
 
    perfStartStop::stop();
+
+
+   for  (int i=0; i<1024*1024; ++i) k -= sin(i*00001);
+
+   perfStartStop::start();
+
+   for  (int i=0; i<1024*1024; ++i) k += sin(i*00001);
+
+   perfStartStop::stop();
+
+
    return k<0;
 
 };
