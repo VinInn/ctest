@@ -28,8 +28,8 @@ static auto exception_handler = [](sycl::exception_list e_list) {
 
 // the function to test) 
 inline float foo(float x)  { return 
-   as_logf(x); 
-   // acosh(x);
+   //as_logf(x); 
+    asinhf(x);
    // x*x;
   // std::fma(x,x,0);
   }
