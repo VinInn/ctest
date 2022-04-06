@@ -1,0 +1,1 @@
+c++ $1 -I/cvmfs/cms.cern.ch/slc7_amd64_gcc10/external/eigen/82dd3710dac619448f50331c1d6a35da673f764a-73c7a26137a51fe4557c487dbb5f9c9c/include/eigen3 -I/afs/cern.ch/user/i/innocent/w3/cadna/include /afs/cern.ch/user/i/innocent/w3/cadna/lib/libcadnaC.a -O2 -g -frounding-math -Wall
