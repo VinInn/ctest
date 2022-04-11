@@ -46,7 +46,7 @@ using  Vector4f = Eigen::Vector<FLOAT, IDIM>;
  
   std::cout << "Here is the invertible matrix A:\n" << a << std::endl;
   std::cout << "Here is the matrix B:\n" << b << std::endl;
-  Vector4f x = a.fullPivLu().solve(b);  // a.lu().solve(b);
+  Vector4f x =     a.lu().solve(b); // a.fullPivLu().solve(b);  // a.lu().solve(b);
   std::cout << "Here is the (unique) solution X to the equation AX=B:\n" << x << std::endl;
   std::cout << "Relative error: " << (a*x-b).norm() / b.norm() << std::endl;
 
