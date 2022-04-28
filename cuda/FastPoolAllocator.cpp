@@ -190,7 +190,7 @@ int main() {
   };
 
 
-  const int NUMTHREADS=10;
+  const int NUMTHREADS=24;
   ThreadGroup threads;
   threads.reserve(NUMTHREADS);
 
