@@ -9,16 +9,26 @@
 template<int N>
 struct BundleDeleteImpl {
 
+  ~BundleDeleteImpl() {
+      doFree();
+   } 
+
+  void doFree() {
+      std::cout << "deleting "<< m_count <<std::endl;
+      for (auto p : m_p) ::free(p);
+  }
+
   void operator()(void * p) {
     m_p[m_count++] = p;
-    std::cout << m_count << std::endl;;
+    std::cout << m_count << std::endl;
+    /*
     if (N==m_count){
-      std::cout << "deleting "<< std::endl;
-      for (auto p : m_p) free(p);
+      doFree();
     }
+    */
   }
   int m_count = 0; // can be atomic ok
-  std::array<void *,N> m_p;
+  std::array<void *,N> m_p = {nullptr};
 
 };
 
@@ -38,7 +48,7 @@ struct BundleDelete {
 
 #include<cstdint>
 #include<cstdlib>
-int main() {
+int main(int argc, char** argv) {
 
   using Pointer = std::unique_ptr<int,BundleDelete<4>>;
 
@@ -46,7 +56,7 @@ int main() {
 
   auto p0 = Pointer((int*)malloc(sizeof(int)),deleter);
   auto p1 = Pointer((int*)malloc(sizeof(int)),deleter);
-  auto p2 = Pointer((int*)malloc(sizeof(int)),deleter);
+  if (argc>1) auto p2 = Pointer((int*)malloc(sizeof(int)),deleter);
   auto p3 = Pointer((int*)malloc(sizeof(int)),deleter);
 
   return 0;
