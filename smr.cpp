@@ -77,9 +77,9 @@ public:
   };
 
 
-  explicit SMR(T** hp) : m_hp(hp), m_thread(threadId.get()) { m_dlist.reserve(scanThreshold);  assert(iThread()<maxThreads); std::cout << "created " << iThread() << std::endl;}
+  explicit SMR(T** hp) : m_hp(hp), m_thread(threadId.get()) { m_dlist.reserve(scanThreshold);  assert(iThread()<maxThreads);}
 
-  ~SMR()  { threadId.redeem(iThread()); std::cout << "deleted " << iThread() << std::endl;}
+  ~SMR()  { scan(); threadId.redeem(iThread()); }
 
   int iThread() const { return m_thread;}
 
@@ -129,6 +129,7 @@ class SafeStack {
   };
 
   void push(T const & v) {
+    // trivially safe
     auto n = new Node;
     n.value=v;
     n.next = m_top;
@@ -136,6 +137,7 @@ class SafeStack {
   }
 
   T pop() {
+    // ABA safe
     Node * t = m_top;
     while (true) {
       if (!t) break;
