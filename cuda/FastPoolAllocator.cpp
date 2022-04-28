@@ -63,10 +63,19 @@ public:
 
 
   void dumpStat() const {
-
-    std::cout << "# slots " << size() << '\n'
+   uint64_t fn=0; 
+   uint64_t fs=0;
+   int ls = size();
+   for (int i=0; i<ls; ++i) {
+      if (!m_used[i]) {
+        fn++;
+        fs += (1<<m_bucket[i]);
+      }
+   }
+   std::cout << "# slots " << size() << '\n'
               << "# bytes " << totBytes << '\n'
               << "# alloc " << nAlloc << '\n'
+              << "# free " << fn << ' ' << fs << '\n'
               << std::endl;
   }
  
