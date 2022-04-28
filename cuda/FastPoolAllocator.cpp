@@ -20,6 +20,8 @@ template<typename Traits, int N>
 class FastPoolAllocator {
 
 public:
+
+
   
   static constexpr int maxSlots = N;
   using Pointer = typename Traits::Pointer;
@@ -38,12 +40,16 @@ public:
       bool exp = false;
       if (m_used[i].compare_exchange_weak(exp,true)) return i;
     }
+    std::cout << "not found " << std::endl;
     if (m_size>=maxSlots) return -1;
     ls = m_size++;
+    std::cout << "create " << ls << std::endl;
     if (ls>=maxSlots) return -1;
     m_used[ls]=true;
     m_bucket[ls]=b;
+    std::cout << "alloc "  << s << ' ' << b << ' ' << poolDetails::bucketSize(b) << std::endl;
     m_slots[ls]=Traits::alloc(poolDetails::bucketSize(b));
+    std::cout << "at " << m_slots[ls] << std::endl;
     if (nullptr == m_slots[ls] ) return -1;
     return ls;
   }
@@ -54,9 +60,9 @@ public:
 
 private:
 
-  std::array<int,maxSlots> m_bucket;
-  std::array<std::atomic<Pointer>,maxSlots> m_slots;
-  std::array<std::atomic<bool>,maxSlots> m_used;
+  std::vector<int> m_bucket = std::vector<int>(maxSlots);
+  std::vector<std::atomic<Pointer>> m_slots = std::vector<std::atomic<Pointer>>(maxSlots);
+  std::vector<std::atomic<bool>> m_used = std::vector<std::atomic<bool>>(maxSlots);
   std::atomic<int> m_size=0;
 };
 
@@ -80,16 +86,27 @@ struct PosixAlloc {
 int main() {
 
 
-  FastPoolAllocator<PosixAlloc,1024*1024> pool;
+  FastPoolAllocator<PosixAlloc,1024> pool;
   assert(0==pool.size());
 
   int s = 40;
+
+  std::cout << "try to allocate " << s << std::endl;
 
   int i0 = pool.alloc(s);
   assert(1==pool.size());
   assert(i0>=0);
   auto p0 = pool.pointer(i0);
   assert(nullptr!=p0);
+
+  pool.free(i0);
+  assert(1==pool.size());
+
+  int i1 = pool.alloc(s);
+  assert(1==pool.size());
+  assert(i1==i0);
+  auto p1 = pool.pointer(i1);
+  assert(p1==p0);
 
   return 0;
 
