@@ -21,7 +21,10 @@ class FastPoolAllocator {
 
 public:
 
-
+  FastPoolAllocator() {
+    for ( auto & p : m_slots) p = nullptr;
+    for ( auto & p : m_used) p = true;
+  }
   
   static constexpr int maxSlots = N;
   using Pointer = typename Traits::Pointer;
@@ -43,9 +46,10 @@ public:
     if (m_size>=maxSlots) return -1;
     ls = m_size++;
     if (ls>=maxSlots) return -1;
-    m_used[ls]=true;
+    assert(true==m_used[ls]);
     m_bucket[ls]=b;
     auto as = poolDetails::bucketSize(b);
+    assert(nullptr==m_slots[ls]);
     m_slots[ls]=Traits::alloc(as);
     if (nullptr == m_slots[ls]) return -1;
     totBytes+=as;
@@ -69,7 +73,7 @@ public:
 
 private:
 
-  std::vector<int> m_bucket = std::vector<int>(maxSlots);
+  std::vector<int> m_bucket = std::vector<int>(maxSlots,-1);
   std::vector<std::atomic<Pointer>> m_slots = std::vector<std::atomic<Pointer>>(maxSlots);
   std::vector<std::atomic<bool>> m_used = std::vector<std::atomic<bool>>(maxSlots);
   std::atomic<int> m_size=0;
