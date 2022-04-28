@@ -7,7 +7,7 @@
 #include <vector>
 #include <cstdint>
 #include<iostream>
-
+#include<chrono>
 
 namespace poolDetails {
 
@@ -40,17 +40,16 @@ public:
       bool exp = false;
       if (m_used[i].compare_exchange_weak(exp,true)) return i;
     }
-    std::cout << "not found " << std::endl;
     if (m_size>=maxSlots) return -1;
     ls = m_size++;
-    std::cout << "create " << ls << std::endl;
     if (ls>=maxSlots) return -1;
     m_used[ls]=true;
     m_bucket[ls]=b;
-    std::cout << "alloc "  << s << ' ' << b << ' ' << poolDetails::bucketSize(b) << std::endl;
-    m_slots[ls]=Traits::alloc(poolDetails::bucketSize(b));
-    std::cout << "at " << m_slots[ls] << std::endl;
-    if (nullptr == m_slots[ls] ) return -1;
+    auto as = poolDetails::bucketSize(b);
+    m_slots[ls]=Traits::alloc(as);
+    if (nullptr == m_slots[ls]) return -1;
+    totBytes+=as;
+    nAlloc++;
     return ls;
   }
 
@@ -58,12 +57,27 @@ public:
     m_used[i]=false;
   }
 
+
+  void dumpStat() const {
+
+    std::cout << "# slots " << size() << '\n'
+              << "# bytes " << totBytes << '\n'
+              << "# alloc " << nAlloc << '\n'
+              << std::endl;
+  }
+ 
+
 private:
 
   std::vector<int> m_bucket = std::vector<int>(maxSlots);
   std::vector<std::atomic<Pointer>> m_slots = std::vector<std::atomic<Pointer>>(maxSlots);
   std::vector<std::atomic<bool>> m_used = std::vector<std::atomic<bool>>(maxSlots);
   std::atomic<int> m_size=0;
+
+  std::atomic<uint64_t> totBytes = 0;
+  std::atomic<uint64_t> nAlloc = 0;
+  
+
 };
 
 
@@ -80,14 +94,34 @@ struct PosixAlloc {
 };
 
 
+#include<cmath>
+#include<unistd.h>
+
+#include<thread>
+
+typedef std::thread Thread;
+typedef std::vector<std::thread> ThreadGroup;
+typedef std::mutex Mutex;
+typedef std::lock_guard<std::mutex> Lock;
 
 
+struct Node {
+  int it=-1;
+  int i=-1;
+  void * p=nullptr;
+  std::atomic<int> c=0;
+
+};
 
 int main() {
 
 
-  FastPoolAllocator<PosixAlloc,1024> pool;
+  FastPoolAllocator<PosixAlloc,1024*1024> pool;
   assert(0==pool.size());
+
+
+  Thread monitor([&]{while(true){sleep(5); pool.dumpStat();}});
+  monitor.detach();  
 
   int s = 40;
 
@@ -107,6 +141,67 @@ int main() {
   assert(i1==i0);
   auto p1 = pool.pointer(i1);
   assert(p1==p0);
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+  std::atomic<int> nt=0;
+
+  auto test = [&] {
+   int const me = nt++;
+   int iter=0;
+   while(true) {
+     iter++;
+     auto delta = std::chrono::high_resolution_clock::now()-start;
+     int n =  1+ int64_t(std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/50.)%100;
+     int ind[n];
+     for (auto & i : ind) {     
+       auto delta = std::chrono::high_resolution_clock::now()-start;
+       int b = 3 + int64_t(std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/50.)%20;
+       uint64_t s = 1<<b;
+       assert(s>0);
+       i = pool.alloc(s+sizeof(Node));
+       if (i<0) {
+         std::cout << "failed at " << iter << std::endl;
+         pool.dumpStat();
+         return;
+       }
+       assert(i>=0);
+       auto p = pool.pointer(i);
+       assert(nullptr!=p);
+       // do something???
+       auto n = (Node*)(p);
+       n->it = me;
+       n->i = i;
+       n->p = p;
+       n->c=1;
+     }
+     for (auto i : ind) {
+      auto p = pool.pointer(i);
+      assert(nullptr!=p);
+      auto n = (Node*)(p);
+      n->c--;
+      assert(n->it == me);
+      assert(n->i == i);
+      assert(n->p == p);
+      assert(0 == n->c);
+      pool.free(i);
+     }
+   }
+  };
+
+
+  const int NUMTHREADS=10;
+  ThreadGroup threads;
+  threads.reserve(NUMTHREADS);
+
+   for (int i=0; i<NUMTHREADS; ++i) {
+      threads.emplace_back(test);
+    }
+
+    for (auto & t : threads) t.join();
+
+    threads.clear();
+  pool.dumpStat();
 
   return 0;
 
