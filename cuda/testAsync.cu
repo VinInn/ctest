@@ -46,13 +46,13 @@ void cpu_foo(unsigned int n, float * py) {
 }
 
 template <typename F>
-void CUDART_CB MyCallback(void * fun){
+void CUDART_CB myCallback(void * fun){
     (*(F*)(fun))();
 }
 
 
 void CUDART_CB aCallback(void *data){
-    printf("Inside callback %d\n", (size_t)data);
+    printf("Inside callback %d\n", *(int*)data);
 }
 
 void compare(float * yd, float * yh, float & dm) {
@@ -82,13 +82,13 @@ void go() {
   cudaCheck(cudaMallocHost((void **)&ypH, bunchSize*sizeof(float)));
   ypC =(float*)::malloc(bunchSize*sizeof(float));
 
-  kernel_foo<<<1024/128,128,0,stream>>>(me*bunchSize, ypD);
+  union_t u; u.x=0.1f;
+
+  kernel_foo<<<1024/128,128,0,stream>>>(u.n+me*bunchSize, ypD);
 
   auto k1 = [&]() {
     cpu_foo(me*bunchSize, ypC);
   };
-
-  // auto f1 = MyCallback<k1>;
 
   auto k2 = [&]() {
     compare(ypH,ypC,dm);
@@ -96,15 +96,24 @@ void go() {
 
   cudaCheck(cudaMemcpyAsync(ypH, ypD, bunchSize*sizeof(float), cudaMemcpyDeviceToHost, stream));
   cudaLaunchHostFunc (stream, aCallback, &me);
-  cudaLaunchHostFunc (stream, MyCallback<decltype(k1)>, &k1);
-  cudaLaunchHostFunc (stream, MyCallback<decltype(k2)>, &k2);
+  cudaLaunchHostFunc (stream, myCallback<decltype(k1)>, &k1);
+  cudaLaunchHostFunc (stream, myCallback<decltype(k2)>, &k2);
 
 
   cudaStreamSynchronize(stream);
 
-  std::cout << "max diff in " << me << ' ' << dm << std::endl;
+  printf("max diff in %d %a\n",me,dm);
 
 }
+
+#include<thread>
+#include<mutex>
+#include<vector>
+
+typedef std::thread Thread;
+typedef std::vector<std::thread> ThreadGroup;
+typedef std::mutex Mutex;
+typedef std::lock_guard<std::mutex> Lock;
 
 
 int main (int argc, char *argv[]) {
@@ -125,7 +134,17 @@ int main (int argc, char *argv[]) {
         cudaCheck(cudaStreamCreate(&(streams[i])));
   }
 
-  go();
+
+  ThreadGroup threads;
+  threads.reserve(nstreams);
+
+   for (int i=0; i<nstreams; ++i) {
+      threads.emplace_back(go);
+    }
+
+    for (auto & t : threads) t.join();
+
+    threads.clear();
 
 
   return 0;

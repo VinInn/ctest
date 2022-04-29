@@ -1,2 +1,2 @@
 nvcc -allow-unsupported-compiler -DCUDA_ENABLE_DEPRECATED \
--gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++14 --expt-relaxed-constexpr --expt-extended-lambda $1
+-gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -O3 -std=c++17 --expt-relaxed-constexpr --expt-extended-lambda $1
