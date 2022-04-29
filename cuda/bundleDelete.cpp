@@ -4,10 +4,15 @@
 
 #include<iostream>
 
+struct BundleDeleteBase {
 
+  virtual ~BundleDeleteBase() = default;
+  virtual void operator()(void * p) =0;
+
+};
 
 template<int N>
-struct BundleDeleteImpl {
+struct BundleDeleteImpl final : BundleDeleteBase {
 
   ~BundleDeleteImpl() {
       doFree();
@@ -32,32 +37,41 @@ struct BundleDeleteImpl {
 
 };
 
-template<int N>
+
 struct BundleDelete {
 
   BundleDelete() = default;
-  BundleDelete(std::shared_ptr<BundleDeleteImpl<N>> del) : me(del){}
+  BundleDelete(std::shared_ptr<BundleDeleteBase> del) : me(del){}
  
   void operator()(void * p) {
+    if (!me) {
+      std::cout << "deleting one "<<std::endl;
+      ::free(p);
+      return;
+    }
     (*me)(p);
   }
 
-  std::shared_ptr<BundleDeleteImpl<N>> me;
+  std::shared_ptr<BundleDeleteBase> me;
 };
+
+
 
 
 #include<cstdint>
 #include<cstdlib>
 int main(int argc, char** argv) {
 
-  using Pointer = std::unique_ptr<int,BundleDelete<4>>;
+  using Pointer = std::unique_ptr<int,BundleDelete>;
 
-  BundleDelete<4> deleter(std::make_shared<BundleDeleteImpl<4>>());
+  BundleDelete deleter(std::make_shared<BundleDeleteImpl<4>>());
 
   auto p0 = Pointer((int*)malloc(sizeof(int)),deleter);
   auto p1 = Pointer((int*)malloc(sizeof(int)),deleter);
   if (argc>1) auto p2 = Pointer((int*)malloc(sizeof(int)),deleter);
   auto p3 = Pointer((int*)malloc(sizeof(int)),deleter);
+
+  auto p = Pointer((int*)malloc(sizeof(int)));
 
   return 0;
 }

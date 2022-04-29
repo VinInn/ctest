@@ -60,7 +60,7 @@ public:
       if (b!=m_bucket[i]) continue;    
       if (m_used[i]) continue;
       bool exp = false;
-      if (m_used[i].compare_exchange_strong(exp,true)) {
+      if (m_used[i].compare_exchange_weak(exp,true)) {
         // verify if in the mean time the garbage collector did operate
         if(nullptr == m_slots[i]) {
           m_used[i] = false;
@@ -99,7 +99,7 @@ public:
       if (m_used[i]) continue;
       if (m_bucket[i]<0) continue; 
       bool exp = false;
-      if (!m_used[i].compare_exchange_strong(exp,true)) continue;
+      if (!m_used[i].compare_exchange_weak(exp,true)) continue;
       assert(m_used[i]);
       if( nullptr != m_slots[i]) {
         assert(m_bucket[i]>=0);  
@@ -119,7 +119,7 @@ public:
       if ( m_bucket[i]>=0) continue;
       if (m_used[i]) continue;
       bool exp = false;
-      if (!m_used[i].compare_exchange_strong(exp,true)) continue;
+      if (!m_used[i].compare_exchange_weak(exp,true)) continue;
       if( nullptr != m_slots[i]) { // ops allocated and freed
         assert(m_bucket[i]>=0);
         m_used[i] = false;
