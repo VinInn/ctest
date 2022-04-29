@@ -33,20 +33,56 @@ public:
 
   Pointer pointer(int i) const { return m_slots[i]; }
 
+  void free(int i) {
+    m_used[i]=false;
+  }
+
   int alloc(uint64_t s) {
+    auto i = allocImpl(s);
+
+    //test garbage
+    if(totBytes>4507964512) garbageCollect();
+
+    if (i>=0) {
+       assert(m_used[i]);
+       return i;
+    } 
+    garbageCollect();
+    return allocImpl(s);
+  }
+
+  int allocImpl(uint64_t s) {
     auto b = poolDetails::bucket(s);
     assert(s<=poolDetails::bucketSize(b));
     int ls = size();
+    // look for an existing slot
     for (int i=0; i<ls; ++i) {
       if (b!=m_bucket[i]) continue;    
       if (m_used[i]) continue;
       bool exp = false;
-      if (m_used[i].compare_exchange_weak(exp,true)) return i;
+      if (m_used[i].compare_exchange_strong(exp,true)) {
+        // verify if in the mean time the garbage collector did operate
+        if(nullptr == m_slots[i]) {
+          m_used[i] = false;
+          continue;
+        }
+        return i;
+      }
     }
+
+    // try to create in existing slot (if garbage has been collected)
+    ls = useOld(b);
+    if (ls>=0) return ls;
+    // try to allocate a new slot
     if (m_size>=maxSlots) return -1;
     ls = m_size++;
     if (ls>=maxSlots) return -1;
-    assert(true==m_used[ls]);
+    return createAt(ls,b);
+  }
+
+  int createAt(int ls, int b) {
+    assert(m_used[ls]);
+    
     m_bucket[ls]=b;
     auto as = poolDetails::bucketSize(b);
     assert(nullptr==m_slots[ls]);
@@ -57,17 +93,51 @@ public:
     return ls;
   }
 
-  void free(int i) {
-    m_used[i]=false;
+  void garbageCollect() {
+    int ls = size();
+    for (int i=0; i<ls; ++i) {
+      if (m_used[i]) continue;
+      if (m_bucket[i]<0) continue; 
+      bool exp = false;
+      if (!m_used[i].compare_exchange_strong(exp,true)) continue;
+      assert(m_used[i]);
+      if( nullptr != m_slots[i]) {
+        assert(m_bucket[i]>=0);  
+        Traits::free(m_slots[i]);
+        totBytes-= poolDetails::bucketSize(m_bucket[i]);
+      }
+      m_slots[i] = nullptr;
+      m_bucket[i] = -1;
+      m_used[i] = false; // here memory fence as well
+    }
   }
 
+
+  int useOld(int b) {
+    int ls = size();
+    for (int i=0; i<ls; ++i) {
+      if ( m_bucket[i]>=0) continue;
+      if (m_used[i]) continue;
+      bool exp = false;
+      if (!m_used[i].compare_exchange_strong(exp,true)) continue;
+      if( nullptr != m_slots[i]) { // ops allocated and freed
+        assert(m_bucket[i]>=0);
+        m_used[i] = false;
+        continue;
+      }
+      assert(m_used[i]);
+      createAt(i,b);
+      return i;
+    }
+    return -1;
+  }
 
   void dumpStat() const {
    uint64_t fn=0; 
    uint64_t fs=0;
    int ls = size();
    for (int i=0; i<ls; ++i) {
-      if (!m_used[i]) {
+      if (m_used[i]) {
         fn++;
         fs += (1<<m_bucket[i]);
       }
@@ -75,7 +145,7 @@ public:
    std::cout << "# slots " << size() << '\n'
               << "# bytes " << totBytes << '\n'
               << "# alloc " << nAlloc << '\n'
-              << "# free " << fn << ' ' << fs << '\n'
+              << "# used " << fn << ' ' << fs << '\n'
               << std::endl;
   }
  
@@ -110,6 +180,11 @@ struct PosixAlloc {
 #include<cmath>
 #include<unistd.h>
 
+
+#include<random>
+#include<limits>
+
+
 #include<thread>
 
 typedef std::thread Thread;
@@ -127,6 +202,8 @@ struct Node {
 };
 
 int main() {
+
+  auto start = std::chrono::high_resolution_clock::now();
 
 
   FastPoolAllocator<PosixAlloc,1024*1024> pool;
@@ -155,21 +232,24 @@ int main() {
   auto p1 = pool.pointer(i1);
   assert(p1==p0);
 
-  auto start = std::chrono::high_resolution_clock::now();
-
   std::atomic<int> nt=0;
 
   auto test = [&] {
    int const me = nt++;
+   auto delta = std::chrono::high_resolution_clock::now()-start;
+
+   std::mt19937 eng(me+std::chrono::duration_cast<std::chrono::milliseconds>(delta).count());
+   std::uniform_int_distribution<int> rgen1(1,100);
+   std::uniform_int_distribution<int> rgen2(3,24);
+   std::cout << "first RN " << rgen1(eng) << " at " << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() <<  std::endl;
+
    int iter=0;
    while(true) {
      iter++;
-     auto delta = std::chrono::high_resolution_clock::now()-start;
-     int n =  1+ int64_t(std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/50.)%100;
+     auto n = rgen1(eng);
      int ind[n];
      for (auto & i : ind) {     
-       auto delta = std::chrono::high_resolution_clock::now()-start;
-       int b = 3 + int64_t(std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/50.)%20;
+       int b = rgen2(eng);
        uint64_t s = 1<<b;
        assert(s>0);
        i = pool.alloc(s+sizeof(Node));
