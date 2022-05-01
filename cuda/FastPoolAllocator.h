@@ -142,7 +142,7 @@ public:
    for (int i=0; i<ls; ++i) {
       if (m_used[i]) {
         fn++;
-        fs += (1<<m_bucket[i]);
+        fs += (1LL<<m_bucket[i]);
       }
    }
    std::cout << "# slots " << size() << '\n'

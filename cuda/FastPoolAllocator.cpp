@@ -141,9 +141,12 @@ void go() {
      iter++;
      auto n = rgen1(eng);
      int ind[n];
+     bool large = 0==(iter%(128+me));
      for (auto & i : ind) {     
        int b = rgen2(eng);
-       uint64_t s = 1<<b;
+       // once in while let's allocate 2GB
+       if (large) { b = 31; large=false;}
+       uint64_t s = 1LL<<b;
        assert(s>0);
        i = pool.alloc(s+sizeof(Node));
        if (i<0) {
