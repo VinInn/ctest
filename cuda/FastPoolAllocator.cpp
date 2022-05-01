@@ -42,11 +42,11 @@ void CUDART_CB myCallback(void * fun){
 __global__ void kernel_set(int s, void ** p,  int me) {
    int first = blockIdx.x * blockDim.x + threadIdx.x;
    for (int i=first; i<s; i+=gridDim.x*blockDim.x) {
-       assert(p+i);
-       auto n = (Node*)(p+i);
+       assert(p[i]);
+       auto n = (Node*)(p[i]);
        n->it = me;
        n->i = i;
-       n->p = p;
+       n->p = p[i];
        n->c=1;
    } 
 }
@@ -55,11 +55,11 @@ __global__ void kernel_test(int s, void ** p,  int me) {
    int first = blockIdx.x * blockDim.x + threadIdx.x;
    for (int i=first; i<s; i+=gridDim.x*blockDim.x) {
       assert(p+i);
-      auto n = (Node*)(p+i);
+      auto n = (Node*)(p[i]);
       atomicSub(&(n->c),1);
       assert(n->it == me);
       assert(n->i == i);
-      assert(n->p == p);
+      assert(n->p == p[i]);
       assert(0 == n->c);
    }
 }
@@ -163,7 +163,10 @@ void go() {
       auto i = ind[k];
       hp[k] = pool.pointer(i);
     }
-    cudaMemcpyAsync(dp,hp, n*sizeof(void*),cudaMemcpyHostToDevice, stream); 
+    cudaMemcpyAsync(dp,hp, n*sizeof(void*),cudaMemcpyHostToDevice, stream);
+    kernel_set<<<1,128,0,stream>>>(n,dp,me); 
+    kernel_test<<<1,128,0,stream>>>(n,dp,me);
+
     // free
     auto doFree = [&]() {
     for (int k=0; k<n; ++k) {
