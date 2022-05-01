@@ -36,6 +36,7 @@ public:
   Pointer pointer(int i) const { return m_slots[i]; }
 
   void free(int i) {
+    m_last[i] = -1;
     m_used[i]=false;
   }
 
@@ -47,18 +48,13 @@ public:
 
     if (i>=0) {
        assert(m_used[i]);
+       if (nullptr==m_slots[i]) std::cout << "race ??? " << i << ' ' << m_bucket[i] << ' ' << m_last[i] << std::endl;
        assert(m_slots[i]);
        return i;
     } 
     garbageCollect();
     i =  allocImpl(s);
-    assert(m_used[i]);
-    if (i<0) {
-      assert(m_used[i]);
-      assert(nullptr == m_slots[i]);
-      m_bucket[i] = -1;
-      m_used[i]=false;
-    }
+    if (i>=0) assert(m_used[i]);
     return i;
   }
 
@@ -78,6 +74,7 @@ public:
           m_used[i] = false;
           continue;
         }
+        m_last[i] = 0;
         return i;
       }
     }
@@ -85,16 +82,18 @@ public:
     // try to create in existing slot (if garbage has been collected)
     ls = useOld(b);
     if (ls>=0) return ls;
+
     // try to allocate a new slot
     if (m_size>=maxSlots) return -1;
     ls = m_size++;
     if (ls>=maxSlots) return -1;
+    m_last[ls] = 2;
     return createAt(ls,b);
   }
 
   int createAt(int ls, int b) {
     assert(m_used[ls]);
-    
+    assert( 2==m_last[ls] || 1==m_last[ls]) ;
     m_bucket[ls]=b;
     auto as = poolDetails::bucketSize(b);
     assert(nullptr==m_slots[ls]);
@@ -121,6 +120,7 @@ public:
       }
       m_slots[i] = nullptr;
       m_bucket[i] = -1;
+      m_last[i] = 3;
       m_used[i] = false; // here memory fence as well
     }
   }
@@ -135,12 +135,13 @@ public:
       if (!m_used[i].compare_exchange_strong(exp,true)) continue;
       if( nullptr != m_slots[i]) { // ops allocated and freed
         assert(m_bucket[i]>=0);
+        assert(m_last[i] = -1);
         m_used[i] = false;
         continue;
       }
       assert(m_used[i]);
-      createAt(i,b);
-      return i;
+      m_last[i] = 1;
+      return createAt(i,b);
     }
     return -1;
   }
@@ -151,8 +152,10 @@ public:
    int ls = size();
    for (int i=0; i<ls; ++i) {
       if (m_used[i]) {
+        auto b = m_bucket[i];
+        if (b<0) continue;
         fn++;
-        fs += (1LL<<m_bucket[i]);
+        fs += (1LL<<b);
       }
    }
    std::cout << "# slots " << size() << '\n'
@@ -166,8 +169,11 @@ public:
 
 private:
 
+  std::vector<int> m_last = std::vector<int>(maxSlots,-2);
+
+
   std::vector<int> m_bucket = std::vector<int>(maxSlots,-1);
-  std::vector<std::atomic<Pointer>> m_slots = std::vector<std::atomic<Pointer>>(maxSlots);
+  std::vector<Pointer> m_slots = std::vector<Pointer>(maxSlots,nullptr);
   std::vector<std::atomic<bool>> m_used = std::vector<std::atomic<bool>>(maxSlots);
   std::atomic<int> m_size=0;
 

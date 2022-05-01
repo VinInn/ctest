@@ -153,7 +153,7 @@ void go() {
        assert(s>0);
        i = pool.alloc(s+sizeof(Node));
        if (i<0) {
-         std::cout << "failed at " << iter << std::endl;
+         std::cout << "\n\n!!!Failed " << me << " at " << iter << std::endl;
          pool.dumpStat();
          return;
        }
