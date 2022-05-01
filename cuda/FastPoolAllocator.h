@@ -24,7 +24,6 @@ class FastPoolAllocator {
 public:
 
   FastPoolAllocator() {
-    for ( auto & p : m_slots) p = nullptr;
     for ( auto & p : m_used) p = true;
   }
   
@@ -54,7 +53,7 @@ public:
     } 
     garbageCollect();
     i =  allocImpl(s);
-    if (i>=0) assert(m_used[i]);
+    if (i>=0) { assert(m_used[i]); assert(m_slots[i]);assert(m_last[i]>=0);}
     return i;
   }
 
@@ -93,7 +92,7 @@ public:
 
   int createAt(int ls, int b) {
     assert(m_used[ls]);
-    assert( 2==m_last[ls] || 1==m_last[ls]) ;
+    assert(m_last[ls]>0);
     m_bucket[ls]=b;
     auto as = poolDetails::bucketSize(b);
     assert(nullptr==m_slots[ls]);
@@ -120,7 +119,7 @@ public:
       }
       m_slots[i] = nullptr;
       m_bucket[i] = -1;
-      m_last[i] = 3;
+      m_last[i] = -3;
       m_used[i] = false; // here memory fence as well
     }
   }
