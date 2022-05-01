@@ -47,10 +47,19 @@ public:
 
     if (i>=0) {
        assert(m_used[i]);
+       assert(m_slots[i]);
        return i;
     } 
     garbageCollect();
-    return allocImpl(s);
+    i =  allocImpl(s);
+    assert(m_used[i]);
+    if (i<0) {
+      assert(m_used[i]);
+      assert(nullptr == m_slots[i]);
+      m_bucket[i] = -1;
+      m_used[i]=false;
+    }
+    return i;
   }
 
   int allocImpl(uint64_t s) {
@@ -62,9 +71,10 @@ public:
       if (b!=m_bucket[i]) continue;    
       if (m_used[i]) continue;
       bool exp = false;
-      if (m_used[i].compare_exchange_weak(exp,true)) {
+      if (m_used[i].compare_exchange_strong(exp,true)) {
         // verify if in the mean time the garbage collector did operate
         if(nullptr == m_slots[i]) {
+          assert(m_bucket[i]<0);
           m_used[i] = false;
           continue;
         }
@@ -101,7 +111,7 @@ public:
       if (m_used[i]) continue;
       if (m_bucket[i]<0) continue; 
       bool exp = false;
-      if (!m_used[i].compare_exchange_weak(exp,true)) continue;
+      if (!m_used[i].compare_exchange_strong(exp,true)) continue;
       assert(m_used[i]);
       if( nullptr != m_slots[i]) {
         assert(m_bucket[i]>=0);  
@@ -122,7 +132,7 @@ public:
       if ( m_bucket[i]>=0) continue;
       if (m_used[i]) continue;
       bool exp = false;
-      if (!m_used[i].compare_exchange_weak(exp,true)) continue;
+      if (!m_used[i].compare_exchange_strong(exp,true)) continue;
       if( nullptr != m_slots[i]) { // ops allocated and freed
         assert(m_bucket[i]>=0);
         m_used[i] = false;
@@ -189,7 +199,7 @@ struct CudaDeviceAlloc {
 
   using Pointer = void *;
 
-  static Pointer alloc(size_t size) { Pointer p; auto err = cudaMalloc(&p,size); return err==cudaSuccess ? p : nullptr;}
+  static Pointer alloc(size_t size) { Pointer p=nullptr; auto err = cudaMalloc(&p,size); return err==cudaSuccess ? p : nullptr;}
   static void free(Pointer ptr) { cudaFree(ptr); }
 
 };
@@ -198,7 +208,7 @@ struct CudaHostAlloc {
 
   using Pointer = void *;
 
-  static Pointer alloc(size_t size) { Pointer p; auto err = cudaMallocHost(&p,size); return err==cudaSuccess ? p : nullptr;}
+  static Pointer alloc(size_t size) { Pointer p=nullptr; auto err = cudaMallocHost(&p,size); return err==cudaSuccess ? p : nullptr;}
   static void free(Pointer ptr) { cudaFreeHost(ptr); }
 
 };

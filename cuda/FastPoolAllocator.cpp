@@ -92,8 +92,10 @@ void go() {
   FastPoolAllocator<Traits,1024*1024> pool;
   assert(0==pool.size());
 
+
   bool stop = false;
-  Thread monitor([&]{int n=10;while(n--){sleep(5); pool.dumpStat();} std::cout << "\nstop\n" << std::endl; stop=true;});
+  bool bin24 = false;
+  Thread monitor([&]{int n=10;while(n--){sleep(5); pool.dumpStat(); if (5==n) bin24 = true;} std::cout << "\nstop\n" << std::endl; stop=true;});
 
   int s = 40;
 
@@ -122,7 +124,8 @@ void go() {
 
    std::mt19937 eng(me+std::chrono::duration_cast<std::chrono::milliseconds>(delta).count());
    std::uniform_int_distribution<int> rgen1(1,100);
-   std::uniform_int_distribution<int> rgen2(3,20);
+   std::uniform_int_distribution<int> rgen20(3,20);
+   std::uniform_int_distribution<int> rgen24(3,24);
    std::cout << "first RN " << rgen1(eng) << " at " << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() << " in " << me<<  std::endl;
 
 
@@ -143,7 +146,7 @@ void go() {
      int ind[n];
      bool large = 0==(iter%(128+me));
      for (auto & i : ind) {     
-       int b = rgen2(eng);
+       int b = bin24 ? rgen24(eng) : rgen20(eng);
        // once in while let's allocate 2GB
        if (large) { b = 31; large=false;}
        uint64_t s = 1LL<<b;
@@ -156,6 +159,10 @@ void go() {
        }
        assert(i>=0);
        auto p = pool.pointer(i);
+       if (nullptr==p) {
+          std::cout << "error not detected??? " << b << ' ' << i << std::endl;
+          pool.dumpStat();
+       }
        assert(p);
     }
 #ifdef __CUDACC__
