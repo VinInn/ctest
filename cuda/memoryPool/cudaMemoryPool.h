@@ -1,18 +1,19 @@
 #pragma once
 #include "memoryPool.h"
 #include <vector>
-// #include <cuda.h>
+#include <cuda.h>
 
-using cudaStream_t = void *;
 
 namespace memoryPool {
   namespace cuda {
+
+    void dumpStat();
 
     // allocate either on current device or on host
     std::pair<void *,int> alloc(uint64_t size, bool onDevice);
 
     // schedule free
-    void free(cudaStream_t stream, int * bucket, int n, bool onDevice);
+    void free(cudaStream_t stream, std::vector<int> buckets, bool onDevice);
     
     struct DeleteOne final : public DeleterBase {
 
@@ -21,7 +22,7 @@ namespace memoryPool {
     
       ~DeleteOne() override = default;
       void operator()(int bucket) override {
-          free(m_stream, &bucket, 1, m_onDevice);
+          free(m_stream, std::vector<int>(1,bucket), m_onDevice);
       }
 
       cudaStream_t m_stream;
@@ -35,7 +36,7 @@ namespace memoryPool {
             m_stream(stream), m_onDevice(onDevice) {}
 
       ~BundleDelete() override {
-         free(m_stream, m_buckets.data(), m_buckets.size(),  m_onDevice);
+         free(m_stream, std::move(m_buckets),  m_onDevice);
       }
 
       void operator()(int bucket) override {
