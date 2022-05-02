@@ -35,6 +35,19 @@ int main() {
 
     memoryPool::cuda::dumpStat();
   }
+
+
+  {
+     memoryPool::Deleter deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream,true));
+
+     auto p0 = memoryPool::cuda::device::make_unique<int>(20,deleter);
+     auto p1 = memoryPool::cuda::device::make_unique<double>(20,deleter);
+     auto p2 = memoryPool::cuda::device::make_unique<bool>(20,deleter);
+     auto p3 = memoryPool::cuda::device::make_unique<int>(20,deleter);
+
+     memoryPool::cuda::dumpStat();
+  }
+
   cudaStreamSynchronize(stream);
   memoryPool::cuda::dumpStat();
 

@@ -26,7 +26,9 @@ namespace memoryPool {
       auto payload = (Payload*)(p);
       auto onDevice = payload->onDevice;
       auto const & buckets = payload->buckets;
-        std::cout << "do free " << buckets.size() << ' ' << buckets[0] << " on " << onDevice << std::endl;
+        std::cout << "do free " << buckets.size();
+        if (!buckets.empty()) std::cout  << ' ' << buckets.front() << ' ' << buckets.back();
+        std::cout << " on " << onDevice << std::endl;
         for (auto i :  buckets) {
           if (onDevice) devicePool.free(i);
           else hostPool.free(i);
@@ -51,7 +53,9 @@ namespace memoryPool {
     // schedule free
     void free(cudaStream_t stream, std::vector<int> buckets, bool onDevice) {
       // free
-      std::cout << "schedule free " << buckets.size() << ' ' << buckets[0] << std::endl;
+      std::cout << "schedule free " << buckets.size() << ' ';
+      if (!buckets.empty()) std::cout << buckets[0]; 
+      std::cout << std::endl;
       auto payload = new Payload{std::move(buckets), onDevice};
       cudaLaunchHostFunc (stream, freeCallback, payload);
     }
