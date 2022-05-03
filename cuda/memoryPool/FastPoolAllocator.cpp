@@ -89,7 +89,7 @@ void go() {
 
 #endif
 
-  FastPoolAllocator<Traits,1024*1024> pool;
+  FastPoolAllocatorImpl<Traits> pool(128*1024);
   assert(0==pool.size());
 
 

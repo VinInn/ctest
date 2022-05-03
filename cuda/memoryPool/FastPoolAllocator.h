@@ -18,18 +18,23 @@ namespace poolDetails {
 
 };
 
-template<typename Traits, int N>
+
 class FastPoolAllocator {
 
 public:
 
-  FastPoolAllocator() {
+  using Pointer = void *;
+
+
+  virtual ~FastPoolAllocator() = default;
+
+  virtual Pointer doAlloc(size_t size) =0;
+  virtual void doFree(Pointer ptr) = 0;
+
+  FastPoolAllocator(int maxSlots) : m_maxSlots(maxSlots) {
     for ( auto & p : m_used) p = true;
   }
   
-  static constexpr int maxSlots = N;
-  using Pointer = typename Traits::Pointer;
-
   int size() const { return m_size;}
 
   Pointer pointer(int i) const { return m_slots[i]; }
@@ -83,9 +88,9 @@ public:
     if (ls>=0) return ls;
 
     // try to allocate a new slot
-    if (m_size>=maxSlots) return -1;
+    if (m_size>=m_maxSlots) return -1;
     ls = m_size++;
-    if (ls>=maxSlots) return -1;
+    if (ls>=m_maxSlots) return -1;
     m_last[ls] = 2;
     return createAt(ls,b);
   }
@@ -96,7 +101,7 @@ public:
     m_bucket[ls]=b;
     auto as = poolDetails::bucketSize(b);
     assert(nullptr==m_slots[ls]);
-    m_slots[ls]=Traits::alloc(as);
+    m_slots[ls] = doAlloc(as);
     if (nullptr == m_slots[ls]) return -1;
     totBytes+=as;
     nAlloc++;
@@ -113,7 +118,7 @@ public:
       assert(m_used[i]);
       if( nullptr != m_slots[i]) {
         assert(m_bucket[i]>=0);  
-        Traits::free(m_slots[i]);
+        doFree(m_slots[i]);
         nFree++;
         totBytes-= poolDetails::bucketSize(m_bucket[i]);
       }
@@ -168,12 +173,14 @@ public:
 
 private:
 
-  std::vector<int> m_last = std::vector<int>(maxSlots,-2);
+  const int m_maxSlots;
+
+  std::vector<int> m_last = std::vector<int>(m_maxSlots,-2);
 
 
-  std::vector<int> m_bucket = std::vector<int>(maxSlots,-1);
-  std::vector<Pointer> m_slots = std::vector<Pointer>(maxSlots,nullptr);
-  std::vector<std::atomic<bool>> m_used = std::vector<std::atomic<bool>>(maxSlots);
+  std::vector<int> m_bucket = std::vector<int>(m_maxSlots,-1);
+  std::vector<Pointer> m_slots = std::vector<Pointer>(m_maxSlots,nullptr);
+  std::vector<std::atomic<bool>> m_used = std::vector<std::atomic<bool>>(m_maxSlots);
   std::atomic<int> m_size=0;
 
   std::atomic<uint64_t> totBytes = 0;
@@ -183,6 +190,17 @@ private:
 };
 
 
+template<typename Traits>
+struct FastPoolAllocatorImpl final : public FastPoolAllocator {
+
+  FastPoolAllocatorImpl(int maxSlots) : FastPoolAllocator(maxSlots){}
+
+  ~FastPoolAllocatorImpl() override = default;
+
+  Pointer doAlloc(size_t size) override { return Traits::alloc(size);}
+  void doFree(Pointer ptr) override { Traits::free(ptr);}
+
+};
 
 
 #include <cstdlib>
