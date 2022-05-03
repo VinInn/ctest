@@ -38,7 +38,7 @@ int main() {
 
 
   {
-     memoryPool::Deleter deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream,true));
+     memoryPool::Deleter deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream,memoryPool::cuda::getPool(true)));
 
      auto p0 = memoryPool::cuda::device::make_unique<int>(20,deleter);
      auto p1 = memoryPool::cuda::device::make_unique<double>(20,deleter);

@@ -2,6 +2,9 @@
 #include<memory>
 #include<new>
 
+
+class FastPoolAllocator;
+
 namespace memoryPool {
 
   struct DeleterBase {

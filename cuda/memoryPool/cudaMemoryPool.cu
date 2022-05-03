@@ -17,6 +17,11 @@ namespace memoryPool {
 
     }
 
+
+   FastPoolAllocator * getPool(bool onDevice) {
+      return onDevice ?  (FastPoolAllocator *)(&devicePool) : (FastPoolAllocator *)(&hostPool);
+   }
+
     struct Payload {
       FastPoolAllocator * pool;
       std::vector<int> buckets;
@@ -37,26 +42,19 @@ namespace memoryPool {
     }
 
     // allocate either on current device or on host
-    std::pair<void *,int> alloc(uint64_t size, bool onDevice) {
-       int i;
-       void * p;
-       if (onDevice) {
-         i = devicePool.alloc(size);
-         p = devicePool.pointer(i);
-       } else {
-         i = hostPool.alloc(size);
-         p = hostPool.pointer(i);
-       }
+    std::pair<void *,int> alloc(uint64_t size, FastPoolAllocator & pool) {
+       int i = pool.alloc(size);
+       void * p = pool.pointer(i);
        return std::pair<void *,int>(p,i);
     }
 
     // schedule free
-    void free(cudaStream_t stream, std::vector<int> buckets, bool onDevice) {
+    void free(cudaStream_t stream, std::vector<int> buckets, FastPoolAllocator & pool) {
       // free
       std::cout << "schedule free " << buckets.size() << ' ';
       if (!buckets.empty()) std::cout << buckets[0]; 
       std::cout << std::endl;
-      auto payload = new Payload{onDevice ? (FastPoolAllocator *)(&devicePool) : (FastPoolAllocator *)(&hostPool), std::move(buckets)};
+      auto payload = new Payload{&pool, std::move(buckets)};
       cudaLaunchHostFunc (stream, freeCallback, payload);
     }
 

@@ -9,34 +9,36 @@ namespace memoryPool {
 
     void dumpStat();
 
+    FastPoolAllocator * getPool(bool onDevice);
+
     // allocate either on current device or on host
-    std::pair<void *,int> alloc(uint64_t size, bool onDevice);
+    std::pair<void *,int> alloc(uint64_t size, FastPoolAllocator & pool);
 
     // schedule free
-    void free(cudaStream_t stream, std::vector<int> buckets, bool onDevice);
+    void free(cudaStream_t stream, std::vector<int> buckets, FastPoolAllocator & pool);
     
     struct DeleteOne final : public DeleterBase {
 
-      explicit DeleteOne(cudaStream_t const & stream, bool onDevice) :  
-           m_stream(stream), m_onDevice(onDevice) {}
+      explicit DeleteOne(cudaStream_t const & stream, FastPoolAllocator * pool) :  
+           m_stream(stream), m_pool(pool) {}
     
       ~DeleteOne() override = default;
       void operator()(int bucket) override {
-          free(m_stream, std::vector<int>(1,bucket), m_onDevice);
+          free(m_stream, std::vector<int>(1,bucket), *m_pool);
       }
 
       cudaStream_t m_stream;
-      bool m_onDevice;
+      FastPoolAllocator * m_pool;
 
     };
 
     struct BundleDelete final : public DeleterBase {
 
-      explicit BundleDelete(cudaStream_t const & stream, bool onDevice) : 
-            m_stream(stream), m_onDevice(onDevice) {}
+      explicit BundleDelete(cudaStream_t const & stream, FastPoolAllocator * pool) : 
+            m_stream(stream), m_pool(pool) {}
 
       ~BundleDelete() override {
-         free(m_stream, std::move(m_buckets),  m_onDevice);
+         free(m_stream, std::move(m_buckets),  *m_pool);
       }
 
       void operator()(int bucket) override {
@@ -45,14 +47,14 @@ namespace memoryPool {
 
       cudaStream_t m_stream;
       std::vector<int> m_buckets;
-      bool m_onDevice;
+      FastPoolAllocator    * m_pool;
 
     };
 
     namespace device {
      template<typename T>
       unique_ptr<T> make_unique(uint64_t size, Deleter del) {
-        auto ret = alloc(sizeof(T)*size,true);
+        auto ret = alloc(sizeof(T)*size,*getPool(true));
         if (ret.second<0) throw std::bad_alloc();
         del.m_bucket = ret.second;
         return unique_ptr<T>((T*)(ret.first),del);
@@ -60,7 +62,7 @@ namespace memoryPool {
 
       template<typename T>
       unique_ptr<T> make_unique(uint64_t size, cudaStream_t const & stream) {
-         return make_unique<T>(sizeof(T)*size,Deleter(std::make_shared<DeleteOne>(stream,true)));
+         return make_unique<T>(sizeof(T)*size,Deleter(std::make_shared<DeleteOne>(stream,getPool(true))));
       }
     }
 
