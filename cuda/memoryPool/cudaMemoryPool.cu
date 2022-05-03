@@ -2,8 +2,8 @@
 
 #include "FastPoolAllocator.h"
 
-FastPoolAllocator<CudaDeviceAlloc,1024*1024>  devicePool;
-FastPoolAllocator<CudaHostAlloc,1024*1024>  hostPool;
+FastPoolAllocatorImpl<CudaDeviceAlloc>  devicePool(1024);
+FastPoolAllocatorImpl<CudaHostAlloc>  hostPool(1024);
 
 
 namespace memoryPool {
@@ -18,20 +18,20 @@ namespace memoryPool {
     }
 
     struct Payload {
-      std::vector<int> buckets; bool onDevice;
+      FastPoolAllocator * pool;
+      std::vector<int> buckets;
     };
 
     // generic callback
     void CUDART_CB freeCallback(void * p){
       auto payload = (Payload*)(p);
-      auto onDevice = payload->onDevice;
+      auto & pool = *(payload->pool);
       auto const & buckets = payload->buckets;
         std::cout << "do free " << buckets.size();
         if (!buckets.empty()) std::cout  << ' ' << buckets.front() << ' ' << buckets.back();
-        std::cout << " on " << onDevice << std::endl;
+        std::cout << std::endl;
         for (auto i :  buckets) {
-          if (onDevice) devicePool.free(i);
-          else hostPool.free(i);
+          pool.free(i);
         }
       delete payload;
     }
@@ -56,7 +56,7 @@ namespace memoryPool {
       std::cout << "schedule free " << buckets.size() << ' ';
       if (!buckets.empty()) std::cout << buckets[0]; 
       std::cout << std::endl;
-      auto payload = new Payload{std::move(buckets), onDevice};
+      auto payload = new Payload{onDevice ? (FastPoolAllocator *)(&devicePool) : (FastPoolAllocator *)(&hostPool), std::move(buckets)};
       cudaLaunchHostFunc (stream, freeCallback, payload);
     }
 

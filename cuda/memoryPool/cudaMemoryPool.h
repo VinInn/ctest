@@ -52,7 +52,7 @@ namespace memoryPool {
     namespace device {
      template<typename T>
       unique_ptr<T> make_unique(uint64_t size, Deleter del) {
-        auto ret = alloc(size,true);
+        auto ret = alloc(sizeof(T)*size,true);
         if (ret.second<0) throw std::bad_alloc();
         del.m_bucket = ret.second;
         return unique_ptr<T>((T*)(ret.first),del);
@@ -60,7 +60,7 @@ namespace memoryPool {
 
       template<typename T>
       unique_ptr<T> make_unique(uint64_t size, cudaStream_t const & stream) {
-         return make_unique<T>(size,Deleter(std::make_shared<DeleteOne>(stream,true)));
+         return make_unique<T>(sizeof(T)*size,Deleter(std::make_shared<DeleteOne>(stream,true)));
       }
     }
 
