@@ -3,7 +3,7 @@
 #include<new>
 
 
-class FastPoolAllocator;
+class SimplePoolAllocator;
 
 namespace memoryPool {
 
@@ -12,14 +12,14 @@ namespace memoryPool {
   class DeleterBase {
     public: 
 
-    explicit DeleterBase(FastPoolAllocator * pool) : m_pool(pool){}
+    explicit DeleterBase(SimplePoolAllocator * pool) : m_pool(pool){}
     virtual ~DeleterBase() = default;
     virtual void operator()(int bucket) =0;
 
-    FastPoolAllocator * pool() const { return m_pool;}
+    SimplePoolAllocator * pool() const { return m_pool;}
 
     protected:
-     FastPoolAllocator * m_pool;
+     SimplePoolAllocator * m_pool;
   };
 
   class Deleter {
@@ -35,7 +35,7 @@ namespace memoryPool {
       (*me)(m_bucket);
     }
 
-    FastPoolAllocator * pool() const { return me->pool();}
+    SimplePoolAllocator * pool() const { return me->pool();}
 
   private:
     std::shared_ptr<DeleterBase> me;

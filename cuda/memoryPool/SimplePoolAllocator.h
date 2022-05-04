@@ -19,19 +19,19 @@ namespace poolDetails {
 };
 
 
-class FastPoolAllocator {
+class SimplePoolAllocator {
 
 public:
 
   using Pointer = void *;
 
 
-  virtual ~FastPoolAllocator() = default;
+  virtual ~SimplePoolAllocator() = default;
 
   virtual Pointer doAlloc(size_t size) =0;
   virtual void doFree(Pointer ptr) = 0;
 
-  FastPoolAllocator(int maxSlots) : m_maxSlots(maxSlots) {
+  SimplePoolAllocator(int maxSlots) : m_maxSlots(maxSlots) {
     for ( auto & p : m_used) p = true;
   }
   
@@ -191,11 +191,11 @@ private:
 
 
 template<typename Traits>
-struct FastPoolAllocatorImpl final : public FastPoolAllocator {
+struct SimplePoolAllocatorImpl final : public SimplePoolAllocator {
 
-  FastPoolAllocatorImpl(int maxSlots) : FastPoolAllocator(maxSlots){}
+  SimplePoolAllocatorImpl(int maxSlots) : SimplePoolAllocator(maxSlots){}
 
-  ~FastPoolAllocatorImpl() override = default;
+  ~SimplePoolAllocatorImpl() override = default;
 
   Pointer doAlloc(size_t size) override { return Traits::alloc(size);}
   void doFree(Pointer ptr) override { Traits::free(ptr);}

@@ -1,9 +1,9 @@
 #include "cudaMemoryPool.h"
 
-#include "FastPoolAllocator.h"
+#include "SimplePoolAllocator.h"
 
-FastPoolAllocatorImpl<CudaDeviceAlloc>  devicePool(1024);
-FastPoolAllocatorImpl<CudaHostAlloc>  hostPool(1024);
+SimplePoolAllocatorImpl<CudaDeviceAlloc>  devicePool(1024);
+SimplePoolAllocatorImpl<CudaHostAlloc>  hostPool(1024);
 
 
 namespace memoryPool {
@@ -18,12 +18,12 @@ namespace memoryPool {
     }
 
 
-   FastPoolAllocator * getPool(Where where) {
-      return onDevice==where ?  (FastPoolAllocator *)(&devicePool) : (FastPoolAllocator *)(&hostPool);
+   SimplePoolAllocator * getPool(Where where) {
+      return onDevice==where ?  (SimplePoolAllocator *)(&devicePool) : (SimplePoolAllocator *)(&hostPool);
    }
 
     struct Payload {
-      FastPoolAllocator * pool;
+      SimplePoolAllocator * pool;
       std::vector<int> buckets;
     };
 
@@ -42,14 +42,14 @@ namespace memoryPool {
     }
 
     // allocate either on current device or on host
-    std::pair<void *,int> alloc(uint64_t size, FastPoolAllocator & pool) {
+    std::pair<void *,int> alloc(uint64_t size, SimplePoolAllocator & pool) {
        int i = pool.alloc(size);
        void * p = pool.pointer(i);
        return std::pair<void *,int>(p,i);
     }
 
     // schedule free
-    void free(cudaStream_t stream, std::vector<int> buckets, FastPoolAllocator & pool) {
+    void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator & pool) {
       // free
       std::cout << "schedule free " << buckets.size() << ' ';
       if (!buckets.empty()) std::cout << buckets[0]; 

@@ -1,4 +1,4 @@
-#include "FastPoolAllocator.h"
+#include "SimplePoolAllocator.h"
 
 
 #include<cmath>
@@ -89,7 +89,7 @@ void go() {
 
 #endif
 
-  FastPoolAllocatorImpl<Traits> pool(128*1024);
+  SimplePoolAllocatorImpl<Traits> pool(128*1024);
   assert(0==pool.size());
 
 

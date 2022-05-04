@@ -9,13 +9,13 @@ namespace memoryPool {
 
     void dumpStat();
 
-    FastPoolAllocator * getPool(Where where);
+    SimplePoolAllocator * getPool(Where where);
 
     // allocate either on current device or on host
-    std::pair<void *,int> alloc(uint64_t size, FastPoolAllocator & pool);
+    std::pair<void *,int> alloc(uint64_t size, SimplePoolAllocator & pool);
 
     // schedule free
-    void free(cudaStream_t stream, std::vector<int> buckets, FastPoolAllocator & pool);
+    void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator & pool);
 
 
     struct CudaDeleterBase  : public DeleterBase {
@@ -23,7 +23,7 @@ namespace memoryPool {
      CudaDeleterBase(cudaStream_t const & stream, Where where) : DeleterBase(getPool(where)),
            m_stream(stream) {}
 
-      CudaDeleterBase(cudaStream_t const & stream, FastPoolAllocator * pool) : DeleterBase(pool),
+      CudaDeleterBase(cudaStream_t const & stream, SimplePoolAllocator * pool) : DeleterBase(pool),
            m_stream(stream) {}
 
       ~CudaDeleterBase() override = default;
