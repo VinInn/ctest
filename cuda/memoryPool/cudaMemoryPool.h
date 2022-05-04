@@ -1,7 +1,9 @@
 #pragma once
 #include "memoryPool.h"
 #include <vector>
-#include <cuda.h>
+
+// only for cudaStream_t 
+#include<cuda.h>
 
 
 namespace memoryPool {

@@ -2,6 +2,30 @@
 
 #include "SimplePoolAllocator.h"
 
+
+#include<cuda_runtime.h>
+#include <cuda_runtime_api.h>
+
+struct CudaDeviceAlloc {
+
+  using Pointer = void *;
+
+  static Pointer alloc(size_t size) { Pointer p=nullptr; auto err = cudaMalloc(&p,size); return err==cudaSuccess ? p : nullptr;}
+  static void free(Pointer ptr) { cudaFree(ptr); }
+
+};
+
+struct CudaHostAlloc {
+
+  using Pointer = void *;
+
+  static Pointer alloc(size_t size) { Pointer p=nullptr; auto err = cudaMallocHost(&p,size); return err==cudaSuccess ? p : nullptr;}
+  static void free(Pointer ptr) { cudaFreeHost(ptr); }
+
+};
+
+
+
 SimplePoolAllocatorImpl<CudaDeviceAlloc>  devicePool(1024);
 SimplePoolAllocatorImpl<CudaHostAlloc>  hostPool(1024);
 

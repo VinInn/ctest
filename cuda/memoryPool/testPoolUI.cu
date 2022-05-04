@@ -31,19 +31,26 @@ int main() {
   auto & stream = streams[0]; 
 
   {
-    auto p = memoryPool::cuda::make_unique<int>(20,stream,memoryPool::onDevice);
+    auto pd = memoryPool::cuda::make_unique<int>(20,stream,memoryPool::onDevice);
+    auto ph = memoryPool::cuda::make_unique<int>(20,stream,memoryPool::onHost);
 
     memoryPool::cuda::dumpStat();
   }
 
 
   {
-     memoryPool::Deleter deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream,memoryPool::onDevice));
+     memoryPool::Deleter devDeleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream,memoryPool::onDevice));
+     memoryPool::Deleter hosDeleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream,memoryPool::onHost));
 
-     auto p0 = memoryPool::cuda::make_unique<int>(20,deleter);
-     auto p1 = memoryPool::cuda::make_unique<double>(20,deleter);
-     auto p2 = memoryPool::cuda::make_unique<bool>(20,deleter);
-     auto p3 = memoryPool::cuda::make_unique<int>(20,deleter);
+     auto p0 = memoryPool::cuda::make_unique<int>(20,devDeleter);
+     auto p1 = memoryPool::cuda::make_unique<double>(20,devDeleter);
+     auto p2 = memoryPool::cuda::make_unique<bool>(20,devDeleter);
+     auto p3 = memoryPool::cuda::make_unique<int>(20,devDeleter);
+
+     auto hp0 = memoryPool::cuda::make_unique<int>(20,hosDeleter);
+     auto hp1 = memoryPool::cuda::make_unique<double>(20,hosDeleter);
+     auto hp2 = memoryPool::cuda::make_unique<bool>(20,hosDeleter);
+     auto hp3 = memoryPool::cuda::make_unique<int>(20,hosDeleter);
 
      memoryPool::cuda::dumpStat();
   }
