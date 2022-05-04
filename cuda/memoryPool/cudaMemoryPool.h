@@ -9,73 +9,76 @@ namespace memoryPool {
 
     void dumpStat();
 
-    FastPoolAllocator * getPool(bool onDevice);
+    FastPoolAllocator * getPool(Where where);
 
     // allocate either on current device or on host
     std::pair<void *,int> alloc(uint64_t size, FastPoolAllocator & pool);
 
     // schedule free
     void free(cudaStream_t stream, std::vector<int> buckets, FastPoolAllocator & pool);
-    
-    struct DeleteOne final : public DeleterBase {
 
-      explicit DeleteOne(cudaStream_t const & stream, FastPoolAllocator * pool) :  
-           m_stream(stream), m_pool(pool) {}
+
+    struct CudaDeleterBase  : public DeleterBase {
+
+     CudaDeleterBase(cudaStream_t const & stream, Where where) : DeleterBase(getPool(where)),
+           m_stream(stream) {}
+
+      CudaDeleterBase(cudaStream_t const & stream, FastPoolAllocator * pool) : DeleterBase(pool),
+           m_stream(stream) {}
+
+      ~CudaDeleterBase() override = default;
+
+      
+      cudaStream_t m_stream;
+
+    };
+    
+    struct DeleteOne final : public CudaDeleterBase {
+
+      using CudaDeleterBase::CudaDeleterBase;
     
       ~DeleteOne() override = default;
       void operator()(int bucket) override {
-          free(m_stream, std::vector<int>(1,bucket), *m_pool);
+          free(m_stream, std::vector<int>(1,bucket), *pool());
       }
-
-      cudaStream_t m_stream;
-      FastPoolAllocator * m_pool;
 
     };
 
-    struct BundleDelete final : public DeleterBase {
+    struct BundleDelete final : public CudaDeleterBase {
 
-      explicit BundleDelete(cudaStream_t const & stream, FastPoolAllocator * pool) : 
-            m_stream(stream), m_pool(pool) {}
+      using CudaDeleterBase::CudaDeleterBase;
 
       ~BundleDelete() override {
-         free(m_stream, std::move(m_buckets),  *m_pool);
+         free(m_stream, std::move(m_buckets), *pool());
       }
 
       void operator()(int bucket) override {
          m_buckets.push_back(bucket);
       }
 
-      cudaStream_t m_stream;
       std::vector<int> m_buckets;
-      FastPoolAllocator    * m_pool;
 
     };
 
-    namespace device {
      template<typename T>
       unique_ptr<T> make_unique(uint64_t size, Deleter del) {
-        auto ret = alloc(sizeof(T)*size,*getPool(true));
+        auto ret = alloc(sizeof(T)*size,*del.pool());
         if (ret.second<0) throw std::bad_alloc();
-        del.m_bucket = ret.second;
+        del.setBucket(ret.second);
         return unique_ptr<T>((T*)(ret.first),del);
       }
 
       template<typename T>
-      unique_ptr<T> make_unique(uint64_t size, cudaStream_t const & stream) {
-         return make_unique<T>(sizeof(T)*size,Deleter(std::make_shared<DeleteOne>(stream,getPool(true))));
+      unique_ptr<T> make_unique(uint64_t size, cudaStream_t const & stream, Where where) {
+         return make_unique<T>(sizeof(T)*size,Deleter(std::make_shared<DeleteOne>(stream,getPool(where))));
       }
-    }
 
-    namespace host {
-      template<typename T>
-      unique_ptr<T> make_unique(uint64_t size);
-      template< class T>
-      unique_ptr<T> make_unique(uint64_t size, Deleter del);
-
+/*
       template< class T, class... Args >
       memoryPool::unique_ptr<T> make_unique( Args&&... args );
       template< class T, class... Args >
       memoryPool::unique_ptr<T> make_unique(Deleter del, Args&&... args );
-    }
+*/
+
   } // cuda
 } // memoryPool

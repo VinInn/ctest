@@ -31,19 +31,19 @@ int main() {
   auto & stream = streams[0]; 
 
   {
-    auto p = memoryPool::cuda::device::make_unique<int>(20,stream);
+    auto p = memoryPool::cuda::make_unique<int>(20,stream,memoryPool::onDevice);
 
     memoryPool::cuda::dumpStat();
   }
 
 
   {
-     memoryPool::Deleter deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream,memoryPool::cuda::getPool(true)));
+     memoryPool::Deleter deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream,memoryPool::onDevice));
 
-     auto p0 = memoryPool::cuda::device::make_unique<int>(20,deleter);
-     auto p1 = memoryPool::cuda::device::make_unique<double>(20,deleter);
-     auto p2 = memoryPool::cuda::device::make_unique<bool>(20,deleter);
-     auto p3 = memoryPool::cuda::device::make_unique<int>(20,deleter);
+     auto p0 = memoryPool::cuda::make_unique<int>(20,deleter);
+     auto p1 = memoryPool::cuda::make_unique<double>(20,deleter);
+     auto p2 = memoryPool::cuda::make_unique<bool>(20,deleter);
+     auto p3 = memoryPool::cuda::make_unique<int>(20,deleter);
 
      memoryPool::cuda::dumpStat();
   }

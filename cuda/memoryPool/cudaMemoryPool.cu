@@ -18,8 +18,8 @@ namespace memoryPool {
     }
 
 
-   FastPoolAllocator * getPool(bool onDevice) {
-      return onDevice ?  (FastPoolAllocator *)(&devicePool) : (FastPoolAllocator *)(&hostPool);
+   FastPoolAllocator * getPool(Where where) {
+      return onDevice==where ?  (FastPoolAllocator *)(&devicePool) : (FastPoolAllocator *)(&hostPool);
    }
 
     struct Payload {
