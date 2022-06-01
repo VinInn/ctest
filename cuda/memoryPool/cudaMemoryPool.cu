@@ -24,10 +24,35 @@ struct CudaHostAlloc {
 
 };
 
+namespace {
 
+  SimplePoolAllocatorImpl<CudaHostAlloc>  hostPool(1024);
 
-SimplePoolAllocatorImpl<CudaDeviceAlloc>  devicePool(1024);
-SimplePoolAllocatorImpl<CudaHostAlloc>  hostPool(1024);
+  struct DevicePools {
+    using Pool = SimplePoolAllocatorImpl<CudaDeviceAlloc>;
+    DevicePools(int size) {
+      int devices = 0;
+       auto status = cudaGetDeviceCount(&devices);
+       std::cout << "found " << devices << " cuda devices" << std::endl;
+       if (status == cudaSuccess && devices>0) {
+          m_devicePools.reserve(devices);  
+          for (int i=0; i<devices; ++i) m_devicePools.emplace_back(new Pool(size));
+       }
+    } 
+    //return pool for current device
+    Pool & operator()() {
+       int dev=-1;
+       cudaGetDevice(&dev);
+       return *m_devicePools[dev];
+    }
+
+    std::vector<std::unique_ptr<Pool>> m_devicePools;
+
+  };
+
+  DevicePools devicePool(128*1024);
+
+}
 
 
 namespace memoryPool {
@@ -35,7 +60,7 @@ namespace memoryPool {
 
     void dumpStat() {
        std::cout << "device pool" << std::endl;
-       devicePool.dumpStat();
+       devicePool().dumpStat();
        std::cout << "host pool" << std::endl;
        hostPool.dumpStat();
 
@@ -43,7 +68,7 @@ namespace memoryPool {
 
 
    SimplePoolAllocator * getPool(Where where) {
-      return onDevice==where ?  (SimplePoolAllocator *)(&devicePool) : (SimplePoolAllocator *)(&hostPool);
+      return onDevice==where ?  (SimplePoolAllocator *)(&devicePool()) : (SimplePoolAllocator *)(&hostPool);
    }
 
     struct Payload {
