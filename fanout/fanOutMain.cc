@@ -14,8 +14,8 @@ struct launchParam{API api;};
       CAT(FOO,Wrapper<API::hip>)(param, __VA_ARGS__);break;\
   }
 
-template<API api>
-void fooWrapper(launchParam const &, int a, float * b, float * c);
+template<API api, typename ... ARGS>
+void fooWrapper(launchParam const &, ARGS... args);
 
 void bha(float * x, float * y, API api) {
   launchParam p{api}; int n=4;  

@@ -19,8 +19,9 @@ void foo(int a, float * b, float * c) {
    printf("%d\n",a);
 }
 
-template<API api>
-void fooWrapper(launchParam const &, int a, float * b, float * c);
+
+template<API api, typename ... ARGS>
+void fooWrapper(launchParam const &, ARGS... args);
 
 template<>
 void fooWrapper<__API__>(launchParam const & p, int a, float * b, float * c) {
