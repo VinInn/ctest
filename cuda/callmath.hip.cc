@@ -1,22 +1,24 @@
-//#include <hip/hip_runtime.h>
-//#include<cmath>
+#include <hip/hip_runtime.h>
+#include<cmath>
+#include<cstdio>
 
-#define __HIP__
-#define __device__
-#define __global__
-#include<__clang_hip_math.h>
 
-__global__ void doit(float x, float * y) {
-   *y = acoshf(x);
+__global__ void doit(float x) {
+   printf ("%f %f\n",x, cosf(x));
   // *y = sqrtf(x);
 
 }
 
 
-__global__ void doitD(double x, double * y) {
-  *y = acosh(x);
- //  *y = sqrt(x);
- //  *y = __dsqrt_rn(x);
+int main() {
+
+  hipStream_t stream;
+  hipStreamCreate(&stream);
+
+  doit<<<1,1,0,stream>>>(0.34);
+
+  hipStreamSynchronize(stream);
+
+  return 0;
 
 }
-
