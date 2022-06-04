@@ -43,8 +43,8 @@ DefineWrapper(foo,int,float*,float*)
 
 // dummyes
 namespace cudaN {
-void CAT(FOO,Wrapper)(launchParam const &, std::tuple<int,float*,float*> const&){}
+void CAT(foo,Wrapper)(launchParam const &, std::tuple<int,float*,float*> const&){}
 }
 namespace hipN {
-void CAT(FOO,Wrapper)(launchParam const &, std::tuple<int,float*,float*> const &){}
+void CAT(foo,Wrapper)(launchParam const &, std::tuple<int,float*,float*> const &){}
 }
