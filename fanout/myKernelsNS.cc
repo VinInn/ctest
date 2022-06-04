@@ -9,8 +9,25 @@ struct launchParam{API api;};
 // #include "API_defines.h"
 
 #define __API__ posixN
-#define launchKernel(FOO, param, ...) \
-  foo(__VA_ARGS__);
+
+
+#include<tuple>
+#include<utility>
+namespace posixN {
+template<typename F, typename Tuple, std::size_t... Is>
+void callIt(F f, launchParam const & p, const Tuple& t,std::index_sequence<Is...>){
+  f(std::get<Is>(t)...);
+}
+}
+
+
+#define CAT(X,Y) X ## Y
+#define DefineWrapper(FOO, ...) \
+namespace __API__ { \
+void CAT(FOO,Wrapper)(launchParam const & p, std::tuple<__VA_ARGS__> const & t){\
+   callIt(FOO, p, t, std::index_sequence_for<__VA_ARGS__>()); \
+}\
+}
 
 
 
@@ -21,20 +38,13 @@ void foo(int a, float * b, float * c) {
 }
 
 
-
-namespace __API__ {
-void fooWrapper(launchParam const & p, int a, float * b, float * c) {
-   launchKernel(foo,p,a,b,c);
-}
-}
+DefineWrapper(foo,int,float*,float*)
 
 
 // dummyes
 namespace cudaN {
-void fooWrapper(launchParam const & p, int a, float * b, float * c) {
-}
+void CAT(FOO,Wrapper)(launchParam const &, std::tuple<int,float*,float*> const&){}
 }
 namespace hipN {
-void fooWrapper(launchParam const & p, int a, float * b, float * c) {
-}
+void CAT(FOO,Wrapper)(launchParam const &, std::tuple<int,float*,float*> const &){}
 }
