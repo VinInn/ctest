@@ -1,0 +1,10 @@
+set cuda_home = /usr/local/cuda-11.6
+
+setenv PATH ${cuda_home}/bin:${PATH}
+
+if ($?LD_LIBRARY_PATH) then
+setenv LD_LIBRARY_PATH ${cuda_home}/lib64:/opt/rocm-5.1.1/lib:${LD_LIBRARY_PATH}
+else
+setenv LD_LIBRARY_PATH ${cuda_home}/lib64:/opt/rocm-5.1.1/lib
+endif
+

@@ -1,0 +1,4 @@
+nvcc -O3 -c kernels_cuda.cu -std=c++17
+hipcc -O3 -c kernels_hip.cc -std=c++17
+c++ -O3 theMain.cc kernels.cc kernels_hip.o kernels_cuda.o -L/opt/rocm-5.1.1/lib -lamdhip64 -I/usr/local/cuda-11.6/include/ -L/usr/local/cuda-11.6/lib64/ -lcudart
+
