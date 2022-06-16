@@ -3,7 +3,7 @@
 
 int main(int n, char * v[]) {
 
-   printf("%a\n", 0.1f);
+   printf("%a %a\n", 0.1f,10.0f);
 
    float fn = (n-1);
    float k = 0.1f + fn;
