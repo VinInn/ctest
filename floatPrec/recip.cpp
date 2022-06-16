@@ -3,8 +3,9 @@
 
 int main(int n, char * v[]) {
 
-   float fn = n;
-   fn -= 1.f;
+   printf("%a\n", 0.1f);
+
+   float fn = (n-1);
    float k = 0.1f + fn;
 
    float x[32]; float y[32];
