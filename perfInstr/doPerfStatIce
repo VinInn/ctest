@@ -1,0 +1,22 @@
+ cat doPerfStat
+perf stat \
+-e task-clock -e cycles -e cycle_activity.stalls_total -e cycle_activity.stalls_mem_any \
+-e icache_16b.ifdata_stall \
+-e iTLB-load-misses -e iTLB-loads \
+-e rs_events.empty_cycles -e uops_executed.stall_cycles \
+-e uops_executed.cycles_ge_1 \
+-e uops_executed.cycles_ge_2 \
+-e uops_executed.cycles_ge_3 \
+-e uops_executed.cycles_ge_4 \
+-e instructions -e branch-instructions -e branch-misses \
+-e arith.divider_active \
+-e fp_arith_inst_retired.512b_packed_single -e fp_arith_inst_retired.512b_packed_double \
+-e fp_arith_inst_retired.256b_packed_single -e fp_arith_inst_retired.256b_packed_double \
+-e fp_arith_inst_retired.128b_packed_single -e fp_arith_inst_retired.128b_packed_double \
+-e fp_arith_inst_retired.scalar_single -e fp_arith_inst_retired.scalar_double \
+-e mem_load_retired.l1_hit -e mem_load_retired.l2_hit -e mem_load_retired.l3_hit \
+-e mem_load_retired.l3_miss \
+-e cycle_activity.stalls_l3_miss \
+-e core_power.lvl0_turbo_license -e core_power.lvl1_turbo_license -e core_power.lvl2_turbo_license \
+$1
+
