@@ -1,0 +1,4 @@
+c++ -pthread -fopt-info-vec scimark2.cpp *.c  -march=native -Wall -Wodr -Ofast -fvisibility-inlines-hidden --param vect-max-version-for-alias-checks=100 \
+-funsafe-loop-optimizations -ftree-loop-distribution -ftree-loop-if-convert-stores  -Wunsafe-loop-optimizations -fvisibility=hidden -DHIDDEN -lrt \
+-fipa-icf -flto-odr-type-merging -fipa-pta -floop-nest-optimize -fauto-profile
+

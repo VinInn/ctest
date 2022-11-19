@@ -1,0 +1,4 @@
+rm a.out
+c++ -lrt -pthread scimark2MT.cpp *.c -std=gnu++0x -march=native -Wall -Ofast -fvisibility-inlines-hidden  -flto --param vect-max-version-for-alias-checks=100 -funsafe-loop-optimizations -ftree-loop-distribution -ftree-loop-if-convert-stores -fipa-pta -Wunsafe-loop-optimizations -fgcse-sm -fgcse-las --param max-completely-peel-times=1 -fvisibility=hidden -fno-tree-pre -DHIDDEN
+# -ftree-vectorizer-verbose=2 -v -Wl,-v 
+

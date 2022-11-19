@@ -1,0 +1,3 @@
+c++ -pthread -v -Wl,-v scimark2.cpp *.c -std=gnu++1y -mavx -mfma -mprefer-avx128 -Wall -Ofast -fvisibility-inlines-hidden -flto --param vect-max-version-for-alias-checks=100 \
+-funsafe-loop-optimizations -ftree-loop-distribution -ftree-loop-if-convert-stores -fipa-pta -Wunsafe-loop-optimizations -fvisibility=hidden -DHIDDEN -lrt
+

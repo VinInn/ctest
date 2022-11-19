@@ -1,0 +1,2 @@
+c++ -fopt-info-vec scimark2.cpp *.c -march=native -Wall -Ofast -fvisibility-inlines-hidden -ftree-vectorizer-verbose=2 -flto --param vect-max-version-for-alias-checks=30 -funsafe-loop-optimizations -ftree-loop-distribution -ftree-loop-if-convert-stores -fipa-pta -Wunsafe-loop-optimizations -fgcse-sm -fgcse-las --param max-completely-peel-times=1 -fvisibility=hidden -fno-tree-pre -DHIDDEN -lrt
+

@@ -1,0 +1,2 @@
+c++ -pthread -fopt-info-vec scimark2.cpp *.c -march=native -Wall -Wodr -Ofast -lrt -flto -fipa-icf -flto-odr-type-merging -funroll-loops
+

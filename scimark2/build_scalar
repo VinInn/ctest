@@ -1,0 +1,2 @@
+c++ -pthread  scimark2.cpp *.c  -Wall -O2 -flto -lrt -march=native
+

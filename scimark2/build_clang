@@ -1,0 +1,2 @@
+clang++ -pthread -v -Wl,-v scimark2.cpp *.c -std=gnu++0x -march=native -Wall -O3 -fvisibility=hidden -DHIDDEN -lrt -0 scimark2_clang
+clang++ -pthread scimark2.cpp *.c -std=c++11 -march=native -Wall -O3 -lrt -DHIDDEN -fvisibility=hidden -ffast-math -fslp-vectorize
