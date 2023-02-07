@@ -1,0 +1,3 @@
+c++ -pthread -fopt-info-vec scimark2.cpp *.cc  -march=native -Wall -Wodr -Ofast -funroll-loops -fvisibility-inlines-hidden -Wunsafe-loop-optimizations -fvisibility=hidden -DHIDDEN -lrt -fvect-cost-model=unlimited
+
+
