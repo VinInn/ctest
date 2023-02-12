@@ -22,6 +22,7 @@ public:
     m_quantile[1] = findSlow(0.5);
     m_quantile[2] = findSlow(0.75);
     m_quantile[3] = findSlow(0.95); 
+    m_quantile[4] = findSlow(0.99);
    }
 
   unsigned int findSlow(T x) const {
@@ -32,10 +33,10 @@ public:
   unsigned find(T x) const {
      int min  = x<T(0.5) ? 
         (x<T(0.25) ? 0 : m_quantile[0]) :
-        (x<T(0.75) ? m_quantile[1] : ( x<T(0.95) ? m_quantile[2] : m_quantile[3])); 
+        (x<T(0.75) ? m_quantile[1] : ( x<T(0.95) ? m_quantile[2] : ( x<T(0.99) ? m_quantile[3] : m_quantile[4]))); 
      int max  = x<T(0.5) ?
         (x<T(0.25) ? m_quantile[0] : m_quantile[1]) :
-        (x<T(0.75) ? m_quantile[2] : ( x<T(0.95) ? m_quantile[3] : size()-1));
+        (x<T(0.75) ? m_quantile[2] : ( x<T(0.95) ? m_quantile[3] :  ( x<T(0.99) ? m_quantile[4] : size()-1)));
      max++;    
      assert(min==0 || x>=m_cumulative[min-1]);
      assert(max==size() || x<m_cumulative[max]);
@@ -50,7 +51,7 @@ public:
 
 // private:
   std::vector<T> m_cumulative;
-  int m_quantile[4] = {0,0,0,0};
+  int m_quantile[5] = {0,0,0,0,0};
   T const m_mu;
   T const m_expmmu;
 };
