@@ -4,9 +4,99 @@
 #include "Math/MersenneTwisterEngine.h"
 #include "Math/MixMaxEngine.h"
 
+#include<string>
 
 #include <iostream>
 #include <cassert>
+
+
+template<typename Engine>
+struct RandomTraits{};
+
+template<int N>
+struct RandomTraitsBase {
+   struct Bits { uint64_t b=0; int n=0;};
+
+   static constexpr uint32_t NBits = N;
+   static constexpr uint32_t Shift = 64-NBits;
+   static constexpr int NChunks = NBits/Shift;
+
+   template<typename Engine>
+   static uint64_t gen(Bits & b, Engine & engine) {
+      constexpr uint64_t mask = (1ULL<<Shift) -1;
+      if (0==b.n) {b.b = engine.IntRndm(); b.n=NChunks;}
+      uint64_t r = engine.IntRndm();
+      r |= (b.b&mask)<<NBits;
+      b.b>>=Shift;
+      --b.n;
+      return r;
+   }
+
+   template<typename Engine>
+   static void fillBits(uint64_t * r, int n, Engine & engine) {
+      constexpr uint64_t mask = (1<<Shift) -1;
+      for (int i=0; i<n; ++i) r[i] = engine.IntRndm();
+      int i=0; for (int j=0; j<n/NChunks+1; ++j) {
+        uint64_t b = engine.IntRndm();
+        for (int k=0; k<NChunks; ++k) {
+          if (i==n) break;
+          r[i++] |= (b&mask)<<NBits;
+          b>>=Shift;
+        }
+      }
+      assert(i==n);
+   }
+
+};
+
+template<>
+struct RandomTraits<ROOT::Math::RanluxppEngine2048> : public RandomTraitsBase<48> {
+
+   using Engine = ROOT::Math::RanluxppEngine2048;
+};
+
+
+template<>
+struct RandomTraits<ROOT::Math::MixMaxEngine<17,0>> : public RandomTraitsBase<61> {
+  using Engine = ROOT::Math::MixMaxEngine<17,0>;
+};
+
+
+
+
+template<typename Engine>
+class RandomBits {
+public:
+  
+  using Traits = RandomTraits<Engine>;
+
+
+   RandomBits(Engine & e) : engine(e){}
+
+
+  uint64_t IntRndm()  {
+    return Traits::gen(bits,engine);
+//    if (Size==counter) generate();
+//    return buffer[counter++];
+  }
+
+  static std::string Name() { return "RandomBits<"+std::string(Engine::Name())+'>';}
+
+private:
+
+  static constexpr int Size = 20;
+
+  void generate() {
+    Traits::fillBits(buffer,Size,engine);
+    counter=0;
+  }
+
+  Engine & engine;
+  typename Traits::Bits bits;
+  uint64_t buffer[Size];
+  int counter = Size;
+};
+
 
 inline
 void fillBits(int64_t * v, uint64_t x) {
@@ -61,10 +151,16 @@ int main()
    ROOT::Math::MixMaxEngine<17,0> mmx17;
    ROOT::Math::MixMaxEngine<240,0> mmx240;
 
+   RandomBits<ROOT::Math::RanluxppEngine2048> rbLux(lux);
+   RandomBits<ROOT::Math::MixMaxEngine<17,0>> rbmx(mmx17);
+
    doTest(lux);
    // doTest(mtwist);
    doTest(mmx17);
    doTest(mmx240);
+
+   doTest(rbLux);
+   doTest(rbmx);
 
   return 0;
 }
