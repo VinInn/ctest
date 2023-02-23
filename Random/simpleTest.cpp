@@ -49,6 +49,26 @@ struct RandomTraitsBase {
 
 };
 
+
+
+
+template<>
+struct RandomTraitsBase<32> {
+   struct Bits { uint64_t b=0; int n=0;};
+
+   static constexpr uint32_t NBits = 32;
+   static constexpr uint32_t Shift = 64-NBits;
+   static constexpr int NChunks = NBits/Shift;
+
+   template<typename Engine>
+   static uint64_t gen(Bits &, Engine & engine) {
+      uint64_t r = engine.IntRndm();
+      r <<=32;  
+      r |= engine.IntRndm();
+      return r;
+   }
+};
+
 template<>
 struct RandomTraits<ROOT::Math::RanluxppEngine2048> : public RandomTraitsBase<48> {
 
@@ -62,6 +82,10 @@ struct RandomTraits<ROOT::Math::MixMaxEngine<17,0>> : public RandomTraitsBase<61
 };
 
 
+template<>
+struct RandomTraits<ROOT::Math::MersenneTwisterEngine> : public RandomTraitsBase<32> {
+  using Engine =ROOT::Math::MersenneTwisterEngine;
+};
 
 
 template<typename Engine>
@@ -153,14 +177,16 @@ int main()
 
    RandomBits<ROOT::Math::RanluxppEngine2048> rbLux(lux);
    RandomBits<ROOT::Math::MixMaxEngine<17,0>> rbmx(mmx17);
+   RandomBits<ROOT::Math::MersenneTwisterEngine> rbtw(mtwist);
 
    doTest(lux);
-   // doTest(mtwist);
+   doTest(mtwist);
    doTest(mmx17);
    doTest(mmx240);
 
    doTest(rbLux);
    doTest(rbmx);
-
+   doTest(rbtw);
   return 0;
 }
+
