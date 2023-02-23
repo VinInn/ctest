@@ -28,8 +28,10 @@ int main() {
   int mx; memcpy(&mx,&ff,sizeof(int));
 
   
-  for (float p=-ff; p<=ff; p+=0.2f)
-    std::cout << simpleSin(p) << ' ' << simpleCos(p) << std::endl;
+  for (float p=-ff; p<=ff; p+=0.1f) {
+    std::cout << p << ' ' <<  int ((4./M_PI) * p) << "  " << simpleSin(p) << ' ' << simpleCos(p) << "  "
+              << fast_sinf(p) << ' ' << fast_cosf(p) << std::endl;
+  }
 
   {
   int mxDiff=0;
@@ -40,8 +42,8 @@ int main() {
     float p; memcpy(&p,&i,sizeof(int));
     auto s = std::sin(p);
     auto c = std::cos(p);
-    auto as = simpleSin(p);
-    auto ac = simpleCos(p);
+    float as = simpleSin(p);
+    float ac = simpleCos(p);
     auto rs = std::abs(as-s);
     auto rc = std::abs(ac-c);
     auto sd = diff(s,as);
@@ -127,7 +129,7 @@ int main() {
   double deltaS = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count();
 
 
-/*  
+
   delta = start - start;
   delta = start - start;
   for (auto kk=0; kk<100; ++kk)
@@ -149,6 +151,6 @@ int main() {
 
   std::cout << "f/s " << deltaF/deltaS << std::endl;
   
-*/
+
   return 0;
 }

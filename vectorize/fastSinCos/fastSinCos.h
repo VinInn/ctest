@@ -1,27 +1,5 @@
 #include<cmath>
 namespace details {
-  const float DP1F = 0.78515625;
-  const float DP2F = 2.4187564849853515625e-4;
-  const float DP3F = 3.77489497744594108e-8;
-  
-  const float T24M1 = 16777215.;
-  const float ONEOPIO4F = 4./M_PI;
-
-//------------------------------------------------------------------------------
-/// Reduce to 0 to 45
-inline float reduce2quadrant(float x, int & quad) {
-    /* make argument positive */
-    x = fabs(x);
-
-    quad = int (ONEOPIO4F * x); /* integer part of x/PIO4 */
-
-    quad = (quad+1) & (~1);
-    const float y = float(quad);
-    // quad &=4;
-    // Extended precision modular arithmetic
-    return ((x - y * DP1F) - y * DP2F) - y * DP3F;
-  }
-  
   
 //------------------------------------------------------------------------------
 
@@ -47,33 +25,26 @@ inline void fast_sincosf_m45_45( const float x, float & s, float &c ) {
 
 } // end details namespace
 
-/// Single precision sincos
+/// Single precision sincos  valid in [-pi,pi]
 inline void fast_sincosf( const float xx, float & s, float &c ) {
-	
 
-    int j;
-    const float x = details::reduce2quadrant(xx,j);
-    int signS = (j&4); 
+    constexpr float PIO4F = M_PI/4.;
+    constexpr float PIO2F = M_PI/2.;
+    constexpr float PIF = M_PI;
 
-    j-=2;
-
-    const int signC = (j&4);
-    const int poly = j&2;
+    auto axx = std::abs(xx);
+    auto x1 =  axx < PIO2F ?  axx : PIF - axx;
+    auto x =   x1  < PIO4F ? x1 : PIO2F - x1;
 
     float ls,lc;
     details::fast_sincosf_m45_45(x,ls,lc);
 
-    //swap
-    if( poly==0 ) {
-      const float tmp = lc;
-      lc=ls; ls=tmp;
-    }
+    auto cc = x1 < PIO4F ? lc : ls;
+    auto ss = x1 < PIO4F ? ls : lc;
+    s = copysignf(ss,xx);
 
-    if(signC == 0) lc = -lc;
-    if(signS != 0) ls = -ls;
-    if (xx<0)  ls = -ls;
-    c=lc;
-    s=ls;
+    // change sign of cos if negative
+    c = axx < PIO2F ? cc : -cc;
   }
 
 

@@ -28,24 +28,25 @@ inline void simpleSinCos( Float x, Float & s, Float &c ) {
 
   // reduce to "first quadrant"
   auto xx = 0.25f*x;
- 
+  // constexpr float PIO4F = M_PI/4.;
+  //auto xx = std::abs(x) < PIO4F ?  x : 0.25f*x; 
   Float ls,lc;
 
   sincosf0(xx,ls,lc);
 
   // back...
-  /*
-  // duplicate twice
-  auto ss = 2.f*ls*lc;
-  auto cc = lc*lc - ls*ls;
-  s = 2.f*ss*cc;
-  c = cc*cc - ss*ss;
-  */
   // use poly expansion
   // http://mathworld.wolfram.com/Multiple-AngleFormulas.html
-  auto ss= 2.f*ls*ls;
-  s = 4.f*lc*ls*(1.f-ss);
-  c = 1.f-2.f*ss*(1.0f+(1.f-ss));
+  auto ss= ls*ls;
+  // s = std::abs(x) < PIO4F ? ls : 8.f*lc*ls*(0.5f-ss);
+  // c = std::abs(x) < PIO4F ? lc : 1.f-8.f*ss*(0.5f+(0.5f-ss));
+
+  // s = 8.f*lc*ls*(0.5f-ss);
+  // c = 1.f-8.f*ss*(1.0f-ss);
+
+  s = lc*ls*(4.f-8.f*ss);
+  c = 1.f-ss*(8.f-8.f*ss);
+
 
 }
 

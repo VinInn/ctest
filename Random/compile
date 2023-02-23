@@ -1,0 +1,1 @@
+c++ $1 -O3 -Wall -fPIC -I${ROOTSYS}/include -L$ROOTSYS/lib -lMathCore
