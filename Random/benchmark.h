@@ -52,8 +52,8 @@ namespace benchmark {
       delta = start - start;
     }
 
-    template <typename T, typename F>
-    void operator()(F f, T const* x, T* y, int n) {
+    template <typename T, typename U, typename F>
+    void operator()(F f, T const* x, U* y, int n) {
       delta -= (std::chrono::high_resolution_clock::now() - start);
       touch(x);
       f(x, y, n);

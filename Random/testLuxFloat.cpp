@@ -5,15 +5,85 @@
 #include "canonical.h"
 #include "luxFloat.h"
 
+#include "benchmark.h"
+
 #include<algorithm>
 int main () {
   std::cout << std::setprecision(9); // std::hexfloat;
   constexpr canonical_float_random<float, std::mt19937> canonical_dist;
+  std::mt19937 gen0;
   std::mt19937 gen1;
   std::mt19937 gen2;
   std::cout << gen1() << ' ' << gen2() << std::endl;
   std::cout << canonical_dist (gen1) << std::endl;
   std::cout << luxFloat(gen2) << std::endl;
+
+
+  constexpr float den = 1./(std::numeric_limits<uint32_t>::max()+1.);
+  auto fgen0 = [&](uint32_t const*, float * r, int N) {
+    for (int i=0; i<N; ++i) r[i] =  den*float(gen0());
+  };
+
+
+  auto fgen1 = [&](uint32_t const*, float * r, int N) {
+    for (int i=0; i<N; ++i) r[i] = canonical_dist(gen1);
+  };
+
+  auto fgen2 = [&](uint32_t const*, float * r, int N) {
+    for (int i=0; i<N; ++i) r[i] = luxFloat(gen2);
+  };
+
+  {
+
+      std::cout << "test classic" << std::endl;
+      int N = 10 * 1000 * 1000;
+
+      benchmark::TimeIt bench;
+      // fill in batch of 256
+      float rv[256];
+      uint32_t dummy[1];
+      for (int i = 0; i < N; ++i) {
+        bench(fgen0, dummy, rv, 256);
+      }
+
+      std::cout << "duration " << bench.lap() << std::endl;
+
+   }
+
+  {
+
+      std::cout << "test web-canonical" << std::endl;
+      int N = 10 * 1000 * 1000;
+
+      benchmark::TimeIt bench;
+      // fill in batch of 256
+      float rv[256];
+      uint32_t dummy[1];
+      for (int i = 0; i < N; ++i) {
+        bench(fgen1, dummy, rv, 256);
+      }
+
+      std::cout << "duration " << bench.lap() << std::endl;
+
+   }
+
+
+  {
+
+      std::cout << "test luxFloat" << std::endl;
+      int N = 10 * 1000 * 1000;
+
+      benchmark::TimeIt bench;
+      // fill in batch of 256
+      float rv[256];
+      uint32_t dummy[1];
+      for (int i = 0; i < N; ++i) {
+        bench(fgen2, dummy, rv, 256);
+      }
+
+      std::cout << "duration " << bench.lap() << std::endl;
+
+   }
   
   int N = 1000 * 1000 * 1000;
   float mn[2] = {2.,2,};
