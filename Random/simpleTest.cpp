@@ -10,11 +10,8 @@
 #include <cassert>
 
 
-template<typename Engine>
-struct RandomTraits{};
-
 template<int N>
-struct RandomTraitsBase {
+struct RandomTraits {
    struct Bits { uint64_t b=0; int n=0;};
 
    static constexpr uint32_t NBits = N;
@@ -53,7 +50,7 @@ struct RandomTraitsBase {
 
 
 template<>
-struct RandomTraitsBase<32> {
+struct RandomTraits<32> {
    struct Bits { uint64_t b=0; int n=0;};
 
    static constexpr uint32_t NBits = 32;
@@ -69,30 +66,13 @@ struct RandomTraitsBase<32> {
    }
 };
 
-template<>
-struct RandomTraits<ROOT::Math::RanluxppEngine2048> : public RandomTraitsBase<48> {
-
-   using Engine = ROOT::Math::RanluxppEngine2048;
-};
-
-
-template<>
-struct RandomTraits<ROOT::Math::MixMaxEngine<17,0>> : public RandomTraitsBase<61> {
-  using Engine = ROOT::Math::MixMaxEngine<17,0>;
-};
-
-
-template<>
-struct RandomTraits<ROOT::Math::MersenneTwisterEngine> : public RandomTraitsBase<32> {
-  using Engine =ROOT::Math::MersenneTwisterEngine;
-};
-
 
 template<typename Engine>
 class RandomBits {
 public:
-  
-  using Traits = RandomTraits<Engine>;
+
+  static constexpr uint32_t kNumberOfBits  = Engine::kNumberOfBits; 
+  using Traits = RandomTraits<kNumberOfBits>;
 
 
    RandomBits(Engine & e) : engine(e){}
