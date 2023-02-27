@@ -42,7 +42,7 @@ int main() {
    std::cout << tof(u) << ' ';
  std::cout << tof(std::numeric_limits<uint32_t>::max()) << std::endl;
 
- constexpr float den = 1./(1.+std::numeric_limits<uint32_t>::max());
+ constexpr float den = 2.328306158982939e-10; // 1./(1.+std::numeric_limits<uint32_t>::max());
   for (uint32_t u=0; u<6; u++)
    std::cout << den*float(u) << ' ';
  std::cout << std::endl;
