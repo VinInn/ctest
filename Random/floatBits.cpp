@@ -35,11 +35,11 @@ int main() {
  std::cout << std::setprecision(9); // std::hexfloat;
 
 
-  std::cout << __builtin_ctz(0UL) << std::endl;
-  std::cout << __builtin_ctzll(0ULL) << std::endl;
+  std::cout << __builtin_clz(0UL) << std::endl;
+  std::cout << __builtin_clzll(0ULL) << std::endl;
 
-  std::cout << __builtin_ctz(1UL<<23) << std::endl;
-  std::cout << __builtin_ctzll(1ULL<<53) << std::endl;
+  std::cout << __builtin_clz(1UL<<22) << std::endl;
+  std::cout << __builtin_clzll(1ULL<<52) << std::endl;
 
 
  for (uint32_t u=0; u<6; u++) 

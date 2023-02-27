@@ -85,7 +85,7 @@ int main () {
 
    }
   
-  int64_t N = 100LL * 1000LL * 1000LL * 1000LL;
+  int64_t N = 1LL * 1000LL * 1000LL * 1000LL;
   float mn[2] = {2.,2,};
   float mx[2] = {-2.,-2.};
   double av[2]={0,0};

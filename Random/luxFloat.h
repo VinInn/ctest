@@ -15,11 +15,13 @@ float luxFloat(RNG & gen) {
    // load mantissa
    FInt fi;
    fi.i = r & mask;
-   r >>= 23; // remove used bits (9 left...)
-   int32_t exp = 126 - (r ? __builtin_ctz(r) : 9);
+   r &= ~mask; // remove used bits (9 left...)
+   // uint32_t r2 = r | (1<<22);  // slower?
+   int32_t exp = 126 - (r ? __builtin_clz(r) : 9);
+   // int32_t exp = 126 - __builtin_clz(r2);;
    while (!r) {
      r = gen();
-     auto n = __builtin_ctz(r);
+     auto n = __builtin_clz(r);
      exp -= n;
      if (exp<0) { exp=0; break;}
    }
