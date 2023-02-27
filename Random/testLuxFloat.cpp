@@ -85,11 +85,11 @@ int main () {
 
    }
   
-  int N = 1000 * 1000 * 1000;
+  int64_t N = 100LL * 1000LL * 1000LL * 1000LL;
   float mn[2] = {2.,2,};
   float mx[2] = {-2.,-2.};
   double av[2]={0,0};
-  for (int i=0; i<N; ++i) {
+  for (int64_t i=0; i<N; ++i) {
     auto f1 = canonical_dist (gen1);
     auto f2 = luxFloat(gen2);
     av[0] +=f1;
