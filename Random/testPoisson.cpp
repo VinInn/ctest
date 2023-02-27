@@ -1,12 +1,14 @@
 #include <iostream>
+#include <iomanip>
 #include <cstdint>
 #include <limits>
 #include <cmath>
 #include <vector>
 
 int main() {
+  std::cout << std::setprecision(9); // std::hexfloat;
 
-   float mu = 1.5;
+   float mu = 2.5;
    {
    std::cout << "float" << std::endl;
    std::vector<float> cumulative;   
