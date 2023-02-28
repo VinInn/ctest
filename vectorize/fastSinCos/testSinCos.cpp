@@ -11,6 +11,7 @@
 
 #include "simpleSinCos.h"
 #include "fastSinCos.h"
+#include "sincospi.h"
 
 
 inline int diff(float x, float y) {
@@ -26,11 +27,14 @@ int main() {
   int mi; memcpy(&mi,&ff,sizeof(int));
   ff = M_PI;
   int mx; memcpy(&mx,&ff,sizeof(int));
+  ff = 1.;
+  int mx1; memcpy(&mx1,&ff,sizeof(int));
 
-  
+  ff = M_PI;
   for (float p=-ff; p<=ff; p+=0.1f) {
     std::cout << p << ' ' <<  int ((4./M_PI) * p) << "  " << simpleSin(p) << ' ' << simpleCos(p) << "  "
-              << fast_sinf(p) << ' ' << fast_cosf(p) << std::endl;
+              << fast_sinf(p) << ' ' << fast_cosf(p) << "  "
+              << f32_sinpi(p/ff) << ' ' << f32_cospi(p/ff)<< std::endl;
   }
 
   {
@@ -82,6 +86,32 @@ int main() {
   }
 
 
+ {
+  int mxDiff=0;
+  long long avDiff=0;
+  long long n=0;
+  float fDiff=0;
+  auto loop = [&](int i) {
+    float p; memcpy(&p,&i,sizeof(int));
+    auto s = std::sin(ff*p);
+    auto c = std::cos(ff*p);
+    auto as = f32_sinpi(p);
+    auto ac = f32_cospi(p);
+    auto rs = std::abs(as-s);
+    auto rc = std::abs(ac-c);
+    auto sd = diff(s,as);
+    auto cd = diff(c,ac);
+    avDiff+=sd+cd; n+=2;
+    mxDiff=std::max(mxDiff,std::max(sd,cd));
+    fDiff=std::max(fDiff,std::max(rs,rc));
+  };
+  for (auto i=mi; i<=mx1; i+=10) loop(i);
+  std::cout << n << " f32 diffs " << mxDiff << " " << double(avDiff)/n << std::endl;
+  std::cout << fDiff << std::endl;
+  }
+
+
+
 
   
   //timing
@@ -109,6 +139,12 @@ int main() {
     y[i] = fast_sinf(p[i]);
     x[i] = fast_cosf(p[i]);
     
+  };
+
+  auto compf32 = [&](int i) {
+    y[i] = f32_sinpi(p[i]);
+    x[i] = f32_cospi(p[i]);
+
   };
 
   delta = start - start;
@@ -149,8 +185,27 @@ int main() {
   double deltaF = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count();
 
 
+ delta = start - start;
+  delta = start - start;
+  for (auto kk=0; kk<100; ++kk)
+  for (float zz=-1.; zz< (-1.+1./4.-0.001); zz+=4.e-7f) {
+    for (auto j=0; j<N; j+=8) {zz+=4.e-7f; load(j,zz); }
+    delta -= (std::chrono::high_resolution_clock::now()-start);
+    benchmark::touch(p);
+    for (auto j=0; j<N; ++j) compf32(j);
+    benchmark::keep(x);
+    benchmark::keep(y);
+    delta += (std::chrono::high_resolution_clock::now()-start);
+  }
+
+  std::cout <<"f32 Computation took "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
+              << " ms" << std::endl;
+  double deltaF32 = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count();
+
+
   std::cout << "f/s " << deltaF/deltaS << std::endl;
-  
+  std::cout << "f/f32 " << deltaF/deltaF32 << std::endl;
 
   return 0;
 }
