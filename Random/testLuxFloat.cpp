@@ -8,7 +8,7 @@
 #include "benchmark.h"
 
 #include<algorithm>
-int main () {
+int main (int argc, char * argv[]) {
   std::cout << std::setprecision(9); // std::hexfloat;
   constexpr canonical_float_random<float, std::mt19937> canonical_dist;
   std::mt19937 gen0;
@@ -85,7 +85,8 @@ int main () {
 
    }
   
-  int64_t N = 1LL * 1000LL * 1000LL * 1000LL;
+  int64_t N = 1000LL * 1000LL * 1000LL;
+  if (argc>1) N *= 100LL;
   float mn[2] = {2.,2,};
   float mx[2] = {-2.,-2.};
   double av[2]={0,0};
