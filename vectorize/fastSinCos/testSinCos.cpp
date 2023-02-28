@@ -148,6 +148,7 @@ int main() {
   };
 
   delta = start - start;
+  double tot = 0;
   for (auto kk=0; kk<100; ++kk)
   for (float zz=-M_PI; zz< (-M_PI+M_PI/4.-0.001); zz+=4.e-7f) {
     for (auto j=0; j<N; j+=8) {zz+=4.e-7f; load(j,zz); }
@@ -157,17 +158,19 @@ int main() {
     benchmark::keep(x);
     benchmark::keep(y);
     delta += (std::chrono::high_resolution_clock::now()-start);
+    tot++;
   }
 
   std::cout <<"Simple Computation took "
-	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
-              << " ms" << std::endl;
-  double deltaS = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count();
+	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/tot*1000
+              << " us" << std::endl;
+  double deltaS = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/tot;
 
 
 
   delta = start - start;
   delta = start - start;
+  tot = 0;
   for (auto kk=0; kk<100; ++kk)
   for (float zz=-M_PI; zz< (-M_PI+M_PI/4.-0.001); zz+=4.e-7f) {
     for (auto j=0; j<N; j+=8) {zz+=4.e-7f; load(j,zz); }
@@ -177,16 +180,18 @@ int main() {
     benchmark::keep(x);
     benchmark::keep(y);
     delta += (std::chrono::high_resolution_clock::now()-start);
+    tot++;
   }
 
   std::cout <<"fast Computation took "
-	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
-              << " ms" << std::endl;
-  double deltaF = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count();
+	    << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/tot*1000
+              << " us" << std::endl;
+  double deltaF = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/tot;
 
 
- delta = start - start;
   delta = start - start;
+  delta = start - start;
+  tot = 0;
   for (auto kk=0; kk<100; ++kk)
   for (float zz=-1.; zz< (-1.+1./4.-0.001); zz+=4.e-7f) {
     for (auto j=0; j<N; j+=8) {zz+=4.e-7f; load(j,zz); }
@@ -196,12 +201,13 @@ int main() {
     benchmark::keep(x);
     benchmark::keep(y);
     delta += (std::chrono::high_resolution_clock::now()-start);
+    tot++;
   }
 
   std::cout <<"f32 Computation took "
-            << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
-              << " ms" << std::endl;
-  double deltaF32 = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count();
+            << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/tot*1000
+              << " us" << std::endl;
+  double deltaF32 = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/tot;
 
 
   std::cout << "f/s " << deltaF/deltaS << std::endl;

@@ -14,7 +14,9 @@ inline float f32_mulsign(float v, uint32_t s) { return f32_from_bits(f32_to_bits
 
 // constants for sin(pi x) and cos(pi x) for x on [-1/4,1/4]
 constexpr float f32_sinpi_7_k[] = { 0x1.921fb6p1f,  -0x1.4abbecp2f, 0x1.466b2p1f,  -0x1.2f5992p-1f };
-constexpr float f32_cospi_6_k[] = { 0x1.fffffep-1f, -0x1.3bd37ep2f, 0x1.03acccp2f, -0x1.4dfd3ap0f  };
+// constexpr float f32_cospi_6_k[] = { 0x1.fffffep-1f, -0x1.3bd37ep2f, 0x1.03acccp2f, -0x1.4dfd3ap0f  };
+// constexpr float f32_cospi_6_k[] = {1.f, -4.93479156494140625f, 4.057690143585205078125f, -1.30715453624725341796875f};
+constexpr float f32_cospi_6_k[] = { 0x1p0, -0x1.3bd3ap2, 0x1.03b132p2, -0x1.4ea1aep0};
 
 inline 
 void f32_sincospi(float* dst, float a)
