@@ -84,7 +84,9 @@ int main (int argc, char * argv[]) {
       std::cout << "duration " << bench.lap() << std::endl;
 
    }
-  
+
+  benchmark::Histo<100> h1(0.,1.);
+  benchmark::Histo<100> h2(0.,1.);  
   int64_t N = 1000LL * 1000LL * 1000LL;
   if (argc>1) N *= 100LL;
   float mn[2] = {2.,2,};
@@ -93,6 +95,8 @@ int main (int argc, char * argv[]) {
   for (int64_t i=0; i<N; ++i) {
     auto f1 = canonical_dist (gen1);
     auto f2 = luxFloat(gen2);
+    h1(f1);
+    h2(f2);
     av[0] +=f1;
     av[1] +=f2;
     mn[0] = std::min(mn[0],f1);
@@ -101,8 +105,10 @@ int main (int argc, char * argv[]) {
     mx[1] = std::max(mx[1],f2);
   }
 
-  std::cout << mn[0] << ' ' << mx[0] << ' ' << av[0]/N << std::endl;
-  std::cout << mn[1] << ' ' << mx[1] << ' ' << av[1]/N << std::endl;
+  std::cout << mn[0] << ' ' << mx[0] << ' ' << av[0]/N << ' ' << h1.chi2([](float){return 1.;})<< std::endl;
+  std::cout << mn[1] << ' ' << mx[1] << ' ' << av[1]/N << ' ' << h2.chi2([](float){return 1.;}) << std::endl;
+
+  h1.printAll([](float){return 1.;},std::cout);
 
   return 0;
 }

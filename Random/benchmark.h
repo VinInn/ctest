@@ -3,6 +3,8 @@
 
 #include <type_traits>
 #include <chrono>
+#include <iostream>
+#include <algorithm>
 
 namespace benchmark {
 
@@ -66,6 +68,73 @@ namespace benchmark {
   private:
     Time start;
     Delta delta;
+  };
+
+  template<int N>
+  class Histo {
+  public:
+    Histo(float mn, float mx) : xmin(mn), xmax(mx), ibsize(N/(xmax-xmin)){
+     for ( auto & d : data) d=0;
+    }
+
+   void operator()(float x) {
+     ++size;
+     save+=x; svar+=x*x;
+     int bin = std::clamp(int(ibsize*(x-xmin)),0,N-1);
+     ++data[bin];
+   }
+
+   auto ave() const { return save/size;}
+   auto var() const { return (var-save*save)/(size-1.); }
+
+   void printData(std::ostream & co) const {
+     for (auto d : data) co << d <<',';
+     co << std::endl;
+   }
+
+   template<typename F>
+   void printAll(F const & f, std::ostream & co) const {
+     float bsize =  (xmax-xmin)/N;
+     float x = xmin+0.5f*bsize;
+     float vf[N];
+     for (int i=0; i<N; ++i) {
+        vf[i] = size*f(x)/N;
+        co << x <<',';
+        x+=bsize;
+     } 
+     co << std::endl;
+     for (auto d : data) co << d <<',';
+     co << std::endl;
+     for (auto v : vf) co << std::sqrt(v) <<',';
+     co << std::endl;
+     for (auto v : vf) co << v <<',';
+     co << std::endl;
+   }
+
+  template<typename F>
+  double chi2(F const & f) const {
+    double sum=0.;
+    float bsize =  (xmax-xmin)/N;
+    float x = xmin+0.5f*bsize;
+    for (int i=0; i<N; ++i) {
+      auto v = size*f(x)/N;
+      auto d = (v-data[i]);
+      sum += d*d/v;  // error from prediction
+      x+=bsize;
+    }
+    return sum/(N-1);
+  }
+
+
+  private:
+    uint64_t data[N];
+    double size=0;
+    double save=0;
+    double svar=0;
+    float xmin;
+    float xmax;
+    float ibsize;
+
   };
 
 }  // namespace benchmark
