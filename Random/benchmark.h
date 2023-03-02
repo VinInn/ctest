@@ -5,6 +5,7 @@
 #include <chrono>
 #include <iostream>
 #include <algorithm>
+#include<cmath>
 
 namespace benchmark {
 

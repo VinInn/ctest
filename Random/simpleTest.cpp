@@ -71,11 +71,14 @@ template<typename Engine>
 class RandomBits {
 public:
 
-  static constexpr uint32_t kNumberOfBits  = Engine::kNumberOfBits; 
-  using Traits = RandomTraits<kNumberOfBits>;
+  static constexpr uint32_t kNumberOfBits  = 64; 
+  static constexpr uint64_t MinInt() { return  std::numeric_limits<uint64_t>::min(); }
+  static constexpr uint64_t MaxInt() { return  std::numeric_limits<uint64_t>::max(); }
+
+  using Traits = RandomTraits<Engine::kNumberOfBits>;
 
 
-   RandomBits(Engine & e) : engine(e){}
+  RandomBits(Engine & e) : engine(e){}
 
 
   uint64_t IntRndm()  {
@@ -113,6 +116,10 @@ void fillBits(int64_t * v, uint64_t x) {
 template<typename Engine>
 void doTest(Engine & engine)
 {
+  static_assert((~0ULL)>>(64-Engine::kNumberOfBits) == Engine::MaxInt());
+  static_assert(0 == Engine::MinInt());
+  static_assert(64 - Engine::kNumberOfBits ==  __builtin_clzll(Engine::MaxInt()));
+
   std::cout << "testing engine " << engine.Name() << std::endl;
   int N = 2 * 1000 * 1000;
   int64_t vr[64];
@@ -123,9 +130,11 @@ void doTest(Engine & engine)
     fillBits(vr, r);
   }
   int64_t t = 1000 * 1000;
-  for (int i = 0; i < 64; ++i) {
-    if (std::abs(vr[i] - t) > 3000)
-      std::cout << "r " << i << ' ' << vr[i] << std::endl;
+  for (uint32_t i = 0; i < 64; ++i) {
+    if (i>=Engine::kNumberOfBits &&  vr[i]!=0 ) 
+      std::cout << "not zero? " << i << ' ' << vr[i] << std::endl;
+    if (i<Engine::kNumberOfBits && std::abs(vr[i] - t) > 3000)
+      std::cout << "off? " << i << ' ' << vr[i] << std::endl;
   }
 
   auto gen = [&](uint64_t const*, uint64_t * r, int N) {
