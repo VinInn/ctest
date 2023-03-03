@@ -47,6 +47,16 @@ int main(int argc, char * argv[]) {
   std::cout << __builtin_clz(1UL<<22) << std::endl;
   std::cout << __builtin_clzll(1ULL<<52) << std::endl;
 
+  std::cout << "2^0-1 " << toExp(0) << std::endl;
+  std::cout << "2^-1-1 " << toExp(1) << std::endl;
+  std::cout << "2^-23-1 " << toExp(23) << std::endl;
+
+  std::cout << "ff23 " << fastFloat<23>(1ULL<<(64-22))  << ' ' << npower2(23-23) << std::endl;
+  std::cout << "ff24 " << fastFloat<24>(1ULL<<(64-24))  << ' ' << npower2(24-23) << std::endl;
+  std::cout << "ff41 " << fastFloat<41>(1ULL<<(64-41))  << ' ' << npower2(41-23) << std::endl;
+  std::cout << "ff64 " << fastFloat<64>(1)  << ' ' << npower2(64-23) << std::endl;
+
+
  bool ext = argc>1;
  auto stretch = [&](float f) { return  2.f*f -1.f ;}; 
  auto print = [&](auto F,uint32_t u) {

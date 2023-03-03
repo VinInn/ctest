@@ -28,3 +28,34 @@ float luxFloat(RNG & gen) {
    fi.i |= (exp <<23);
    return fi.f;
 }
+
+
+inline
+constexpr float npower2(uint32_t N) {
+   float ret = 0.5f;
+   while (N--)  ret*=0.5f;
+   return ret;
+}
+
+// use the  N leading bits to  build a  random float in [0,1[
+template<uint32_t N>
+float fastFloat(uint64_t r) {
+   static_assert(N>=23);
+    union FInt {
+      float f;
+      uint32_t i;
+    };
+
+   constexpr uint32_t kSpare = N-23;
+   constexpr uint64_t b_mask = ~((~0ULL)>>kSpare);
+   constexpr uint64_t m_mask = (~0ULL)>>(64-23);
+   constexpr float fmin = npower2(kSpare);
+   constexpr float norm = 1./(1.-fmin);
+   FInt fi;
+   fi.i = (r>>(64-N)) & m_mask;
+   r &= b_mask;
+   int32_t exp = 126 - (r ? __builtin_clz(r) : kSpare);
+   fi.i |= (exp <<23);
+   // stretch
+   return norm*(fi.f-fmin);
+}
