@@ -44,8 +44,8 @@ int main() {
   float fDiff=0;
   auto loop = [&](int i) {
     float p; memcpy(&p,&i,sizeof(int));
-    auto s = std::sin(p);
-    auto c = std::cos(p);
+    auto s = float(sin(p));
+    auto c = float(cos(p));
     float as = simpleSin(p);
     float ac = simpleCos(p);
     auto rs = std::abs(as-s);
@@ -68,8 +68,8 @@ int main() {
   float fDiff=0;
   auto loop = [&](int i) {
     float p; memcpy(&p,&i,sizeof(int));
-    auto s = std::sin(p);
-    auto c = std::cos(p);
+    auto s = float(sin(p));
+    auto c = float(cos(p));
     auto as = fast_sinf(p);
     auto ac = fast_cosf(p);
     auto rs = std::abs(as-s);
@@ -93,8 +93,8 @@ int main() {
   float fDiff=0;
   auto loop = [&](int i) {
     float p; memcpy(&p,&i,sizeof(int));
-    auto s = std::sin(ff*p);
-    auto c = std::cos(ff*p);
+    auto s = float(sin(ff*p));
+    auto c = float(cos(ff*p));
     auto as = f32_sinpi(p);
     auto ac = f32_cospi(p);
     auto rs = std::abs(as-s);
