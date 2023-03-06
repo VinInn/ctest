@@ -56,7 +56,7 @@ namespace benchmark {
     }
 
     template <typename T, typename U, typename F>
-    void operator()(F f, T const* x, U* y, int n) {
+    void operator()(F f, T const* __restrict__ x, U* __restrict__ y, int n) {
       delta -= (std::chrono::high_resolution_clock::now() - start);
       touch(x);
       f(x, y, n);
@@ -99,7 +99,7 @@ namespace benchmark {
      float x = xmin+0.5f*bsize;
      float vf[N];
      for (int i=0; i<N; ++i) {
-        vf[i] = size*f(x)/N;
+        vf[i] = bsize*size*f(x);
         co << x <<',';
         x+=bsize;
      } 
@@ -118,7 +118,7 @@ namespace benchmark {
     float bsize =  (xmax-xmin)/N;
     float x = xmin+0.5f*bsize;
     for (int i=0; i<N; ++i) {
-      auto v = size*f(x)/N;
+      auto v = bsize*size*f(x);
       auto d = (v-data[i]);
       sum += d*d/v;  // error from prediction
       x+=bsize;
