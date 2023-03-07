@@ -54,7 +54,7 @@ float fastFloat(uint64_t r) {
    FInt fi;
    fi.i = (r>>(64-N)) & m_mask;
    r &= b_mask;
-   int32_t exp = 126 - (r ? __builtin_clz(r) : kSpare);
+   int32_t exp = 126 - (r ? __builtin_clzll(r) : kSpare);
    fi.i |= (exp <<23);
    // stretch
    return norm*(fi.f-fmin);
