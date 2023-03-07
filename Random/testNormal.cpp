@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <ios>
 
+#include <thread>
+#include <mutex>
 
 #include "fastNormalPDF.h"
 
@@ -43,40 +45,69 @@ int main (int argc, char * argv[]) {
 
    }
 
-
   benchmark::Histo<100> h1(0.,10.);
   benchmark::Histo<100> h2(0.,10.);
-  benchmark::Histo<100> h3(0.,10.);  
-  int64_t N = 1024LL * 1000LL *10LL;
-  if (argc>1) N *= 100LL;
+  benchmark::Histo<100> h3(0.,10.);
   float mn[3] = {2.,2.,2.};
   float mx[3] = {-2.,-2.,-2.};
   double av[3]={0,0,0};
-  float f1[256];
-  float f2[256];
-  float f3[256];
-  for (int64_t k=0; k<N/256; ++k) 
-   for (int64_t i=0; i<256; ++i){
-    fastNormalPDF::genArray(fastNormalPDF::from23,gen1,f1,256);
-    fastNormalPDF::genArray(fastNormalPDF::from32,gen2,f2,256);
-    h1(std::abs(f1[i]));
-    h2(std::abs(f2[i]));
-    av[0] +=f1[i];
-    av[1] +=f2[i];
-    mn[0] = std::min(mn[0],std::abs(f1[i]));
-    mx[0] = std::max(mx[0],std::abs(f1[i]));
-    mn[1] = std::min(mn[1],std::abs(f2[i]));
-    mx[1] = std::max(mx[1],std::abs(f2[i]));
-    // mn[2] = std::min(mn[2],f3);
-    // mx[2] = std::max(mx[2],f3);
-    
-  }
+  int64_t N=0;
+  std::mutex histoLock;
+
+  auto run = [&]() { 
+    benchmark::Histo<100> lh1(0.,10.);
+    benchmark::Histo<100> lh2(0.,10.);
+    benchmark::Histo<100> lh3(0.,10.);  
+    int64_t Nl = 1024LL * 1000LL *100LL;
+    if (argc>1) Nl *= 100LL;
+    float lmn[3] = {2.,2.,2.};
+    float lmx[3] = {-2.,-2.,-2.};
+    double lav[3]={0,0,0};
+    float f1[256];
+    float f2[256];
+    float f3[256];
+    for (int64_t k=0; k<Nl/256; ++k) 
+     for (int64_t i=0; i<256; ++i){
+      fastNormalPDF::genArray(fastNormalPDF::from23,gen1,f1,256);
+      fastNormalPDF::genArray(fastNormalPDF::from32,gen2,f2,256);
+      lh1(std::abs(f1[i]));
+      lh2(std::abs(f2[i]));
+      lav[0] +=f1[i];
+      lav[1] +=f2[i];
+      lmn[0] = std::min(lmn[0],std::abs(f1[i]));
+      lmx[0] = std::max(lmx[0],std::abs(f1[i]));
+      lmn[1] = std::min(lmn[1],std::abs(f2[i]));
+      lmx[1] = std::max(lmx[1],std::abs(f2[i]));
+      // lmn[2] = std::min(lmn[2],f3);
+      // lmx[2] = std::max(lmx[2],f3);
+    }     
+    {
+     std::lock_guard<std::mutex> guard(histoLock);
+     N+=Nl;
+     h1.add(lh1);
+     h2.add(lh2);
+     h3.add(lh2);
+     for (int i=0; i<3; ++i) {
+      av[i]+=lav[i];
+      mn[i] = std::min(lmn[i],mn[i]);
+      mx[i] = std::min(lmx[i],mx[i]);
+     }
+    }
+
+  };
+
+
+   std::vector<std::thread> th;
+   for (int i=0; i<10; i++) th.emplace_back(run);
+   for (auto & t:th) t.join();
 
   auto gauss = [](float x){ return (2.f/std::sqrt(2.f*float(M_PI)))*std::exp(-0.5f*(x*x));};
   std::cout << mn[0] << ' ' << mx[0] << ' ' << av[0]/N << ' ' << h1.chi2(gauss)<< std::endl;
   std::cout << mn[1] << ' ' << mx[1] << ' ' << av[1]/N << ' ' << h2.chi2(gauss) << std::endl;
   // std::cout << mn[2] << ' ' << mx[2] << ' ' << av[2]/N << ' ' << h3.chi2([](float){return 1.;}) << std::endl;
 
+
+  std::cout << std::setprecision(3) << std::scientific;
   h1.printAll(gauss,std::cout);
 
   return 0;

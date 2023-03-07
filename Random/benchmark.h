@@ -74,6 +74,7 @@ namespace benchmark {
   template<int N>
   class Histo {
   public:
+    using Self = Histo<N>;
     Histo(float mn, float mx) : xmin(mn), xmax(mx), ibsize(N/(xmax-xmin)){
      for ( auto & d : data) d=0;
     }
@@ -126,6 +127,13 @@ namespace benchmark {
     return sum/(N-1);
   }
 
+
+  void add(Self const & h) {
+    for (int i=0; i<N; ++i) data[i]+=h.data[i];
+    size+=h.size;
+    save+=h.save;
+    svar+=h.svar; 
+  }
 
   private:
     uint64_t data[N];
