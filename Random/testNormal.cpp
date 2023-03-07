@@ -90,7 +90,7 @@ int main (int argc, char * argv[]) {
      for (int i=0; i<3; ++i) {
       av[i]+=lav[i];
       mn[i] = std::min(lmn[i],mn[i]);
-      mx[i] = std::min(lmx[i],mx[i]);
+      mx[i] = std::max(lmx[i],mx[i]);
      }
     }
 
@@ -109,6 +109,7 @@ int main (int argc, char * argv[]) {
 
   std::cout << std::setprecision(3) << std::scientific;
   h1.printAll(gauss,std::cout);
+  h2.printData(std::cout);
 
   return 0;
 }

@@ -99,17 +99,21 @@ namespace benchmark {
      float bsize =  (xmax-xmin)/N;
      float x = xmin+0.5f*bsize;
      float vf[N];
+     std::cout << 'x' << std::endl;
      for (int i=0; i<N; ++i) {
         vf[i] = bsize*size*f(x);
         co << x <<',';
         x+=bsize;
      } 
      co << std::endl;
+     std::cout << "data" << std::endl;
      for (auto d : data) co << d <<',';
      co << std::endl;
-     for (auto v : vf) co << std::sqrt(v) <<',';
-     co << std::endl;
+     std::cout << "expected" << std::endl;
      for (auto v : vf) co << v <<',';
+     co << std::endl;
+     std::cout << "expected error" << std::endl;
+     for (auto v : vf) co << std::sqrt(v) <<',';
      co << std::endl;
    }
 
