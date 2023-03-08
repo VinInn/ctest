@@ -25,7 +25,7 @@ int main (int argc, char * argv[]) {
   auto [q,w] = fastNormalPDF::from32(gen2());
   std::cout << q << ' ' << w << std::endl;
   }{
-  auto [q,w] = fastNormalPDF::fast(gen3());
+  auto [q,w] = fastNormalPDF::fromMix(gen3());
   std::cout << q << ' ' << w << std::endl;
   }
 
@@ -73,10 +73,10 @@ int main (int argc, char * argv[]) {
   {
 
       auto fgen = [&](uint32_t const * __restrict__ dummy, float *__restrict__ out, int N) {
-           fastNormalPDF::genArray(fastNormalPDF::fast,gen1,out,N);
+           fastNormalPDF::genArray(fastNormalPDF::fromMix,gen1,out,N);
       };
 
-      std::cout << "test fast" << std::endl;
+      std::cout << "test Mix" << std::endl;
       int N = 10 * 1000 * 1000;
       benchmark::TimeIt bench;
       // fill in batch of 256
@@ -104,7 +104,7 @@ int main (int argc, char * argv[]) {
     benchmark::Histo<200> lh1(0.,10.);
     benchmark::Histo<200> lh2(0.,10.);
     benchmark::Histo<200> lh3(0.,10.);  
-    int64_t Nl = 1024LL * 1000LL *100LL;
+    int64_t Nl = 1024LL * 1000LL *1000LL;
     if (argc>1) Nl *= 100LL;
     float lmn[3] = {2.,2.,2.};
     float lmx[3] = {-2.,-2.,-2.};
@@ -116,7 +116,7 @@ int main (int argc, char * argv[]) {
      for (int64_t i=0; i<256; ++i){
       fastNormalPDF::genArray(fastNormalPDF::from23,gen1,f1,256);
       fastNormalPDF::genArray(fastNormalPDF::from32,gen2,f2,256);
-      fastNormalPDF::genArray(fastNormalPDF::fast,gen3,f3,256);
+      fastNormalPDF::genArray(fastNormalPDF::fromMix,gen3,f3,256);
       lh1(std::abs(f1[i]));
       lh2(std::abs(f2[i]));
       lh3(std::abs(f3[i]));
@@ -154,7 +154,7 @@ int main (int argc, char * argv[]) {
   auto gauss = [](float x){ return (2.f/std::sqrt(2.f*float(M_PI)))*std::exp(-0.5f*(x*x));};
   std::cout << mn[0] << ' ' << mx[0] << ' ' << av[0]/N << ' ' << h1.chi2(gauss)<< std::endl;
   std::cout << mn[1] << ' ' << mx[1] << ' ' << av[1]/N << ' ' << h2.chi2(gauss) << std::endl;
-  std::cout << mn[2] << ' ' << mx[2] << ' ' << av[2]/N << ' ' << h3.chi2([](float){return 1.;}) << std::endl;
+  std::cout << mn[2] << ' ' << mx[2] << ' ' << av[2]/N << ' ' << h3.chi2(gauss) << std::endl;
 
 
   std::cout << std::setprecision(3) << std::scientific;
@@ -162,7 +162,7 @@ int main (int argc, char * argv[]) {
   h1.printAll(gauss,std::cout);
   std::cout << "from 32" << std::endl;
   h2.printData(std::cout);
-  std::cout << "fast" << std::endl;
+  std::cout << "Mix" << std::endl;
   h3.printData(std::cout);
   return 0;
 }
