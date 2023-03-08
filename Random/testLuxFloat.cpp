@@ -125,13 +125,13 @@ int main (int argc, char * argv[]) {
   for (int64_t i=0; i<N; ++i) {
     auto f1 = canonical_dist (gen1);
     auto f2 = luxFloat(gen2);
-    auto f3 = luxFloat(gen3);
+    auto f3 =  fastFloat<41>(gen3());
     h1(f1);
     h2(f2);
-    h3(f2);
+    h3(f3);
     av[0] +=f1;
     av[1] +=f2;
-    av[2] +=f2;
+    av[2] +=f3;
     mn[0] = std::min(mn[0],f1);
     mx[0] = std::max(mx[0],f1);
     mn[1] = std::min(mn[1],f2);
@@ -144,7 +144,7 @@ int main (int argc, char * argv[]) {
   std::cout << mn[1] << ' ' << mx[1] << ' ' << av[1]/N << ' ' << h2.chi2([](float){return 1.;}) << std::endl;
   std::cout << mn[2] << ' ' << mx[2] << ' ' << av[2]/N << ' ' << h3.chi2([](float){return 1.;}) << std::endl;
 
-  h1.printAll([](float){return 1.;},std::cout);
+  h3.printAll([](float){return 1.;},std::cout);
 
   return 0;
 }
