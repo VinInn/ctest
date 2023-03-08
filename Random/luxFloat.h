@@ -30,6 +30,16 @@ float luxFloat(RNG & gen) {
 }
 
 
+
+inline
+int32_t clzll(uint64_t x) {
+  uint32_t u32[2];
+  std::memcpy(u32,&x,8);
+  return u32[1] ? __builtin_clz(u32[1]) : 
+                    32+ __builtin_clz(u32[0]);
+}
+
+
 inline
 constexpr float npower2(uint32_t N) {
    float ret = 0.5f;
