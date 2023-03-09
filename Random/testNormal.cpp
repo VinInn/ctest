@@ -73,7 +73,8 @@ int main (int argc, char * argv[]) {
   {
 
       auto fgen = [&](uint32_t const * __restrict__ dummy, float *__restrict__ out, int N) {
-           fastNormalPDF::genArray(fastNormalPDF::fromMix,gen1,out,N);
+           fastNormalPDF::genArrayLux(gen0,out,N);
+           // fastNormalPDF::genArray(fastNormalPDF::fromMix,gen1,out,N);
       };
 
       std::cout << "test Mix" << std::endl;
@@ -104,7 +105,7 @@ int main (int argc, char * argv[]) {
     benchmark::Histo<200> lh1(0.,10.);
     benchmark::Histo<200> lh2(0.,10.);
     benchmark::Histo<200> lh3(0.,10.);  
-    int64_t Nl = 1024LL * 1000LL *1000LL;
+    int64_t Nl = 1024LL * 1000LL *10LL;
     if (argc>1) Nl *= 100LL;
     float lmn[3] = {2.,2.,2.};
     float lmx[3] = {-2.,-2.,-2.};

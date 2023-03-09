@@ -1,6 +1,30 @@
 #pragma once
 #include<cstdint>
 #include<limits>
+#include<cstring>
+
+template<typename Gen>
+class  OneIntGen {
+public:
+  OneIntGen (Gen& igen) : gen(igen){};
+
+  uint32_t operator()() {
+    if (ready) {
+       ready = false;
+       return u32;
+    }
+    uint64_t x = gen();
+    constexpr uint64_t mask = (1ULL<<32) -1;
+    u32 =  x &  mask; 
+    ready = true;
+    return x >> 32;
+  }
+private:
+  Gen & gen;
+  uint32_t u32;
+  bool ready = false;
+};
+
 
 template<typename RNG>
 float luxFloat(RNG & gen) {

@@ -84,4 +84,23 @@ void genArray(F f, G & gen, float *__restrict__ out, int N) {
   }
 }
 
+// assume G returns 64 bits...
+template<typename G>
+void genArrayLux(G & gen, float *__restrict__ out, int N) {
+  OneIntGen gen32(gen);
+  auto one = N%2;
+  auto N2 = N+one;
+  float r[N2];
+  for (int k = 0; k < N2; ++k) r[k] = luxFloat(gen32);
+  for (int k = 0; k < N/2; ++k) {
+     auto [x, y] =   fromFloat(r[k],r[k+N/2]);
+     out[k] = x;
+     out[k + N/2] = y;
+  }
+  if (one) {
+    auto [x, y] =   fromFloat(r[N-1],r[N]);
+    out[N-1] = x;
+  }
+}
+
 } // namespace

@@ -13,7 +13,7 @@ int main (int argc, char * argv[]) {
   constexpr canonical_float_random<float, std::mt19937> canonical_dist;
   std::mt19937 gen0;
   std::mt19937 gen1;
-  std::mt19937 gen2;
+  std::mt19937_64 sgen2; OneIntGen<std::mt19937_64> gen2(sgen2);
   std::mt19937_64 gen3;
   std::cout << gen1() << ' ' << gen2() << std::endl;
   std::cout << canonical_dist (gen1) << std::endl;
