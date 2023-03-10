@@ -106,14 +106,15 @@ int main (int argc, char * argv[]) {
     benchmark::Histo<200> lh2(0.,10.);
     benchmark::Histo<200> lh3(0.,10.);  
     int64_t Nl = 1024LL * 1000LL *10LL;
-    if (argc>1) Nl *= 100LL;
+    if (argc>1) Nl *= 1000LL;
     float lmn[3] = {2.,2.,2.};
     float lmx[3] = {-2.,-2.,-2.};
     double lav[3]={0,0,0};
     float f1[256];
     float f2[256];
     float f3[256];
-    for (int64_t k=0; k<Nl/256; ++k) 
+    for (int64_t k=0; k<Nl/256; ++k) {
+     if (0==k%1000) std::cout << '.';
      for (int64_t i=0; i<256; ++i){
       fastNormalPDF::genArray(fastNormalPDF::from23,gen1,f1,256);
       fastNormalPDF::genArray(fastNormalPDF::from32,gen2,f2,256);
@@ -130,8 +131,9 @@ int main (int argc, char * argv[]) {
       lmx[1] = std::max(lmx[1],std::abs(f2[i]));
       lmn[2] = std::min(lmn[2],std::abs(f3[i]));
       lmx[2] = std::max(lmx[2],std::abs(f3[i]));
-
-    }     
+      }
+    }
+    std::cout << std::endl;
     {
      std::lock_guard<std::mutex> guard(histoLock);
      N+=Nl;

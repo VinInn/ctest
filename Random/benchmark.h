@@ -95,13 +95,30 @@ namespace benchmark {
    }
 
    template<typename F>
+   void eval(F const & f, float * vf) const {
+      float bsize =  (xmax-xmin)/N;
+      float step = .1f*bsize;
+      float x = xmin;
+      constexpr float den = 1./9.;
+      for (int i=0; i<N; ++i) {
+        x+=step;
+        float sum=0;
+        for (int k=1;k<10;++k) { 
+          sum += f(x); 
+          x+=step;
+        };
+        vf[i] = bsize*size*sum*den; 
+      };
+   }
+
+   template<typename F>
    void printAll(F const & f, std::ostream & co) const {
      float bsize =  (xmax-xmin)/N;
      float x = xmin+0.5f*bsize;
      float vf[N];
+     eval(f,vf);
      std::cout << 'x' << std::endl;
      for (int i=0; i<N; ++i) {
-        vf[i] = bsize*size*f(x);
         co << x <<',';
         x+=bsize;
      } 
@@ -120,13 +137,12 @@ namespace benchmark {
   template<typename F>
   double chi2(F const & f) const {
     double sum=0.;
-    float bsize =  (xmax-xmin)/N;
-    float x = xmin+0.5f*bsize;
+    float vf[N];
+    eval(f,vf);
     for (int i=0; i<N; ++i) {
-      auto v = bsize*size*f(x);
+      auto v = vf[i];;
       auto d = (v-data[i]);
       sum += d*d/v;  // error from prediction
-      x+=bsize;
     }
     return sum/(N-1);
   }

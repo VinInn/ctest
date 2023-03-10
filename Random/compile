@@ -1,1 +1,1 @@
-c++ $1 -Ofast -march=native -Wall -fPIC -I${ROOTSYS}/include -L$ROOTSYS/lib -lMathCore
+c++ $1 -Ofast -march=native -Wall -fPIC -pthread -I${ROOTSYS}/include -L$ROOTSYS/lib -lMathCore
