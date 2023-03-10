@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <ios>
 
+#include <atomic>
 #include <thread>
 #include <mutex>
 
@@ -53,7 +54,7 @@ int main (int argc, char * argv[]) {
   {
 
       auto fgen = [&](uint32_t const * __restrict__ dummy, float *__restrict__ out, int N) {
-           fastNormalPDF::genArray(fastNormalPDF::from32,gen1,out,N);
+           fastNormalPDF::genArray(fastNormalPDF::from32,gen2,out,N);
       };
 
       std::cout << "test 32 bits" << std::endl;
@@ -101,7 +102,12 @@ int main (int argc, char * argv[]) {
   int64_t N=0;
   std::mutex histoLock;
 
+  std::atomic<int> seed;
   auto run = [&]() { 
+    seed+=1;
+    std::mt19937_64 genA(seed);
+    std::mt19937_64 genB(seed);
+    std::mt19937_64 genC(seed);
     benchmark::Histo<200> lh1(0.,10.);
     benchmark::Histo<200> lh2(0.,10.);
     benchmark::Histo<200> lh3(0.,10.);  
@@ -116,9 +122,10 @@ int main (int argc, char * argv[]) {
     for (int64_t k=0; k<Nl/256; ++k) {
      if (0==k%1000) std::cout << '.';
      for (int64_t i=0; i<256; ++i){
-      fastNormalPDF::genArray(fastNormalPDF::from23,gen1,f1,256);
-      fastNormalPDF::genArray(fastNormalPDF::from32,gen2,f2,256);
-      fastNormalPDF::genArray(fastNormalPDF::fromMix,gen3,f3,256);
+      fastNormalPDF::genArray(fastNormalPDF::from23,genA,f1,256);
+      fastNormalPDF::genArray(fastNormalPDF::from32,genB,f2,256);
+      fastNormalPDF::genArrayLux(genC,f3,256);
+      // fastNormalPDF::genArray(fastNormalPDF::fromMix,gen3,f3,256);
       lh1(std::abs(f1[i]));
       lh2(std::abs(f2[i]));
       lh3(std::abs(f3[i]));
