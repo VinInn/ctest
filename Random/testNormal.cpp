@@ -71,14 +71,35 @@ int main (int argc, char * argv[]) {
 
    }
 
+
+  {
+
+      auto fgen = [&](uint32_t const * __restrict__ dummy, float *__restrict__ out, int N) {
+           fastNormalPDF::genArray(fastNormalPDF::fromMix,gen3,out,N);
+      };
+
+      std::cout << "test Mix" << std::endl;
+      int N = 10 * 1000 * 1000;
+      benchmark::TimeIt bench;
+      // fill in batch of 256
+      float rv[256];
+      uint32_t dummy[1];
+      for (int i = 0; i < N; ++i) {
+        bench(fgen, dummy, rv, 256);
+      }
+
+      std::cout << "duration " << bench.lap() << std::endl;
+
+   }
+
+
   {
 
       auto fgen = [&](uint32_t const * __restrict__ dummy, float *__restrict__ out, int N) {
            fastNormalPDF::genArrayLux(gen0,out,N);
-           // fastNormalPDF::genArray(fastNormalPDF::fromMix,gen1,out,N);
       };
 
-      std::cout << "test Mix" << std::endl;
+      std::cout << "test Lux" << std::endl;
       int N = 10 * 1000 * 1000;
       benchmark::TimeIt bench;
       // fill in batch of 256
