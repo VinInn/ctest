@@ -9,7 +9,7 @@
 #include "benchmark.h"
 #include<array>
 
-#include "simpleSinCos.h"
+#include "simpleSinCosPi.h"
 #include "fastSinCos.h"
 #include "sincospi.h"
 
@@ -32,7 +32,7 @@ int main() {
 
   ff = M_PI;
   for (float p=-ff; p<=ff; p+=0.1f) {
-    std::cout << p << ' ' <<  int ((4./M_PI) * p) << "  " << simpleSin(p) << ' ' << simpleCos(p) << "  "
+    std::cout << p << ' ' <<  int ((4./M_PI) * p) << "  " << simpleSinPi(p/ff) << ' ' << simpleCosPi(p/ff) << "  "
               << fast_sinf(p) << ' ' << fast_cosf(p) << "  "
               << f32_sinpi(p/ff) << ' ' << f32_cospi(p/ff)<< std::endl;
   }
@@ -44,10 +44,10 @@ int main() {
   float fDiff=0;
   auto loop = [&](int i) {
     float p; memcpy(&p,&i,sizeof(int));
-    auto s = float(sin(p));
-    auto c = float(cos(p));
-    float as = simpleSin(p);
-    float ac = simpleCos(p);
+    auto s = float(sin(ff*p));
+    auto c = float(cos(ff*p));
+    float as = simpleSinPi(p);
+    float ac = simpleCosPi(p);
     auto rs = std::abs(as-s);
     auto rc = std::abs(ac-c);
     auto sd = diff(s,as);
@@ -56,7 +56,7 @@ int main() {
     mxDiff=std::max(mxDiff,std::max(sd,cd));
     fDiff=std::max(fDiff,std::max(rs,rc));
   };
-  for (auto i=mi; i<=mx; i+=10) loop(i);
+  for (auto i=mi; i<=mx1; i+=10) loop(i);
   std::cout << n << " Simple diffs " << mxDiff << " " << double(avDiff)/n << std::endl;
   std::cout << fDiff << std::endl;
   }
@@ -129,9 +129,16 @@ int main() {
     for (int j=1; j<8; ++j)
       p[i+j]=p[i+j-1]+ float(M_PI/4.);
   };
+
+ auto load1 = [&](int i, float q) {
+     p[i]=q;
+    for (int j=1; j<8; ++j)
+      p[i+j]=p[i+j-1]+ float(1./4.);
+  };
+
   auto comp = [&](int i) {
-    y[i] = simpleSin(p[i]);
-    x[i] = simpleCos(p[i]);
+    y[i] = simpleSinPi(p[i]);
+    x[i] = simpleCosPi(p[i]);
     
   };
 
@@ -150,8 +157,8 @@ int main() {
   delta = start - start;
   double tot = 0;
   for (auto kk=0; kk<100; ++kk)
-  for (float zz=-M_PI; zz< (-M_PI+M_PI/4.-0.001); zz+=4.e-7f) {
-    for (auto j=0; j<N; j+=8) {zz+=4.e-7f; load(j,zz); }
+  for (float zz=-1.; zz< (-1.+1./4.-0.001); zz+=4.e-7f) {
+    for (auto j=0; j<N; j+=8) {zz+=4.e-7f; load1(j,zz); }
     delta -= (std::chrono::high_resolution_clock::now()-start);
     benchmark::touch(p);
     for (auto j=0; j<N; ++j) comp(j);
@@ -194,7 +201,7 @@ int main() {
   tot = 0;
   for (auto kk=0; kk<100; ++kk)
   for (float zz=-1.; zz< (-1.+1./4.-0.001); zz+=4.e-7f) {
-    for (auto j=0; j<N; j+=8) {zz+=4.e-7f; load(j,zz); }
+    for (auto j=0; j<N; j+=8) {zz+=4.e-7f; load1(j,zz); }
     delta -= (std::chrono::high_resolution_clock::now()-start);
     benchmark::touch(p);
     for (auto j=0; j<N; ++j) compf32(j);

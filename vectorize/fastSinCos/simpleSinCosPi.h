@@ -44,13 +44,13 @@ inline void simpleSinCosPi( Float x, Float & s, Float &c ) {
 template<typename Float>
 inline Float simpleSinPi(Float x) {
  Float  s, c;
- simpleSinCos(x,s,c); 
+ simpleSinCosPi(x,s,c); 
  return s;
 }
 
 // valid only in -1 < x < 1
 template<typename Float>
-inline Float simpleCospi(Float x) {
+inline Float simpleCosPi(Float x) {
  Float  s, c;
  simpleSinCosPi(x,s,c);
  return c;
