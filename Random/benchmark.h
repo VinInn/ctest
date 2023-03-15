@@ -97,13 +97,13 @@ namespace benchmark {
    template<typename F>
    void eval(F const & f, float * vf) const {
       float bsize =  (xmax-xmin)/N;
-      float step = .1f*bsize;
+      float step = .05f*bsize;
       float x = xmin;
-      constexpr float den = 1./9.;
+      constexpr float den = 1./19.;
       for (int i=0; i<N; ++i) {
         x+=step;
         float sum=0;
-        for (int k=1;k<10;++k) { 
+        for (int k=1;k<20;++k) { 
           sum += f(x); 
           x+=step;
         };

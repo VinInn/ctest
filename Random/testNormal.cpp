@@ -158,7 +158,7 @@ int main (int argc, char * argv[]) {
 
 
    std::vector<std::thread> th;
-   for (int i=0; i<10; i++) th.emplace_back(run);
+   for (int i=0; i<128; i++) th.emplace_back(run);
    for (auto & t:th) t.join();
 
   auto gauss = [](float x){ return (2.f/std::sqrt(2.f*float(M_PI)))*std::exp(-0.5f*(x*x));};
