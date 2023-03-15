@@ -21,6 +21,9 @@ constexpr float f32_cospi_6_k[] = { 0x1p0, -0x1.3bd3ap2, 0x1.03b132p2, -0x1.4ea1
 inline 
 void f32_sincospi(float* dst, float a)
 {
+
+  auto fmaf = [](float a, float b, float c) { return a*b+c;};
+
   const float* S = f32_sinpi_7_k;
   const float* C = f32_cospi_6_k;
 

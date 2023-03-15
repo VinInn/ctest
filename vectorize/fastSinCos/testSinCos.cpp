@@ -199,7 +199,7 @@ int main() {
   delta = start - start;
   delta = start - start;
   tot = 0;
-  for (auto kk=0; kk<100; ++kk)
+  for (auto kk=0; kk<500; ++kk)
   for (float zz=-1.; zz< (-1.+1./4.-0.001); zz+=4.e-7f) {
     for (auto j=0; j<N; j+=8) {zz+=4.e-7f; load1(j,zz); }
     delta -= (std::chrono::high_resolution_clock::now()-start);
