@@ -154,9 +154,29 @@ int main() {
 
   };
 
+
+// warmup vectors....
   delta = start - start;
   double tot = 0;
-  for (auto kk=0; kk<100; ++kk)
+  for (auto kk=0; kk<500; ++kk)
+  for (float zz=-1.; zz< (-1.+1./4.-0.001); zz+=4.e-7f) {
+    for (auto j=0; j<N; j+=8) {zz+=4.e-7f; load1(j,zz); }
+    delta -= (std::chrono::high_resolution_clock::now()-start);
+    benchmark::touch(p);
+    for (auto j=0; j<N; ++j) comp(j);
+    benchmark::keep(x);
+    benchmark::keep(y);
+    delta += (std::chrono::high_resolution_clock::now()-start);
+    tot++;
+  }
+ std::cout <<"Simple Computation as wormup took "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()/tot*1000
+              << " us" << std::endl;
+
+// do
+  delta = start - start;
+  tot = 0;
+  for (auto kk=0; kk<500; ++kk)
   for (float zz=-1.; zz< (-1.+1./4.-0.001); zz+=4.e-7f) {
     for (auto j=0; j<N; j+=8) {zz+=4.e-7f; load1(j,zz); }
     delta -= (std::chrono::high_resolution_clock::now()-start);
@@ -178,7 +198,7 @@ int main() {
   delta = start - start;
   delta = start - start;
   tot = 0;
-  for (auto kk=0; kk<100; ++kk)
+  for (auto kk=0; kk<500; ++kk)
   for (float zz=-M_PI; zz< (-M_PI+M_PI/4.-0.001); zz+=4.e-7f) {
     for (auto j=0; j<N; j+=8) {zz+=4.e-7f; load(j,zz); }
     delta -= (std::chrono::high_resolution_clock::now()-start);
