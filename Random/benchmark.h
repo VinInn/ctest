@@ -87,7 +87,7 @@ namespace benchmark {
    }
 
    auto ave() const { return save/size;}
-   auto var() const { return (var-save*save)/(size-1.); }
+   auto var() const { return (svar-save*save)/(size-1.); }
 
    void printData(std::ostream & co) const {
      for (auto d : data) co << d <<',';
