@@ -117,58 +117,69 @@ int main (int argc, char * argv[]) {
   benchmark::Histo<200> h1(0.,10.);
   benchmark::Histo<200> h2(0.,10.);
   benchmark::Histo<200> h3(0.,10.);
-  float mn[3] = {2.,2.,2.};
-  float mx[3] = {-2.,-2.,-2.};
-  double av[3]={0,0,0};
-  int64_t N=0;
+  benchmark::Histo<200> h4(0.,10.);
+  float mn[4] = {2.,2.,2.,2.};
+  float mx[4] = {-2.,-2.,-2.,2.};
+  double av[4]={0,0,0,0};
   std::mutex histoLock;
 
-  std::atomic<int> seed;
+  std::atomic<int> seed=0;;
+  std::atomic<long long> iter = 0;
+  int64_t N = 1000LL;
+  if (argc>1) N *= 1000LL;
   auto run = [&]() { 
     seed+=1;
     std::mt19937_64 genA(seed);
     std::mt19937_64 genB(seed);
     std::mt19937_64 genC(seed);
+    std::mt19937_64 genD(seed);
     benchmark::Histo<200> lh1(0.,10.);
     benchmark::Histo<200> lh2(0.,10.);
-    benchmark::Histo<200> lh3(0.,10.);  
-    int64_t Nl = 1024LL * 1000LL *10LL;
-    if (argc>1) Nl *= 1000LL;
-    float lmn[3] = {2.,2.,2.};
-    float lmx[3] = {-2.,-2.,-2.};
-    double lav[3]={0,0,0};
+    benchmark::Histo<200> lh3(0.,10.);
+    benchmark::Histo<200> lh4(0.,10.);
+    float lmn[4] = {2.,2.,2.,2.};
+    float lmx[4] = {-2.,-2.,-2.,-2.};
+    double lav[4]={0,0,0,0};
     float f1[256];
     float f2[256];
     float f3[256];
-    for (int64_t k=0; k<Nl/256; ++k) {
-     if (0==k%1000) std::cout << '.';
+    float f4[256];
+    while (iter++ < N) {
+    std::cout << '.';
+    for (int64_t k=0; k<10000; ++k) {
      for (int64_t i=0; i<256; ++i){
       fastNormalPDF::genArray(fastNormalPDF::from23,genA,f1,256);
       fastNormalPDF::genArray(fastNormalPDF::from32,genB,f2,256);
       fastNormalPDF::genArrayLux(genC,f3,256);
-      // fastNormalPDF::genArray(fastNormalPDF::fromMix,gen3,f3,256);
+      fastNormalPDF::genArray(fastNormalPDF::fromMix,genD,f4,256);
       lh1(std::abs(f1[i]));
       lh2(std::abs(f2[i]));
       lh3(std::abs(f3[i]));
+      lh4(std::abs(f4[i]));
       lav[0] +=f1[i];
       lav[1] +=f2[i];
       lav[2] +=f3[i];
+      lav[3] +=f4[i];
       lmn[0] = std::min(lmn[0],std::abs(f1[i]));
       lmx[0] = std::max(lmx[0],std::abs(f1[i]));
       lmn[1] = std::min(lmn[1],std::abs(f2[i]));
       lmx[1] = std::max(lmx[1],std::abs(f2[i]));
       lmn[2] = std::min(lmn[2],std::abs(f3[i]));
       lmx[2] = std::max(lmx[2],std::abs(f3[i]));
+      lmn[3] = std::min(lmn[3],std::abs(f4[i]));
+      lmx[3] = std::max(lmx[3],std::abs(f4[i]));
+
       }
     }
+    } // while
     std::cout << std::endl;
     {
      std::lock_guard<std::mutex> guard(histoLock);
-     N+=Nl;
      h1.add(lh1);
      h2.add(lh2);
      h3.add(lh3);
-     for (int i=0; i<3; ++i) {
+     h4.add(lh4);
+     for (int i=0; i<4; ++i) {
       av[i]+=lav[i];
       mn[i] = std::min(lmn[i],mn[i]);
       mx[i] = std::max(lmx[i],mx[i]);
@@ -179,13 +190,15 @@ int main (int argc, char * argv[]) {
 
 
    std::vector<std::thread> th;
-   for (int i=0; i<128; i++) th.emplace_back(run);
+   for (int i=0; i<112; i++) th.emplace_back(run);
    for (auto & t:th) t.join();
-
+   std::cout << " tot iter " << iter << ' ' << 256*10000*N << std::endl;
+  N = 256*10000*N; 
   auto gauss = [](float x){ return (2.f/std::sqrt(2.f*float(M_PI)))*std::exp(-0.5f*(x*x));};
   std::cout << mn[0] << ' ' << mx[0] << ' ' << av[0]/N << ' ' << h1.chi2(gauss)<< std::endl;
   std::cout << mn[1] << ' ' << mx[1] << ' ' << av[1]/N << ' ' << h2.chi2(gauss) << std::endl;
   std::cout << mn[2] << ' ' << mx[2] << ' ' << av[2]/N << ' ' << h3.chi2(gauss) << std::endl;
+  std::cout << mn[3] << ' ' << mx[3] << ' ' << av[3]/N << ' ' << h4.chi2(gauss) << std::endl;
 
 
   std::cout << std::setprecision(3) << std::scientific;
@@ -193,7 +206,10 @@ int main (int argc, char * argv[]) {
   h1.printAll(gauss,std::cout);
   std::cout << "from 32" << std::endl;
   h2.printData(std::cout);
-  std::cout << "Mix" << std::endl;
+  std::cout << "Lux" << std::endl;
   h3.printData(std::cout);
+  std::cout << "Mix" << std::endl;
+  h4.printData(std::cout);
+
   return 0;
 }

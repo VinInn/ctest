@@ -2,6 +2,7 @@
 
 #include "approx_log.h"
 #include "sincospi.h"
+#include "simpleSinCosPi.h"
 #include "luxFloat.h"
 
 
@@ -11,8 +12,8 @@ namespace fastNormalPDF {
 
 inline std::tuple<float, float> fromFloat(float x, float y) {
   // unsafe_log is very safe here as it cannot return neither Nan nor -inf
-  float u = std::sqrt(-2.f * unsafe_logf<8>(x));
-  auto [s, c] = f32_sincospi(2.f * y);
+  float u = std::sqrt(-2.f * unsafe_logf<6>(x));
+  auto [s, c] = simpleSinCosPi(2.f * y -1.f);   // f32_sincospi(2.f * y);
   return {u * c, u * s};
 }
 
@@ -30,10 +31,7 @@ inline std::tuple<float, float> from23(uint64_t r) {
   fi.ui32 = r & 0x007FFFFF;
   fi.ui32 |= 0x3F800000;  // extract mantissa as an FP number
   auto y = fi.f - 1.f;
-  // unsafe_log is very safe here as it cannot return neither Nan nor -inf
-  float u = std::sqrt(-2.f * unsafe_logf<8>(x));
-  auto [s, c] = f32_sincospi(2.f * y);
-  return {u * c, u * s};
+  return fromFloat(x,y);
 }
 
 inline  std::tuple<float, float> from32(uint64_t r) {
@@ -44,10 +42,7 @@ inline  std::tuple<float, float> from32(uint64_t r) {
   uint32_t b = r>>32;
   float x = den * float(a);
   float y = den * float(b);
-  // unsafe_log is very safe here as it cannot return neither Nan nor -inf
-  float u = std::sqrt(-2.f * unsafe_logf<8>(x+den));
-  auto [s, c] = f32_sincospi(2.f * y);
-  return {u * c, u * s};
+  return fromFloat(x,y);
 }
 
 inline  std::tuple<float, float> fromMix(uint64_t r) {
@@ -59,10 +54,7 @@ inline  std::tuple<float, float> fromMix(uint64_t r) {
   r >>= 23;  // 41 bits left
   constexpr float den = 1./(1ULL<<41);
   auto x = den *float(r);
-  // unsafe_log is very safe here as it cannot return neither Nan nor -inf
-  float u = std::sqrt(-2.f * unsafe_logf<8>(x));
-  auto [s, c] = f32_sincospi(2.f * y);
-  return {u * c, u * s};
+  return fromFloat(x,y);
 }
 
 
