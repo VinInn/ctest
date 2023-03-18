@@ -4,8 +4,9 @@
 #include "Math/MersenneTwisterEngine.h"
 #include "Math/MixMaxEngine.h"
 #include "Math/StdEngine.h"
-#include "RandomBits.h"
-
+#include "Random64Bits.h"
+#include <random>
+#include <ext/random>
 
 
 #include<string>
@@ -75,12 +76,15 @@ int main()
    ROOT::Math::MixMaxEngine<240,0> mmx240;
    ROOT::Math::StdEngine<std::mt19937> stdtw32;
    ROOT::Math::StdEngine<std::mt19937_64> stdtw64;
+   ROOT::Math::StdEngine<__gnu_cxx::sfmt19937_64> stdtwV64;
 
-   RandomBits<ROOT::Math::RanluxppEngine2048> rbLux(lux);
-   RandomBits<ROOT::Math::MixMaxEngine<17,0>> rbmx(mmx17);
-   RandomBits<ROOT::Math::MersenneTwisterEngine> rbtw(mtwist);
-   RandomBits<ROOT::Math::StdEngine<std::mt19937>> rbstd32(stdtw32);
-   RandomBits<ROOT::Math::StdEngine<std::mt19937_64>> rbstd64(stdtw64);
+   Random64Bits<ROOT::Math::RanluxppEngine2048> rbLux(lux);
+   Random64Bits<ROOT::Math::MixMaxEngine<17,0>> rbmx(mmx17);
+   Random64Bits<ROOT::Math::MixMaxEngine<240,0>> rbmx2(mmx240);
+   Random64Bits<ROOT::Math::MersenneTwisterEngine> rbtw(mtwist);
+   Random64Bits<ROOT::Math::StdEngine<std::mt19937>> rbstd32(stdtw32);
+   Random64Bits<ROOT::Math::StdEngine<std::mt19937_64>> rbstd64(stdtw64);
+   Random64Bits<ROOT::Math::StdEngine<__gnu_cxx::sfmt19937_64>>  rbstdV64(stdtwV64);
 
    doTest(lux);
    doTest(mtwist);
@@ -88,12 +92,16 @@ int main()
    doTest(mmx240);
    doTest(stdtw32);
    doTest(stdtw64);
+   doTest(stdtwV64);
 
    doTest(rbLux);
    doTest(rbmx);
+   doTest(rbmx2);
    doTest(rbtw);
    doTest(rbstd32);
    doTest(rbstd64);
+   doTest(rbstdV64);
+
    return 0;
 }
 
