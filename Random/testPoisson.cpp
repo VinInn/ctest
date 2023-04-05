@@ -10,7 +10,7 @@
 int main() {
   std::cout << std::setprecision(9); // std::hexfloat;
 
-   float mu = 2.5;
+   float mu = 12.5;
    {
    std::cout << "float" << std::endl;
    std::vector<float> cumulative;   
