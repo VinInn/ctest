@@ -1,3 +1,5 @@
+#include "FastPoissonPDF.h"
+
 #include <iostream>
 #include <iomanip>
 #include <cstdint>
@@ -32,12 +34,12 @@ int main() {
    {
    std::cout << "uint16" << std::endl;
    std::vector<uint16_t> cumulative;
-   auto poiss = std::exp(-mu);
+   double poiss = std::exp(-mu);
    double sum = poiss;
    double mul = std::numeric_limits<uint16_t>::max();
    cumulative.push_back(mul*sum+0.5);
    for (;;) {
-     poiss *= mu / float(cumulative.size());
+     poiss *= mu / cumulative.size();
      sum += poiss;
      if (mul*sum+0.5 >= std::numeric_limits<uint16_t>::max())
           break;
@@ -52,13 +54,14 @@ int main() {
    {
    std::cout << "uint32" << std::endl;
    std::vector<uint32_t> cumulative;
-   auto poiss = std::exp(-mu);
+   double poiss = std::exp(double(-mu));
    double sum = poiss;
    double mul = std::numeric_limits<uint32_t>::max();
    cumulative.push_back(mul*sum+0.5);
    for (;;) {
-     poiss *= mu / float(cumulative.size());
+     poiss *= double(mu) / cumulative.size();
      sum += poiss;
+     // if (sum>=1. -std::numeric_limits<float>::epsilon() ) break;
      if (mul*sum+0.5 >= std::numeric_limits<uint32_t>::max())
           break;
      cumulative.push_back(mul*sum+0.5);
@@ -67,5 +70,32 @@ int main() {
    for (auto v:cumulative) std::cout << v << ' ' ;
    std::cout << std::endl;
    }
+
+
+
+   {
+   std::cout << "32 bits" << std::endl;
+   FastPoissonPDF pdf(mu);   
+   std::cout << pdf.cumulative().size()  << std::endl;
+   for (auto v:pdf.cumulative()) std::cout << v << ' ' ;
+   std::cout << std::endl;
+   }
+
+
+   {
+   std::cout << "24 bits" << std::endl;
+   FastPoissonPDF<24> pdf(mu);
+   std::cout << pdf.cumulative().size()  << std::endl;
+   for (auto v:pdf.cumulative()) std::cout << v << ' ' ;
+   std::cout << std::endl;
+   }
+   {
+   std::cout << "16 bits" << std::endl;
+   FastPoissonPDF<16> pdf(mu);
+   std::cout << pdf.cumulative().size()  << std::endl;
+   for (auto v:pdf.cumulative()) std::cout << v << ' ' ;
+   std::cout << std::endl;
+   }
+
 return 0;
 }

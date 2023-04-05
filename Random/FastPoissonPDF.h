@@ -3,12 +3,13 @@
 #include<cstdint>
 #include<cmath>
 #include<algorithm>
+#include<vector>
 
 template<int NBITS=32> 
 class FastPoissonPDF {
 public:
   static_assert(NBITS<=32);
-  constexpr uint64_t max = (1ULL<<NBITS) -1ULL;
+  constexpr static uint64_t max = (1ULL<<NBITS) -1ULL;
 
   FastPoissonPDF(double mu) { reset(mu); }
 
@@ -23,11 +24,11 @@ public:
     m_cumulative.push_back(mul*sum+0.5);
     if (mu>0)
     for (;;) {
-      poiss *= mu / float(cumulative.size());
+      poiss *= mu / m_cumulative.size();
       sum += poiss;
       if (uint64_t(mul*sum+0.5) >= max)
           break;
-      cumulative.push_back(mul*sum+0.5);
+      m_cumulative.push_back(mul*sum+0.5);
     }
   }
 
@@ -37,6 +38,7 @@ public:
   }
 
 
+  auto const & cumulative() const { return m_cumulative; }
 
 private:
   std::vector<uint32_t> m_cumulative;
