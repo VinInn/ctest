@@ -14,6 +14,20 @@
 #include<algorithm>
 int main (int argc, char * argv[]) {
   std::cout << std::setprecision(9); // std::hexfloat;
+
+  auto pp = [](float x,float y) {
+    auto [a,b] = fastNormalPDF::fromFloat(x,y);
+    std::cout << a <<' ' <<b << std::endl;
+  };
+  pp(0.f,0.f);
+  pp(1./std::numeric_limits<uint32_t>::max(),0);
+ pp(1./(1.+std::numeric_limits<uint32_t>::max()),0);
+  pp(0.f,0.25f);
+  pp(0.f,0.5f);
+  pp(0.f,1.f);
+  pp(1.f,0.f);
+  pp(1.f,1.f);
+
   std::mt19937_64 gen0;
   std::mt19937_64 gen1;
   std::mt19937_64 gen2;
