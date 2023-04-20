@@ -150,6 +150,21 @@ int main() {
 
 std::cout << "\n\n\n" << std::endl;
 {
+  nt = 4;
+  std::cout << "running test in " << nt <<" threads with NO sw-bk" << std::endl;
+  sbar = true;
+  tid = 0;
+  std::vector<std::thread> ts;
+  for (int i=0; i<nt; ++i) ts.emplace_back(doTest,0);
+
+  sbar = false;
+  for (auto & t : ts) t.join();
+}
+
+
+std::cout << "\n\n\n" << std::endl;
+{
+  nt = 48;
   std::cout << "running test in " << nt <<" threads with NO sw-bk" << std::endl;
   sbar = true;
   tid = 0;
