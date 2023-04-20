@@ -37,7 +37,7 @@ void doTest(int sw) {
    if (once){
     std::lock_guard<std::mutex> guard(coutLock);
     std::cout << "default lz4 params" << '\n' <<
-//    params.input_sz_thrshold << ' ' << QZ_COMP_THRESHOLD_DEFAULT << '\n' <<
+    params.common_params.input_sz_thrshold << ' ' << QZ_COMP_THRESHOLD_DEFAULT << '\n' <<
     params.common_params.comp_lvl << '\n' <<
     params.common_params.comp_algorithm << '\n' <<
     params.common_params.hw_buff_sz << '\n' <<
