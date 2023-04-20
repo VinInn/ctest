@@ -18,6 +18,7 @@ namespace {
   std::mutex coutLock;
   std::atomic<bool> sbar(true);
   std::atomic<int> tid(0);
+  std::atomic<bool> once(true);
 }
 
 
@@ -33,7 +34,7 @@ void doTest(int sw) {
    auto status = qzGetDefaultsLZ4(&params);
    assert(status>=0);
 
-   {
+   if (once){
     std::lock_guard<std::mutex> guard(coutLock);
     std::cout << "default lz4 params" << '\n' <<
 //    params.input_sz_thrshold << ' ' << QZ_COMP_THRESHOLD_DEFAULT << '\n' <<
@@ -45,6 +46,7 @@ void doTest(int sw) {
     params.common_params.max_forks << '\n' <<
     params.common_params.sw_backup << '\n' <<
     "END" << std::endl;
+    once=false;
     }
 
    params.common_params.sw_backup = sw;
@@ -60,9 +62,11 @@ void doTest(int sw) {
     assert(status>=0);
 
     uint32_t  orig_sz = 4 * 1024 * 1024;
-    uint8_t * orig_src = (uint8_t*)qzMalloc(orig_sz, 0, PINNED_MEM); // COMMON_MEM);
+    uint8_t * orig_src = (uint8_t*)qzMalloc(orig_sz, 0, COMMON_MEM); // PINNED_MEM); // COMMON_MEM);
+    uint8_t d=0;
+    for (uint32_t k=0; k<orig_sz; ++k) orig_src[k]=d++; 
     auto comp_sz = orig_sz;
-    uint8_t *  comp_src = (uint8_t*)qzMalloc(comp_sz, 0, PINNED_MEM); // COMMON_MEM); 
+    uint8_t *  comp_src = (uint8_t*)qzMalloc(comp_sz, 0, COMMON_MEM); // PINNED_MEM); // COMMON_MEM); 
    {
     std::lock_guard<std::mutex> guard(coutLock);
     std::cout << me << " src " << (void*)orig_src << ' ' << (void*)comp_src << std::endl;
@@ -80,15 +84,12 @@ void doTest(int sw) {
    auto rc = qzCompress(&sess, orig_src, &orig_sz, comp_src,
                         &comp_sz, 1);
    delta += (std::chrono::high_resolution_clock::now() - start);
-   if (rc !=QZ_OK) std::cout <<  me << " qzCompress failed" << rc << std::endl;
+   if (rc !=QZ_OK) std::cout <<  me << " qzCompress failed " << rc << std::endl;
    assert(rc == QZ_OK);
 
    if (pit) {
     std::lock_guard<std::mutex> guard(coutLock);
-
-     std::cout << me << " orig size " << orig_sz << std::endl;
-
-     std::cout << me << " comp size " << comp_sz << std::endl;
+    std::cout << me << " orig size " << orig_sz << " comp size " << comp_sz << std::endl;
    }
 
    decomp_sz = orig_sz;
@@ -96,13 +97,12 @@ void doTest(int sw) {
    rc = qzDecompress(&sess, comp_src, &comp_sz, decomp_src,
                      &decomp_sz);
    delta += (std::chrono::high_resolution_clock::now() - start);
-   if (rc !=QZ_OK) std::cout <<  me << " qzDecompress failed" << rc << std::endl;
+   if (rc !=QZ_OK) std::cout <<  me << " qzDecompress failed " << rc << std::endl;
 
    assert(rc == QZ_OK);
 
    if (pit) {
     std::lock_guard<std::mutex> guard(coutLock);
-
      std::cout << me << " decomp size " << decomp_sz << std::endl;
    }
 
@@ -135,10 +135,10 @@ int main() {
 
   std::cout << "\n\n\n" << std::endl;
 
-  int nt = 8;
+  int nt = 48;
 
 {
-  std::cout << "running test in 8 threads with sw-bk" << std::endl;
+  std::cout << "running test in " << nt <<" threads with sw-bk" << std::endl;
   sbar = true;
   tid = 0;
   std::vector<std::thread> ts;
@@ -150,7 +150,7 @@ int main() {
 
 std::cout << "\n\n\n" << std::endl;
 {
-  std::cout << "running test in 8 threads with NO sw-bk" << std::endl;
+  std::cout << "running test in " << nt <<" threads with NO sw-bk" << std::endl;
   sbar = true;
   tid = 0;
   std::vector<std::thread> ts;
