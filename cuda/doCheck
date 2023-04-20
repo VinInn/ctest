@@ -4,17 +4,18 @@ lscpu
 nvidia-smi
 echo  " "
 
-export CCAP=60
-export MPFR_DIR=/home/vin/mpfr
+export CCAP=70
+export MPFR_DIR=/afs/cern.ch/work/i/innocent/public/w5
+#/home/vin/mpfr
 # /cvmfs/cms.cern.ch/slc7_amd64_gcc11/external/gcc/11.2.1-f478fee2760dbd22aaabb4e3a8fe1640/lib
 for f in acos acosh asin asinh atan atanh cbrt cos cosh erf erfc exp exp10 exp2 expm1 j0 j1 log log10 log1p log2 sin sinh sqrt tan tanh y0 y1 lgamma tgamma; do
    rm -f ./a.out
-   nvcc -allow-unsupported-compiler -DSTR=$f check_exhaustive-555.cu --cudart shared -gencode arch=compute_$CCAP,code=sm_$CCAP -O3 -std=c++17 --compiler-options="-O3 -I$MPFR_DIR  -fopenmp" -L$MPFR_DIR -lmpfr -lgmp -lm
+   /usr/local/cuda-12.1/bin/nvcc -allow-unsupported-compiler -DSTR=$f check_exhaustive-555.cu --cudart shared -gencode arch=compute_$CCAP,code=sm_$CCAP -O3 -std=c++17 --compiler-options="-O3 -I$MPFR_DIR/include  -fopenmp" -L$MPFR_DIR/lib -lmpfr -lgmp -lm
    echo "checking " $f
    time ./a.out
 done
 rm -f ./a.out
-nvcc -allow-unsupported-compiler -DDO_SQRT -DSTR=sqrt check_exhaustive-555.cu --cudart shared -gencode arch=compute_$CCAP,code=sm_$CCAP -O3 -std=c++17 --compiler-options="-O3 -I$MPFR_DIR -fopenmp" -L$MPFR_DIR -lmpfr -lgmp -lm
+/usr/local/cuda-12.1/bin/nvcc -allow-unsupported-compiler -DDO_SQRT -DSTR=sqrt check_exhaustive-555.cu --cudart shared -gencode arch=compute_$CCAP,code=sm_$CCAP -O3 -std=c++17 --compiler-options="-O3 -I$MPFR_DIR/include -fopenmp" -L$MPFR_DIR/lib -lmpfr -lgmp -lm
 time ./a.out -rndn
 time ./a.out -rndz
 time ./a.out -rndd
