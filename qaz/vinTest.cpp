@@ -21,6 +21,7 @@ namespace {
   std::atomic<bool> once(true);
 }
 
+// #define USE_MALLOC
 
 void doTest(int sw) {
    int me = tid++;
@@ -49,6 +50,7 @@ void doTest(int sw) {
     once=false;
     }
 
+   params.common_params.comp_algorithm = QZ_LZ4;  // this is '4' not int(4)
    params.common_params.sw_backup = sw;
    params.common_params.comp_lvl = 5;
 
@@ -61,19 +63,32 @@ void doTest(int sw) {
     if (status<0)  std::cout << me << " SetupSessionLZ4 failed " << status << std::endl;
     assert(status>=0);
 
+#ifdef USE_MALLOC
     uint32_t  orig_sz = 4 * 1024 * 1024;
-    uint8_t * orig_src = (uint8_t*)qzMalloc(orig_sz, 0, COMMON_MEM); // PINNED_MEM); // COMMON_MEM);
+    uint8_t * orig_src = (uint8_t*)malloc(orig_sz);
     uint8_t d=0;
     for (uint32_t k=0; k<orig_sz; ++k) orig_src[k]=d++; 
     auto comp_sz = orig_sz;
-    uint8_t *  comp_src = (uint8_t*)qzMalloc(comp_sz, 0, COMMON_MEM); // PINNED_MEM); // COMMON_MEM); 
-   {
+    uint8_t *  comp_src = (uint8_t*)malloc(comp_sz);
+    auto decomp_sz = orig_sz;
+    uint8_t *  decomp_src = (uint8_t*)malloc(decomp_sz);
+#else
+    uint32_t  orig_sz = 4 * 1024 * 1024;
+    uint8_t * orig_src = (uint8_t*)qzMalloc(orig_sz, 0, COMMON_MEM); // PINNED_MEM); // COMMON_MEM);
+    uint8_t d=0;
+    for (uint32_t k=0; k<orig_sz; ++k) orig_src[k]=d++;
+    auto comp_sz = orig_sz;
+    uint8_t *  comp_src = (uint8_t*)qzMalloc(comp_sz, 0, COMMON_MEM); // PINNED_MEM); // COMMON_MEM);
+    auto decomp_sz = orig_sz;
+    uint8_t *  decomp_src = (uint8_t*)qzMalloc(decomp_sz, 0, COMMON_MEM); 
+#endif
+
+  {
     std::lock_guard<std::mutex> guard(coutLock);
     std::cout << me << " src " << (void*)orig_src << ' ' << (void*)comp_src << std::endl;
    }
 
-   auto decomp_sz = orig_sz;
-   uint8_t *  decomp_src = (uint8_t*)qzMalloc(decomp_sz, 0, COMMON_MEM);
+    for (uint32_t k=0; k<orig_sz; ++k) orig_src[k]=d++;
 
 
    for (int k=0; k<1000; ++k) { 
@@ -135,7 +150,7 @@ int main() {
 
   std::cout << "\n\n\n" << std::endl;
 
-  int nt = 48;
+  int nt = 8;
 
 {
   std::cout << "running test in " << nt <<" threads with sw-bk" << std::endl;
@@ -164,7 +179,7 @@ std::cout << "\n\n\n" << std::endl;
 
 std::cout << "\n\n\n" << std::endl;
 {
-  nt = 48;
+  nt = 8;
   std::cout << "running test in " << nt <<" threads with NO sw-bk" << std::endl;
   sbar = true;
   tid = 0;
