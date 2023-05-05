@@ -1,1 +1,1 @@
-c++ -O2 -Wall -pthread vinTest.cpp -L/usr/local/lib -lqat_s -lqatzip -lz
+c++ -O2 -Wall -pthread vinZSTD.cpp -L/usr/local/lib -lqat_s -lqatzip -lz
