@@ -1,0 +1,1 @@
+nvcc -I/cvmfs/cms-ib.cern.ch/sw/x86_64/nweek-02786/el8_amd64_gcc12/external/eigen/82dd3710dac619448f50331c1d6a35da673f764a-a265c39c534705ccfbcfdf86bff919ba/include/eigen3 simpleCholeskyTest.cu --expt-relaxed-constexpr -std=c++17 -O3 --source-in-ptx  -x cu -dc
