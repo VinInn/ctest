@@ -10,8 +10,6 @@ See <http://creativecommons.org/publicdomain/zero/1.0/>. */
 
 #include <cstdint>
 
-class SplitMix64 {
-
 /* This is a fixed-increment version of Java 8's SplittableRandom generator
    See http://dx.doi.org/10.1145/2714064.2660195 and 
    http://docs.oracle.com/javase/8/docs/api/java/util/SplittableRandom.html
@@ -23,7 +21,7 @@ private:
   uint64_t x; /* The state can be seeded with any value. */
 
 public: 
-  expliciti SplitMix64(uint64_t seed) : x(seed) {
+  explicit SplitMix64(uint64_t seed) : x(seed) {}
 
   uint64_t operator()() {return next();}
   
@@ -33,11 +31,11 @@ public:
     z = (z ^ (z >> 27)) * 0x94d049bb133111eb;
     return z ^ (z >> 31);
   }
-}
+};
 
-/* This is xoshiro256++ and xoshiro256** 1.0, one of our all-purpose, rock-solid generators.
+/* This is xoshiro256++ and xoshiro256** 1.0, two of Blackman&Vigna all-purpose, rock-solid generators.
    It has excellent (sub-ns) speed, a state (256 bits) that is large
-   enough for any parallel application, and it passes all tests we are
+   enough for any parallel application, and it passes all tests the authors are
    aware of.
 
    For generating just floating-point numbers, xoshiro256+ is even faster.
@@ -49,8 +47,32 @@ public:
 
 enum class XoshiroType { TwoSums, TwoMuls, OneSum};
 
+template <XoshiroType type> class Xoshiro;
+
+// xoshiro256++
+using XoshiroPP = Xoshiro<XoshiroType::TwoSums>;
+// xoshiro256**
+using XoshiroSS = Xoshiro<XoshiroType::TwoMuls>;
+// xoshiro256+
+using XoshiroP = Xoshiro<XoshiroType::OneSum>;
+
+
 template <XoshiroType type> 
 class Xoshiro {
+public:
+
+  explicit Xoshiro(uint64_t seed) {
+    SplitMix64 g(seed);
+    for ( auto & x : s) x=g();
+  }
+
+  uint64_t operator()() {
+    if constexpr (type==XoshiroType::TwoSums) return nextPP();
+    if constexpr (type==XoshiroType::TwoMuls) return nextSS();
+    if constexpr (type==XoshiroType::OneSum) return nextP();
+  }
+
+
 private: 
 
   uint64_t s[4];
@@ -73,18 +95,6 @@ private:
   } 
 
 public:
-
-  Xoshiro(uint64_t seed) {
-    SplitMix64 g(seed);
-    for ( auto & x : s) x=g();
-  }
-
-  uint64_t operator()() {
-    if constexpr (type==TwoSums) return nextPP();
-    if constexpr (type==TwoMuls) return nextSS();
-    if constexpr (type==OneSum) return nextP();
-  }
-
   // xoshiro256**
   uint64_t nextSS() {
     const uint64_t result = rotl(s[1] * 5, 7) * 9;
@@ -104,7 +114,7 @@ public:
     const uint64_t result = s[0] + s[3];
     advance();
     return result;
-}
+  }
 
 
 
@@ -112,7 +122,7 @@ public:
    to 2^128 calls to next(); it can be used to generate 2^128
    non-overlapping subsequences for parallel computations. */
   void jump(void) {
-    static const uint64_t JUMP[] = { 0x180ec6d33cfd0aba, 0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c };
+    static constexpr uint64_t JUMP[] = { 0x180ec6d33cfd0aba, 0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c };
 
     uint64_t s0 = 0;
     uint64_t s1 = 0;
@@ -140,7 +150,7 @@ public:
    from each of which jump() will generate 2^64 non-overlapping
    subsequences for parallel distributed computations. */
   void long_jump(void) {
-    static const uint64_t LONG_JUMP[] = { 0x76e15d3efefdcbbf, 0xc5004e441c522fb3, 0x77710069854ee241, 0x39109bb02acbe635 };
+    static constexpr uint64_t LONG_JUMP[] = { 0x76e15d3efefdcbbf, 0xc5004e441c522fb3, 0x77710069854ee241, 0x39109bb02acbe635 };
 
     uint64_t s0 = 0;
     uint64_t s1 = 0;
