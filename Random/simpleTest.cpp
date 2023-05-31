@@ -32,7 +32,7 @@ void doTest(Engine & engine)
   static_assert(0 == Engine::MinInt());
   static_assert(64 - Engine::kNumberOfBits ==  __builtin_clzll(Engine::MaxInt()));
 
-  std::cout << "testing engine " << engine.Name() << std::endl;
+  std::cout << "testing engine " << engine.Name() << ' ' << Engine::kNumberOfBits << std::endl;
   int N = 2 * 1000 * 1000;
   int64_t vr[64];
   for (int i = 0; i < 64; ++i)
@@ -89,6 +89,7 @@ int main()
    Random64Bits<ROOT::Math::StdEngine<std::mt19937>> rbstd32(stdtw32);
    Random64Bits<ROOT::Math::StdEngine<std::mt19937_64>> rbstd64(stdtw64);
    Random64Bits<ROOT::Math::StdEngine<__gnu_cxx::sfmt19937_64>>  rbstdV64(stdtwV64);
+   Random64Bits<ROOT::Math::StdEngine<XoshiroSS>> rbXori(xoshiross);
 
    doTest(lux);
    doTest(mtwist);
@@ -108,6 +109,7 @@ int main()
    doTest(rbstd32);
    doTest(rbstd64);
    doTest(rbstdV64);
+   doTest(rbXori);
 
    return 0;
 }

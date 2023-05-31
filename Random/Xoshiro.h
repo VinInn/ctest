@@ -9,6 +9,7 @@ See <http://creativecommons.org/publicdomain/zero/1.0/>. */
 // C++ Version by Vincenzo Innocente 2023
 
 #include <cstdint>
+#include<limits>
 
 /* This is a fixed-increment version of Java 8's SplittableRandom generator
    See http://dx.doi.org/10.1145/2714064.2660195 and 
@@ -22,8 +23,8 @@ private:
 
 public: 
   using result_type = uint64_t;
-  static constexpr uint64_t min() { return 0;}
-  static constexpr uint64_t max() { return ~0ULL;}
+  static constexpr uint64_t min() { return  std::numeric_limits<uint64_t>::min(); }
+  static constexpr uint64_t max() { return  std::numeric_limits<uint64_t>::max(); }
 
   explicit SplitMix64(uint64_t seed) : x(seed) {}
 
@@ -65,8 +66,8 @@ template <XoshiroType type>
 class Xoshiro {
 public:
   using result_type = uint64_t;
-  static constexpr uint64_t min() { return 0;}
-  static constexpr uint64_t max() { return ~0ULL;}
+  static constexpr uint64_t min() { return  std::numeric_limits<uint64_t>::min(); }
+  static constexpr uint64_t max() { return  std::numeric_limits<uint64_t>::max(); }
 
   explicit Xoshiro(uint64_t seed=0) {
     SplitMix64 g(seed);
