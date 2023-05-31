@@ -1,4 +1,10 @@
 #include <random>
+#include "Xoshiro.h"
+
+// using Generator = std::mt19937_64;
+using Generator = XoshiroPP;
+
+
 #include <iostream>
 #include <iomanip>
 #include <ios>
@@ -21,17 +27,17 @@ int main (int argc, char * argv[]) {
   };
   pp(0.f,0.f);
   pp(1./std::numeric_limits<uint32_t>::max(),0);
- pp(1./(1.+std::numeric_limits<uint32_t>::max()),0);
+   pp(1./(1.+std::numeric_limits<uint32_t>::max()),0);
   pp(0.f,0.25f);
   pp(0.f,0.5f);
   pp(0.f,1.f);
   pp(1.f,0.f);
   pp(1.f,1.f);
 
-  std::mt19937_64 gen0;
-  std::mt19937_64 gen1;
-  std::mt19937_64 gen2;
-  std::mt19937_64 gen3;
+  Generator gen0;
+  Generator gen1;
+  Generator gen2;
+  Generator gen3;
   std::cout << gen1() << ' ' << gen2()  << ' ' << gen3() << std::endl;
   {
   auto [q,w] = fastNormalPDF::from23(gen1());
@@ -143,10 +149,10 @@ int main (int argc, char * argv[]) {
   if (argc>1) N *= 1000LL;
   auto run = [&]() { 
     seed+=1;
-    std::mt19937_64 genA(seed);
-    std::mt19937_64 genB(seed);
-    std::mt19937_64 genC(seed);
-    std::mt19937_64 genD(seed);
+    Generator genA(seed);
+    Generator genB(seed);
+    Generator genC(seed);
+    Generator genD(seed);
     benchmark::Histo<200> lh1(0.,10.);
     benchmark::Histo<200> lh2(0.,10.);
     benchmark::Histo<200> lh3(0.,10.);

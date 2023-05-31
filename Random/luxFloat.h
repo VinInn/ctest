@@ -21,7 +21,7 @@ public:
   }
 private:
   Gen & gen;
-  uint32_t u32;
+  uint32_t u32=0;
   bool ready = false;
 };
 
