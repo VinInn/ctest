@@ -5,6 +5,7 @@
 #include "Math/MixMaxEngine.h"
 #include "Math/StdEngine.h"
 #include "Random64Bits.h"
+#include "Xoshiro.h"
 #include <random>
 #include <ext/random>
 
@@ -77,6 +78,7 @@ int main()
    ROOT::Math::StdEngine<std::mt19937> stdtw32;
    ROOT::Math::StdEngine<std::mt19937_64> stdtw64;
    ROOT::Math::StdEngine<__gnu_cxx::sfmt19937_64> stdtwV64;
+   ROOT::Math::StdEngine<XoshiroPP> xoshiropp;
 
    Random64Bits<ROOT::Math::RanluxppEngine2048> rbLux(lux);
    Random64Bits<ROOT::Math::MixMaxEngine<17,0>> rbmx(mmx17);
@@ -93,6 +95,7 @@ int main()
    doTest(stdtw32);
    doTest(stdtw64);
    doTest(stdtwV64);
+   doTest(xoshiropp);
 
    doTest(rbLux);
    doTest(rbmx);
