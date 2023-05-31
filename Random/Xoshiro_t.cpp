@@ -20,4 +20,9 @@ int main() {
    for (int i=0; i<8; i++) std::cout << g() << ' ';
    std::cout << std::endl;
  }
+ {
+   XoshiroSS g(0);
+   for (int i=0; i<8; i++) std::cout << g() << ' ';
+   std::cout << std::endl;
+ }
 }
