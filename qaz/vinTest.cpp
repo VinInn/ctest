@@ -83,16 +83,20 @@ void doTest(int sw) {
     uint8_t *  decomp_src = (uint8_t*)qzMalloc(decomp_sz, 0, COMMON_MEM); 
 #endif
 
+#ifdef VERBOSE
   {
     std::lock_guard<std::mutex> guard(coutLock);
     std::cout << me << " src " << (void*)orig_src << ' ' << (void*)comp_src << std::endl;
    }
+#endif
 
     for (uint32_t k=0; k<orig_sz; ++k) orig_src[k]=d++;
 
 
    for (int k=0; k<1000; ++k) { 
+#ifdef VERBOSE
    auto pit = k==0 || k==99;
+#endif
 
    comp_sz = orig_sz;
    delta -= (std::chrono::high_resolution_clock::now() - start);
@@ -102,10 +106,12 @@ void doTest(int sw) {
    if (rc !=QZ_OK) std::cout <<  me << " qzCompress failed " << rc << std::endl;
    assert(rc == QZ_OK);
 
+#ifdef VERBOSE
    if (pit) {
     std::lock_guard<std::mutex> guard(coutLock);
     std::cout << me << " orig size " << orig_sz << " comp size " << comp_sz << std::endl;
    }
+#endif
 
    decomp_sz = orig_sz;
    delta -= (std::chrono::high_resolution_clock::now() - start);
@@ -116,11 +122,12 @@ void doTest(int sw) {
 
    assert(rc == QZ_OK);
 
+#ifdef VERBOSE
    if (pit) {
     std::lock_guard<std::mutex> guard(coutLock);
      std::cout << me << " decomp size " << decomp_sz << std::endl;
    }
-
+#endif
 
    } // loop
 
@@ -148,10 +155,15 @@ int main() {
   std::cout << "running test once with NO sw-bk" << std::endl;
   doTest(0);
 
-  std::cout << "\n\n\n" << std::endl;
 
-  int nt = 8;
+#ifndef ONLY8
+int nTH[] = {4,8,16,32,54,112,224};
+#else
+int nTH[] = {8,8,8,8,8,8,8};
+#endif
 
+std::cout << "\n\n\n" << std::endl;
+for (auto nt : nTH) {
 {
   std::cout << "running test in " << nt <<" threads with sw-bk" << std::endl;
   sbar = true;
@@ -162,10 +174,11 @@ int main() {
   sbar = false;
   for (auto & t : ts) t.join();
 }
+}  // loop on nTH
 
 std::cout << "\n\n\n" << std::endl;
+for (auto nt : nTH) {
 {
-  nt = 4;
   std::cout << "running test in " << nt <<" threads with NO sw-bk" << std::endl;
   sbar = true;
   tid = 0;
@@ -176,19 +189,7 @@ std::cout << "\n\n\n" << std::endl;
   for (auto & t : ts) t.join();
 }
 
-
-std::cout << "\n\n\n" << std::endl;
-{
-  nt = 8;
-  std::cout << "running test in " << nt <<" threads with NO sw-bk" << std::endl;
-  sbar = true;
-  tid = 0;
-  std::vector<std::thread> ts;
-  for (int i=0; i<nt; ++i) ts.emplace_back(doTest,0);
-
-  sbar = false;
-  for (auto & t : ts) t.join();
-}
+}  // loop on nTH
 
   return 0;
 }
