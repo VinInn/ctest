@@ -78,7 +78,9 @@ int main()
    ROOT::Math::StdEngine<std::mt19937> stdtw32;
    ROOT::Math::StdEngine<std::mt19937_64> stdtw64;
    ROOT::Math::StdEngine<__gnu_cxx::sfmt19937_64> stdtwV64;
+   ROOT::Math::StdEngine<XoshiroSS> xoshiross;
    ROOT::Math::StdEngine<XoshiroPP> xoshiropp;
+   ROOT::Math::StdEngine<XoshiroP> xoshirop;
 
    Random64Bits<ROOT::Math::RanluxppEngine2048> rbLux(lux);
    Random64Bits<ROOT::Math::MixMaxEngine<17,0>> rbmx(mmx17);
@@ -95,7 +97,9 @@ int main()
    doTest(stdtw32);
    doTest(stdtw64);
    doTest(stdtwV64);
+   doTest(xoshiross);
    doTest(xoshiropp);
+   doTest(xoshirop);
 
    doTest(rbLux);
    doTest(rbmx);

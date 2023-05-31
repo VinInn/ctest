@@ -21,11 +21,11 @@ private:
   uint64_t x; /* The state can be seeded with any value. */
 
 public: 
-
+  using result_type = uint64_t;
   static constexpr uint64_t min() { return 0;}
-  static constexpr uint64_t max() { retun ~0ULL;}
+  static constexpr uint64_t max() { return ~0ULL;}
 
-  static explicit SplitMix64(uint64_t seed) : x(seed) {}
+  explicit SplitMix64(uint64_t seed) : x(seed) {}
 
   uint64_t operator()() {return next();}
   
@@ -64,11 +64,11 @@ using XoshiroP = Xoshiro<XoshiroType::OneSum>;
 template <XoshiroType type> 
 class Xoshiro {
 public:
-
+  using result_type = uint64_t;
   static constexpr uint64_t min() { return 0;}
-  static constexpr uint64_t max() { retun ~0ULL;}
+  static constexpr uint64_t max() { return ~0ULL;}
 
-  explicit Xoshiro(uint64_t seed) {
+  explicit Xoshiro(uint64_t seed=0) {
     SplitMix64 g(seed);
     for ( auto & x : s) x=g();
   }
