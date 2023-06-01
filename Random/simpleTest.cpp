@@ -11,6 +11,7 @@
 
 
 #include<string>
+#include<cstring>
 
 #include <iostream>
 #include <cassert>
@@ -24,6 +25,7 @@ void fillBits(int64_t * v, uint64_t x) {
     x >>= 1;
   }
 }
+
 
 template<typename Engine>
 void doTest(Engine & engine)
@@ -68,6 +70,35 @@ void doTest(Engine & engine)
 }
 
 
+#include <typeinfo>
+template<typename Engine>
+void doTestV(Engine & engine)
+{
+  
+  std::cout << "Testing vector engine "  << typeid(engine).name() << std::endl;
+  int N = 2 * 1000 * 1000;
+
+  auto gen = [&](uint64_t const*, uint64_t * r, int N) {
+    for (int i=0; i<N; i+=Engine::vector_size) {
+      auto x =  engine.next();
+      std::memcpy(r+i,&x,Engine::vector_size*sizeof(uint64_t));
+    }
+  };
+
+
+      benchmark::TimeIt bench;
+      // fill in batch of 256
+      uint64_t rv[256];
+      uint64_t dummy[1];
+      for (int i = 0; i < N; ++i) {
+           bench(gen, dummy, rv, 256);
+      }
+
+      std::cout << "duration " << bench.lap() << std::endl;
+
+
+}
+
 int main()
 {
 
@@ -81,6 +112,8 @@ int main()
    ROOT::Math::StdEngine<XoshiroSS> xoshiross;
    ROOT::Math::StdEngine<XoshiroPP> xoshiropp;
    ROOT::Math::StdEngine<XoshiroP> xoshirop;
+   ROOT::Math::StdEngine<Xoshiro<XoshiroType::TwoSums,uint64_t>> xoshirosc;
+   XoshiroPP xoshiroppV;
 
    Random64Bits<ROOT::Math::RanluxppEngine2048> rbLux(lux);
    Random64Bits<ROOT::Math::MixMaxEngine<17,0>> rbmx(mmx17);
@@ -101,6 +134,8 @@ int main()
    doTest(xoshiross);
    doTest(xoshiropp);
    doTest(xoshirop);
+   doTest(xoshirosc);
+   doTestV(xoshiroppV);
 
    doTest(rbLux);
    doTest(rbmx);
