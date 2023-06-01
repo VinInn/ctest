@@ -67,18 +67,13 @@ using XoshiroSS = Xoshiro<XoshiroType::TwoMuls,XoshiroVector>;
 // xoshiro256+
 using XoshiroP = Xoshiro<XoshiroType::OneSum,XoshiroVector>;
 
-  template<typename V, int S>
-  struct Store { V v; uint64_t operator[](int i){return v[i];}};
-  template<typename V> struct Store<V,1> { V v; uint64_t operator[](int){return v;}};
-
-
 template <XoshiroType type, typename V=XoshiroVector> 
 class Xoshiro {
 public:
 
   using vector_type = V;
   static constexpr int32_t vector_size = sizeof(vector_type)/sizeof(uint64_t);
-  using store_type = Store<vector_type,vector_size>;
+  using store_type = vector_type;
   using result_type = uint64_t;
   static constexpr uint64_t min() { return  std::numeric_limits<uint64_t>::min(); }
   static constexpr uint64_t max() { return  std::numeric_limits<uint64_t>::max(); }
@@ -93,13 +88,14 @@ public:
 
   uint64_t operator()() {
     if constexpr (1==vector_size) return next();
-    if (vector_size==m_n) {
-      m_res.v = next();
-      m_n=0;
+    else {
+      if (vector_size==m_n) {
+        m_res = next();
+        m_n=0;
+      }
+      return m_res[m_n++];
     }
-    return m_res[m_n++];
   }
-
 /*
   // gpu interface assume m_s is a SOA 
   uint64_t operator()(int i) {
