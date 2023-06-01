@@ -34,12 +34,12 @@ int main() {
    std::cout << std::endl;
  }
 
-/*
+
  {
   Xoshiro<XoshiroType::TwoSums,uint64_t> g(0);
    for (int i=0; i<8; i++) std::cout << g() << ' ';
    std::cout << std::endl;
  }
-*/
+
 
 }
