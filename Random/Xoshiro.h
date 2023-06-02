@@ -82,9 +82,14 @@ public:
 
   explicit Xoshiro(uint64_t seed=0) {
     SplitMix64 g(seed);
-    for ( auto & s : m_s) {
-      if constexpr (1==vector_size) s=g();
-      else for (int i=0; i<vector_size; ++i) s[i]=g();
+    if constexpr (1==vector_size) for ( auto & s : m_s) s=g();
+    else {
+       uint64_t ls[4]; for ( auto & s : ls) s=g();
+       for (int i=0; i<4; ++i) m_s[i][0] = ls[i];
+       for (int j=1; j<vector_size; ++j) {
+         jump(ls);
+         for (int i=0; i<4; ++i) m_s[i][j] = ls[i];
+       }
     }
   }
 
@@ -107,7 +112,7 @@ public:
 
 private: 
 
-  std::array<vector_type,4> m_s;
+  vector_type m_s[4];
 
   store_type m_res;
   int m_n=vector_size;
@@ -117,9 +122,8 @@ private:
     return (x << k) | (x >> (64 - k));
   }
 
-  void advance() {
-
-    auto & s = m_s;
+  template<typename T>
+  static constexpr void advance(T * s) {
 
     const auto t = s[1] << 17;
 
@@ -137,21 +141,21 @@ public:
   // xoshiro256**
   auto nextSS() {
     const auto result = rotl(m_s[1] * 5, 7) * 9;
-    advance();
+    advance(m_s);
     return result;
   }
 
   // xoshiro256++
   auto nextPP() {
     const auto result = rotl(m_s[0] + m_s[3], 23) + m_s[0];
-    advance();
+    advance(m_s);
     return result;
   }
 
   // xoshiro256+  fastest generator for floating-point numbers by extracting the upper 53 bits
   auto nextP() {
     const auto result = m_s[0] + m_s[3];
-    advance();
+    advance(m_s);
     return result;
   }
 
@@ -162,13 +166,13 @@ public:
   /* This is the jump function for the generator. It is equivalent
    to 2^128 calls to next(); it can be used to generate 2^128
    non-overlapping subsequences for parallel computations. */
-  void jump() {
-    auto & s = m_s;
-    vector_type s0 = 0;
-    vector_type s1 = 0;
-    vector_type s2 = 0;
-    vector_type s3 = 0;
-    for(int i = 0; i < sizeof JUMP / sizeof *JUMP; i++)
+  template<typename T>
+  static constexpr void jump(T * s) {
+    T s0 = 0;
+    T s1 = 0;
+    T s2 = 0;
+    T s3 = 0;
+    for(uint32_t i = 0; i < sizeof JUMP / sizeof *JUMP; i++)
         for(int b = 0; b < 64; b++) {
             if (JUMP[i] & UINT64_C(1) << b) {
                 s0 ^= s[0];
@@ -189,13 +193,13 @@ public:
    2^192 calls to next(); it can be used to generate 2^64 starting points,
    from each of which jump() will generate 2^64 non-overlapping
    subsequences for parallel distributed computations. */
-   void long_jump() {
-    auto & s = m_s;
-    vector_type s0 = 0;
-    vector_type s1 = 0;
-    vector_type s2 = 0;
-    vector_type s3 = 0;
-    for(int i = 0; i < sizeof LONG_JUMP / sizeof *LONG_JUMP; i++)
+   template<typename T>
+   static constexpr void long_jump(T * s) {
+    T s0 = 0;
+    T s1 = 0;
+    T s2 = 0;
+    T s3 = 0;
+    for(uint32_t i = 0; i < sizeof LONG_JUMP / sizeof *LONG_JUMP; i++)
         for(int b = 0; b < 64; b++) {
             if (LONG_JUMP[i] & UINT64_C(1) << b) {
                 s0 ^= s[0];
