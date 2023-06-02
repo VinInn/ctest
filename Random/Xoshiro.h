@@ -52,9 +52,11 @@ public:
    a 64-bit seed, we suggest to seed a splitmix64 generator and use its
    output to fill s. */
 
-
+#ifdef __AVX2__
 typedef uint64_t XoshiroVector __attribute__ ((vector_size (32)));
-
+#else
+typedef uint64_t XoshiroVector __attribute__ ((vector_size (16)));
+#endif
 
 enum class XoshiroType { TwoSums, TwoMuls, OneSum};
 
@@ -96,26 +98,16 @@ public:
       return m_res[m_n++];
     }
   }
-/*
-  // gpu interface assume m_s is a SOA 
-  uint64_t operator()(int i) {
-    uint64_t s[4];
-    for (int j=0; j<4; ++j) s[j] = m_s[j][i];
-    if constexpr (type==XoshiroType::TwoSums) return nextPP(s);
-    if constexpr (type==XoshiroType::TwoMuls) return nextSS(s);
-    if constexpr (type==XoshiroType::OneSum) return nextP(s);
-  }
-*/
 
   vector_type next() {
-    if constexpr (type==XoshiroType::TwoSums) return nextPP(m_s);
-    if constexpr (type==XoshiroType::TwoMuls) return nextSS(m_s);
-    if constexpr (type==XoshiroType::OneSum) return nextP(m_s);
+    if constexpr (type==XoshiroType::TwoSums) return nextPP();
+    if constexpr (type==XoshiroType::TwoMuls) return nextSS();
+    if constexpr (type==XoshiroType::OneSum) return nextP();
   }
 
 private: 
 
-  vector_type m_s[4];  // for cuda replace with home made struct...
+  std::array<vector_type,4> m_s;
 
   store_type m_res;
   int m_n=vector_size;
@@ -125,8 +117,10 @@ private:
     return (x << k) | (x >> (64 - k));
   }
 
-  template<typename T>
-  static constexpr void advance(T* s) {
+  void advance() {
+
+    auto & s = m_s;
+
     const auto t = s[1] << 17;
 
     s[2] ^= s[0];
@@ -141,26 +135,23 @@ private:
 
 public:
   // xoshiro256**
-  template<typename T>
-  static constexpr T nextSS(T*s) {
-    const auto result = rotl(s[1] * 5, 7) * 9;
-    advance(s);
+  auto nextSS() {
+    const auto result = rotl(m_s[1] * 5, 7) * 9;
+    advance();
     return result;
   }
 
   // xoshiro256++
-  template<typename T>
-  static constexpr T nextPP(T*s) {
-    const auto result = rotl(s[0] + s[3], 23) + s[0];
-    advance(s);
+  auto nextPP() {
+    const auto result = rotl(m_s[0] + m_s[3], 23) + m_s[0];
+    advance();
     return result;
   }
 
   // xoshiro256+  fastest generator for floating-point numbers by extracting the upper 53 bits
-  template<typename T>
-  static constexpr T nextP(T*s) {
-    const T result = s[0] + s[3];
-    advance(s);
+  auto nextP() {
+    const auto result = m_s[0] + m_s[3];
+    advance();
     return result;
   }
 
@@ -171,13 +162,12 @@ public:
   /* This is the jump function for the generator. It is equivalent
    to 2^128 calls to next(); it can be used to generate 2^128
    non-overlapping subsequences for parallel computations. */
-  template<typename T> 
-  static constexpr void jump(T*s) {
-
-    T s0 = 0;
-    T s1 = 0;
-    T s2 = 0;
-    T s3 = 0;
+  void jump() {
+    auto & s = m_s;
+    vector_type s0 = 0;
+    vector_type s1 = 0;
+    vector_type s2 = 0;
+    vector_type s3 = 0;
     for(int i = 0; i < sizeof JUMP / sizeof *JUMP; i++)
         for(int b = 0; b < 64; b++) {
             if (JUMP[i] & UINT64_C(1) << b) {
@@ -199,13 +189,12 @@ public:
    2^192 calls to next(); it can be used to generate 2^64 starting points,
    from each of which jump() will generate 2^64 non-overlapping
    subsequences for parallel distributed computations. */
-  template<typename T>
-  static constexpr void long_jump(T*s) {
-
-    T s0 = 0;
-    T s1 = 0;
-    T s2 = 0;
-    T s3 = 0;
+   void long_jump() {
+    auto & s = m_s;
+    vector_type s0 = 0;
+    vector_type s1 = 0;
+    vector_type s2 = 0;
+    vector_type s3 = 0;
     for(int i = 0; i < sizeof LONG_JUMP / sizeof *LONG_JUMP; i++)
         for(int b = 0; b < 64; b++) {
             if (LONG_JUMP[i] & UINT64_C(1) << b) {
