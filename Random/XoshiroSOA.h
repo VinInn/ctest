@@ -75,12 +75,11 @@ struct SOA {
 
 /* example of use
 __global__
- void g(SOA s, uint64_t * a, int n) {
+ void gen(SOA s, uint64_t * a, int n) {
      // assumption: SOA size < blockDim.x*GridDim.x; (aka the total number of threads)
      // this should ensure that only one thread is updating a given state at any time
      int tid = blockDim.x * blockIdx.x + threadIdx.x;
-     int first = threadIdx.x;
-     for (int i = first, i < nt; i += blockDim.x) {
+     for (int i = tid; i < n; i += blockDim.x) {
        a[i] = nextPP(s,tid);
 }
 */
