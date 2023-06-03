@@ -14,14 +14,14 @@ extern "C" {
 // This is the only part of the code that needs to change to switch to
 // a new gnerator.
 
-const char* gen_name = "XoshiroPP"; // TestU01 doesn't like colons!!?!
+const char* gen_name = "XoshiroPP jump"; // TestU01 doesn't like colons!!?!
 
 const int MAX_SEEDS = 1;
 uint64_t seed_data[MAX_SEEDS];
 
 uint64_t gen64()
 {
-    static XoshiroPP rng(seed_data[0]);
+    static XoshiroPP  rng(seed_data[0]);
 
     return rng();
 }

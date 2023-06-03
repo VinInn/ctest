@@ -1,4 +1,5 @@
 #include <qatzip.h>
+#include <zstd.h>
 
 #include <iostream>
 #include <cassert>
@@ -22,6 +23,25 @@ namespace {
 }
 
 // #define USE_MALLOC
+
+
+
+size_t zipZSTD(int cxlevel, int srcsize, uint8_t *src, uint32_t * tgtsize, uint8_t *tgt)
+{
+    using Ctx_ptr = std::unique_ptr<ZSTD_CCtx, decltype(&ZSTD_freeCCtx)>;
+    Ctx_ptr fCtx{ZSTD_createCCtx(), &ZSTD_freeCCtx};
+
+    size_t retval = ZSTD_compressCCtx(fCtx.get(),
+                                        tgt, static_cast<size_t>(*tgtsize),
+                                        src, static_cast<size_t>(srcsize),
+                                        2*cxlevel);
+     if (ZSTD_isError(retval)) {
+            std::cerr << "Error in zip ZSTD. Type = " << ZSTD_getErrorName(retval) <<
+            " . Code = " << retval << std::endl;
+     }
+    
+     return retval;
+}
 
 void doTest(int sw) {
    int me = tid++;
@@ -83,6 +103,18 @@ void doTest(int sw) {
     uint8_t *  decomp_src = (uint8_t*)qzMalloc(decomp_sz, 0, COMMON_MEM); 
 #endif
 
+    auto zstd_sz = orig_sz;
+    uint8_t *  zstd_comp = (uint8_t*)malloc(zstd_sz);
+    auto zstd_rc = zipZSTD(2, orig_sz, orig_src, &zstd_sz, zstd_comp);
+#ifdef VERBOSE
+//   if (pit) 
+    {
+    std::lock_guard<std::mutex> guard(coutLock);
+    std::cout << me << " orig size " << orig_sz << " zstd comp size " << zstd_rc << std::endl;
+     }
+#endif
+  free(zstd_comp); 
+
 #ifdef VERBOSE
   {
     std::lock_guard<std::mutex> guard(coutLock);
@@ -95,7 +127,7 @@ void doTest(int sw) {
 
    for (int k=0; k<1000; ++k) { 
 #ifdef VERBOSE
-   auto pit = k==0 || k==99;
+   auto pit = k==99;
 #endif
 
    comp_sz = orig_sz;
