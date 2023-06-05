@@ -92,7 +92,7 @@ void doTest(int sw) {
     uint8_t d=0;
     for (uint32_t k=0; k<orig_sz; ++k) 
        // orig_src[k]=d++;
-     {  orig_src[k]= d; d+=7; if (0==(k%16))  d+=5;}
+     {  orig_src[k]= d; d+=7; if (0==(k%16))  d+=131;}
 
 
 #ifdef VERBOSE
