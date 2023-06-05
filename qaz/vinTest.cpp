@@ -11,7 +11,7 @@
 #include<atomic>
 
 #include <chrono>
-using Clock = std::chrono::high_resolution_clock;
+using Clock = std::chrono::steady_clock;
 using Delta = Clock::duration;
 using Time = Clock::time_point;
 
@@ -22,32 +22,15 @@ namespace {
   std::atomic<bool> once(true);
 }
 
-// #define USE_MALLOC
-
-
-
-size_t zipZSTD(int cxlevel, int srcsize, uint8_t *src, uint32_t * tgtsize, uint8_t *tgt)
-{
-    using Ctx_ptr = std::unique_ptr<ZSTD_CCtx, decltype(&ZSTD_freeCCtx)>;
-    Ctx_ptr fCtx{ZSTD_createCCtx(), &ZSTD_freeCCtx};
-
-    size_t retval = ZSTD_compressCCtx(fCtx.get(),
-                                        tgt, static_cast<size_t>(*tgtsize),
-                                        src, static_cast<size_t>(srcsize),
-                                        2*cxlevel);
-     if (ZSTD_isError(retval)) {
-            std::cerr << "Error in zip ZSTD. Type = " << ZSTD_getErrorName(retval) <<
-            " . Code = " << retval << std::endl;
-     }
-    
-     return retval;
-}
+#ifdef USE_ZSTD
+#define USE_MALLOC
+#endif
 
 void doTest(int sw) {
    int me = tid++;
    while(sbar);
 
-   auto start = std::chrono::high_resolution_clock::now();
+   auto start = std::chrono::steady_clock::now();
    auto delta = start - start;
 
    QzSessionParamsLZ4_T params;
@@ -72,8 +55,14 @@ void doTest(int sw) {
 
    params.common_params.comp_algorithm = QZ_LZ4;  // this is '4' not int(4)
    params.common_params.sw_backup = sw;
-   params.common_params.comp_lvl = 5;
+   params.common_params.comp_lvl = 8;
 
+#ifdef USE_ZSTD
+    using Ctx_ptr = std::unique_ptr<ZSTD_CCtx, decltype(&ZSTD_freeCCtx)>;
+    Ctx_ptr fCtx{ZSTD_createCCtx(), &ZSTD_freeCCtx};
+    using Dtx_ptr = std::unique_ptr<ZSTD_DCtx, decltype(&ZSTD_freeDCtx)>;
+    Dtx_ptr fDtx{ZSTD_createDCtx(), &ZSTD_freeDCtx};
+#else
     QzSession_T sess = {0};
     status = qzInit(&sess,  params.common_params.sw_backup);
     if (status<0)  std::cout << me << " qzInit failed " << status << std::endl;
@@ -82,12 +71,11 @@ void doTest(int sw) {
     status = qzSetupSessionLZ4(&sess, &params);
     if (status<0)  std::cout << me << " SetupSessionLZ4 failed " << status << std::endl;
     assert(status>=0);
+#endif
 
 #ifdef USE_MALLOC
     uint32_t  orig_sz = 4 * 1024 * 1024;
     uint8_t * orig_src = (uint8_t*)malloc(orig_sz);
-    uint8_t d=0;
-    for (uint32_t k=0; k<orig_sz; ++k) orig_src[k]=d++; 
     auto comp_sz = orig_sz;
     uint8_t *  comp_src = (uint8_t*)malloc(comp_sz);
     auto decomp_sz = orig_sz;
@@ -95,25 +83,17 @@ void doTest(int sw) {
 #else
     uint32_t  orig_sz = 4 * 1024 * 1024;
     uint8_t * orig_src = (uint8_t*)qzMalloc(orig_sz, 0, COMMON_MEM); // PINNED_MEM); // COMMON_MEM);
-    uint8_t d=0;
-    for (uint32_t k=0; k<orig_sz; ++k) orig_src[k]=d++;
     auto comp_sz = orig_sz;
     uint8_t *  comp_src = (uint8_t*)qzMalloc(comp_sz, 0, COMMON_MEM); // PINNED_MEM); // COMMON_MEM);
     auto decomp_sz = orig_sz;
     uint8_t *  decomp_src = (uint8_t*)qzMalloc(decomp_sz, 0, COMMON_MEM); 
 #endif
 
-    auto zstd_sz = orig_sz;
-    uint8_t *  zstd_comp = (uint8_t*)malloc(zstd_sz);
-    auto zstd_rc = zipZSTD(2, orig_sz, orig_src, &zstd_sz, zstd_comp);
-#ifdef VERBOSE
-//   if (pit) 
-    {
-    std::lock_guard<std::mutex> guard(coutLock);
-    std::cout << me << " orig size " << orig_sz << " zstd comp size " << zstd_rc << std::endl;
-     }
-#endif
-  free(zstd_comp); 
+    uint8_t d=0;
+    for (uint32_t k=0; k<orig_sz; ++k) 
+       // orig_src[k]=d++;
+     {  orig_src[k]= d; d+=7; if (0==(k%16))  d+=5;}
+
 
 #ifdef VERBOSE
   {
@@ -131,12 +111,27 @@ void doTest(int sw) {
 #endif
 
    comp_sz = orig_sz;
-   delta -= (std::chrono::high_resolution_clock::now() - start);
+
+#ifdef USE_ZSTD
+   delta -= (std::chrono::steady_clock::now() - start);
+   auto rc = ZSTD_compressCCtx(fCtx.get(),
+                               comp_src,comp_sz,
+                               orig_src, orig_sz,
+                               1);
+   delta += (std::chrono::steady_clock::now() - start);
+     if (ZSTD_isError(rc)) {
+            std::cerr << "Error in zip ZSTD. Type = " << ZSTD_getErrorName(rc) <<
+            " . Code = " << rc << std::endl;
+     } else comp_sz =  rc;
+#else
+   delta -= (std::chrono::steady_clock::now() - start);
    auto rc = qzCompress(&sess, orig_src, &orig_sz, comp_src,
                         &comp_sz, 1);
-   delta += (std::chrono::high_resolution_clock::now() - start);
+   delta += (std::chrono::steady_clock::now() - start);
    if (rc !=QZ_OK) std::cout <<  me << " qzCompress failed " << rc << std::endl;
    assert(rc == QZ_OK);
+#endif
+
 
 #ifdef VERBOSE
    if (pit) {
@@ -146,13 +141,25 @@ void doTest(int sw) {
 #endif
 
    decomp_sz = orig_sz;
-   delta -= (std::chrono::high_resolution_clock::now() - start);
+
+#ifdef USE_ZSTD
+   delta -= (std::chrono::steady_clock::now() - start);
+   rc = ZSTD_decompressDCtx(fDtx.get(),
+                                 decomp_src, decomp_sz,
+                                 comp_src, comp_sz);
+   delta += (std::chrono::steady_clock::now() - start);
+   if (ZSTD_isError(rc)) {
+            std::cerr << "Error in zip ZSTD. Type = " << ZSTD_getErrorName(rc) <<
+            " . Code = " << rc << std::endl;
+   } else decomp_sz =  rc;
+#else
+   delta -= (std::chrono::steady_clock::now() - start);
    rc = qzDecompress(&sess, comp_src, &comp_sz, decomp_src,
                      &decomp_sz);
-   delta += (std::chrono::high_resolution_clock::now() - start);
+   delta += (std::chrono::steady_clock::now() - start);
    if (rc !=QZ_OK) std::cout <<  me << " qzDecompress failed " << rc << std::endl;
-
    assert(rc == QZ_OK);
+#endif
 
 #ifdef VERBOSE
    if (pit) {
@@ -168,12 +175,17 @@ void doTest(int sw) {
     std::cout << me << " duration " <<  std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() << std::endl;
  }
 
+#ifndef USE_ZSTD
     qzFree(orig_src);
     qzFree(comp_src);
     qzFree(decomp_src);
     qzTeardownSession(&sess);
     qzClose(&sess);
-
+#else
+    free(orig_src);
+    free(comp_src);
+    free(decomp_src);
+#endif
 }
 
 
@@ -203,8 +215,11 @@ for (auto nt : nTH) {
   std::vector<std::thread> ts;
   for (int i=0; i<nt; ++i) ts.emplace_back(doTest,1);
 
+  auto start = std::chrono::steady_clock::now();
   sbar = false;
   for (auto & t : ts) t.join();
+  auto delta =  std::chrono::steady_clock::now() -start;
+  std::cout << "total  duration " <<  std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() << std::endl;
 }
 }  // loop on nTH
 
@@ -217,8 +232,12 @@ for (auto nt : nTH) {
   std::vector<std::thread> ts;
   for (int i=0; i<nt; ++i) ts.emplace_back(doTest,0);
 
+  auto start = std::chrono::steady_clock::now();
   sbar = false;
   for (auto & t : ts) t.join();
+  auto delta =  std::chrono::steady_clock::now() -start;
+  std::cout << "total  duration " <<  std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() << std::endl;
+
 }
 
 }  // loop on nTH
