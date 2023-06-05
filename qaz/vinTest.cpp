@@ -102,8 +102,6 @@ void doTest(int sw) {
    }
 #endif
 
-    for (uint32_t k=0; k<orig_sz; ++k) orig_src[k]=d++;
-
 
    for (int k=0; k<1000; ++k) { 
 #ifdef VERBOSE
