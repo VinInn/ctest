@@ -7,10 +7,13 @@
 #include <cmath>
 #include <vector>
 
-int main() {
+int main(int argc, char** argv ) {
   std::cout << std::setprecision(9); // std::hexfloat;
 
    float mu = 12.5;
+   if (argc>1) mu = ::atof(argv[1]);
+   std::cout << "mu " << mu << std::endl;
+
    {
    std::cout << "float" << std::endl;
    std::vector<float> cumulative;   
