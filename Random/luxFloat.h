@@ -88,8 +88,17 @@ float fastFloat(uint64_t r) {
    FInt fi;
    fi.i = (r>>(64-N)) & m_mask;
    r &= b_mask;
-   int32_t exp = 126 - (r ? __builtin_clzll(r) : kSpare);
-   fi.i |= (exp <<23);
+/*
+   if constexpr (kSpare<=32) {
+     uint32_t s = r>>32;
+     int32_t exp = 126 - (s ? __builtin_clz(s) : kSpare);
+     fi.i |= (exp <<23);
+   } else{
+*/
+     int32_t exp = 126 - (r ? __builtin_clzll(r) : kSpare);
+     fi.i |= (exp <<23);
+//   }
+
    // stretch
    return norm*(fi.f-fmin);
 }
