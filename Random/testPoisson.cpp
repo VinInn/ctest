@@ -90,21 +90,23 @@ void go(float mu, bool wide) {
    N = 256*10000*N;
 
   std::cout << std::setprecision(3) << std::scientific;
-  std::cout << " mu " << mu << std::endl;
-  std::cout << "32 bits" << std::endl;
-  std::cout << "p32_"<<int(10*mu) <<" = [";
+  std::cout << "N = " << N << std::endl;
+  std::cout << "mu =" << mu << std::endl;
+  std::cout << "#32 bits" << std::endl;
+
+  std::cout << "p32 = np.array([";
   for (int i=0; i<40; ++i)  std::cout << h32[i] <<", ";
-  std::cout << "]" << std::endl;
+  std::cout << "])" << std::endl;
 
-  std::cout << "21 bits" << std::endl;
-    std::cout << "p21_"<<int(10*mu) <<" = [";
+  std::cout << "# 21 bits" << std::endl;
+    std::cout << "p21 = np.array([";
   for (int i=0; i<40; ++i)  std::cout << h21[i] <<", ";
-  std::cout << "]" << std::endl;
+  std::cout << "])" << std::endl;
 
-  std::cout << "16 bits" << std::endl;
-  std::cout << "p16_"<<int(10*mu) <<" = [";
+  std::cout << "# 16 bits" << std::endl;
+  std::cout << "p16 = np.array([";
   for (int i=0; i<40; ++i)  std::cout << h16[i] <<", ";
-  std::cout << "]" << std::endl;
+  std::cout << "])" << std::endl;
 
 
 }
