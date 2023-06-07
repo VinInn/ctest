@@ -31,6 +31,12 @@
    return den*float(u);
   }
 
+
+struct FakeGen {
+  uint64_t v;
+  auto operator()() { return v;}
+};
+
 #include "luxFloat.h"
 
 #include <iostream>
@@ -40,7 +46,20 @@ int main(int argc, char * argv[]) {
 
  std::cout << std::setprecision(9); // std::hexfloat;
 
+ FakeGen fgen;
+ std::cout << "n bits 21" << std::endl;
+ using G21 =  NBitsGen<21,FakeGen>;
+ G21  g21(fgen);
+ fgen.v = 1; fgen.v |= 2ULL<<21; fgen.v |= 3ULL<<42;
+ std::cout << G21::NBits << ' '
+           << G21::Shift << ' '
+           << G21::NChunks << ' '
+           <<  __builtin_popcount(G21::mask) << ' '
+           << std::endl;
+ std::cout << g21() << ' ' << g21() << ' ' << g21() << std::endl;
 
+
+  std::cout << "\n clz" << std::endl;
   std::cout << __builtin_clz(0UL) << std::endl;
   std::cout << __builtin_clzll(0ULL) << std::endl;
 

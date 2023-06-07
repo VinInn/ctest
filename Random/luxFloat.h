@@ -3,6 +3,39 @@
 #include<limits>
 #include<cstring>
 
+
+#pragma once
+
+#include<string>
+#include <cstdint>
+
+
+template<int N,typename Gen>
+class NBitsGen {
+public:
+
+   static constexpr uint32_t NBits = N;
+   static constexpr uint32_t Shift = NBits;
+   static constexpr int NChunks = 64/Shift;
+   static constexpr uint64_t mask = (1ULL<<Shift) -1;
+
+   NBitsGen(Gen& igen) : engine(igen){};
+
+   uint64_t operator()() {
+     if (0==n) {b = engine(); n=NChunks;}
+     uint64_t ret = b&mask;
+     b>>=Shift;
+     --n;
+     return ret;
+   }
+
+private:
+   Gen & engine;
+   uint64_t b=0; 
+   int n=0;
+};
+
+
 template<typename Gen>
 class  OneIntGen {
 public:

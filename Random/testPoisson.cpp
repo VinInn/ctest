@@ -1,11 +1,82 @@
 #include "FastPoissonPDF.h"
 
+
+#include <random>
+#include "Xoshiro.h"
+
+// using Generator = std::mt19937_64;
+using Generator = XoshiroPP;
+
+
 #include <iostream>
 #include <iomanip>
+#include <ios>
+
+#include <atomic>
+#include <thread>
+#include <mutex>
+
+
 #include <cstdint>
 #include <limits>
 #include <cmath>
 #include <vector>
+
+
+union UInt {
+  uint64_t i64;
+  uint32_t i32[2];
+  uint16_t i16[6];
+  uint16_t i8[16];
+}
+
+void go(float mu) {
+
+  std::mutex histoLock;
+  int h32[40];
+  int h21[40];
+  int h16[40];
+  for (int i=0; i<40; ++i)
+      h32[i]=h21[i]=h16[i]=0;
+
+  std::atomic<int> seed=0;;
+  std::atomic<long long> iter = 0;
+  int64_t N = 1000LL;
+  if (argc>1) N *= 1000LL;
+  auto run = [&]() {
+    seed+=1;
+    Generator gen(seed);
+    int lh32[40];
+    int lh21[40];
+    int lh16[40];
+    for (int i=0; i<40; ++i)
+      lh32[i]=lh21[i]=lh16[i]=0;
+    FastPoissonPDF<32> pdf32(mu);
+    FastPoissonPDF<21> pdf21(mu);
+    FastPoissonPDF<16> pdf16(mu);
+
+    while (iter++ < N) {
+    std::cout << '.';
+    for (int64_t k=0; k<10000; ++k) {
+     for (int64_t i=0; i<64; ++i){
+      UInt r1, r2;
+      auto r1.i64 = gen();
+      auto r2.i64 = gen();
+      lh32[std::clamp(0,40,pdf32(r1.i32[0])]++;
+      lh32[std::clamp(0,40,pdf32(r1.i32[1])]++;
+      lh32[std::clamp(0,40,pdf32(r2.i32[0])]++;
+      lh32[std::clamp(0,40,pdf32(r2.i32[1])]++;
+      for (j=0; j<4; ++j) 
+        lh16[std::clamp(0,40,pdf16(r1.i16[i])]++;
+     }
+    }
+    } // while
+    std::cout << std::endl;
+
+  };
+
+}
+
 
 int main(int argc, char** argv ) {
   std::cout << std::setprecision(9); // std::hexfloat;
