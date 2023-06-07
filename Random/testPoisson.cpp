@@ -3,6 +3,7 @@
 
 #include <random>
 #include "Xoshiro.h"
+#include "luxFloat.h"
 
 // using Generator = std::mt19937_64;
 using Generator = XoshiroPP;
@@ -23,14 +24,7 @@ using Generator = XoshiroPP;
 #include <vector>
 
 
-union UInt {
-  uint64_t i64;
-  uint32_t i32[2];
-  uint16_t i16[6];
-  uint16_t i8[16];
-}
-
-void go(float mu) {
+void go(float mu, bool wide) {
 
   std::mutex histoLock;
   int h32[40];
@@ -42,38 +36,76 @@ void go(float mu) {
   std::atomic<int> seed=0;;
   std::atomic<long long> iter = 0;
   int64_t N = 1000LL;
-  if (argc>1) N *= 1000LL;
+  if (wide) N *= 1000LL;
+
   auto run = [&]() {
+
     seed+=1;
     Generator gen(seed);
+    NBitsGen<32,Generator> gen32(gen);
+    NBitsGen<21,Generator> gen21(gen);
+    NBitsGen<16,Generator> gen16(gen);
+
     int lh32[40];
     int lh21[40];
     int lh16[40];
     for (int i=0; i<40; ++i)
       lh32[i]=lh21[i]=lh16[i]=0;
+
     FastPoissonPDF<32> pdf32(mu);
     FastPoissonPDF<21> pdf21(mu);
     FastPoissonPDF<16> pdf16(mu);
 
+    {
+      std::lock_guard<std::mutex> guard(histoLock);
+      std::cout << gen32() << ' ' << pdf32(gen32) << ' ' << std::clamp(pdf32(gen32),0,39) << std::endl;
+    }
+
+
     while (iter++ < N) {
     std::cout << '.';
     for (int64_t k=0; k<10000; ++k) {
-     for (int64_t i=0; i<64; ++i){
-      UInt r1, r2;
-      auto r1.i64 = gen();
-      auto r2.i64 = gen();
-      lh32[std::clamp(0,40,pdf32(r1.i32[0])]++;
-      lh32[std::clamp(0,40,pdf32(r1.i32[1])]++;
-      lh32[std::clamp(0,40,pdf32(r2.i32[0])]++;
-      lh32[std::clamp(0,40,pdf32(r2.i32[1])]++;
-      for (j=0; j<4; ++j) 
-        lh16[std::clamp(0,40,pdf16(r1.i16[i])]++;
+     for (int64_t i=0; i<256; ++i){
+      lh32[std::clamp(pdf32(gen32),0,39)]++;
+      lh21[std::clamp(pdf21(gen21),0,39)]++;
+      lh16[std::clamp(pdf16(gen16),0,39)]++;
      }
     }
     } // while
     std::cout << std::endl;
-
+    {
+     std::lock_guard<std::mutex> guard(histoLock);
+     for (int i=0; i<40; ++i) {
+       h32[i]+=lh32[i];
+       h21[i]+=lh21[i];
+       h16[i]+=lh16[i];
+     }
+    }
   };
+
+   std::vector<std::thread> th;
+   for (int i=0; i<112; i++) th.emplace_back(run);
+   for (auto & t:th) t.join();
+   std::cout << " tot iter " << iter << ' ' << 256*10000*N << std::endl;
+   N = 256*10000*N;
+
+  std::cout << std::setprecision(3) << std::scientific;
+  std::cout << " mu " << mu << std::endl;
+  std::cout << "32 bits" << std::endl;
+  std::cout << "p32_"<<int(10*mu) <<" = [";
+  for (int i=0; i<40; ++i)  std::cout << h32[i] <<", ";
+  std::cout << "]" << std::endl;
+
+  std::cout << "21 bits" << std::endl;
+    std::cout << "p21_"<<int(10*mu) <<" = [";
+  for (int i=0; i<40; ++i)  std::cout << h21[i] <<", ";
+  std::cout << "]" << std::endl;
+
+  std::cout << "16 bits" << std::endl;
+  std::cout << "p16_"<<int(10*mu) <<" = [";
+  for (int i=0; i<40; ++i)  std::cout << h16[i] <<", ";
+  std::cout << "]" << std::endl;
+
 
 }
 
@@ -170,6 +202,9 @@ int main(int argc, char** argv ) {
    for (auto v:pdf.cumulative()) std::cout << v << ' ' ;
    std::cout << std::endl;
    }
+
+
+   go(mu,argc>2);
 
 return 0;
 }

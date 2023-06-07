@@ -19,6 +19,9 @@ public:
    static constexpr int NChunks = 64/Shift;
    static constexpr uint64_t mask = (1ULL<<Shift) -1;
 
+   static constexpr uint64_t min() { return 0;}
+   static constexpr uint64_t max() { return mask;}
+
    NBitsGen(Gen& igen) : engine(igen){};
 
    uint64_t operator()() {

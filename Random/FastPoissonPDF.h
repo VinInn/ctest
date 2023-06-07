@@ -14,7 +14,10 @@ public:
   FastPoissonPDF(double mu) { reset(mu); }
 
   template<typename G>
-  int operator()(G& g) { return find(g()); }
+  int operator()(G& g) {
+    static_assert(G::max() == max); 
+    return find(g()); 
+  }
 
   void reset(double mu) {
     m_cumulative.clear();
