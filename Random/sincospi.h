@@ -41,6 +41,7 @@ std::tuple<float,float> f32_sincospi(float a)
   c  = f32_mulsign(c,sx);    s = fmaf(a,    S[0], s);
                              s = f32_mulsign(s,sy);
 
+  // will never vectorize
   // dst[q  ] = s;
   // dst[q^1] = c;
 
