@@ -9,24 +9,54 @@
 #include<string>
 #include <cstdint>
 
+template<int N>
+struct BitStorage{
+  static_assert(N<=8);
+  using type = uint64_t;
+};
+
+template<>
+struct BitStorage<4>{
+  using type = uint32_t;
+};
+
+template<>
+struct BitStorage<3>{
+  using type = uint32_t;
+};
+
+template<>
+struct BitStorage<2>{
+  using type = uint16_t;
+};
+template<>
+struct BitStorage<1>{
+  using type = uint8_t;
+};
 
 template<int N,typename Gen>
 class NBitsGen {
 public:
+
+   using return_type = typename BitStorage<1+(N-1)/8>::type;
 
    static constexpr uint32_t NBits = N;
    static constexpr uint32_t Shift = NBits;
    static constexpr int NChunks = 64/Shift;
    static constexpr uint64_t mask = (1ULL<<Shift) -1;
 
+   static_assert(N<=8*sizeof(return_type));
+
    static constexpr uint64_t min() { return 0;}
    static constexpr uint64_t max() { return mask;}
 
+   static_assert(max()<=std::numeric_limits<return_type>::max());
+
    NBitsGen(Gen& igen) : engine(igen){};
 
-   uint64_t operator()() {
+   return_type operator()() {
      if (0==n) {b = engine(); n=NChunks;}
-     uint64_t ret = b&mask;
+     return_type ret = b&mask;
      b>>=Shift;
      --n;
      return ret;

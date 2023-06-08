@@ -47,7 +47,7 @@ int main(int argc, char * argv[]) {
  std::cout << std::setprecision(9); // std::hexfloat;
 
  FakeGen fgen;
- std::cout << "n bits 21" << std::endl;
+ std::cout << "n-bits = 21" << std::endl;
  using G21 =  NBitsGen<21,FakeGen>;
  G21  g21(fgen);
  fgen.v = 1; fgen.v |= 2ULL<<21; fgen.v |= 3ULL<<42;
@@ -55,8 +55,22 @@ int main(int argc, char * argv[]) {
            << G21::Shift << ' '
            << G21::NChunks << ' '
            <<  __builtin_popcount(G21::mask) << ' '
+           << sizeof(G21::return_type) << ' '
            << std::endl;
  std::cout << g21() << ' ' << g21() << ' ' << g21() << std::endl;
+
+
+std::cout << "n-bits = 32" << std::endl;
+ using G32 =  NBitsGen<32,FakeGen>;
+ G32  g32(fgen);
+ fgen.v = 1; fgen.v |= 2ULL<<32; fgen.v |= 3ULL<<42;
+ std::cout << G32::NBits << ' '
+           << G32::Shift << ' '
+           << G32::NChunks << ' '
+           <<  __builtin_popcount(G32::mask) << ' '
+           << sizeof(G32::return_type) << ' '
+           << std::endl;
+ std::cout << g32() << ' ' << g32() << ' ' << g32() << std::endl;
 
 
   std::cout << "\n clz" << std::endl;

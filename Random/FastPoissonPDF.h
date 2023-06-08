@@ -1,15 +1,21 @@
 #pragma once
 
+#include "luxFloat.h"
+
 #include<cstdint>
 #include<cmath>
 #include<algorithm>
 #include<vector>
+
 
 template<int NBITS=32> 
 class FastPoissonPDF {
 public:
   static_assert(NBITS<=32);
   constexpr static uint64_t max = (1ULL<<NBITS) -1ULL;
+
+  using StorageType = typename BitStorage<1+(NBITS-1)/8>::type;
+  static_assert(max<=std::numeric_limits<StorageType>::max());
 
   FastPoissonPDF(double mu) { reset(mu); }
 
@@ -44,7 +50,7 @@ public:
   auto const & cumulative() const { return m_cumulative; }
 
 private:
-  std::vector<uint32_t> m_cumulative;
+  std::vector<StorageType> m_cumulative;
 
 };
 
