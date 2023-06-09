@@ -22,6 +22,7 @@ using Generator = XoshiroPP;
 #include <limits>
 #include <cmath>
 #include <vector>
+#include<chrono>
 
 
 void go(float mu, bool wide) {
@@ -33,6 +34,13 @@ void go(float mu, bool wide) {
   int h16[40];
   for (int i=0; i<40; ++i)
       hK[i]=h32[i]=h21[i]=h16[i]=0;
+
+  auto start = std::chrono::high_resolution_clock::now();
+  auto dkt = start -start;
+  auto d32t = start -start;
+  auto d21t = start -start;
+  auto d16t = start -start;
+
 
   std::atomic<int> seed=0;;
   std::atomic<long long> iter = 0;
@@ -65,21 +73,39 @@ void go(float mu, bool wide) {
       std::cout << gen32() << ' ' << pdf32(gen32) << ' ' << std::clamp(pdf32(gen32),0,39) << std::endl;
     }
     */
-
+    auto dk = start -start;
+    auto d32 = start -start;
+    auto d21 = start -start;    
+    auto d16 = start -start;
     while (iter++ < N) {
     std::cout << '.';
     for (int64_t k=0; k<10000; ++k) {
-     for (int64_t i=0; i<256; ++i){
+     auto ak = std::chrono::high_resolution_clock::now();
+     for (int64_t i=0; i<256; ++i)
       lhK[std::clamp(knuth(gen32),0,39)]++;
+     auto a32 = std::chrono::high_resolution_clock::now();
+     for (int64_t i=0; i<256; ++i)
       lh32[std::clamp(pdf32(gen32),0,39)]++;
+     auto a21 = std::chrono::high_resolution_clock::now();
+     for (int64_t i=0; i<256; ++i)
       lh21[std::clamp(pdf21(gen21),0,39)]++;
+     auto a16 = std::chrono::high_resolution_clock::now();
+     for (int64_t i=0; i<256; ++i)
       lh16[std::clamp(pdf16(gen16),0,39)]++;
-     }
+     auto end = std::chrono::high_resolution_clock::now();
+     dk += a32-ak;
+     d32 += a21-a32;
+     d21 += a16-a21;
+     d16 += end-a16;
     }
     } // while
     std::cout << std::endl;
     {
      std::lock_guard<std::mutex> guard(histoLock);
+     dkt +=dk;
+     d32t +=d32;
+     d21t +=d21;
+     d16t +=d16;
      for (int i=0; i<40; ++i) {
        hK[i]+=lhK[i];
        h32[i]+=lh32[i];
@@ -90,7 +116,7 @@ void go(float mu, bool wide) {
   };
 
    std::vector<std::thread> th;
-   for (int i=0; i<112; i++) th.emplace_back(run);
+   for (int i=0; i<8; i++) th.emplace_back(run);
    for (auto & t:th) t.join();
    std::cout << " tot iter " << iter << ' ' << 256*10000*N << std::endl;
    N = 256*10000*N;
@@ -99,22 +125,22 @@ void go(float mu, bool wide) {
   std::cout << "N = " << N << std::endl;
   std::cout << "mu =" << mu << std::endl;
 
-  std::cout << "#Knuth" << std::endl;
+  std::cout << "#Knuth " << std::chrono::duration_cast<std::chrono::milliseconds>(dkt).count() << std::endl;
   std::cout << "knuth = np.array([";
   for (int i=0; i<40; ++i)  std::cout << hK[i] <<", ";
   std::cout << "])" << std::endl;
 
-  std::cout << "#32 bits" << std::endl;
+  std::cout << "#32 bits " << std::chrono::duration_cast<std::chrono::milliseconds>(d32t).count()<< std::endl;
   std::cout << "p32 = np.array([";
   for (int i=0; i<40; ++i)  std::cout << h32[i] <<", ";
   std::cout << "])" << std::endl;
 
-  std::cout << "# 21 bits" << std::endl;
+  std::cout << "# 21 bits " << std::chrono::duration_cast<std::chrono::milliseconds>(d21t).count()<< std::endl;
     std::cout << "p21 = np.array([";
   for (int i=0; i<40; ++i)  std::cout << h21[i] <<", ";
   std::cout << "])" << std::endl;
 
-  std::cout << "# 16 bits" << std::endl;
+  std::cout << "# 16 bits " << std::chrono::duration_cast<std::chrono::milliseconds>(d16t).count()<< std::endl;
   std::cout << "p16 = np.array([";
   for (int i=0; i<40; ++i)  std::cout << h16[i] <<", ";
   std::cout << "])" << std::endl;
