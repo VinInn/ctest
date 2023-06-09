@@ -1,9 +1,10 @@
 #pragma once
 
-#include "luxloat.h"
+#include "luxFloat.h"
 
 #include "approx_exp.h"
 
+#include<random>
 #include<cstdint>
 #include<cmath>
 #include<algorithm>
@@ -12,25 +13,36 @@
 
 
 /// standard Knuth Algorithm
-template<typename G, typename F>
+template<typename G>
 inline
-int knuthPoissonFromExp(float expmu, G & gen, F & f) {
+int knuthPoissonFromExp(float expmu, G & gen) {
   auto cut = expmu;
   int ret = -1;
   float x = 1.f;
   do {
-    x*= f(eng());
+    x*= std::generate_canonical<float,32>(gen);
     ++ret;
   } while (x>cut);
   return ret;
 }
-template<typename G, typename F>
+
+template<typename G>
 inline
-int knuthPoisson(float mu, G & gen, F & f) {
+int knuthPoisson(float mu, G & gen) {
   auto cut = unsafe_expf<6>(-mu);
-  return knuthPoissonFromExp(cut,gen,f);
+  return knuthPoissonFromExp(cut,gen);
 }
 
+class KnuthPoisson {
+public:
+KnuthPoisson(float mu) : cut(unsafe_expf<6>(-mu)){}
+template<typename G>
+  int operator()(G & gen) {
+    return knuthPoissonFromExp(cut,gen);
+  } 
+private:
+  float cut;
+};
 
 // CHLEP approximation
 //

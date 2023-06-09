@@ -27,11 +27,12 @@ using Generator = XoshiroPP;
 void go(float mu, bool wide) {
 
   std::mutex histoLock;
+  int hK[40];
   int h32[40];
   int h21[40];
   int h16[40];
   for (int i=0; i<40; ++i)
-      h32[i]=h21[i]=h16[i]=0;
+      hK[i]=h32[i]=h21[i]=h16[i]=0;
 
   std::atomic<int> seed=0;;
   std::atomic<long long> iter = 0;
@@ -46,26 +47,30 @@ void go(float mu, bool wide) {
     NBitsGen<21,Generator> gen21(gen);
     NBitsGen<16,Generator> gen16(gen);
 
+    int lhK[40];
     int lh32[40];
     int lh21[40];
     int lh16[40];
     for (int i=0; i<40; ++i)
-      lh32[i]=lh21[i]=lh16[i]=0;
+      lhK[i]=lh32[i]=lh21[i]=lh16[i]=0;
 
+    KnuthPoisson knuth(mu);
     FastPoissonPDF<32> pdf32(mu);
     FastPoissonPDF<21> pdf21(mu);
     FastPoissonPDF<16> pdf16(mu);
 
+    /*
     {
       std::lock_guard<std::mutex> guard(histoLock);
       std::cout << gen32() << ' ' << pdf32(gen32) << ' ' << std::clamp(pdf32(gen32),0,39) << std::endl;
     }
-
+    */
 
     while (iter++ < N) {
     std::cout << '.';
     for (int64_t k=0; k<10000; ++k) {
      for (int64_t i=0; i<256; ++i){
+      lhK[std::clamp(knuth(gen32),0,39)]++;
       lh32[std::clamp(pdf32(gen32),0,39)]++;
       lh21[std::clamp(pdf21(gen21),0,39)]++;
       lh16[std::clamp(pdf16(gen16),0,39)]++;
@@ -76,6 +81,7 @@ void go(float mu, bool wide) {
     {
      std::lock_guard<std::mutex> guard(histoLock);
      for (int i=0; i<40; ++i) {
+       hK[i]+=lhK[i];
        h32[i]+=lh32[i];
        h21[i]+=lh21[i];
        h16[i]+=lh16[i];
@@ -92,8 +98,13 @@ void go(float mu, bool wide) {
   std::cout << std::setprecision(3) << std::scientific;
   std::cout << "N = " << N << std::endl;
   std::cout << "mu =" << mu << std::endl;
-  std::cout << "#32 bits" << std::endl;
 
+  std::cout << "#Knuth" << std::endl;
+  std::cout << "knuth = np.array([";
+  for (int i=0; i<40; ++i)  std::cout << hK[i] <<", ";
+  std::cout << "])" << std::endl;
+
+  std::cout << "#32 bits" << std::endl;
   std::cout << "p32 = np.array([";
   for (int i=0; i<40; ++i)  std::cout << h32[i] <<", ";
   std::cout << "])" << std::endl;

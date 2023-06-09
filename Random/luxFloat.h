@@ -44,6 +44,7 @@ public:
    static constexpr uint32_t Shift = NBits;
    static constexpr int NChunks = 64/Shift;
    static constexpr uint64_t mask = (1ULL<<Shift) -1;
+   static constexpr float den = 1./(mask+1);
 
    static_assert(N<=8*sizeof(return_type));
 
@@ -72,6 +73,11 @@ private:
 template<typename Gen>
 class  OneIntGen {
 public:
+
+  using return_type = uint32_t;
+  static constexpr uint32_t min() { return 0;}
+  static constexpr uint32_t max() { return std::numeric_limits<return_type>::max();}
+
   OneIntGen (Gen& igen) : gen(igen){};
 
   uint32_t operator()() {
@@ -85,6 +91,7 @@ public:
     ready = true;
     return x >> 32;
   }
+
 private:
   Gen & gen;
   uint32_t u32=0;
