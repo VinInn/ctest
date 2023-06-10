@@ -14,9 +14,9 @@ for deg from 2 to 8 do begin
   print("#endif") >> filename;
 end;
 
-s5=fpminimax(sin(pi*x), [|1,3,5|],   [|24...|], [0;1/4], floating, relative);
-s7=fpminimax(sin(pi*x), [|1,3,5,7|],   [|24...|], [0;1/4], floating, relative);
-c=fpminimax(cos(pi*x), [|0,2,4,6|], [|24...|], [0;1/4], floating, absolute);
+s5=fpminimax(sin(pi*x), [|1,3,5|], [|23...|], [0;1/4], floating, relative);
+s7=fpminimax(sin(pi*x), [|1,3,5,7|],[|23...|], [0;1/4], floating, relative);
+c=fpminimax(cos(pi*x), [|0,2,4,6|], [|1,23...|], [0;1/4], floating, relative);
 display=decimal;
 acc=floor(-log2(sup(supnorm(s5, sin(pi*x), [0;1/4], absolute, 2^(-40)))));
 print( "sin 5 absolute accuracy is ",  acc, "bits" );
