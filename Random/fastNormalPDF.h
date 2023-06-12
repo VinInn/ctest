@@ -46,15 +46,18 @@ inline  std::tuple<float, float> from32(uint64_t r) {
 }
 
 inline  std::tuple<float, float> fromMix(uint64_t r) {
-  using namespace approx_math;
-  binary32 fi;
-  fi.ui32 = r & 0x007FFFFF;
-  fi.ui32 |= 0x3F800000;  // extract mantissa as an FP number
-  auto y = fi.f - 1.f;
-  r >>= 23;  // 41 bits left
-  constexpr float den = 1./(1ULL<<41);
+  uint32_t v = r & 0x007FFFFF;
+  auto y= f32_from_bits((126<<23)|v)-0.75f;  //[-0.25,0.25[
+  auto [s,c] =  sincospi0(y);
+  uint32_t cs =  r & (1<<23);  // cos sign
+  cs  = cs<<8;  // move to position 31
+  c = f32_from_bits(cs|f32_to_bits(c));
+  uint32_t sw = r &1<<24;  // switch
+  r >>= 25;  // 39 bits left
+  constexpr float den = 1./(1ULL<<39);
   auto x = den *float(r);
-  return fromFloat(x,y);
+  float u = std::sqrt(-2.f * unsafe_logf<6>(x));
+  return {u * ( sw ? c : s) , u * ( sw ? s : c)};
 }
 
 

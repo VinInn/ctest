@@ -29,10 +29,10 @@ std::tuple<float,float> sincospi0(float x) {
 //  auto c =  1.f + z * (-4.93479156494140625f + z * (4.057690143585205078125f + z * (-1.30715453624725341796875f))) ;
 
 
-return sin, cos for a 4x angle
+//return sin, cos for a 4x angle
 template<typename Float>
-inline sinCosX4(Float & s, Float & c) {
-  auto ls = s; lc = c;
+inline void sinCosX4(Float & s, Float & c) {
+  auto ls = s; auto lc = c;
 
   // use poly expansion
   // http://mathworld.wolfram.com/Multiple-AngleFormulas.html
@@ -45,6 +45,7 @@ inline sinCosX4(Float & s, Float & c) {
   c = 1.f-ss*(8.f-8.f*ss);
 
 }
+
 
 // valid only in -1 < x < 1
 template<typename Float>
