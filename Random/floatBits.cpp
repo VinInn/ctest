@@ -1,5 +1,7 @@
 #include<cstdint>
 #include<limits>
+#include<cstring>
+
     union DInt {
       double d;
       uint64_t l;
@@ -23,6 +25,9 @@
      fi.i = (126-u)<<23;
      return fi.f;     
   }
+
+  inline uint32_t f32_to_bits(float x)   { uint32_t u; memcpy(&u,&x,4); return u; }
+  inline float f32_from_bits(uint32_t x) { float u;    memcpy(&u,&x,4); return u; }
 
 
   inline float norm(uint32_t u) {
@@ -80,9 +85,17 @@ std::cout << "n-bits = 32" << std::endl;
   std::cout << __builtin_clz(1UL<<22) << std::endl;
   std::cout << __builtin_clzll(1ULL<<52) << std::endl;
 
+
+  std::cout << "\n u->f" << std::endl;
   std::cout << "2^0-1 " << toExp(0) << std::endl;
   std::cout << "2^-1-1 " << toExp(1) << std::endl;
   std::cout << "2^-23-1 " << toExp(23) << std::endl;
+  std::cout << tof(0) << std::endl;
+  std::cout << tof((1<<23)-1) << std::endl;
+  std::cout << "0.5 " << f32_from_bits(126<<23) << std::endl;
+  std::cout << "1-e " << f32_from_bits((126<<23)|((1<<23)-1)) << std::endl;
+  std::cout << "-0.25 " << f32_from_bits(126<<23)-0.75f << std::endl;
+  std::cout << "0.25 " << f32_from_bits((126<<23)|((1<<23)-1))-0.75f << std::endl;
 
   std::cout << "ff23 " << fastFloat<23>(1ULL<<(64-22))  << ' ' << npower2(23-23) << std::endl;
   std::cout << "ff24 " << fastFloat<24>(1ULL<<(64-24))  << ' ' << npower2(24-23) << std::endl;

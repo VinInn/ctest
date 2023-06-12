@@ -13,7 +13,7 @@ namespace fastNormalPDF {
 inline std::tuple<float, float> fromFloat(float x, float y) {
   // unsafe_log is very safe here as it cannot return neither Nan nor -inf
   float u = std::sqrt(-2.f * unsafe_logf<6>(x));
-  auto [s, c] = simpleSinCosPi(2.f * y -1.f);   // f32_sincospi(2.f * y);
+  auto [s, c] = f32_sincospi(2.f * y);
   return {u * c, u * s};
 }
 
