@@ -178,7 +178,7 @@ int main (int argc, char * argv[]) {
       lh2(std::abs(f2[i]));
       lh3(std::abs(f3[i]));
       lh4(std::abs(f4[i]));
-      lh4(f4[i]);
+      lh(f4[i]);
       lav[0] +=f1[i];
       lav[1] +=f2[i];
       lav[2] +=f3[i];
