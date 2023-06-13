@@ -138,6 +138,7 @@ int main (int argc, char * argv[]) {
   benchmark::Histo<200> h2(0.,10.);
   benchmark::Histo<200> h3(0.,10.);
   benchmark::Histo<200> h4(0.,10.);
+  benchmark::Histo<200> h(-10.,10.);
   float mn[4] = {2.,2.,2.,2.};
   float mx[4] = {-2.,-2.,-2.,2.};
   double av[4]={0,0,0,0};
@@ -157,6 +158,7 @@ int main (int argc, char * argv[]) {
     benchmark::Histo<200> lh2(0.,10.);
     benchmark::Histo<200> lh3(0.,10.);
     benchmark::Histo<200> lh4(0.,10.);
+    benchmark::Histo<200> lh(-10.,10.);
     float lmn[4] = {2.,2.,2.,2.};
     float lmx[4] = {-2.,-2.,-2.,-2.};
     double lav[4]={0,0,0,0};
@@ -176,6 +178,7 @@ int main (int argc, char * argv[]) {
       lh2(std::abs(f2[i]));
       lh3(std::abs(f3[i]));
       lh4(std::abs(f4[i]));
+      lh4(f4[i]);
       lav[0] +=f1[i];
       lav[1] +=f2[i];
       lav[2] +=f3[i];
@@ -199,6 +202,7 @@ int main (int argc, char * argv[]) {
      h2.add(lh2);
      h3.add(lh3);
      h4.add(lh4);
+     h.add(lh);
      for (int i=0; i<4; ++i) {
       av[i]+=lav[i];
       mn[i] = std::min(lmn[i],mn[i]);
@@ -230,6 +234,6 @@ int main (int argc, char * argv[]) {
   h3.printData(std::cout);
   std::cout << "Mix" << std::endl;
   h4.printData(std::cout);
-
+  h.printAll(gauss,std::cout);
   return 0;
 }

@@ -96,6 +96,7 @@ std::cout << "n-bits = 32" << std::endl;
   std::cout << "1-e " << f32_from_bits((126<<23)|((1<<23)-1)) << std::endl;
   std::cout << "-0.25 " << f32_from_bits(126<<23)-0.75f << std::endl;
   std::cout << "0.25 " << f32_from_bits((126<<23)|((1<<23)-1))-0.75f << std::endl;
+  std::cout << "0.00 " << f32_from_bits((126<<23)|((1<<22)-1))-0.75f << std::endl;
 
   std::cout << "ff23 " << fastFloat<23>(1ULL<<(64-22))  << ' ' << npower2(23-23) << std::endl;
   std::cout << "ff24 " << fastFloat<24>(1ULL<<(64-24))  << ' ' << npower2(24-23) << std::endl;
