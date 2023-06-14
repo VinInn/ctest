@@ -158,6 +158,31 @@ int main (int argc, char * argv[]) {
    }
 
 
+ {
+
+       xoshiroRNG::SOA<16> soa;
+      for ( auto & v : soa.v) v = (uint64_t*)malloc(soa.size*sizeof(uint64_t));
+       xoshiroRNG::setSeed(soa,0);
+      auto fgen = [&](uint32_t const * __restrict__ dummy, float *__restrict__ out, int N) {
+           auto f = [&](int i, uint64_t r) { auto [x,y] = fastNormalPDF::fromMix(r); out[i] = x; out[N/2+i]=y;};
+           xoshiroRNG::loop<XoshiroType::TwoSums>(soa, f, N/2);
+      };
+
+      std::cout << "test Mix SOA" << std::endl;
+      int N = 10 * 1000 * 1000;
+      benchmark::TimeIt bench;
+      // fill in batch of 256
+      float rv[256];
+      uint32_t dummy[1];
+      for (int i = 0; i < N; ++i) {
+        bench(fgen, dummy, rv, 256);
+      }
+
+      std::cout << "duration " << bench.lap() << std::endl;
+
+   }
+
+
   {
 
       auto fgen = [&](uint32_t const * __restrict__ dummy, float *__restrict__ out, int N) {
