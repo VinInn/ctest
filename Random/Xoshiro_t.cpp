@@ -54,4 +54,15 @@ int main() {
  }
 
 
+ { 
+  xoshiroRNG::SOA soa;
+  soa.size = 16;
+  for ( auto & v : soa.v) v = (uint64_t*)malloc(soa.size*sizeof(uint64_t));
+  xoshiroRNG::setSeed(soa,0);
+  auto f = [](int, uint64_t r) { std::cout << r << ' ';};
+  xoshiroRNG::loop<XoshiroType::TwoSums>(soa, f, 8);
+  std::cout << std::endl;
+ }
+
+ return 0;
 }
