@@ -45,6 +45,7 @@ inline  std::tuple<float, float> from32(uint64_t r) {
   return fromFloat(x,y);
 }
 
+
 inline  std::tuple<float, float> fromMix(uint64_t r) {
   uint32_t v = r & 0x007FFFFF;
   auto y= f32_from_bits((126<<23)|v)-0.75f;  //[-0.25,0.25[

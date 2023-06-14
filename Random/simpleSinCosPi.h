@@ -14,13 +14,14 @@ display=hexadecimal;
 print("   float s = ", horner(s) , ";");
 print("   float c = ", horner(c) , ";");
 */
+template<typename Float>
 inline 
-std::tuple<float,float> sincospi0(float x) {
+std::tuple<Float,Float> sincospi0(Float x) {
   auto z = x * x;
   //  sin absolute accuracy is  27 bits
-  float s =  x * (0x1.921fb4p1f + z * (-0x1.4abb7p2f + z * (0x1.464ca8p1f + z * (-0x1.2b0b88p-1f)))) ;
+  Float s =  x * (0x1.921fb4p1f + z * (-0x1.4abb7p2f + z * (0x1.464ca8p1f + z * (-0x1.2b0b88p-1f)))) ;
   // cos absolute accuracy is  24 bits
-  float c =  0x1p0f + z * (-0x1.3bd39cp2f + z * (0x1.03b068p2f + z * (-0x1.4e7de8p0f))) ;
+  Float c =  0x1p0f + z * (-0x1.3bd39cp2f + z * (0x1.03b068p2f + z * (-0x1.4e7de8p0f))) ;
   return {s,c};
 }
 

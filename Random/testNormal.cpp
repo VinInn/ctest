@@ -34,11 +34,12 @@ int main (int argc, char * argv[]) {
   pp(1.f,0.f);
   pp(1.f,1.f);
 
+  std::mt19937_64  mt64;
   Generator gen0;
   Generator gen1;
   Generator gen2;
   Generator gen3;
-  std::cout << gen1() << ' ' << gen2()  << ' ' << gen3() << std::endl;
+  std::cout << mt64() << ' ' << gen1() << ' ' << gen2()  << ' ' << gen3() << std::endl;
   {
   auto [q,w] = fastNormalPDF::from23(gen1());
   std::cout << q << ' ' << w << std::endl;
@@ -46,9 +47,53 @@ int main (int argc, char * argv[]) {
   auto [q,w] = fastNormalPDF::from32(gen2());
   std::cout << q << ' ' << w << std::endl;
   }{
+  {auto [q,w] = fastNormalPDF::fromMix(gen3());
+  std::cout << q << ' ' << w << ' ';}{
   auto [q,w] = fastNormalPDF::fromMix(gen3());
-  std::cout << q << ' ' << w << std::endl;
+  std::cout << q << ' ' << w << std::endl;}
+
   }
+
+  {
+      std::normal_distribution<double> d(0.,1.);
+      auto fgen = [&](uint32_t const * __restrict__ dummy, float *__restrict__ out, int N) {
+          for (int i=0; i<N; ++i) out[i] = d(mt64);
+      };
+
+      std::cout << "test std double" << std::endl;
+      int N = 10 * 1000 * 1000;
+      benchmark::TimeIt bench;
+      // fill in batch of 256
+      float rv[256];
+      uint32_t dummy[1];
+      for (int i = 0; i < N; ++i) {
+        bench(fgen, dummy, rv, 256);
+      }
+
+      std::cout << "duration " << bench.lap() << std::endl;
+
+   }
+
+
+  {
+      std::normal_distribution<float> d(0.,1.);
+      auto fgen = [&](uint32_t const * __restrict__ dummy, float *__restrict__ out, int N) {
+          for (int i=0; i<N; ++i) out[i] = d(mt64); 
+      };
+
+      std::cout << "test std float" << std::endl;
+      int N = 10 * 1000 * 1000;
+      benchmark::TimeIt bench;
+      // fill in batch of 256
+      float rv[256];
+      uint32_t dummy[1];
+      for (int i = 0; i < N; ++i) {
+        bench(fgen, dummy, rv, 256);
+      }
+
+      std::cout << "duration " << bench.lap() << std::endl;
+
+   }
 
 
   {
@@ -133,6 +178,7 @@ int main (int argc, char * argv[]) {
 
    }
 
+  if (argc>3) return 0;
 
   benchmark::Histo<200> h1(0.,10.);
   benchmark::Histo<200> h2(0.,10.);
