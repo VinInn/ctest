@@ -55,8 +55,7 @@ int main() {
 
 
  { 
-  xoshiroRNG::SOA soa;
-  soa.size = 16;
+  xoshiroRNG::SOA<16> soa;
   for ( auto & v : soa.v) v = (uint64_t*)malloc(soa.size*sizeof(uint64_t));
   xoshiroRNG::setSeed(soa,0);
   auto f = [](int, uint64_t r) { std::cout << r << ' ';};

@@ -121,13 +121,16 @@ namespace xoshiroRNG {
   }
 
 
+template<int N>
 struct SOA {
   constexpr uint64_t * operator[](int i) { return v[i];}
   constexpr uint64_t const * operator[](int i) const { return v[i];}
   uint64_t* v[4];
-  int size;
+  static constexpr int size = N;
 };
 
+
+template<typename SOA>
 constexpr void advance(SOA & s, int i) {
 
     const auto t = s[1][i] << 17;
@@ -142,31 +145,35 @@ constexpr void advance(SOA & s, int i) {
     s[3][i] = rotl(s[3][i], 45);
 }
 
+template<typename SOA>
 constexpr auto nextSS(SOA & s, int i) {
     const auto result = rotl(s[1][i] * 5, 7) * 9;
     advance(s,i);
     return result;
 }
 
+template<typename SOA>
 constexpr auto nextPP(SOA & s, int i) {
     const auto result = rotl(s[0][i] + s[3][i], 23) + s[0][i];
     advance(s,i);
     return result;
 }
 
+template<typename SOA>
 constexpr auto nextP(SOA & s, int i) {
     const auto result = s[0][i] + s[3][i];
     advance(s,i);
     return result;
   }
 
-template<XoshiroType type>
+template<XoshiroType type, typename SOA>
 constexpr auto next(SOA & s, int i) {
    if constexpr (type==XoshiroType::TwoSums) return nextPP(s,i);
    if constexpr (type==XoshiroType::TwoMuls) return nextSS(s,i);
    if constexpr (type==XoshiroType::OneSum) return nextP(s,i);
 }
 
+template<typename SOA>
 void setSeed(SOA & s, uint64_t seed=0) {
  SplitMix64 g(seed);
  uint64_t ls[4]; for ( auto & s : ls) s=g();
@@ -177,7 +184,7 @@ void setSeed(SOA & s, uint64_t seed=0) {
   }
 }
 
-template<XoshiroType RNG,typename F>
+template<XoshiroType RNG, typename SOA, typename F>
 void loop(SOA soa, F & f, int n) {
   auto ni = n/soa.size;
   int j=0;
