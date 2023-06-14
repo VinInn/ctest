@@ -46,19 +46,21 @@ inline  std::tuple<float, float> from32(uint64_t r) {
 }
 
 
-inline  std::tuple<float, float> fromMix(uint64_t r) {
-  uint32_t v = r & 0x007FFFFF;
+inline  std::tuple<float, float> fromMix(uint64_t r64) {
+  uint32_t r32 = r64 & 0xFFFFFFFF;
+  uint32_t v = r32 & 0x007FFFFF;
   auto y= f32_from_bits((126<<23)|v)-0.75f;  //[-0.25,0.25[
   auto [s,c] =  sincospi0(y);
-  uint32_t cs =  r & (1<<23);  // cos sign
+  uint32_t cs =  r32 & (1<<23);  // cos sign
   cs  = cs<<8;  // move to position 31
   c = f32_from_bits(cs|f32_to_bits(c));
-  uint32_t sw = r &1<<24;  // switch
-  r >>= 25;  // 39 bits left
+  uint32_t sw = r32 & (1<<24);  // switch
+  r64 >>= 25;  // 39 bits left
   constexpr float den = 1./(1ULL<<39);
-  auto x = den *float(r);
+  auto x = den *float(r64);
   float u = std::sqrt(-2.f * unsafe_logf<6>(x));
-  return {u * ( sw ? c : s) , u * ( sw ? s : c)};
+  c*=u; s*=u;
+  return {sw ? c : s, sw ? s : c};
 }
 
 
