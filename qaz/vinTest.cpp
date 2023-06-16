@@ -60,7 +60,6 @@ void doTest(int sw) {
 #ifdef USE_ZSTD
     using Ctx_ptr = std::unique_ptr<ZSTD_CCtx, decltype(&ZSTD_freeCCtx)>;
     Ctx_ptr fCtx{ZSTD_createCCtx(), &ZSTD_freeCCtx};
-    ZSTD_CCtx_setParameter(fCtx.get(),ZSTD_c_compressionLevel,1);
     using Dtx_ptr = std::unique_ptr<ZSTD_DCtx, decltype(&ZSTD_freeDCtx)>;
     Dtx_ptr fDtx{ZSTD_createDCtx(), &ZSTD_freeDCtx};
 #ifdef USE_PLUGIN
@@ -73,7 +72,9 @@ void doTest(int sw) {
         qatSequenceProducer
     );
     /* Enable sequence producer fallback */
-    ZSTD_CCtx_setParameter(fCtx.get(), ZSTD_c_enableSeqProducerFallback, 1);
+    if (sw) ZSTD_CCtx_setParameter(fCtx.get(), ZSTD_c_enableSeqProducerFallback, 1);
+#else
+    ZSTD_CCtx_setParameter(fCtx.get(),ZSTD_c_compressionLevel,1);
 #endif
 #else
     QzSession_T sess = {0};
