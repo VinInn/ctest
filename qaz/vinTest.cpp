@@ -1,4 +1,5 @@
 #include <qatzip.h>
+#include "qatseqprod.h"
 #include <zstd.h>
 
 #include <iostream>
@@ -50,7 +51,6 @@ void doTest(int sw) {
     params.common_params.max_forks << '\n' <<
     params.common_params.sw_backup << '\n' <<
     "END" << std::endl;
-    once=false;
     }
 
    params.common_params.comp_algorithm = QZ_LZ4;  // this is '4' not int(4)
@@ -60,8 +60,24 @@ void doTest(int sw) {
 #ifdef USE_ZSTD
     using Ctx_ptr = std::unique_ptr<ZSTD_CCtx, decltype(&ZSTD_freeCCtx)>;
     Ctx_ptr fCtx{ZSTD_createCCtx(), &ZSTD_freeCCtx};
+    ZSTD_CCtx_setParameter(fCtx.get(),ZSTD_c_compressionLevel,1);
     using Dtx_ptr = std::unique_ptr<ZSTD_DCtx, decltype(&ZSTD_freeDCtx)>;
     Dtx_ptr fDtx{ZSTD_createDCtx(), &ZSTD_freeDCtx};
+#ifdef USE_PUGIN
+   /* Start QAT device, start QAT device at any
+    time before compression job started */
+    QZSTD_startQatDevice();
+    /* Create sequence producer state for QAT sequence producer */
+    void *sequenceProducerState = QZSTD_createSeqProdState();
+    /* register qatSequenceProducer */
+    ZSTD_registerSequenceProducer(
+        fCtx.get(),
+        sequenceProducerState,
+        qatSequenceProducer
+    );
+    /* Enable sequence producer fallback */
+    ZSTD_CCtx_setParameter(fCtx.get(), ZSTD_c_enableSeqProducerFallback, 1);
+#endif
 #else
     QzSession_T sess = {0};
     status = qzInit(&sess,  params.common_params.sw_backup);
@@ -112,10 +128,9 @@ void doTest(int sw) {
 
 #ifdef USE_ZSTD
    delta -= (std::chrono::steady_clock::now() - start);
-   auto rc = ZSTD_compressCCtx(fCtx.get(),
+   auto rc = ZSTD_compress2(fCtx.get(),
                                comp_src,comp_sz,
-                               orig_src, orig_sz,
-                               1);
+                               orig_src, orig_sz);
    delta += (std::chrono::steady_clock::now() - start);
      if (ZSTD_isError(rc)) {
             std::cerr << "Error in zip ZSTD. Type = " << ZSTD_getErrorName(rc) <<
@@ -133,28 +148,39 @@ void doTest(int sw) {
 
 #ifdef VERBOSE
    if (pit) {
+#else
+   if (once) {
+#endif
+    once = false;
     std::lock_guard<std::mutex> guard(coutLock);
     std::cout << me << " orig size " << orig_sz << " comp size " << comp_sz << std::endl;
    }
-#endif
 
    decomp_sz = orig_sz;
 
 #ifdef USE_ZSTD
+#ifndef COMPRESS_ONLY
    delta -= (std::chrono::steady_clock::now() - start);
+#endif
    rc = ZSTD_decompressDCtx(fDtx.get(),
                                  decomp_src, decomp_sz,
                                  comp_src, comp_sz);
+#ifndef COMPRESS_ONLY
    delta += (std::chrono::steady_clock::now() - start);
+#endif
    if (ZSTD_isError(rc)) {
             std::cerr << "Error in zip ZSTD. Type = " << ZSTD_getErrorName(rc) <<
             " . Code = " << rc << std::endl;
    } else decomp_sz =  rc;
 #else
+#ifndef COMPRESS_ONLY
    delta -= (std::chrono::steady_clock::now() - start);
+#endif
    rc = qzDecompress(&sess, comp_src, &comp_sz, decomp_src,
                      &decomp_sz);
+#ifndef COMPRESS_ONLY
    delta += (std::chrono::steady_clock::now() - start);
+#endif
    if (rc !=QZ_OK) std::cout <<  me << " qzDecompress failed " << rc << std::endl;
    assert(rc == QZ_OK);
 #endif
@@ -183,11 +209,28 @@ void doTest(int sw) {
     free(orig_src);
     free(comp_src);
     free(decomp_src);
+#ifdef USE_PUGIN
+    /* Free sequence producer state */
+    QZSTD_freeSeqProdState(sequenceProducerState);
+    /* Please call QZSTD_stopQatDevice before
+    QAT is no longer used or the process exits */
+    QZSTD_stopQatDevice();
+#endif
 #endif
 }
 
 
 int main() {
+
+#ifdef USE_ZSTD
+  std::cout << "using zstd" << std::endl;
+#endif
+#ifdef USE_PLUGIN
+  std::cout << "using qaz plugin" << std::endl;
+#endif
+#ifdef COMPRESS_ONLY
+  std::cout << "timing conpression only" << std::endl;
+#endif
 
   sbar = false;
   std::cout << "running test once with sw-bk" << std::endl;
