@@ -63,7 +63,7 @@ void doTest(int sw) {
     ZSTD_CCtx_setParameter(fCtx.get(),ZSTD_c_compressionLevel,1);
     using Dtx_ptr = std::unique_ptr<ZSTD_DCtx, decltype(&ZSTD_freeDCtx)>;
     Dtx_ptr fDtx{ZSTD_createDCtx(), &ZSTD_freeDCtx};
-#ifdef USE_PUGIN
+#ifdef USE_PLUGIN
    /* Start QAT device, start QAT device at any
     time before compression job started */
     QZSTD_startQatDevice();
@@ -209,7 +209,7 @@ void doTest(int sw) {
     free(orig_src);
     free(comp_src);
     free(decomp_src);
-#ifdef USE_PUGIN
+#ifdef USE_PLUGIN
     /* Free sequence producer state */
     QZSTD_freeSeqProdState(sequenceProducerState);
     /* Please call QZSTD_stopQatDevice before

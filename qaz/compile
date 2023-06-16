@@ -1,2 +1,2 @@
 #c++ -O2 -Wall -pthread vinTest.cpp -L/usr/local/lib -lqat_s -lqatzip -lz  -lzstd
-c++ -O2 -Wall -pthread vinTest.cpp -L/usr/local/lib -lqat_s -lqatzip -lz -lzstd -DCOMPRESS_ONLY -I/data/innocent/qatdriver/quickassist/include/ -I/data/innocent/qatdriver/quickassist/lookaside/access_layer/include -I/data/innocent/qatdriver/quickassist/include/dc -lqatseqprod -DUSE_ZSTD -DUSE_PLUGIN -DCOMPRESSION_ONLY
+c++ -O2 -Wall -pthread vinTest.cpp -L/usr/local/lib -lqat_s -lqatzip -lz -lzstd -DCOMPRESS_ONLY -I/data/innocent/qatdriver/quickassist/include/ -I/data/innocent/qatdriver/quickassist/lookaside/access_layer/include -I/data/innocent/qatdriver/quickassist/include/dc -lqatseqprod -DUSE_ZSTD -DUSE_PLUGIN
