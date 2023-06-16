@@ -64,9 +64,6 @@ void doTest(int sw) {
     using Dtx_ptr = std::unique_ptr<ZSTD_DCtx, decltype(&ZSTD_freeDCtx)>;
     Dtx_ptr fDtx{ZSTD_createDCtx(), &ZSTD_freeDCtx};
 #ifdef USE_PLUGIN
-   /* Start QAT device, start QAT device at any
-    time before compression job started */
-    QZSTD_startQatDevice();
     /* Create sequence producer state for QAT sequence producer */
     void *sequenceProducerState = QZSTD_createSeqProdState();
     /* register qatSequenceProducer */
@@ -212,9 +209,6 @@ void doTest(int sw) {
 #ifdef USE_PLUGIN
     /* Free sequence producer state */
     QZSTD_freeSeqProdState(sequenceProducerState);
-    /* Please call QZSTD_stopQatDevice before
-    QAT is no longer used or the process exits */
-    QZSTD_stopQatDevice();
 #endif
 #endif
 }
@@ -227,6 +221,9 @@ int main() {
 #endif
 #ifdef USE_PLUGIN
   std::cout << "using qaz plugin" << std::endl;
+   /* Start QAT device, start QAT device at any
+    time before compression job started */
+    QZSTD_startQatDevice();
 #endif
 #ifdef COMPRESS_ONLY
   std::cout << "timing conpression only" << std::endl;
@@ -283,6 +280,11 @@ for (auto nt : nTH) {
 
 }  // loop on nTH
 
+#ifdef USE_PLUGIN
+    /* Please call QZSTD_stopQatDevice before
+    QAT is no longer used or the process exits */
+    QZSTD_stopQatDevice();
+#endif
   return 0;
 }
 
