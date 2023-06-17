@@ -56,11 +56,20 @@ void doTest(int sw) {
     uint8_t *  comp_src = (uint8_t*)malloc(comp_sz);
     auto decomp_sz = orig_sz;
     uint8_t *  decomp_src = (uint8_t*)malloc(decomp_sz);
-    
     std::mt19937_64 gen;
+        
     uint64_t * src64 = (uint64_t *)orig_src;
     for (uint32_t k=0; k<orig_sz/sizeof(uint64_t); ++k) src64[k] =k;
-    /*;
+    
+    /*
+    float * f = (float*)orig_src;
+    float pi = M_PI;
+    f[0] = pi;
+    for (uint32_t k=1; k<orig_sz/sizeof(float); ++k)  
+    //f[k]=pi*std::generate_canonical<float,32>(gen);
+     { f[k]+=float((k%121)+1); if (f[k]==f[k-1]) f[k] = -pi; }
+    */
+    /*
     uint8_t d=0;
     for (uint32_t k=0; k<orig_sz; ++k) 
        // orig_src[k]=d++;
