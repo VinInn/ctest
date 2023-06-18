@@ -83,7 +83,7 @@ void doTest(int sw, int shift=8) {
    }
 #endif
 
-
+   bool err=true; bool err2 = false;
    for (int k=0; k<1000; ++k) { 
 #ifdef VERBOSE
    auto pit = k==99;
@@ -96,9 +96,10 @@ void doTest(int sw, int shift=8) {
                                comp_src,comp_sz,
                                orig_src, orig_sz);
    delta += (std::chrono::steady_clock::now() - start);
-     if (ZSTD_isError(rc)) {
+     if (ZSTD_isError(rc) && err) {
             std::cerr << "Error in zip ZSTD. Type = " << ZSTD_getErrorName(rc) <<
             " . Code = " << rc << std::endl;
+       err = false;
      } else comp_sz =  rc;
 
 #ifdef VERBOSE
@@ -108,7 +109,7 @@ void doTest(int sw, int shift=8) {
 #endif
     once = false;
     std::lock_guard<std::mutex> guard(coutLock);
-    std::cout << me << " orig size " << orig_sz << " comp size " << comp_sz << std::endl;
+    std::cout << me << " orig size " << orig_sz << " comp size " << comp_sz << " ratio "  << double(comp_sz)/double(orig_sz) << std::endl;
    }
 
    decomp_sz = orig_sz;
@@ -122,9 +123,10 @@ void doTest(int sw, int shift=8) {
 #ifndef COMPRESS_ONLY
    delta += (std::chrono::steady_clock::now() - start);
 #endif
-   if (ZSTD_isError(rc)) {
-            std::cerr << "Error in zip ZSTD. Type = " << ZSTD_getErrorName(rc) <<
+   if (ZSTD_isError(rc) && err2 ) {
+            std::cerr << "Error in unzip ZSTD. Type = " << ZSTD_getErrorName(rc) <<
             " . Code = " << rc << std::endl;
+     err2=false;
    } else decomp_sz =  rc;
 
 #ifdef VERBOSE
@@ -164,13 +166,18 @@ int main() {
 #endif
 
   sbar = false;
-  std::cout << "running test once with sw-bk" << std::endl;
-  doTest(1,16);
 
-  std::cout << "\n\n\n" << std::endl;
-  std::cout << "running test once with NO sw-bk" << std::endl;
-  doTest(0,16);
+  for (int shift=0; shift<32; shift+=4) {
+    once=true;
+    std::cout << "running test with sw-bk " << shift << std::endl;
+    doTest(1,shift);
+    once=true;
+    std::cout << "running test with NO sw-bk " << shift << std::endl;
+    doTest(0,shift);
+  }
 
+ std::cout << "\n" << std::endl;
+ std::cout << "\n" << std::endl;
 
 #ifndef ONLY8
 int nTH[] = {4,8,16,32,54,112,224};
