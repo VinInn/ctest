@@ -25,7 +25,7 @@ namespace {
 }
 
 
-void doTest(int sw) {
+void doTest(int sw, int shift=8) {
    int me = tid++;
    while(sbar);
 
@@ -56,10 +56,10 @@ void doTest(int sw) {
     uint8_t *  comp_src = (uint8_t*)malloc(comp_sz);
     auto decomp_sz = orig_sz;
     uint8_t *  decomp_src = (uint8_t*)malloc(decomp_sz);
-    std::mt19937_64 gen;
+    std::mt19937 gen;
         
-    uint64_t * src64 = (uint64_t *)orig_src;
-    for (uint32_t k=0; k<orig_sz/sizeof(uint64_t); ++k) src64[k] =k;
+    uint32_t * src32 = (uint32_t *)orig_src;
+    for (uint32_t k=0; k<orig_sz/sizeof(uint32_t); ++k) src32[k] = gen() << shift;
     
     /*
     float * f = (float*)orig_src;
@@ -165,11 +165,11 @@ int main() {
 
   sbar = false;
   std::cout << "running test once with sw-bk" << std::endl;
-  doTest(1);
+  doTest(1,16);
 
   std::cout << "\n\n\n" << std::endl;
   std::cout << "running test once with NO sw-bk" << std::endl;
-  doTest(0);
+  doTest(0,16);
 
 
 #ifndef ONLY8
@@ -185,7 +185,7 @@ for (auto nt : nTH) {
   sbar = true;
   tid = 0;
   std::vector<std::thread> ts;
-  for (int i=0; i<nt; ++i) ts.emplace_back(doTest,1);
+  for (int i=0; i<nt; ++i) ts.emplace_back(doTest,1,8);
 
   auto start = std::chrono::steady_clock::now();
   sbar = false;
@@ -202,7 +202,7 @@ for (auto nt : nTH) {
   sbar = true;
   tid = 0;
   std::vector<std::thread> ts;
-  for (int i=0; i<nt; ++i) ts.emplace_back(doTest,0);
+  for (int i=0; i<nt; ++i) ts.emplace_back(doTest,0,8);
 
   auto start = std::chrono::steady_clock::now();
   sbar = false;
