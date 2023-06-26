@@ -37,9 +37,9 @@ namespace benchmark {
 #else
   // for other architecture one has to find the proper asm...
   template <typename T>
-  keep(T&& x) noexcept {}
+  void keep(T&& x) noexcept {__sync_synchronize(); }
   template <typename T>
-  touch(T& x) noexcept {}
+  void touch(T& x) noexcept {__sync_synchronize();}
 #endif
 
   class TimeIt {
