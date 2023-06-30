@@ -175,3 +175,37 @@ float fastFloat(uint64_t r) {
    // stretch
    return norm*(fi.f-fmin);
 }
+
+
+// use the  N leading bits of second uint to  build a  random float in [0,1[
+template<uint32_t N>
+float fastFloat(uint32_t r1, uint32_t r2) {
+
+    union FInt {
+      float f;
+      uint32_t i;
+    };
+
+   constexpr uint32_t mask1 = (1<<23) -1;
+   constexpr uint32_t mask2 = (N==0) ? -1 :  (1<<(32-N)) -1;
+
+   constexpr uint32_t kSpare = N+9;
+   constexpr float fmin = npower2(kSpare);
+   constexpr float norm = 1./(1.-fmin);
+
+
+   // load mantissa
+   FInt fi;
+   fi.i = r1 & mask1;
+   r1 &= ~mask1; // remove used bits (9 left...)
+
+   r2 &= ~mask2; // remove used bits (N left)
+   //   int32_t addOn = 9 + (r2 ? __builtin_clz(r2) : N);
+   r2 >>= 9;
+   r1 |=r2;
+   int32_t exp = 126 - (r1 ? __builtin_clz(r1) : 9+N);
+   
+   fi.i |= (exp <<23);
+   // stretch
+   return norm*(fi.f-fmin);
+}

@@ -98,10 +98,15 @@ std::cout << "n-bits = 32" << std::endl;
   std::cout << "0.25 " << f32_from_bits((126<<23)|((1<<23)-1))-0.75f << std::endl;
   std::cout << "0.00 " << f32_from_bits((126<<23)|((1<<22)-1))-0.75f << std::endl;
 
-  std::cout << "ff23 " << fastFloat<23>(1ULL<<(64-22))  << ' ' << npower2(23-23) << std::endl;
+  std::cout << "ff23 " << fastFloat<23>(1ULL<<(64-22))  << ' ' << ' ' << npower2(23-23) << std::endl;
   std::cout << "ff24 " << fastFloat<24>(1ULL<<(64-24))  << ' ' << npower2(24-23) << std::endl;
   std::cout << "ff41 " << fastFloat<41>(1ULL<<(64-41))  << ' ' << npower2(41-23) << std::endl;
   std::cout << "ff64 " << fastFloat<64>(1)  << ' ' << npower2(64-23) << std::endl;
+
+  std::cout << "ff2:0 " << fastFloat<0>(1,0)  << ' ' << npower2(9) << std::endl;
+  std::cout << "ff2:7 " << fastFloat<7>(1,0)  << ' ' << npower2(9+7) << std::endl;
+  std::cout << "ff2:7 " << fastFloat<7>(1<<31,0)  << ' ' << npower2(9+7) << std::endl;
+  std::cout << "ff2:7 " << fastFloat<7>(1,1<<31)  << ' ' << npower2(9+7) << std::endl;
 
 
  bool ext = argc>1;
