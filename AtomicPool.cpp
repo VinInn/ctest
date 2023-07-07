@@ -8,8 +8,8 @@
 template<typename T, int N>
 struct AtomicPool {
    using Self = AtomicPool<T,N>;
+   inline static Self me;
    static Self & pool() {
-     static Self me;
      return me;
    }  
    
@@ -23,25 +23,25 @@ struct AtomicPool {
    struct Sentry {
      Sentry() {
        auto & pool = Self::pool();
-       int n = std::min(N,pool.n.load());
+       int n = std::min(N,pool.n.load(std::memory_order_relaxed));
        p = nullptr;
        for (int i=0; i<n; ++i) {
-          p = pool.cont[i].exchange(nullptr);
+          p = pool.cont[i].exchange(nullptr,std::memory_order_acq_rel);
          if (p) return;
        }
        p = new T();
      }
      ~Sentry() {
        auto & pool = Self::pool();
-       int n = std::min(N,pool.n.load());
+       int n = std::min(N,pool.n.load(std::memory_order_relaxed));
        for (int i=0; i<n; ++i) {
          T * exp = nullptr;
-         if (pool.cont[i].compare_exchange_strong(exp,p)) return;
+         if (pool.cont[i].compare_exchange_weak(exp,p)) return;
        }
        n = pool.n++;
        if (n<N) {
          T * exp = nullptr;
-       if (pool.cont[n].compare_exchange_strong(exp,p)) return;
+         if (pool.cont[n].compare_exchange_weak(exp,p)) return;
        }
        delete p; 
      }
@@ -55,7 +55,7 @@ struct AtomicPool {
 
 #include<iostream>
 
-struct Bar{ std::atomic<int> n{0};};
+struct Bar{ std::atomic<int> n{0}; std::atomic<bool> inUse{false}; };
 
 
 int main() {
@@ -87,9 +87,12 @@ int main() {
    for (int i=0; i<1000; ++i) {
      AtomicPool<Bar,128>::Sentry sentry;
      assert(sentry.p);
+     assert(!sentry.p->inUse.load(std::memory_order_acquire));
+     sentry.p->inUse.store(true,std::memory_order_release);
      sentry.p->n++;
+     sentry.p->inUse.store(false,std::memory_order_release);
    }
-    std::cout << pool.n << std::endl;
+    std::cout << pool.n.load(std::memory_order_relaxed) << std::endl;
   };
 
 
@@ -98,8 +101,9 @@ int main() {
   wait=false;
   for (auto & t:th) t.join();
   std::cout << pool.n << std::endl;
-  for (auto const & b : pool.cont) if(b) std::cout << b.load()->n << ' ';
-  std::cout << std::endl;
+  int tot=0;
+  for (auto const & b : pool.cont) if(b) {tot+= b.load()->n; std::cout << b.load()->n << ' ';}
+  std::cout << "= " << tot << std::endl;
 
   return 0;
 }
