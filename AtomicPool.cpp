@@ -26,7 +26,7 @@ struct AtomicPool {
        int n = std::min(N,pool.n.load(std::memory_order_relaxed));
        p = nullptr;
        for (int i=0; i<n; ++i) {
-          p = pool.cont[i].exchange(nullptr,std::memory_order_acq_rel);
+          p = pool.cont[i].exchange(nullptr,std::memory_order_acq_rel);  // previous changes in (*p) should become visible here
          if (p) return;
        }
        p = new T();
