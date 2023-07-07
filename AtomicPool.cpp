@@ -2,6 +2,8 @@
 #include<cstdint>
 #include<algorithm>
 #include<cassert>
+#include<vector>
+#include<thread>
 
 template<typename T, int N>
 struct AtomicPool {
@@ -47,13 +49,13 @@ struct AtomicPool {
    };
 
    std::atomic<T*> cont[N];
-   std::atomic<int> n=0; 
+   std::atomic<int> n{0}; 
 };
 
 
 #include<iostream>
 
-struct Bar{};
+struct Bar{ std::atomic<int> n{0};};
 
 
 int main() {
@@ -79,7 +81,25 @@ int main() {
   }
   std::cout << pool.n << std::endl;
 
+  std::atomic<bool> wait{true};   
+  auto run = [&]() {
+   while (wait);
+   for (int i=0; i<1000; ++i) {
+     AtomicPool<Bar,128>::Sentry sentry;
+     assert(sentry.p);
+     sentry.p->n++;
+   }
+    std::cout << pool.n << std::endl;
+  };
 
+
+  std::vector<std::thread> th;
+  for (int i=0; i<10; i++) th.emplace_back(run);
+  wait=false;
+  for (auto & t:th) t.join();
+  std::cout << pool.n << std::endl;
+  for (auto const & b : pool.cont) if(b) std::cout << b.load()->n << ' ';
+  std::cout << std::endl;
 
   return 0;
 }
