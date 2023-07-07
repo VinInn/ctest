@@ -26,22 +26,22 @@ struct AtomicPool {
        int n = std::min(N,pool.n.load(std::memory_order_relaxed));
        p = nullptr;
        for (int i=0; i<n; ++i) {
-          p = pool.cont[i].exchange(nullptr,std::memory_order_acq_rel);  // previous changes in (*p) should become visible here
+          p = pool.cont[i].exchange(nullptr,std::memory_order_acquire);  // previous changes in (*p) should become visible here
          if (p) return;
        }
        p = new T();
      }
      ~Sentry() {
        auto & pool = Self::pool();
-       int n = std::min(N,pool.n.load(std::memory_order_relaxed));
+       int n = std::min(N,pool.n.load(std::memory_order_relaxed)); 
        for (int i=0; i<n; ++i) {
          T * exp = nullptr;
-         if (pool.cont[i].compare_exchange_weak(exp,p,std::memory_order_relaxed)) return;
+         if (pool.cont[i].compare_exchange_weak(exp,p,std::memory_order_release)) return;   // changes in (*p) should become visible to other threads
        }
        n = pool.n++;
        if (n<N) {
          T * exp = nullptr;
-         if (pool.cont[n].compare_exchange_weak(exp,p,std::memory_order_relaxed)) return;
+         if (pool.cont[n].compare_exchange_weak(exp,p,std::memory_order_release)) return; // changes in (*p) should become visible to other threads
        }
        delete p; 
      }
@@ -55,7 +55,7 @@ struct AtomicPool {
 
 #include<iostream>
 
-struct Bar{ std::atomic<int> n{0}; std::atomic<bool> inUse{false}; };
+struct Bar{ int n{0}; bool inUse{false}; };
 
 
 int main() {
@@ -87,10 +87,10 @@ int main() {
    for (int i=0; i<1000; ++i) {
      AtomicPool<Bar,128>::Sentry sentry;
      assert(sentry.p);
-     assert(!sentry.p->inUse.load(std::memory_order_acquire));
-     sentry.p->inUse.store(true,std::memory_order_release);
+     assert(!sentry.p->inUse);
+     sentry.p->inUse = true;
      sentry.p->n++;
-     sentry.p->inUse.store(false,std::memory_order_release);
+     sentry.p->inUse = false;;
    }
     std::cout << pool.n.load(std::memory_order_relaxed) << std::endl;
   };
