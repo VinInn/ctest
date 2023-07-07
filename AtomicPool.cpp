@@ -36,12 +36,12 @@ struct AtomicPool {
        int n = std::min(N,pool.n.load(std::memory_order_relaxed));
        for (int i=0; i<n; ++i) {
          T * exp = nullptr;
-         if (pool.cont[i].compare_exchange_weak(exp,p)) return;
+         if (pool.cont[i].compare_exchange_weak(exp,p,std::memory_order_relaxed)) return;
        }
        n = pool.n++;
        if (n<N) {
          T * exp = nullptr;
-         if (pool.cont[n].compare_exchange_weak(exp,p)) return;
+         if (pool.cont[n].compare_exchange_weak(exp,p,std::memory_order_relaxed)) return;
        }
        delete p; 
      }
