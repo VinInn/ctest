@@ -58,14 +58,15 @@ struct AtomicPool {
 struct Bar{ int n{0}; bool inUse{false}; };
 
 
-int main() {
-  auto & pool = AtomicPool<Bar,128>::pool();
+template<int N>
+int go() {
+  auto & pool = AtomicPool<Bar,N>::pool();
 
   std::cout << pool.n << std::endl;
 
   Bar * w = nullptr;
   {
-     AtomicPool<Bar,128>::Sentry sentry;
+     typename AtomicPool<Bar,N>::Sentry sentry;
     assert(sentry.p);
     w = sentry.p;
     std::cout << pool.n << std::endl;
@@ -73,7 +74,7 @@ int main() {
   }
   std::cout << pool.n << std::endl;
   {
-     AtomicPool<Bar,128>::Sentry sentry;
+     typename AtomicPool<Bar,N>::Sentry sentry;
     assert(sentry.p);
     assert(w == sentry.p);
     std::cout << pool.n << std::endl;
@@ -85,7 +86,7 @@ int main() {
   auto run = [&]() {
    while (wait);
    for (int i=0; i<1000; ++i) {
-     AtomicPool<Bar,128>::Sentry sentry;
+     typename AtomicPool<Bar,N>::Sentry sentry;
      assert(sentry.p);
      assert(!sentry.p->inUse);
      sentry.p->inUse = true;
@@ -106,4 +107,12 @@ int main() {
   std::cout << "= " << tot << std::endl;
 
   return 0;
+}
+
+
+int main() {
+
+   go<128>();
+   go<4>();
+
 }
