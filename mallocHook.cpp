@@ -1,14 +1,16 @@
 #include <cstdlib>
 #include <malloc.h>
-#include <libc/malloc.h>
 #include <iostream>
 
 
 extern "C" 
-void myMallocHook(size_t size, void *block) {
+void * myMallocHook(size_t size, void const * caller) {
+  __malloc_hook = nullptr;
+  auto p = malloc(size);
   std::cout << "asked " << size 
-	    << " allocated " << (BLOCK *)block->size
 	    << std::endl;
+  __malloc_hook = myMallocHook;
+  return p;
 }
 
 
@@ -16,10 +18,14 @@ int main() {
 
   int * a = new int[10];
 
-  __libc_malloc_hook = myMallocHook;
+  __malloc_hook = myMallocHook;
   a = new int[10];
+
+  std::cout << "p " << a << std::endl;
  
- __libc_malloc_hook = 0;
+ __malloc_hook = nullptr;
   a = new int[10];
+
+  return a[0];
  
 }
