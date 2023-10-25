@@ -4,7 +4,11 @@
 double dummy = 0;
 
 
+#include<cstdio>
 void go(int size) {
+
+  printf("START\n");
+  fflush(stdout); 
 
   std::vector<int> v;
 
