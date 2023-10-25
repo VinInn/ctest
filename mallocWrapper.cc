@@ -28,11 +28,13 @@ struct  Me {
   struct One {
     double mtot = 0;
     uint64_t mlive = 0;
+    uint64_t mmax=0;
     uint64_t ntot=0;
 
     void add(std::size_t size) {
        mtot += size;
        mlive +=size;
+       mmax = std::max( mmax,mlive);
        ntot +=1;
     }
     void sub(std::size_t size) {
@@ -47,12 +49,13 @@ struct  Me {
 
   ~Me() {
     notRecording = false;
-    std::cout << "MemStat " << ntot << ' ' << mtot << ' ' << mlive << ' ' << memMap.size() << std::endl;
+    std::cout << "MemStat " << ntot << ' ' << mtot << ' ' << mlive << ' ' << mmax <<' ' << memMap.size() << std::endl;
   }
 
   void add(void * p, std::size_t size) {
     mtot += size;
-    mlive +=size; 
+    mlive +=size;
+    mmax = std::max( mmax,mlive);
     ntot +=1;
     // std::cout << "m " << size << ' ' << p << std::endl;
     auto & e = calls[get_stacktrace()];
@@ -73,6 +76,7 @@ struct  Me {
   std::unordered_map<std::string,One> calls;
   double mtot = 0;
   uint64_t mlive = 0;
+  uint64_t mmax = 0;
   uint64_t ntot=0;
 
   static Me & me() {
