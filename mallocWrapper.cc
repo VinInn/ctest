@@ -111,8 +111,11 @@ struct  Me {
 
   typedef void * (*mallocSym) (std::size_t);
   typedef void (*freeSym) (void*);
+  typedef void * (*aligned_allocSym)( size_t alignment, size_t size );
+
   mallocSym origM = nullptr;
   freeSym origF = nullptr;
+  aligned_allocSym origA = nullptr;
 
   struct Banner {
     Banner() {
@@ -147,7 +150,18 @@ void *malloc(std::size_t size) {
   return p;
 }
 
+void *aligned_alloc( size_t alignment, size_t size ) {
+  if (!origA) origA = (aligned_allocSym)dlsym(RTLD_NEXT,"aligned_alloc");
+  assert(origA);
+  auto p  = origA(alignment, size);
+  if (doRecording) {
+    doRecording = false;
+    Me::me().add(p, size);
+    doRecording = true;
+  }
+  return p;
 
+}
 
 
 void free(void *ptr) {
