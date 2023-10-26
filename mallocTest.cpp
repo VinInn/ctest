@@ -27,6 +27,14 @@ void go(int size) {
 }
 
 
+void recursive(std::vector<int*> & v, int n) {
+  if (0==n) return;
+  v.push_back(new int(4));
+  recursive(v,n-1);
+}
+
+#include<iostream>
+
 int main() {
 
   printf("START\n");
@@ -35,6 +43,13 @@ int main() {
   go<int,0>(100);
   go<int,1>(1000);
   go<double,0>(1000);
+
+  std::cout << std::endl;
+
+  std::vector<int*> v;
+  recursive(v,257);
+
+  std::cout << v.size() << std::endl;
 
   return 0;
 }

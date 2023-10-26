@@ -169,9 +169,13 @@ struct  Me {
   typedef void (*freeSym) (void*);
   typedef void * (*aligned_allocSym)( size_t alignment, size_t size );
 
+  typedef void * (*dlopenSym)(const char *, int);
+
+  dlopenSym origDL = nullptr;
   mallocSym origM = nullptr;
   freeSym origF = nullptr;
   aligned_allocSym origA = nullptr;
+
 
   struct Banner {
     Banner() {
@@ -192,6 +196,15 @@ struct  Me {
 
 extern "C" 
 {
+
+
+void *dlopen(const char *filename, int flags) {
+  if (!origDL) origDL = (dlopenSym)dlsym(RTLD_NEXT,"dlopen");
+  doRecording = false;
+  auto p  = origDL(filename,flags);
+  doRecording = true;
+  return p;
+}
 
 
 void *malloc(std::size_t size) {
