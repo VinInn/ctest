@@ -22,7 +22,7 @@ namespace {
      return trace;
   }
 
-  thread_local bool notRecording = true;
+  thread_local bool doRecording = true;
 
 struct  Me {
 
@@ -56,7 +56,7 @@ struct  Me {
   }
 
   ~Me() {
-    notRecording = false;
+    doRecording = false;
     std::cout << "MemStat " << ntot << ' ' << mtot << ' ' << mlive << ' ' << mmax <<' ' << memMap.size() << std::endl;
     dump(std::cout,SortBy::max);
   }
@@ -139,10 +139,10 @@ void *malloc(std::size_t size) {
   if (!origM) origM = (mallocSym)dlsym(RTLD_NEXT,"malloc");
   assert(origM);
   auto p  = origM(size); 
-  if (notRecording) {
-    notRecording = false;
+  if (doRecording) {
+    doRecording = false;
     Me::me().add(p, size);
-    notRecording = true;
+    doRecording = true;
   }
   return p;
 }
@@ -153,10 +153,10 @@ void *malloc(std::size_t size) {
 void free(void *ptr) {
   if(!origF) origF = (freeSym)dlsym(RTLD_NEXT,"free");
   assert(origF);
-  if (notRecording) {
-    notRecording = false;
+  if (doRecording) {
+    doRecording = false;
     Me::me().sub(ptr);
-    notRecording = true;
+    doRecording = true;
   }
   origF(ptr);
 }
@@ -166,8 +166,8 @@ void free(void *ptr) {
 
 void Hello() {
   std::cout << "Hello" << std::endl;
-  notRecording = false;
+  doRecording = false;
   Me::me().dump(std::cout, Me::SortBy::max);
-  notRecording = true;
+  doRecording = true;
 }
 
