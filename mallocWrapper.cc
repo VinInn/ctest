@@ -6,6 +6,7 @@
 #include<cassert>
 #include <unordered_map>
 #include<map>
+#include<vector>
 #include <memory>
 
 
@@ -42,6 +43,13 @@ struct  Me {
     }
   };
 
+   enum class SortBy {none, tot, live, max, ncalls};
+   using TraceMap = std::unordered_map<std::string,One>;
+   using TraceVector = std::vector<std::pair<std::string,One>>;
+
+
+
+
   Me() {
 //    setenv("LD_PRELOAD","", true);
     std::cerr << "Recoding structure constructed in a thread " << std::endl;
@@ -50,6 +58,7 @@ struct  Me {
   ~Me() {
     notRecording = false;
     std::cout << "MemStat " << ntot << ' ' << mtot << ' ' << mlive << ' ' << mmax <<' ' << memMap.size() << std::endl;
+    dump(std::cout,SortBy::max);
   }
 
   void add(void * p, std::size_t size) {
@@ -72,8 +81,20 @@ struct  Me {
     } else if (p) { std::cout << "free not found " << p << std::endl; }
   }
 
-  std::unordered_map<void*,std::pair<uint64_t,One*>> memMap;
-  std::unordered_map<std::string,One> calls;
+  std::ostream & dump(std::ostream & out, SortBy sortMode) const {
+     using Elem = TraceVector::value_type;
+     // auto comp = [](Elem const & a, Elem const & b) {return a.first < b.first;};
+     auto comp = [](Elem const & a, Elem const & b) {return a.second.mmax < b.second.mmax;};
+     // if (sortMode == SortBy::live) comp = [](Elem const & a, Elem const & b) {return a.second.mlive < b.second.mlive;};
+     TraceVector v;  v.reserve(calls.size());
+     for ( auto const & e : calls) { v.emplace_back(e.first,e.second);  std::push_heap(v.begin(), v.end(),comp);}
+     std::sort_heap(v.begin(), v.end(),comp);
+     for ( auto const & e : v)  out << e.first << ' ' << e.second.ntot << ' ' << e.second.mtot << ' ' << e.second.mlive << ' ' << e.second.mmax << '\n';
+     return out;
+  }
+
+  std::unordered_map<void*,std::pair<uint64_t,One*>> memMap; // active memory blocks 
+  TraceMap calls;  // stat by stacktrace
   double mtot = 0;
   uint64_t mlive = 0;
   uint64_t mmax = 0;
@@ -106,8 +127,8 @@ struct  Me {
 
 }
 
-extern void *__libc_malloc(size_t size);
-extern void __libc_free(void *);
+// extern void *__libc_malloc(size_t size);
+// extern void __libc_free(void *);
 
 
 extern "C" 
