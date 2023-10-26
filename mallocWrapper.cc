@@ -9,12 +9,26 @@
 #include<vector>
 #include <memory>
 
+#include <mutex>
+#include <thread>
+
+
 
 #include <iostream>
 #include <string>
 #include <stacktrace>
 
 namespace {
+
+
+  typedef std::thread Thread;
+  typedef std::vector<std::thread> ThreadGroup;
+  typedef std::mutex Mutex;
+  typedef std::unique_lock<std::mutex> Lock;
+  // typedef std::condition_variable Condition;
+
+
+  Mutex globalLock;
 
   std::string get_stacktrace() {
      std::string trace;
@@ -46,7 +60,7 @@ struct  Me {
    enum class SortBy {none, tot, live, max, ncalls};
    using TraceMap = std::unordered_map<std::string,One>;
    using TraceVector = std::vector<std::pair<std::string,One>>;
-
+   using Us = std::vector<std::unique_ptr<Me>>;
 
 
 
@@ -62,6 +76,7 @@ struct  Me {
   }
 
   void add(void * p, std::size_t size) {
+    Lock guard(lock);
     mtot += size;
     mlive +=size;
     mmax = std::max( mmax,mlive);
@@ -72,13 +87,19 @@ struct  Me {
     e.add(size);
   }
 
-  void sub(void * p)  {
+  bool sub(void * p)  {
+    if (!p) return true;
+    Lock guard(lock);
     // std::cout << "f " << p << std::endl;
     if (auto search = memMap.find(p); search != memMap.end()) {
      mlive -= search->second.first;
      search->second.second->sub(search->second.first);
      memMap.erase(p);
-    } else if (p) { std::cout << "free not found " << p << std::endl; }
+     return true;
+    } 
+    return false;
+    // std::cout << "free not found " << p << std::endl; 
+  
   }
 
   std::ostream & dump(std::ostream & out, SortBy sortMode) const {
@@ -87,12 +108,17 @@ struct  Me {
      auto comp = [](Elem const & a, Elem const & b) {return a.second.mmax < b.second.mmax;};
      // if (sortMode == SortBy::live) comp = [](Elem const & a, Elem const & b) {return a.second.mlive < b.second.mlive;};
      TraceVector v;  v.reserve(calls.size());
-     for ( auto const & e : calls) { v.emplace_back(e.first,e.second);  std::push_heap(v.begin(), v.end(),comp);}
+     { 
+       Lock guard(lock);
+       for ( auto const & e : calls) { v.emplace_back(e.first,e.second);  std::push_heap(v.begin(), v.end(),comp);}
+     }
      std::sort_heap(v.begin(), v.end(),comp);
      for ( auto const & e : v)  out << e.first << ' ' << e.second.ntot << ' ' << e.second.mtot << ' ' << e.second.mlive << ' ' << e.second.mmax << '\n';
      return out;
   }
 
+
+  mutable Mutex lock;
   std::unordered_map<void*,std::pair<uint64_t,One*>> memMap; // active memory blocks 
   TraceMap calls;  // stat by stacktrace
   double mtot = 0;
@@ -100,9 +126,39 @@ struct  Me {
   uint64_t mmax = 0;
   uint64_t ntot=0;
 
+  static Us & us() {
+   static Us us;
+   if (us.capacity()<1024) us.reserve(1024);
+   return us;
+  }
+
   static Me & me() {
-    thread_local auto me = std::make_unique<Me>();
-    return *me;
+    thread_local Me * tlme = nullptr;
+    if (tlme)  return *tlme; 
+    
+    auto l = std::make_unique<Me>();
+    tlme = l.get();
+    {
+      Lock guard(globalLock);
+      us().push_back(std::move(l));
+    }
+    return *tlme;
+  }
+
+
+  static void globalSub(void * p)  {
+    std::vector<Me*> all;
+    all.reserve(2*us().size());
+    {
+      Lock guard(globalLock);
+      for (auto & e : us() ) all.push_back(e.get());
+    }
+    auto here = &me();
+    for (auto e : all) {
+     if (here == e) continue;
+     if (e->sub(p)) return;
+    }
+    std::cout << "free not found " << p << std::endl;
   }
 
 };

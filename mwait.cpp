@@ -3,6 +3,8 @@
 
 #include<vector>
 
+#include <condition_variable>
+#include <mutex>
 #include <thread>
 #include <functional>
 #include <algorithm>

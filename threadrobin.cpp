@@ -3,9 +3,13 @@
 #include <cmath>
 #include <limits>
 #include <queue>
+#include <condition_variable>
+#include <mutex>
 #include <thread>
 #include <functional>
 #include <algorithm>
+#include <cstdlib>
+#include <unistd.h>
 
 // convert gcc to c0xx
 #define thread_local __thread;
