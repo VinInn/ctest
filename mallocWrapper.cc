@@ -164,3 +164,10 @@ void free(void *ptr) {
 
 }
 
+void Hello() {
+  std::cout << "Hello" << std::endl;
+  notRecording = false;
+  Me::me().dump(std::cout, Me::SortBy::max);
+  notRecording = true;
+}
+

@@ -1,6 +1,11 @@
 #include<vector>
 
 
+extern
+void __attribute__((weak)) Hello();
+
+// void Hello(){}
+
 double dummy = 0;
 
 
@@ -17,6 +22,8 @@ void go(int size) {
 
   dummy +=v[5];
 
+  // if(Hello) 
+  Hello();
 }
 
 
