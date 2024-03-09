@@ -4,13 +4,15 @@
 // c++ -std=c++23 testStacktrace.cpp -lstdc++exp -g -DINLIB -fpic -shared -o liba.so;c++ -std=c++23 testStacktrace.cpp -lstdc++exp -g -DINMAIN -L. -la -Wl,-rpath=.; ./a.out
 //
 #include <iostream>
-#include <stacktrace>
+// #include <stacktrace>
+#include <boost/stacktrace.hpp>
 
 
 #ifdef INLIB 
 int nested_func2(int c)
 {
-    std::cout << std::stacktrace::current() << '\n';
+//    std::cout << std::stacktrace::current() << '\n';
+    std::cout << boost::stacktrace::stacktrace()  << '\n';
     return c + 1;
 }
 int nested_func(int c)
@@ -28,7 +30,7 @@ int func(int b)
  
 int main()
 {
-    std::cout << func(777);
+    std::cout << func(777) << std::endl;
    return 0;
 }
 #endif

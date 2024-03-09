@@ -23,7 +23,7 @@ int main(int n, char * arg[]) {
    double u, v;
    std::tie(u,v) = rot(phi,1.,1.);
   
-  printf("%a %a\n",u,v);
+  printf("%a %a %a\n",u,v,std::log(n));
 
   return 0;
 
