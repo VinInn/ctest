@@ -62,7 +62,7 @@ namespace {
       k = k>>52;
       assert(k<2048);
       int bin =   k - 1023;
-      bin = std::clamp(bin,-127,127) + 127;
+      bin = std::clamp(bin,-127,128) + 127;
       assert(bin<256);
       stat[i].log[bin]++;
     }
@@ -81,14 +81,14 @@ namespace {
         std::cout  << "MathProfiler finalize " << std::endl;
         int i = 0;
         for ( auto f : functions) {
-         std::cout << f+"f_lin" << stat[i].tot << " : ";
+         std::cout << f+"f_lin " << stat[i].tot << " : ";
          for ( auto const & v : stat[i].lin) std::cout << v << ' ';
          std::cout << std::endl;
          std::cout << f+"f_log " << stat[i].tot << " : ";
          for ( auto const & v : stat[i].log) std::cout << v << ' ';
          std::cout << std::endl;
 
-         std::cout << f+"  " << stat[i+1].tot << " : ";
+         std::cout << f+"_lin  " << stat[i+1].tot << " : ";
          for ( auto const & v : stat[i+1].lin) std::cout << v << ' ';
          std::cout << std::endl;
          std::cout << f+"_log  " << stat[i+1].tot << " : ";
