@@ -45,7 +45,7 @@ namespace {
     auto y = std::clamp(x,-T(linMax),T(linMax));
     constexpr T den = 0.5/T(linMax);
     int bin = std::clamp(int(T(256)*den*(y+T(linMax))),0,255);
-    std::cout << ">>> " << i << ' ' << x << ' ' << y << ' ' << bin << std::endl;
+//    std::cout << ">>> " << i << ' ' << x << ' ' << y << ' ' << bin << std::endl;
     stat[i].lin[bin]++;
     // fill log using just the exponent
     if constexpr (4==sizeof(T)) {
