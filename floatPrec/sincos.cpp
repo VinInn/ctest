@@ -19,7 +19,7 @@ int main(int n, char * arg[]) {
    double  fn = n;
    fn -= 1.;
 
-   double phi = 1000*std::sqrt(2)+fn;
+   double phi = std::sqrt(2)+fn;
    double u, v;
    std::tie(u,v) = rot(phi,1.,1.);
   

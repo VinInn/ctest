@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <dlfcn.h>
 #include <unistd.h>
+#include <cstring>
 
 #include<cassert>
 #include <unordered_map>
@@ -23,11 +24,48 @@ namespace {
   std::string functions[] = {"sincos","atan2+","atan2/",
   "acos","acosh","asin","asinh","atan","atanh","cbrt","cos","cospi","cosh","erf","erfc","exp","exp10","exp2","expm1","j0","j1","log","log10","log1p","log2","rsqrt","sin","sinpi","sinh","tan","tanpi","tanh","y0","y1","lgamma","tgamma"};
 
-  std::vector<std::atomic<uint64_t>> n(2*std::size(functions)); 
+  constexpr int linMax = 32;
+  constexpr int logMax = 128;
+
+  struct Stat {
+    Stat() : tot(0) {
+     for (int i=0; i<256; ++i)  { lin[i]=0; log[i]=0; }
+    } 
+    std::atomic<uint64_t> lin[256];
+    std::atomic<uint64_t> log[256];
+    std::atomic<uint64_t> tot;
+  };
+
+  std::vector<Stat> stat(2*std::size(functions)); 
 
   template<typename T>
   void count(T x,int i) {
-    n[i]++;
+    stat[i].tot++;
+    // fill lin between -max and max
+    auto y = std::clamp(x,-T(linMax),T(linMax));
+    constexpr T den = 0.5/T(linMax);
+    int bin = std::clamp(int(T(256)*den*(y+T(linMax))),0,255);
+    std::cout << ">>> " << i << ' ' << x << ' ' << y << ' ' << bin << std::endl;
+    stat[i].lin[bin]++;
+    // fill log using just the exponent
+    if constexpr (4==sizeof(T)) {
+      uint32_t k;
+      y = std::abs(x);
+      memcpy(&k,&y,4);
+      k = k>>23;
+      assert(k<256);
+      stat[i].log[k]++;
+    } else {
+      uint64_t k;
+      y = std::abs(x);
+      memcpy(&k,&y,8);
+      k = k>>52;
+      assert(k<2048);
+      int bin =   k - 1023;
+      bin = std::clamp(bin,-127,127) + 127;
+      assert(bin<256);
+      stat[i].log[bin]++;
+    }
   }
 
 
@@ -36,15 +74,26 @@ namespace {
     Banner(){
       std::cout << "MathProfiler Initialize for " << std::size(functions) << " functions" << std::endl;
       // n.reserve(2*std::size(functions));
-      for ( uint32_t i=0;  i <  2*std::size(functions); i++ ) n[i]=0;
+      // for ( uint32_t i=0;  i <  2*std::size(functions); i++ ) n[i]=0;
      }
 
      ~Banner() {
         std::cout  << "MathProfiler finalize " << std::endl;
         int i = 0;
         for ( auto f : functions) {
-         std::cout << f+"f " << n[i] << std::endl;
-         std::cout << f+"  " << n[i+1] << std::endl;
+         std::cout << f+"f_lin" << stat[i].tot << " : ";
+         for ( auto const & v : stat[i].lin) std::cout << v << ' ';
+         std::cout << std::endl;
+         std::cout << f+"f_log " << stat[i].tot << " : ";
+         for ( auto const & v : stat[i].log) std::cout << v << ' ';
+         std::cout << std::endl;
+
+         std::cout << f+"  " << stat[i+1].tot << " : ";
+         for ( auto const & v : stat[i+1].lin) std::cout << v << ' ';
+         std::cout << std::endl;
+         std::cout << f+"_log  " << stat[i+1].tot << " : ";
+         for ( auto const & v : stat[i+1].log) std::cout << v << ' ';
+         std::cout << std::endl;
          i+=2;
        }
      }
