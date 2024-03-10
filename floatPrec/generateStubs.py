@@ -5,7 +5,7 @@ import sys
 # echo acos acosh asin asinh atan atanh cbrt cos cospi cosh erf erfc exp exp10 exp2 expm1 j0 j1 log log10 log1p log2 rsqrt sin sinpi sinh tan tanpi tanh y0 y1 lgamma tgamma | sed 's/ /\" \"/g'
 if __name__ == '__main__':
     functions = ["acos","acosh","asin","asinh","atan","atanh","cbrt","cos","cospi","cosh","erf","erfc","exp","exp10","exp2","expm1","j0","j1","log","log10","log1p","log2","rsqrt","sin","sinpi","sinh","tan","tanpi","tanh","y0","y1","lgamma","tgamma"]
-#    print(functions)
+    print(functions)
     index = 6 # 0-5 reserved for sincos and 2xatan2
     for fun in functions:
       print("")

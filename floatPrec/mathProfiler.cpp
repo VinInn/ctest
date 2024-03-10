@@ -1,4 +1,5 @@
 // compile with c++ -O2 -fPIC -shared mathProfiler.cpp -o mathProfiler.s -ldl
+// run as setenv LD_PRELOAD ./mathProfiler.so ; ./a.out; unsetenv LD_PRELOAD ./mathProfiler.so
 #include <cstdint>
 #include <dlfcn.h>
 #include <unistd.h>
@@ -19,22 +20,33 @@
 
 namespace {
 
-  std::atomic<uint64_t> n{0}; 
+  std::string functions[] = {"sincos","atan2+","atan2/",
+  "acos","acosh","asin","asinh","atan","atanh","cbrt","cos","cospi","cosh","erf","erfc","exp","exp10","exp2","expm1","j0","j1","log","log10","log1p","log2","rsqrt","sin","sinpi","sinh","tan","tanpi","tanh","y0","y1","lgamma","tgamma"};
+
+  std::vector<std::atomic<uint64_t>> n(2*std::size(functions)); 
 
   template<typename T>
-  void count(T x,int ) {
-    n++;
+  void count(T x,int i) {
+    n[i]++;
   }
 
 
 
   struct Banner {
     Banner(){
-      std::cout << "MathProfiler Initialize" << std::endl;
+      std::cout << "MathProfiler Initialize for " << std::size(functions) << " functions" << std::endl;
+      // n.reserve(2*std::size(functions));
+      for ( uint32_t i=0;  i <  2*std::size(functions); i++ ) n[i]=0;
      }
 
      ~Banner() {
-        std::cout  << "MathProfiler finalize " << n << std::endl;
+        std::cout  << "MathProfiler finalize " << std::endl;
+        int i = 0;
+        for ( auto f : functions) {
+         std::cout << f+"f " << n[i] << std::endl;
+         std::cout << f+"  " << n[i+1] << std::endl;
+         i+=2;
+       }
      }
   };
 
@@ -56,17 +68,18 @@ typedef void (*sincosfSym)(float, float *, float*);
 sincosSym origsincos = nullptr;
 sincosfSym origsincosf = nullptr;
 
-void sincos(double x, double *sin, double *cos) {
-  if (!origsincos) origsincos = (sincosSym)dlsym(RTLD_NEXT,"sincos");
-  origsincos(x,sin,cos);
-  count(x,0);
-}
-
 void sincosf(float x, float *sin, float *cos) {
   if (!origsincosf) origsincosf = (sincosfSym)dlsym(RTLD_NEXT,"sincosf");
   origsincosf(x,sin,cos);
+  count(x,0);
+}
+
+void sincos(double x, double *sin, double *cos) {
+  if (!origsincos) origsincos = (sincosSym)dlsym(RTLD_NEXT,"sincos");
+  origsincos(x,sin,cos);
   count(x,1);
 }
+
 
 typedef float (*funfSym) (float);
 typedef double (*fundSym) (double);
