@@ -130,6 +130,29 @@ void sincos(double x, double *sin, double *cos) {
 }
 
 
+typedef float (*fun2fSym) (float,float);
+typedef double (*fun2dSym) (double,double);
+
+fun2fSym origatan2f = nullptr;
+float atan2f(float x, float y) {
+  if (!origatan2f) origatan2f = (fun2fSym)dlsym(RTLD_NEXT,"atan2f");
+  float ret  = origatan2f(x,y);
+  count(x+y, 2 );
+  count(x/y, 4 );
+  return ret;
+}
+
+fun2dSym origatan2d = nullptr;
+double atan2(double x, double y) {
+  if (!origatan2d) origatan2d = (fun2dSym)dlsym(RTLD_NEXT,"atan2");
+  double ret  = origatan2d(x,y);
+  count(x+y, 3 );
+  count(x/y, 5 );
+  return ret;
+}
+
+
+
 typedef float (*funfSym) (float);
 typedef double (*fundSym) (double);
 }
