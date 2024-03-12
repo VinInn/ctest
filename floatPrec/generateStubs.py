@@ -8,7 +8,7 @@ if __name__ == '__main__':
     print('extern "C"')
     print("{")
     functions = ["acos","acosh","asin","asinh","atan","atanh","cbrt","cos","cospi","cosh","erf","erfc","exp","exp10","exp2","expm1","j0","j1","log","log10","log1p","log2","rsqrt","sin","sinpi","sinh","tan","tanpi","tanh","y0","y1","lgamma","tgamma"]
-    print(functions)
+#    print(functions)
     index = 14 # 0-13 reserved for sincos and 2x(atan2,hypot,pow)
     for fun in functions:
       print("")
