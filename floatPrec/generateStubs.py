@@ -4,9 +4,12 @@ import random
 import sys
 # echo acos acosh asin asinh atan atanh cbrt cos cospi cosh erf erfc exp exp10 exp2 expm1 j0 j1 log log10 log1p log2 rsqrt sin sinpi sinh tan tanpi tanh y0 y1 lgamma tgamma | sed 's/ /\" \"/g'
 if __name__ == '__main__':
+    print("// auto generated")
+    print('extern "C"')
+    print("{")
     functions = ["acos","acosh","asin","asinh","atan","atanh","cbrt","cos","cospi","cosh","erf","erfc","exp","exp10","exp2","expm1","j0","j1","log","log10","log1p","log2","rsqrt","sin","sinpi","sinh","tan","tanpi","tanh","y0","y1","lgamma","tgamma"]
     print(functions)
-    index = 6 # 0-5 reserved for sincos and 2xatan2
+    index = 14 # 0-13 reserved for sincos and 2x(atan2,hypot,pow)
     for fun in functions:
       print("")
       print("funfSym orig"+fun+"f = nullptr;")
