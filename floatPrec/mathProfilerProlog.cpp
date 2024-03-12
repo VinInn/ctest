@@ -5,6 +5,7 @@
 #include <dlfcn.h>
 #include <unistd.h>
 #include <cstring>
+#include <ctime>
 
 #include<cassert>
 #include <unordered_map>
@@ -74,14 +75,21 @@ namespace {
 
 
   struct Banner {
-    Banner(){
+    const std::clock_t start;
+    Banner():  start(std::clock()) {
       std::cout << "MathProfiler Initialize for " << std::size(functions) << " functions" << std::endl;
       // n.reserve(2*std::size(functions));
       // for ( uint32_t i=0;  i <  2*std::size(functions); i++ ) n[i]=0;
      }
 
      ~Banner() {
-        std::cout  << "MathProfiler finalize " << std::endl;
+        double duration = double(std::clock() - start)/CLOCKS_PER_SEC;
+        std::cout  << "MathProfiler finalize after " <<duration << " seconds" << std::endl;
+#ifdef NORMALIZE
+        double invd = 1./duration;
+#else
+        double invd = 1;
+#endif
         int i = 0;
         std::ostream * pout = &std::cout;
 #ifdef TOFILE
@@ -92,18 +100,18 @@ namespace {
 #endif
         auto & out = *pout;
         for ( auto f : functions) {
-         out << f+"f_lin " << stat[i].tot << " : ";
-         for ( auto const & v : stat[i].lin) out << v << ' ';
+         out << f+"f_lin " << invd*stat[i].tot << " : ";
+         for ( auto const & v : stat[i].lin) out << invd*v << ' ';
          out << std::endl;
-         out << f+"f_log " << stat[i].tot << " : ";
-         for ( auto const & v : stat[i].log) out << v << ' ';
+         out << f+"f_log " << invd*stat[i].tot << " : ";
+         for ( auto const & v : stat[i].log) out << invd*v << ' ';
          out << std::endl;
 
-         out << f+"_lin  " << stat[i+1].tot << " : ";
-         for ( auto const & v : stat[i+1].lin) out << v << ' ';
+         out << f+"_lin  " << invd*stat[i+1].tot << " : ";
+         for ( auto const & v : stat[i+1].lin) out << invd*v << ' ';
          out << std::endl;
-         out << f+"_log  " << stat[i+1].tot << " : ";
-         for ( auto const & v : stat[i+1].log) out << v << ' ';
+         out << f+"_log  " << invd*stat[i+1].tot << " : ";
+         for ( auto const & v : stat[i+1].log) out << invd*v << ' ';
          out << std::endl;
          i+=2;
        }
