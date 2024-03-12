@@ -1,5 +1,6 @@
 // compile with c++ -O2 -fPIC -shared mathProfiler.cpp -o mathProfiler.so -ldl
 // run as setenv LD_PRELOAD ./mathProfiler.so ; ./a.out; unsetenv LD_PRELOAD ./mathProfiler.so
+// or as  export LD_PRELOAD=./mathProfiler.so; ./a.out; export LD_PRELOAD=
 #include <cstdint>
 #include <dlfcn.h>
 #include <unistd.h>
