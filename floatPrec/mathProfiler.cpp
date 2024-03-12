@@ -1,4 +1,5 @@
 // compile with c++ -O2 -fPIC -shared mathProfiler.cpp -o mathProfiler.so -ldl
+// or c++ -O2 -fPIC -shared mathProfiler.cpp -o mathProfiler.so -ldl -DNORMALIZE -DTOFILE
 // run as setenv LD_PRELOAD ./mathProfiler.so ; ./a.out; unsetenv LD_PRELOAD ./mathProfiler.so
 // or as  export LD_PRELOAD=./mathProfiler.so; ./a.out; export LD_PRELOAD=
 #include <cstdint>
@@ -77,7 +78,7 @@ namespace {
   struct Banner {
     const std::clock_t start;
     Banner():  start(std::clock()) {
-      std::cout << "MathProfiler Initialize for " << std::size(functions) << " functions" << std::endl;
+      std::cout << "MathProfiler Initialize for " << std::size(functions) << " functions in " << program_invocation_short_name << std::endl;
       // n.reserve(2*std::size(functions));
       // for ( uint32_t i=0;  i <  2*std::size(functions); i++ ) n[i]=0;
      }
@@ -94,7 +95,7 @@ namespace {
         std::ostream * pout = &std::cout;
 #ifdef TOFILE
         std::ostringstream fname;
-        fname <<  "/tmp/MathProfiles/pr" << getpid();
+        fname <<  "/tmp/MathProfiles/" << program_invocation_short_name << getpid();
         std::ofstream file(fname.str());
         pout = &file;
 #endif
