@@ -19,6 +19,8 @@
 #include <thread>
 
 #include<iostream>
+#include<fstream>
+#include<sstream>
 
 namespace {
 
@@ -81,20 +83,28 @@ namespace {
      ~Banner() {
         std::cout  << "MathProfiler finalize " << std::endl;
         int i = 0;
+        std::ostream * pout = &std::cout;
+#ifdef TOFILE
+        std::ostringstream fname;
+        fname <<  "/tmp/MathProfiles/pr" << getpid();
+        std::ofstream file(fname.str());
+        pout = &file;
+#endif
+        auto & out = *pout;
         for ( auto f : functions) {
-         std::cout << f+"f_lin " << stat[i].tot << " : ";
-         for ( auto const & v : stat[i].lin) std::cout << v << ' ';
-         std::cout << std::endl;
-         std::cout << f+"f_log " << stat[i].tot << " : ";
-         for ( auto const & v : stat[i].log) std::cout << v << ' ';
-         std::cout << std::endl;
+         out << f+"f_lin " << stat[i].tot << " : ";
+         for ( auto const & v : stat[i].lin) out << v << ' ';
+         out << std::endl;
+         out << f+"f_log " << stat[i].tot << " : ";
+         for ( auto const & v : stat[i].log) out << v << ' ';
+         out << std::endl;
 
-         std::cout << f+"_lin  " << stat[i+1].tot << " : ";
-         for ( auto const & v : stat[i+1].lin) std::cout << v << ' ';
-         std::cout << std::endl;
-         std::cout << f+"_log  " << stat[i+1].tot << " : ";
-         for ( auto const & v : stat[i+1].log) std::cout << v << ' ';
-         std::cout << std::endl;
+         out << f+"_lin  " << stat[i+1].tot << " : ";
+         for ( auto const & v : stat[i+1].lin) out << v << ' ';
+         out << std::endl;
+         out << f+"_log  " << stat[i+1].tot << " : ";
+         for ( auto const & v : stat[i+1].log) out << v << ' ';
+         out << std::endl;
          i+=2;
        }
      }
