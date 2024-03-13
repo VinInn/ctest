@@ -78,14 +78,14 @@ namespace {
   struct Banner {
     const std::clock_t start;
     Banner():  start(std::clock()) {
-      std::cout << "MathProfiler Initialize for " << std::size(functions) << " functions in " << program_invocation_short_name << std::endl;
+     //  std::cout << "MathProfiler Initialize for " << std::size(functions) << " functions in " << program_invocation_short_name << std::endl;
       // n.reserve(2*std::size(functions));
       // for ( uint32_t i=0;  i <  2*std::size(functions); i++ ) n[i]=0;
      }
 
      ~Banner() {
         double duration = double(std::clock() - start)/CLOCKS_PER_SEC;
-        std::cout  << "MathProfiler finalize after " <<duration << " seconds" << std::endl;
+        // std::cout  << "MathProfiler finalize after " <<duration << " seconds" << std::endl;
 #ifdef NORMALIZE
         double invd = 1./duration;
 #else
@@ -100,6 +100,7 @@ namespace {
         pout = &file;
 #endif
         auto & out = *pout;
+        out  << "MathProfiler finalize after " <<duration << " seconds" << std::endl;
         for ( auto f : functions) {
          out << f+"f_lin " << invd*stat[i].tot << " : ";
          for ( auto const & v : stat[i].lin) out << invd*v << ' ';
@@ -196,7 +197,7 @@ float powf(float x, float y) {
   if (!origpowf) origpowf = (fun2fSym)dlsym(RTLD_NEXT,"powf");
   float ret  = origpowf(x,y);
   count(x, 10 );
-  count(x, 12);
+  count(y, 12);
   return ret;
 }
 
@@ -205,7 +206,7 @@ double pow(double x, double y) {
   if (!origpowd) origpowd = (fun2dSym)dlsym(RTLD_NEXT,"pow");
   double ret  = origpowd(x,y);
   count(x, 11 );
-  count(x, 13);
+  count(y, 13);
   return ret;
 }
 
