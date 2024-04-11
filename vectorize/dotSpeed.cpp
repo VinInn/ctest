@@ -2,7 +2,11 @@
 //
 // Author: Emil Mikulic <emikulic@gmail.com>
 // http://unix4lyfe.org/
+// https://unix4lyfe.org/vdpps-is-slow/dot.cc
 //
+//  https://godbolt.org/z/e6qPxPrEs
+
+
 #include <immintrin.h>
 #include <cinttypes>
 #include <cassert>
