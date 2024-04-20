@@ -12,7 +12,6 @@
 #include <cassert>
 #include <cstdio>
 #include <ctime>
-#include <cmath>
 
 static timespec mono_time() {
   timespec t;
@@ -79,14 +78,6 @@ float dot3_v3(const vec4f& a, const vec4f& b) {
   return s[0] + s[1] + s[2];
 }
 
-float dot3_v4(const vec4f& a, const vec4f& b) {
-  // This is 14% slower than v1.
-  __v4sf u = _mm_load_ps(&(a.x));
-  __v4sf v = _mm_load_ps(&(b.x));
-  __v4sf s = _mm_mul_ps(u, v);
-  return s[0] + s[1] + s[2] + s[3];
-}
-
 // This function is here purely to break the optimizer by pretending to clobber
 // the memory it's pointed at.  It compiles to a single "ret" instruction, and
 // when inlined optimizes away into nothing.
@@ -100,42 +91,34 @@ void invalidate(void* ptr) {
 }
 
 int main() {
-  const int times = 1;
-  const int iters = 100000000;
+  const int times = 10;
+  const int iters = 10000000;
 
-  vec3f a3 = { sqrt(2), sqrt(3), -sqrt(5) };
-  vec3f b3 = { sqrt(7), sqrt(11), sqrt(13) };
-  vec3f c3 = { sqrt(13), sqrt(11), sqrt(7) };
+  vec3f a3 = { 2, 3, 4 };
+  vec3f b3 = { 6, 7, 8 };
 
-  vec4f a4 = { sqrt(2), sqrt(3), -sqrt(5), 0. };
-  vec4f b4 = { sqrt(7), sqrt(11), sqrt(13), 0 };
-  vec4f c4 = { sqrt(13), sqrt(11), sqrt(7), 0 };
+  vec4f a4 = { 2, 3, 4, 5 };
+  vec4f b4 = { 6, 7, 8, 9 };
 
-
-#define TIME(fn, a, b, c) \
+#define TIME(fn, a, b) \
   for (int j = 0; j < times; ++j) {   \
-    float f1,f2;                          \
+    float f;                          \
     timespec t0 = mono_time(); \
     for (int i = 0; i < iters; ++i) { \
       invalidate(&a); \
       invalidate(&b); \
-      invalidate(&c); \
-      f1 = fn(a, b); \
-      f2 = fn(a, c); \
-      invalidate(&f1); \
-      invalidate(&f2); \
+      f = fn(a, b); \
+      invalidate(&f); \
     } \
     timespec t1 = mono_time(); \
     print(t1 - t0); \
     printf(" " #fn "\n"); \
-    printf("%a\n", f1 -float(sqrt(2*7) +sqrt(3*11) - sqrt(5*13))); \
-    printf("%a\n", f2 -float(sqrt(2*13) +sqrt(3*11) - sqrt(5*7))); \
+    assert(f == 2*6 + 3*7 + 4*8); \
   }
 
-  TIME(dot3_v1, a3, b3, c3);
-  TIME(dot3_v2, a4, b4, c4);
-  TIME(dot3_v3, a4, b4, c4);
-  TIME(dot3_v4, a4, b4, c4);
+  TIME(dot3_v1, a3, b3);
+  TIME(dot3_v2, a4, b4);
+  TIME(dot3_v3, a4, b4);
 
   return 0;
 }
