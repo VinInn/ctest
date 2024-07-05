@@ -3,6 +3,8 @@
 // >>>fastFit: 0=-0x1.3a5261ca30c68p+15 1=-0x1.0ff03d7c7083ap+17 2=0x1.1b106bc6497cap+17 3=-0x1.08eb16ba5d4b3p-2 tmp=0x1.230d3d5343f9dp+10 a=(-0x1.ad3c79p+2,0x1.f00e2ap+0) b=(-0x1.e8f71p+0,0x1.1a822p-1) c=(0x1.13bd1e8p+3,-0x1.3ea79dp+1)
 // >>>fastFit: 0=0x1.156d3dcc0978dp+25 1=0x1.729941c4af08ap+26 2=0x1.8bb53ac0f4cd6p+26 3=-0x1.02930d0dbe695p+1 tmp=-0x1.99bc2fb830c9dp+17 a=(-0x1.fd6b2cp+1,0x1.7d589cp+0) b=(-0x1.09d10dp+3,0x1.8df9dp+1) c=(0x1.892bd8p+3,-0x1.26530fp+2)
 // >>>fastFit: 0=inf 1=inf 2=inf 3=-nan tmp=inf a=(0x1.79a72p-2,-0x1.e1588p+1) b=(0x1.de4706p-1,-0x1.30ccacp+3) c=(-0x1.4d8d4bp+0,0x1.a922ccp+3)
+// >>>fastFit: 0=-0x1.214e85bff4ca4p+28 1=-0x1.c5f78f6c1a45ap+24 2=0x1.22b1d7a771c18p+28 3=0x1.11e163587decap-1 tmp=-0x1.344e5cb57444ap+19 a=(0x1.79a724p-2,-0x1.e1588p+1) b=(0x1.de4704p-1,-0x1.30ccacp+3) c=(-0x1.4d8d4bp+0,0x1.a922ccp+3)
+// >>>fastFit: 0=-0x1.802a85b328eb1p+7 1=-0x1.955a62596f69fp+7 2=0x1.17196da2a003dp+8 3=-0x1.b188b3dfab249p+0 tmp=-0x1.2fc03379c95d9p-1 a=(0x1.62f2dp+1,-0x1.5ca34p+1) b=(0x1.9b879ap+2,-0x1.a7aa06p+2) c=(-0x1.268081p+3,0x1.2afdd3p+3)
 
 #include <iostream>
 #include<cmath>
@@ -52,9 +54,13 @@ int main(int n, char**) {
 //  double b[] ={-0x1.09d10dp+3,0x1.8df9dp+1};
 //  double c[] ={0x1.892bd8p+3,-0x1.26530fp+2};
 
-    double a[] = {0x1.79a72p-2,-0x1.e1588p+1};
-    double b[] = {0x1.de4706p-1,-0x1.30ccacp+3};
-    double c[] = {-0x1.4d8d4bp+0,0x1.a922ccp+3};
+//  double a[] = {0x1.79a72p-2,-0x1.e1588p+1};
+//  double b[] = {0x1.de4706p-1,-0x1.30ccacp+3};
+//  double c[] = {-0x1.4d8d4bp+0,0x1.a922ccp+3};
+
+  double a[]={0x1.79a724p-2,-0x1.e1588p+1};
+  double b[]={0x1.de4704p-1,-0x1.30ccacp+3};
+  double c[]={-0x1.4d8d4bp+0,0x1.a922ccp+3};
 
 
   invalidate(a);

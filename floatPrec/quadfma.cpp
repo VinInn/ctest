@@ -16,17 +16,18 @@ template<typename T>
 void go(T x){
   T a =  x + 94906265.625;
   T c =  94906268.375 -x;
-  T b =  x -189812534;
+  T b =  x -189812534.;
 
-  print ((T(0.25)*b*b)-a*c);
   print (fmal(-a,T(4)*c,b*b));
-  print (comp(a,b,c));
+  print (fmal(-a,c,T(0.25)*b*b));
+  print ((T(0.25)*b*b)-a*c);
+//  print (comp(a,b,c));
 }
 
 int main(int argc, char **) {
   double k = argc-1;
-  go<float>(k);
-  go<double>(k);
   go<__float128>(k);
+  go<double>(k);
+  go<float>(k);
   return 0;
 }
