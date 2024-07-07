@@ -7,9 +7,9 @@
 
 using Float = FLOAT;
 
-int main() {
+int main(int argc, char** argv) {
 
-  const Float t = 1.;
+  const Float t = argc;
   Float r = 1;
   Float a = 1.;
   const Float h = 0.5;

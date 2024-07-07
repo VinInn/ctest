@@ -1,3 +1,4 @@
+// clang++ -fsanitize=numerical -Wall -g ~innocent/public/ctest/floatPrec/quadSolvers.cpp -fno-sanitize-trap=all -fsanitize-recover=all -Ofast -march=native
 #include<cmath>
 #include<tuple>
 #include<limits>
@@ -13,7 +14,8 @@ inline std::tuple<T,T> quadSolverNaive(T a, T b, T c) {
   // solve equation ax^2 + 2bx + c= 0
   // using naive solution (as at college)
   auto d = -T(1)/a;
-  return std::make_tuple(d*(b+det(a,b,c)),d*(b-det(a,b,c)));  
+  auto q = det(a,b,c);
+  return std::make_tuple(d*(b+q),d*(b-q));  
 }
 
 
@@ -39,19 +41,21 @@ void print(T x) {
 
 
 template<typename T>
-void go() {
+void go(T a) {
   std::cout <<' '<< std::endl;
-  T a=1., b=-0.5*1.786737601482363, c=2.054360090947453e-8;
+//   T b= 0.5*200, c=0.000015;
+  T b=-0.5*1.786737601482363, c=2.054360090947453e-8;
   auto s1 = quadSolverNaive(a,b,c);
-  std::cout << "Naive Solution "<<  std::scientific << std::setprecision(std::numeric_limits<T>::digits10+3) << std::get<0>(s1) << ' ' << std::get<1>(s1) << std::endl;
   auto s2 = quadSolverOpt(a,b,c);
+  if (s1==s2) std::cout << "precise!!!" << std::endl;;
+  std::cout << "Naive Solution "<<  std::scientific << std::setprecision(std::numeric_limits<T>::digits10+3) << std::get<0>(s1) << ' ' << std::get<1>(s1) << std::endl;
   std::cout <<  "Opt  Solution "<<  std::scientific << std::setprecision(std::numeric_limits<T>::digits10+3) << std::get<0>(s2) << ' ' << std::get<1>(s2) << std::endl;
   std::cout << std::endl;
 }
 
 
 template<typename T>
-void circle() {
+void circle(int q) {
   std::cout <<' '<< std::endl;
 
   constexpr T micron = 1.e-3;
@@ -59,7 +63,7 @@ void circle() {
   constexpr T halfChord = one/2;
 
   
-  T x1 = std::sqrt(77.);
+  T x1 = std::sqrt(q>1 ? 66. : 77.);
   std::cout << "x1 "; print(x1);
 
   for (auto sagita = T(10.); sagita>micron; sagita*=T(0.5)) {
@@ -87,15 +91,14 @@ void circle() {
     std::cout << std::endl;
 }
 
-int main(){
+int main(int argc, char **){
 
+//   go<__float128>(argc);
+  go<double>(argc);
+  go<float>(argc);
 
-  go<float>();
-  go<double>();
-  // go<__float128>();
-
-  circle<float>();
-  circle<double>();
+  circle<double>(argc);
+  circle<float>(argc);
 
   
   return 0;
