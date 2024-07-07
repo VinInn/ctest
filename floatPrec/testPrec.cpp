@@ -1,3 +1,4 @@
+// clang++ -fsanitize=numerical -O2 -Wall -g ~innocent/public/ctest/floatPrec/testPrec.cpp -DFLOAT=double
 #include<cstdio>
 
 #ifndef FLOAT
