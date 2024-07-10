@@ -1,5 +1,6 @@
 // clang++ -fsanitize=numerical -Wall -g ~innocent/public/ctest/floatPrec/quadSolvers.cpp -fno-sanitize-trap=all -fsanitize-recover=all -Ofast -march=native
 // c++ -O3 -Wall quadSolvers.cpp -lquadmath
+// clang++ -O3 -Wall quadSolvers.cpp -lquadmath -I$gcc_home/lib/gcc/x86_64-pc-linux-gnu/15.0.0/include
 #include<cmath>
 #include<tuple>
 #include<limits>
