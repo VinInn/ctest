@@ -5,7 +5,7 @@
 #include<tuple>
 #include<limits>
 #include<quadmath.h>
-
+#include<vector>
 
 template<typename T>
 inline T det(T a, T b, T c) {
@@ -54,6 +54,10 @@ inline std::tuple<__float128,__float128> quadSolverOpt(__float128 a, __float128 
 
 using LD = long double;
 
+std::vector<float> vf;
+std::vector<double> vd;
+std::vector<__float128> vt;
+
 template<typename T> 
 void print(T x) {
   std::cout<< std::hexfloat << x <<' ' <<  std::scientific << std::setprecision(std::numeric_limits<T>::digits10+3) << LD(x) << std::endl;
@@ -61,15 +65,21 @@ void print(T x) {
 
 
 template<typename T>
-void go(T a) {
+void go(T a, std::vector<T> & v) {
   std::cout <<' '<< std::endl;
 //   T b= 0.5*200, c=0.000015;
   T b=-0.5*1.786737601482363, c=2.054360090947453e-8;
   auto s1 = quadSolverNaive(a,b,c);
   auto s2 = quadSolverOpt(a,b,c);
   if (s1==s2) std::cout << "precise!!!" << std::endl;
+  v.push_back(std::get<0>(s1));
+  v.push_back(std::get<1>(s1));
+  v.push_back(std::get<0>(s2));
+  v.push_back(std::get<1>(s2));
   std::cout << "Naive Solution "<<  std::scientific << std::setprecision(std::numeric_limits<T>::digits10+3) << LD(std::get<0>(s1)) << ' ' << LD(std::get<1>(s1)) << std::endl;
   std::cout << " Opt  Solution "<<  std::scientific << std::setprecision(std::numeric_limits<T>::digits10+3) << LD(std::get<0>(s2)) << ' ' << LD(std::get<1>(s2)) << std::endl;
+  std::cout << "Naive Solution "<<  std::scientific << std::setprecision(std::numeric_limits<double>::digits10+3) << double(std::get<0>(s1)) << ' ' << double(std::get<1>(s1)) << std::endl;
+  std::cout << " Opt  Solution "<<  std::scientific << std::setprecision(std::numeric_limits<double>::digits10+3) << double(std::get<0>(s2)) << ' ' << double(std::get<1>(s2)) << std::endl;
   std::cout << std::endl;
 }
 
@@ -113,12 +123,12 @@ void circle(int q) {
 
 int main(int argc, char **){
 
-  go<__float128>(argc);
-  go<double>(argc);
-  go<float>(argc);
+  go<__float128>(argc,vt);
+  go<double>(argc,vd);
+  go<float>(argc,vf);
 
-  circle<double>(argc);
-  circle<float>(argc);
+//  circle<double>(argc);
+//  circle<float>(argc);
 
   
   return 0;
