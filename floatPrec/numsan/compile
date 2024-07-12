@@ -1,0 +1,2 @@
+clang++ -Ofast -g -Wall -shared -fPIC foo.cc -o libfoo.so -fsanitize=numerical  -Wl,-z,defs -shared-libsan -rpath  /afs/cern.ch/work/i/innocent/public/w5/lib/clang/19/lib/x86_64-unknown-linux-gnu/
+clang++  -Ofast -g -Wall aTest.cpp -L./ -lfoo -rpath ./ 
