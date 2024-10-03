@@ -36,6 +36,7 @@ int main(int argc, char** argv) {
   auto s = foo(x,y);
   std::cout << std::hexfloat << s << std::endl;
   std::cout << std::hexfloat << foo2(x,y) << std::endl;
+  std::cout << std::hexfloat << foo2(y,x) << std::endl;
   std::cout << bar(x,y) << std::endl;
 
 }
