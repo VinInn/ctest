@@ -2,6 +2,9 @@
 
 namespace detailsTwoFloat {
 
+// imported from https://gitlab.inria.fr/core-math/core-math/-/blob/master/src/binary64/pow/pow.h
+// original version coded by H.  at CERN
+
 /* Add a + b, such that hi + lo approximates a + b.
    Assumes |a| >= |b|.
    For rounding to nearest we have hi + lo = a + b exactly.
