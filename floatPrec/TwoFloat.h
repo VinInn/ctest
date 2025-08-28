@@ -44,7 +44,7 @@ inline void fast_sum(T& hi, T& lo, T a, T bh,
                             T bl) {
   fast_two_sum(hi, lo, a, bh);
   /* |(a+bh)-(hi+lo)| <= 2^-105 |hi| and |lo| < ulp(hi) */
-  *lo += bl;
+  lo += bl;
   /* |(a+bh+bl)-(hi+lo)| <= 2^-105 |hi| + ulp(lo),
      where |lo| <= ulp(hi) + |bl|. */
 }
@@ -93,14 +93,74 @@ inline void d_square(T& hi, T& lo, T ah, T al) {
 template<typename T>
 class TwoFloat {
 public:
+
+  explicit TwoFloat(T a) : mhi(a), mlo(0) {}
+
   TwoFloat(T a, T b) {
     using namespace detailsTwoFloat;
     fast_two_sum(mhi,mlo, std::max(a,b),std::min(a,b));
   }
+
   T hi() const { return mhi;}
   T lo() const { return mlo;}
+  T & hi() { return mhi;}
+  T & lo() { return mlo;}
+
 
   T mhi=0;
   T mlo=0;
 };
 
+
+template<typename T>
+inline TwoFloat<T> operator+(TwoFloat<T> const & a, T b) {
+  using namespace detailsTwoFloat;
+  TwoFloat<T> ret(b,a.hi());
+  auto u = ret.lo() + a.lo();
+  fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
+  return ret;
+}
+
+template<typename T>
+inline TwoFloat<T> operator+(T b, TwoFloat<T> const & a) {
+  return a+b;
+}
+
+/* Algorithm 3 from https://hal.science/hal-01351529 */
+template<typename T>
+inline TwoFloat<T> operator*(TwoFloat<T> const & a, T b) {
+  using namespace detailsTwoFloat;
+  TwoFloat<T> ret;
+  s_mul(ret.hi(),ret.lo(), a, b.hi(), b.lo());
+  return ret;
+}
+
+template<typename T>
+inline TwoFloat<T> operator*(T b, TwoFloat<T> const & a) {
+  return a*b;
+}
+
+/* Algorithm 5 from https://hal.science/hal-01351529 */
+template<typename T>
+inline TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
+  using namespace detailsTwoFloat;
+  TwoFloat<T> ret(a.hi(), b.hi());
+  auto u = a.lo() + b.lo();
+  auto w = ret.lo() + u;
+  fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
+  return ret;
+}
+
+/* Algorithm 11  from https://hal.science/hal-01351529 */
+template<typename T>
+inline TwoFloat<T> operator*(TwoFloat<T> const & a, TwoFloat<T> const & b) {
+  using namespace detailsTwoFloat;
+  TwoFloat<T> ret;
+  a_mul(ret.hi(),ret.lo(),a.hi(),b.hi());
+  auto t0 =  a.lo() + b.lo();
+  auto t1 =   std::fma(a.hi(),b.lo(),t0); 
+  auto l2 =   std::fma(a.lo(),b.hi(),t1);
+  auto l = ret.lo()+l2;
+  fast_two_sum(ret.hi(), ret.lo(), ret.hi(),l);
+  return ret;
+}
