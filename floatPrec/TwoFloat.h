@@ -157,11 +157,15 @@ template<typename T>
 inline TwoFloat<T> operator*(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret;
+#ifdef MORE_PREC
   a_mul(ret.hi(),ret.lo(),a.hi(),b.hi());
   auto t0 =  a.lo() * b.lo();
   auto t1 =   std::fma(a.hi(),b.lo(),t0); 
   auto l2 =   std::fma(a.lo(),b.hi(),t1);
   auto l = ret.lo()+l2;
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),l);
+#else
+  d_mul(ret.hi(),ret.lo(),a.hi(),a.lo(),b.hi(),b.lo());
+#endif
   return ret;
 }
