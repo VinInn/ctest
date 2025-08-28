@@ -14,7 +14,7 @@ int main() {
   std::cout << std::hexfloat << d.hi() << ',' << d.lo() << std::endl;
 
   auto f1 = f;
-  TwoFloat<float> f2(1.e-3*std::sqrt(3.f),1.e-6*std::sqrt(2.f));
+  TwoFloat<float> f2(-1.e-3*std::sqrt(3.f),1.e-6*std::sqrt(2.f));
   auto d1 = double(f.hi())+double(f.lo());
   double d2 = double(f2.hi())+double(f2.lo());
   std::cout << std::hexfloat << f2.hi() << ',' << f2.lo() << std::endl;
