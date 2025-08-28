@@ -1,4 +1,6 @@
 #pragma once
+#include <cmath>
+#include <algorithm>
 
 namespace detailsTwoFloat {
 
@@ -90,9 +92,15 @@ inline void d_square(T& hi, T& lo, T ah, T al) {
 
 template<typename T>
 class TwoFloat {
-pulic:
+public:
+  TwoFloat(T a, T b) {
+    using namespace detailsTwoFloat;
+    fast_two_sum(mhi,mlo, std::max(a,b),std::min(a,b));
+  }
+  T hi() const { return mhi;}
+  T lo() const { return mlo;}
 
-  T mhi;
-  T mlo;
+  T mhi=0;
+  T mlo=0;
 };
 
