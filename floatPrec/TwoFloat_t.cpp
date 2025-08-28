@@ -3,8 +3,10 @@
 
 int main() {
 
- TwoFloat<float> f(std::sqrt(2.f),std::sqrt(0.05f));
- TwoFloat<double> d(std::sqrt(2.),std::sqrt(0.05));
+ float h = std::sqrt(2.f);
+ float l = 1.e-4*std::sqrt(3.f);
+ TwoFloat<float> f(h,l);
+ TwoFloat<double> d(h,l);
 
 
   std::cout << std::hexfloat << f.hi() << ',' << f.lo() << std::endl;
