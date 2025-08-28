@@ -94,6 +94,7 @@ template<typename T>
 class TwoFloat {
 public:
 
+  TwoFloat(){}
   explicit TwoFloat(T a) : mhi(a), mlo(0) {}
 
   TwoFloat(T a, T b) {
@@ -131,7 +132,7 @@ template<typename T>
 inline TwoFloat<T> operator*(TwoFloat<T> const & a, T b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret;
-  s_mul(ret.hi(),ret.lo(), a, b.hi(), b.lo());
+  s_mul(ret.hi(),ret.lo(), b, a.hi(), a.lo());
   return ret;
 }
 
@@ -157,7 +158,7 @@ inline TwoFloat<T> operator*(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret;
   a_mul(ret.hi(),ret.lo(),a.hi(),b.hi());
-  auto t0 =  a.lo() + b.lo();
+  auto t0 =  a.lo() * b.lo();
   auto t1 =   std::fma(a.hi(),b.lo(),t0); 
   auto l2 =   std::fma(a.lo(),b.hi(),t1);
   auto l = ret.lo()+l2;
