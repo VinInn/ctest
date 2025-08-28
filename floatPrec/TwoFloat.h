@@ -99,7 +99,7 @@ public:
 
   TwoFloat(T a, T b) {
     using namespace detailsTwoFloat;
-    fast_two_sum(mhi,mlo, std::max(a,b),std::min(a,b));
+    two_sum(mhi,mlo, a, b);
   }
 
   T hi() const { return mhi;}
