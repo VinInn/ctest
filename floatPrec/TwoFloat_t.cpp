@@ -23,6 +23,7 @@ int main() {
   auto sf =  f1+f2;
   auto sd = d1 + d2;
   std::cout << std::hexfloat << sf.hi() << ',' << sf.lo() << std::endl;
+  std::cout << std::hexfloat << double(sf.hi()) + double(sf.lo()) << std::endl;
   std::cout << std::hexfloat << sd << std::endl;
 
 {
