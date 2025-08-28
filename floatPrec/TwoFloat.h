@@ -141,16 +141,33 @@ inline TwoFloat<T> operator*(T b, TwoFloat<T> const & a) {
   return a*b;
 }
 
-/* Algorithm 5 from https://hal.science/hal-01351529 */
+
+
+#ifdef MORE_PREC
+// Algorithm 6 from https://hal.science/hal-01351529
+template<typename T>
+inline TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
+  using namespace detailsTwoFloat;
+  TwoFloat<T> ret(a.hi(), b.hi());
+  TwoFloat<T> t(a.lo(), b.lo());
+  auto u = ret.lo() + t.hi();
+  fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
+  auto w = ret.lo() + t.lo();
+  fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
+  return ret;
+}
+#else
+// Algorithm 5 from https://hal.science/hal-01351529
 template<typename T>
 inline TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret(a.hi(), b.hi());
   auto u = a.lo() + b.lo();
   auto w = ret.lo() + u;
-  fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
+  fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
   return ret;
 }
+#endif
 
 /* Algorithm 11  from https://hal.science/hal-01351529 */
 template<typename T>
