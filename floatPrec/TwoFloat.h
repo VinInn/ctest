@@ -111,6 +111,13 @@ public:
   T mlo=0;
 };
 
+TwoFloat<T> fromProd(T a, T b) {
+  TwoFloat<T>
+  ret.hi() = a * b;
+  ret.lo() = std::fma (a, b, -hi);
+  return ret;
+}
+
 
 template<typename T>
 inline TwoFloat<T> operator+(TwoFloat<T> const & a, T b) {
