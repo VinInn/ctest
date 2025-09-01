@@ -15,8 +15,10 @@ int main() {
 
   auto f1 = f;
   TwoFloat<float> f2(-1.e-3*std::sqrt(3.f),1.e-6*std::sqrt(2.f));
+  TwoFloat<float> f2n(1.e-3*std::sqrt(3.f),-1.e-6*std::sqrt(2.f));
   auto d1 = double(f.hi())+double(f.lo());
   double d2 = double(f2.hi())+double(f2.lo());
+  double d2n = double(f2n.hi())+double(f2n.lo());
   std::cout << std::hexfloat << f2.hi() << ',' << f2.lo() << std::endl;
   std::cout << std::hexfloat << d2 << std::endl;
 
@@ -25,6 +27,11 @@ int main() {
   std::cout << std::hexfloat << sf.hi() << ',' << sf.lo() << std::endl;
   std::cout << std::hexfloat << double(sf.hi()) + double(sf.lo()) << std::endl;
   std::cout << std::hexfloat << sd << std::endl;
+  auto sfn =  f1-f2n;
+  auto sdn = d1 - d2n;
+  std::cout << std::hexfloat << sfn.hi() << ',' << sfn.lo() << std::endl;
+  std::cout << std::hexfloat << double(sfn.hi()) + double(sfn.lo()) << std::endl;
+  std::cout << std::hexfloat << sdn << std::endl;
 
 {
   auto mf =  f1*f2.hi();

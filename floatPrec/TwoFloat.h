@@ -107,7 +107,6 @@ public:
   T & hi() { return mhi;}
   T & lo() { return mlo;}
 
-
   T mhi=0;
   T mlo=0;
 };
@@ -126,6 +125,26 @@ template<typename T>
 inline TwoFloat<T> operator+(T b, TwoFloat<T> const & a) {
   return a+b;
 }
+
+template<typename T>
+inline TwoFloat<T> operator-(TwoFloat<T> const & a, T b) {
+  using namespace detailsTwoFloat;
+  TwoFloat<T> ret(-b,a.hi());
+  auto u = ret.lo() + a.lo();
+  fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
+  return ret;
+}
+
+template<typename T>
+inline TwoFloat<T> operator-(T b, TwoFloat<T> const & a) {
+   using namespace detailsTwoFloat;
+  TwoFloat<T> ret(b,-a.hi());
+  auto u = ret.lo() - a.lo();
+  fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
+  return ret;
+}
+
+
 
 /* Algorithm 3 from https://hal.science/hal-01351529 */
 template<typename T>
@@ -156,6 +175,17 @@ inline TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
   return ret;
 }
+template<typename T>
+inline TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const & b) {
+  using namespace detailsTwoFloat;
+  TwoFloat<T> ret(a.hi(), -b.hi());
+  TwoFloat<T> t(a.lo(), -b.lo());
+  auto u = ret.lo() + t.hi();
+  fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
+  auto w = ret.lo() + t.lo();
+  fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
+  return ret;
+}
 #else
 // Algorithm 5 from https://hal.science/hal-01351529
 template<typename T>
@@ -167,7 +197,17 @@ inline TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
   return ret;
 }
+template<typename T>
+inline TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const & b) {
+  using namespace detailsTwoFloat;
+  TwoFloat<T> ret(a.hi(), -b.hi());
+  auto u = a.lo() - b.lo();
+  auto w = ret.lo() + u;
+  fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
+  return ret;
+}
 #endif
+
 
 /* Algorithm 11  from https://hal.science/hal-01351529 */
 template<typename T>
