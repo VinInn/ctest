@@ -18,7 +18,7 @@ int main() {
   auto f1 = f;
   TwoFloat<float> f2(-1.e-3*std::sqrt(3.f),1.e-6*std::sqrt(2.f),  fromSum);
   TwoFloat<float> f2n(1.e-3*std::sqrt(3.f),-1.e-6*std::sqrt(2.f), fromSum);
-  auto d1 = double(f.hi())+double(f.lo());
+  double d1 = double(f.hi())+double(f.lo());
   double d2 = double(f2.hi())+double(f2.lo());
   double d2n = double(f2n.hi())+double(f2n.lo());
   std::cout << std::hexfloat << f2.hi() << ',' << f2.lo() << std::endl;
@@ -36,6 +36,7 @@ int main() {
   std::cout << std::hexfloat << sdn << std::endl;
 
 {
+  std::cout << "mul" << std::endl;
   auto mf =  f1*f2.hi();
   auto md = d1 * f2.hi();
   std::cout << std::hexfloat << f1.hi()*f2.hi() << std::endl;
@@ -50,6 +51,25 @@ int main() {
   std::cout << std::hexfloat << double(mf.hi()) + double(mf.lo()) << std::endl;
   std::cout << std::hexfloat << md << std::endl;
 }
+
+
+{
+  std::cout << "div" << std::endl;
+  auto mf =  f1/f2.hi();
+  double md = d1/f2.hi();
+  std::cout << std::hexfloat << f1.hi()/f2.hi() << std::endl;
+  std::cout << std::hexfloat << mf.hi() << ',' << mf.lo() << std::endl;
+  std::cout << std::hexfloat << md << std::endl;
+}
+{
+  auto mf =  f1/f2;
+  auto md = d1/d2;
+  std::cout << std::hexfloat << f1.hi()/f2.hi() << std::endl;
+  std::cout << std::hexfloat << mf.hi() << ',' << mf.lo() << std::endl;
+  std::cout << std::hexfloat << double(mf.hi()) + double(mf.lo()) << std::endl;
+  std::cout << std::hexfloat << md << std::endl;
+}
+
 
   return 0;
 }

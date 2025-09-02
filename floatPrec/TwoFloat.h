@@ -87,6 +87,28 @@ inline void d_square(T& hi, T& lo, T ah, T al) {
   lo = std::fma(ah, b, s);
 }
 
+
+template<typename T>
+inline void a_div(T& hi, T& lo, T a, T b) {
+  auto t = a/b;
+  a_mul(hi,lo,t,b);
+  auto d = a - hi;
+  d = d - lo;
+  lo = d/b;
+  hi = t;
+}
+
+template<typename T>
+inline void s_div(T& hi, T& lo, T ah, T al, T b) {
+  auto t = ah/b;
+  a_mul(hi,lo,t,b);
+  auto d = ah - hi;
+  d = d - lo;
+  d = d + al;
+  lo = d/b;
+  hi = t;
+}
+
    enum class From { members, sum, prod, div };
 
    template<From from>
@@ -192,7 +214,7 @@ template<typename T>
 inline TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret(a.hi(), b.hi(),fromSum);
-  TwoFloat<T> t(a.lo(), b.lo());
+  TwoFloat<T> t(a.lo(), b.lo(),fromSum);
   auto u = ret.lo() + t.hi();
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
   auto w = ret.lo() + t.lo();
@@ -202,8 +224,8 @@ inline TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
 template<typename T>
 inline TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret<From::sum>(a.hi(), -b.hi());
-  TwoFloat<T> t<From::sum>(a.lo(), -b.lo());
+  TwoFloat<T> ret(a.hi(), -b.hi(),fromSum);
+  TwoFloat<T> t(a.lo(), -b.lo(),fromSum);
   auto u = ret.lo() + t.hi();
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
   auto w = ret.lo() + t.lo();
@@ -249,4 +271,38 @@ inline TwoFloat<T> operator*(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   d_mul(ret.hi(),ret.lo(),a.hi(),a.lo(),b.hi(),b.lo());
 #endif
   return ret;
+}
+
+
+/* Algorithm 15 from https://hal.science/hal-01351529 */
+template<typename T>
+inline TwoFloat<T> operator/(TwoFloat<T> const & a, T b) {
+  using namespace detailsTwoFloat;
+  TwoFloat<T> ret;
+  s_div(ret.hi(),ret.lo(), a.hi(), a.lo(),b);
+  return ret;
+}
+
+/* Algorithm 17  from https://hal.science/hal-01351529 */
+template<typename T>
+inline TwoFloat<T> operator/(TwoFloat<T> const & a, TwoFloat<T> const & b) {
+  using namespace detailsTwoFloat;
+#ifdef MORE_PREC
+  auto t = T(1.)/b.hi();
+  auto rh = std::fma(-b.hi(),t,T(1.));
+  auto rl= b.lo()*t;
+  TwoFloat<T> e(rh,rl,fromSum);
+  auto d = e*t;
+  auto m = d+t;
+  return a*m;
+#else
+  auto t = a.hi()/b.hi();
+  TwoFloat<T> ret = b*t;
+  auto p = a.hi() - ret.hi();
+  auto d = a.lo() - ret.lo();
+  d = p + d;
+  d = d/b.hi();
+  fast_two_sum(ret.hi(), ret.lo(), t, d);
+  return ret;
+#endif
 }
