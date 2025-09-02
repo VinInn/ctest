@@ -287,10 +287,10 @@ inline TwoFloat<T> operator/(TwoFloat<T> const & a, T b) {
 template<typename T>
 inline TwoFloat<T> operator/(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
-#ifdef MORE_PREC
+#ifdef MORE_PREC_DIV
   auto t = T(1.)/b.hi();
   auto rh = std::fma(-b.hi(),t,T(1.));
-  auto rl= b.lo()*t;
+  auto rl= -b.lo()*t;
   TwoFloat<T> e(rh,rl,fromSum);
   auto d = t*e;
   auto m = t+d;
