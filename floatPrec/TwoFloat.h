@@ -292,8 +292,8 @@ inline TwoFloat<T> operator/(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   auto rh = std::fma(-b.hi(),t,T(1.));
   auto rl= b.lo()*t;
   TwoFloat<T> e(rh,rl,fromSum);
-  auto d = e*t;
-  auto m = d+t;
+  auto d = t*e;
+  auto m = t+d;
   return a*m;
 #else
   auto t = a.hi()/b.hi();
