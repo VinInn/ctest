@@ -3,10 +3,12 @@
 
 int main() {
 
+  using namespace detailsTwoFloat;
+
  float h = std::sqrt(2.f);
  float l = 1.e-4*std::sqrt(3.f);
- TwoFloat<float> f(h,l);
- TwoFloat<double> d(h,l);
+ TwoFloat<float> f(h,l, fromSum);
+ TwoFloat<double> d(h,l, fromSum);
 
 
   std::cout << std::hexfloat << f.hi() << ',' << f.lo() << std::endl;
@@ -14,8 +16,8 @@ int main() {
   std::cout << std::hexfloat << d.hi() << ',' << d.lo() << std::endl;
 
   auto f1 = f;
-  TwoFloat<float> f2(-1.e-3*std::sqrt(3.f),1.e-6*std::sqrt(2.f));
-  TwoFloat<float> f2n(1.e-3*std::sqrt(3.f),-1.e-6*std::sqrt(2.f));
+  TwoFloat<float> f2(-1.e-3*std::sqrt(3.f),1.e-6*std::sqrt(2.f),  fromSum);
+  TwoFloat<float> f2n(1.e-3*std::sqrt(3.f),-1.e-6*std::sqrt(2.f), fromSum);
   auto d1 = double(f.hi())+double(f.lo());
   double d2 = double(f2.hi())+double(f2.lo());
   double d2n = double(f2n.hi())+double(f2n.lo());

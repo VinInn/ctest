@@ -87,6 +87,19 @@ inline void d_square(T& hi, T& lo, T ah, T al) {
   lo = std::fma(ah, b, s);
 }
 
+   enum class From { members, sum, prod, div };
+
+   template<From from>
+   struct Tag {
+     constexpr Tag() = default;
+     static constexpr From value() { return from;}
+   };
+
+   constexpr auto fromMembers = Tag<From::members>();
+   constexpr auto fromSum = Tag<From::sum>();
+   constexpr auto fromProd = Tag<From::prod>();
+   constexpr auto fromDiv = Tag<From::div>();
+
 }
 
 
@@ -97,32 +110,36 @@ public:
   TwoFloat(){}
   explicit TwoFloat(T a) : mhi(a), mlo(0) {}
 
-  TwoFloat(T a, T b) {
+  template<detailsTwoFloat::From f>
+  TwoFloat(T a, T b, detailsTwoFloat::Tag<f> from ) {
     using namespace detailsTwoFloat;
-    two_sum(mhi,mlo, a, b);
+    using Tag = detailsTwoFloat::Tag<f>;
+    if constexpr (Tag::value()==From::members) {
+      mhi=a; mlo=b;
+    } else if constexpr (Tag::value()==From::sum) {
+      fast_two_sum(mhi,mlo,a,b);
+    } else if constexpr (Tag::value()==From::prod) {
+      a_mul(mhi,mlo,a,b);
+    } else if constexpr (Tag::value()==From::div) {
+      a_div(mhi,mlo,a,b);
+    }
   }
+
 
   T hi() const { return mhi;}
   T lo() const { return mlo;}
   T & hi() { return mhi;}
   T & lo() { return mlo;}
 
-  T mhi=0;
-  T mlo=0;
+  T mhi;
+  T mlo;
 };
-
-TwoFloat<T> fromProd(T a, T b) {
-  TwoFloat<T>
-  ret.hi() = a * b;
-  ret.lo() = std::fma (a, b, -hi);
-  return ret;
-}
 
 
 template<typename T>
 inline TwoFloat<T> operator+(TwoFloat<T> const & a, T b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(b,a.hi());
+  TwoFloat<T> ret(b,a.hi(),fromSum);
   auto u = ret.lo() + a.lo();
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
   return ret;
@@ -136,7 +153,7 @@ inline TwoFloat<T> operator+(T b, TwoFloat<T> const & a) {
 template<typename T>
 inline TwoFloat<T> operator-(TwoFloat<T> const & a, T b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(-b,a.hi());
+  TwoFloat<T> ret(-b,a.hi(),fromSum);
   auto u = ret.lo() + a.lo();
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
   return ret;
@@ -144,8 +161,8 @@ inline TwoFloat<T> operator-(TwoFloat<T> const & a, T b) {
 
 template<typename T>
 inline TwoFloat<T> operator-(T b, TwoFloat<T> const & a) {
-   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(b,-a.hi());
+  using namespace detailsTwoFloat;
+  TwoFloat<T> ret(b,-a.hi(),fromSum);
   auto u = ret.lo() - a.lo();
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
   return ret;
@@ -174,7 +191,7 @@ inline TwoFloat<T> operator*(T b, TwoFloat<T> const & a) {
 template<typename T>
 inline TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(a.hi(), b.hi());
+  TwoFloat<T> ret(a.hi(), b.hi(),fromSum);
   TwoFloat<T> t(a.lo(), b.lo());
   auto u = ret.lo() + t.hi();
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
@@ -185,8 +202,8 @@ inline TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
 template<typename T>
 inline TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(a.hi(), -b.hi());
-  TwoFloat<T> t(a.lo(), -b.lo());
+  TwoFloat<T> ret<From::sum>(a.hi(), -b.hi());
+  TwoFloat<T> t<From::sum>(a.lo(), -b.lo());
   auto u = ret.lo() + t.hi();
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
   auto w = ret.lo() + t.lo();
@@ -198,7 +215,7 @@ inline TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const & b) {
 template<typename T>
 inline TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(a.hi(), b.hi());
+  TwoFloat<T> ret(a.hi(), b.hi(),fromSum);
   auto u = a.lo() + b.lo();
   auto w = ret.lo() + u;
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
@@ -207,7 +224,7 @@ inline TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
 template<typename T>
 inline TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(a.hi(), -b.hi());
+  TwoFloat<T> ret(a.hi(), -b.hi(),fromSum);
   auto u = a.lo() - b.lo();
   auto w = ret.lo() + u;
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
