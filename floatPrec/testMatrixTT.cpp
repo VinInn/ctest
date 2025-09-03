@@ -40,6 +40,8 @@ void genMatrix(M& m, Eng & eng) {
 
 int main() {
 
+  int maxIter = 100000;
+  
   using FF = TwoFloat<float>;
   using DD = TwoFloat<double>;
 
@@ -50,7 +52,7 @@ int main() {
   MatrixSym<float,5> m1,m2,m3;
   std::mt19937 eng;
 
-for (int kk=0; kk<10000; ++kk) {
+for (int kk=0; kk<maxIter; ++kk) {
   genMatrix(m1, eng);
   m3 = m1;
   int n = 5;
@@ -73,7 +75,7 @@ for (int kk=0; kk<10000; ++kk) {
   MatrixSym<float,5> m1,m2,m3;
   std::mt19937 eng;
 
-for (int kk=0; kk<10000; ++kk) {
+for (int kk=0; kk<maxIter; ++kk) {
   genMatrix(m1, eng);
   invert55(m1,m2);
   invert55(m2,m3);
@@ -99,7 +101,7 @@ for (int kk=0; kk<10000; ++kk) {
   MatrixSym<double,5> m1,m2,m3;
   std::mt19937 eng;
 
-for (int kk=0; kk<10000; ++kk) {
+for (int kk=0; kk<maxIter; ++kk) {
   genMatrix(m1, eng);
   invert55(m1,m2);
   invert55(m2,m3);
@@ -125,7 +127,7 @@ for (int kk=0; kk<10000; ++kk) {
   MatrixSym<FF,5> m1,m2,m3;
   std::mt19937 eng;
 
-for (int kk=0; kk<10000; ++kk) {
+for (int kk=0; kk<maxIter; ++kk) {
   genMatrix(m1, eng);
   invert55(m1,m2);
   invert55(m2,m3);
@@ -154,7 +156,7 @@ for (int kk=0; kk<10000; ++kk) {
   MatrixSym<DD,5> m1,m2,m3;
   std::mt19937 eng;
 
-for (int kk=0; kk<10000; ++kk) {
+for (int kk=0; kk<maxIter; ++kk) {
   genMatrix(m1, eng);
   invert55(m1,m2);
   invert55(m2,m3);

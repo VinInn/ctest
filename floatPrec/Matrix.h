@@ -224,12 +224,14 @@ a_6 & a_7  & a_8   \end{array} \right)
       /**
          assignment : only symmetric to symmetric allowed
        */
+      /*
       template <class R>
       inline MatrixSym<T, D>& operator=(const R&) {
          static_assert(0==1,
                       "Cannot_assign_general_to_symmetric_matrix_representation");
          return *this;
       }
+      */
       inline MatrixSym<T, D>& operator=(const MatrixSym& rhs) {
          for(unsigned int i=0; i<kSize; ++i) fArray[i] = rhs.Array()[i];
          return *this;
@@ -238,12 +240,14 @@ a_6 & a_7  & a_8   \end{array} \right)
       /**
          self addition : only symmetric to symmetric allowed
        */
+      /*
       template <class R>
       inline MatrixSym<T, D>& operator+=(const R&) {
          static_assert(0==1,
                       "Cannot_add_general_to_symmetric_matrix_representation");
          return *this;
       }
+      */
       inline MatrixSym<T, D>& operator+=(const MatrixSym& rhs) {
          for(unsigned int i=0; i<kSize; ++i) fArray[i] += rhs.Array()[i];
          return *this;
@@ -252,12 +256,14 @@ a_6 & a_7  & a_8   \end{array} \right)
       /**
          self subtraction : only symmetric to symmetric allowed
        */
+      /*
       template <class R>
       inline MatrixSym<T, D>& operator-=(const R&) {
          static_assert(0==1,
                       "Cannot_substract_general_to_symmetric_matrix_representation");
          return *this;
       }
+      */
       inline MatrixSym<T, D>& operator-=(const MatrixSym& rhs) {
          for(unsigned int i=0; i<kSize; ++i) fArray[i] -= rhs.Array()[i];
          return *this;
