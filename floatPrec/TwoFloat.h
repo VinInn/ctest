@@ -153,7 +153,7 @@ public:
   }
 
 
-  TwoFloat operator-() {  TwoFloat<T> ret(-mhi, -mlo, detailsTwoFloat::fromMembers); return ret;}
+  TwoFloat operator-() const {  TwoFloat<T> ret(-mhi, -mlo, detailsTwoFloat::fromMembers); return ret;}
 
   T hi() const { return mhi;}
   T lo() const { return mlo;}
