@@ -306,8 +306,8 @@ a_6 & a_7  & a_8   \end{array} \right)
 // here for test
     template <typename M1, typename M2>
     inline constexpr void __attribute__((always_inline)) invert55(M1 const& src, M2& dst) {
-      using F = decltype(src(0, 0));
-      F one{1.0f};
+      using F = typename std::remove_reference<decltype(src(0, 0))>::type;;
+      F one(1.0f);
       auto luc0 = one / src(0, 0);
       auto luc1 = src(1, 0);
       auto luc2 = src(1, 1) - luc0 * luc1 * luc1;
