@@ -12,13 +12,13 @@ void genMatrix(M& m, Eng & eng) {
 
   // generate first diagonal elemets
   for (int i = 0; i < n; ++i) {
-    float maxVal = i * 1.e12 / (n - 1) + 1;  // max condition is 10^12
-    m(i, i) = maxVal * rgen(eng);
+    float maxVal = i * 1.e10 / (n - 1) + 1;  // max condition is 10^10
+    m(i, i) = maxVal * rgen(eng) + 1.e-9;
   }
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < i; ++j) {
       float v = 0.3f * std::sqrt(float(m(i, i) * m(j, j)));  // this makes the matrix pos defined
-      m(i, j) = v * rgen(eng);
+      m(i, j) = v * rgen(eng) + 1.e-9;;
       // m(j, i) = m(i, j);
     }
   }
