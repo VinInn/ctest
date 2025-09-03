@@ -313,7 +313,7 @@ a_6 & a_7  & a_8   \end{array} \right)
       auto luc2 = src(1, 1) - luc0 * luc1 * luc1;
       luc2 = one / luc2;
       auto luc3 = src(2, 0);
-      auto luc4 = (src(2, 1) - luc0 * luc1 * luc3);
+      auto luc4 = src(2, 1) - (luc0 * luc1 * luc3);
       auto luc5 = src(2, 2) - (luc0 * luc3 * luc3 + luc2 * luc4 * luc4);
       luc5 = one / luc5;
       auto luc6 = src(3, 0);

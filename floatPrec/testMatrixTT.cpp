@@ -32,6 +32,7 @@ void genMatrix(M& m, Eng & eng) {
 int main() {
 
   using FF = TwoFloat<float>;
+  using DD = TwoFloat<double>;
 
 {
   float maxOn=0;
@@ -99,8 +100,9 @@ for (int kk=0; kk<1000; ++kk) {
   for (int i=0; i<n; ++i)
     maxOn = std::max(maxOn,std::abs((m3(i,i)-m1(i,i)).hi())/std::abs(m1(i,i).hi()));
   for (int i = 0; i < n; ++i) {
-    if (kk==0) std::cout << m1(i,i).hi() << ' ' << m1(i,i).lo() << std::endl;
-    if (kk==0) std::cout << m3(i,i).hi() << ' ' << m3(i,i).lo() << std::endl;
+    if (kk==0) std::cout << m1(i,i).hi() << ',' << m1(i,i).lo() << std::endl;
+    if (kk==0) std::cout << m2(i,i).hi() << ',' << m2(i,i).lo() << std::endl;
+    if (kk==0) std::cout << m3(i,i).hi() << ',' << m3(i,i).lo() << std::endl;
     for (int j = 0; j < i; ++j) {
       maxOff = std::max(maxOff,std::abs( ((m3(i,j)-m1(i,j))/m1(i,j)).hi() ));
     }
@@ -108,6 +110,35 @@ for (int kk=0; kk<1000; ++kk) {
 }
   std::cout << maxOn << ' ' << maxOff << std::endl;
 }
+
+{
+  double maxOn=0;
+  double maxOff=0;
+  MatrixSym<DD,5> m1,m2,m3;
+  std::mt19937 eng;
+
+for (int kk=0; kk<1000; ++kk) {
+  genMatrix(m1, eng);
+  invert55(m1,m2);
+  invert55(m2,m3);
+  invert55(m3,m2);
+  invert55(m2,m3);
+  int n = 5;
+  for (int i=0; i<n; ++i)
+    maxOn = std::max(maxOn,std::abs((m3(i,i)-m1(i,i)).hi())/std::abs(m1(i,i).hi()));
+  for (int i = 0; i < n; ++i) {
+    if (kk==0) std::cout << m1(i,i).hi() << ',' << m1(i,i).lo() << std::endl;
+    if (kk==0) std::cout << m2(i,i).hi() << ',' << m2(i,i).lo() << std::endl;
+    if (kk==0) std::cout << m3(i,i).hi() << ',' << m3(i,i).lo() << std::endl;
+    for (int j = 0; j < i; ++j) {
+      maxOff = std::max(maxOff,std::abs( ((m3(i,j)-m1(i,j))/m1(i,j)).hi() ));
+    }
+  }
+}
+  std::cout << maxOn << ' ' << maxOff << std::endl;
+}
+
+
 
   return 0;
 }
