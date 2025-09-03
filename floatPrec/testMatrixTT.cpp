@@ -34,6 +34,28 @@ int main() {
   using FF = TwoFloat<float>;
   using DD = TwoFloat<double>;
 
+
+{
+  float maxOn=0;
+  float maxOff=0;
+  MatrixSym<float,5> m1,m2,m3;
+  std::mt19937 eng;
+
+for (int kk=0; kk<10000; ++kk) {
+  genMatrix(m1, eng);
+  m3 = m1;
+  int n = 5;
+  for (int i=0; i<n; ++i)
+    maxOn = std::max(maxOn,std::abs(m3(i,i)-m1(i,i))/std::abs(m1(i,i)));
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < i; ++j) {
+      maxOff = std::max(maxOff,std::abs(m3(i,j)-m1(i,j))/std::abs(m1(i,j)));
+    }
+  }
+}
+  std::cout << maxOn << ' ' << maxOff << std::endl;
+}
+
 {
   float maxOn=0;
   float maxOff=0;
