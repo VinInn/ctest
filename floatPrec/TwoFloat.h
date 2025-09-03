@@ -109,7 +109,7 @@ inline void s_div(T& hi, T& lo, T ah, T al, T b) {
   hi = t;
 }
 
-   enum class From { members, sum, prod, div };
+   enum class From { members, fastsum, sum, prod, div };
 
    template<From from>
    struct Tag {
@@ -118,6 +118,7 @@ inline void s_div(T& hi, T& lo, T ah, T al, T b) {
    };
 
    constexpr auto fromMembers = Tag<From::members>();
+   constexpr auto fromFastSum = Tag<From::fastsum>();
    constexpr auto fromSum = Tag<From::sum>();
    constexpr auto fromProd = Tag<From::prod>();
    constexpr auto fromDiv = Tag<From::div>();
@@ -138,8 +139,10 @@ public:
     using Tag = detailsTwoFloat::Tag<f>;
     if constexpr (Tag::value()==From::members) {
       mhi=a; mlo=b;
-    } else if constexpr (Tag::value()==From::sum) {
+    } else if constexpr (Tag::value()==From::fastsum) {
       fast_two_sum(mhi,mlo,a,b);
+    } else if constexpr (Tag::value()==From::sum) {
+      two_sum(mhi,mlo,a,b);
     } else if constexpr (Tag::value()==From::prod) {
       a_mul(mhi,mlo,a,b);
     } else if constexpr (Tag::value()==From::div) {
@@ -291,7 +294,7 @@ inline TwoFloat<T> operator/(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   auto t = T(1.)/b.hi();
   auto rh = std::fma(-b.hi(),t,T(1.));
   auto rl= -b.lo()*t;
-  TwoFloat<T> e(rh,rl,fromSum);
+  TwoFloat<T> e(rh,rl,fromFastSum);
   auto d = t*e;
   auto m = t+d;
   return a*m;
