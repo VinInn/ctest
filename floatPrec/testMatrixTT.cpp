@@ -29,12 +29,21 @@ void genMatrix(M& m, Eng & eng) {
 
 #include<iostream>
 
+
+#ifdef ALL_T
+#define NOP_T
+#define FLOAT_T
+#define FLOAT2_T
+#define DOUBLE_T
+#define DOUBLE2_T
+#endif
+
 int main() {
 
   using FF = TwoFloat<float>;
   using DD = TwoFloat<double>;
 
-
+#ifdef NOP_T
 {
   float maxOn=0;
   float maxOff=0;
@@ -55,7 +64,9 @@ for (int kk=0; kk<10000; ++kk) {
 }
   std::cout << maxOn << ' ' << maxOff << std::endl;
 }
+#endif
 
+#ifdef FLOAT_T
 {
   float maxOn=0;
   float maxOff=0;
@@ -79,7 +90,9 @@ for (int kk=0; kk<10000; ++kk) {
 }
   std::cout << maxOn << ' ' << maxOff << std::endl;
 }
+#endif
 
+#ifdef DOUBLE_T
 {
   double maxOn=0;
   double maxOff=0;
@@ -103,9 +116,9 @@ for (int kk=0; kk<10000; ++kk) {
 }
   std::cout << maxOn << ' ' << maxOff << std::endl;
 }
+#endif
 
-
-
+#ifdef FLOAT2_T
 {
   float maxOn=0;
   float maxOff=0;
@@ -132,7 +145,9 @@ for (int kk=0; kk<10000; ++kk) {
 }
   std::cout << maxOn << ' ' << maxOff << std::endl;
 }
+#endif
 
+#ifdef DOUBLE2_T
 {
   double maxOn=0;
   double maxOff=0;
@@ -159,7 +174,7 @@ for (int kk=0; kk<10000; ++kk) {
 }
   std::cout << maxOn << ' ' << maxOff << std::endl;
 }
-
+#endif
 
 
   return 0;
