@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <algorithm>
+#include<cassert>
 
 namespace detailsTwoFloat {
 
@@ -20,7 +21,7 @@ template<typename T>
 inline void fast_two_sum(T& hi, T& lo, T a, T b) {
   T e;
 
-  // assert (a == 0 || std::abs (a) >= std::abs (b));
+//  assert (a == 0 || std::abs (a) >= std::abs (b));
   hi = a + b;
   e = hi - a; /* exact */
   lo = b - e; /* exact */
