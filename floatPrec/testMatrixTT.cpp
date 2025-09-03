@@ -40,12 +40,12 @@ int main() {
   MatrixSym<float,5> m1,m2,m3;
   std::mt19937 eng;
 
-for (int kk=0; kk<1000; ++kk) {
+for (int kk=0; kk<10000; ++kk) {
   genMatrix(m1, eng);
   invert55(m1,m2);
   invert55(m2,m3);
-  invert55(m3,m2);
-  invert55(m2,m3);
+//  invert55(m3,m2);
+//  invert55(m2,m3);
   int n = 5;
   for (int i=0; i<n; ++i)
     maxOn = std::max(maxOn,std::abs(m3(i,i)-m1(i,i))/std::abs(m1(i,i)));
@@ -64,12 +64,12 @@ for (int kk=0; kk<1000; ++kk) {
   MatrixSym<double,5> m1,m2,m3;
   std::mt19937 eng;
 
-for (int kk=0; kk<1000; ++kk) {
+for (int kk=0; kk<10000; ++kk) {
   genMatrix(m1, eng);
   invert55(m1,m2);
   invert55(m2,m3);
-  invert55(m3,m2);
-  invert55(m2,m3);
+//  invert55(m3,m2);
+//  invert55(m2,m3);
   int n = 5;
   for (int i=0; i<n; ++i)
     maxOn = std::max(maxOn,std::abs(m3(i,i)-m1(i,i))/std::abs(m1(i,i)));
@@ -90,12 +90,12 @@ for (int kk=0; kk<1000; ++kk) {
   MatrixSym<FF,5> m1,m2,m3;
   std::mt19937 eng;
 
-for (int kk=0; kk<1000; ++kk) {
+for (int kk=0; kk<10000; ++kk) {
   genMatrix(m1, eng);
   invert55(m1,m2);
   invert55(m2,m3);
-  invert55(m3,m2);
-  invert55(m2,m3);
+//  invert55(m3,m2);
+//  invert55(m2,m3);
   int n = 5;
   for (int i=0; i<n; ++i)
     maxOn = std::max(maxOn,std::abs((m3(i,i)-m1(i,i)).hi())/std::abs(m1(i,i).hi()));
@@ -117,12 +117,12 @@ for (int kk=0; kk<1000; ++kk) {
   MatrixSym<DD,5> m1,m2,m3;
   std::mt19937 eng;
 
-for (int kk=0; kk<1000; ++kk) {
+for (int kk=0; kk<10000; ++kk) {
   genMatrix(m1, eng);
   invert55(m1,m2);
   invert55(m2,m3);
-  invert55(m3,m2);
-  invert55(m2,m3);
+//  invert55(m3,m2);
+//  invert55(m2,m3);
   int n = 5;
   for (int i=0; i<n; ++i)
     maxOn = std::max(maxOn,std::abs((m3(i,i)-m1(i,i)).hi())/std::abs(m1(i,i).hi()));
