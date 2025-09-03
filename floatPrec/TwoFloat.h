@@ -132,6 +132,8 @@ public:
 
   TwoFloat(){}
   explicit TwoFloat(T a) : mhi(a), mlo(0) {}
+  TwoFloat & operator=(T a) { mhi=a; mlo=0; return *this;}
+  explicit operator const float() const { return mhi;}
 
   template<detailsTwoFloat::From f>
   TwoFloat(T a, T b, detailsTwoFloat::Tag<f> from ) {
@@ -150,6 +152,8 @@ public:
     }
   }
 
+
+  TwoFloat operator-() {  TwoFloat<T> ret(-mhi, -mlo, detailsTwoFloat::fromMembers); return ret;}
 
   T hi() const { return mhi;}
   T lo() const { return mlo;}

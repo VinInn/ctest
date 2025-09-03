@@ -303,3 +303,60 @@ a_6 & a_7  & a_8   \end{array} \right)
    };
 
 
+// here for test
+    template <typename M1, typename M2>
+    inline constexpr void __attribute__((always_inline)) invert55(M1 const& src, M2& dst) {
+      using F = decltype(src(0, 0));
+      F one{1.0f};
+      auto luc0 = one / src(0, 0);
+      auto luc1 = src(1, 0);
+      auto luc2 = src(1, 1) - luc0 * luc1 * luc1;
+      luc2 = one / luc2;
+      auto luc3 = src(2, 0);
+      auto luc4 = (src(2, 1) - luc0 * luc1 * luc3);
+      auto luc5 = src(2, 2) - (luc0 * luc3 * luc3 + luc2 * luc4 * luc4);
+      luc5 = one / luc5;
+      auto luc6 = src(3, 0);
+      auto luc7 = (src(3, 1) - luc0 * luc1 * luc6);
+      auto luc8 = (src(3, 2) - luc0 * luc3 * luc6 - luc2 * luc4 * luc7);
+      auto luc9 = src(3, 3) - (luc0 * luc6 * luc6 + luc2 * luc7 * luc7 + luc8 * (luc8 * luc5));
+      luc9 = one / luc9;
+      auto luc10 = src(4, 0);
+      auto luc11 = (src(4, 1) - luc0 * luc1 * luc10);
+      auto luc12 = (src(4, 2) - luc0 * luc3 * luc10 - luc2 * luc4 * luc11);
+      auto luc13 = (src(4, 3) - luc0 * luc6 * luc10 - luc2 * luc7 * luc11 - luc5 * luc8 * luc12);
+      auto luc14 =
+          src(4, 4) - (luc0 * luc10 * luc10 + luc2 * luc11 * luc11 + luc5 * luc12 * luc12 + luc9 * luc13 * luc13);
+      luc14 = one / luc14;
+
+      auto li21 = -luc1 * luc0;
+      auto li32 = -luc2 * luc4;
+      auto li31 = (luc1 * (luc2 * luc4) - luc3) * luc0;
+      auto li43 = -(luc8 * luc5);
+      auto li42 = (luc4 * luc8 * luc5 - luc7) * luc2;
+      auto li41 = (-luc1 * (luc2 * luc4) * (luc8 * luc5) + luc1 * (luc2 * luc7) + luc3 * (luc8 * luc5) - luc6) * luc0;
+      auto li54 = -luc13 * luc9;
+      auto li53 = (luc13 * luc8 * luc9 - luc12) * luc5;
+      auto li52 = (-luc4 * luc8 * luc13 * luc5 * luc9 + luc4 * luc12 * luc5 + luc7 * luc13 * luc9 - luc11) * luc2;
+      auto li51 = (luc1 * luc4 * luc8 * luc13 * luc2 * luc5 * luc9 - luc13 * luc8 * luc3 * luc9 * luc5 -
+                   luc12 * luc4 * luc1 * luc2 * luc5 - luc13 * luc7 * luc1 * luc9 * luc2 + luc11 * luc1 * luc2 +
+                   luc12 * luc3 * luc5 + luc13 * luc6 * luc9 - luc10) *
+                  luc0;
+
+      dst(0, 0) = luc14 * li51 * li51 + luc9 * li41 * li41 + luc5 * li31 * li31 + luc2 * li21 * li21 + luc0;
+      dst(1, 0) = luc14 * li51 * li52 + luc9 * li41 * li42 + luc5 * li31 * li32 + luc2 * li21;
+      dst(1, 1) = luc14 * li52 * li52 + luc9 * li42 * li42 + luc5 * li32 * li32 + luc2;
+      dst(2, 0) = luc14 * li51 * li53 + luc9 * li41 * li43 + luc5 * li31;
+      dst(2, 1) = luc14 * li52 * li53 + luc9 * li42 * li43 + luc5 * li32;
+      dst(2, 2) = luc14 * li53 * li53 + luc9 * li43 * li43 + luc5;
+      dst(3, 0) = luc14 * li51 * li54 + luc9 * li41;
+      dst(3, 1) = luc14 * li52 * li54 + luc9 * li42;
+      dst(3, 2) = luc14 * li53 * li54 + luc9 * li43;
+      dst(3, 3) = luc14 * li54 * li54 + luc9;
+      dst(4, 0) = luc14 * li51;
+      dst(4, 1) = luc14 * li52;
+      dst(4, 2) = luc14 * li53;
+      dst(4, 3) = luc14 * li54;
+      dst(4, 4) = luc14;
+    }
+
