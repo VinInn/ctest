@@ -1,6 +1,6 @@
 #include "cstdint"
 
-using Float = float;
+using Float = double;
 
 // Type your code here, or load an example.
 __global__ void square(Float* array,  int64_t * tt, int64_t * tg, int n) {
