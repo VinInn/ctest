@@ -27,8 +27,10 @@ __global__ void square(Float* array,  int64_t * tt, int64_t * tg, int n) {
     asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(start));
 #endif
      if (tid<n) {
-        array[tid] = array[tid] * array[tid];
-        array[tid] = array[tid] * array[tid] +k;
+//        array[tid] = array[tid] * array[tid];
+//        array[tid] = array[tid] * array[tid] +k;
+      k = k*k;
+      k = k*k+k;
     }
     // Record end time 
 #ifdef CLOCK
@@ -47,6 +49,7 @@ __global__ void square(Float* array,  int64_t * tt, int64_t * tg, int n) {
      *tg = gend - gstart;
 #endif
    }
+   array[tid] = k;
 }
 
 #include<iostream>
