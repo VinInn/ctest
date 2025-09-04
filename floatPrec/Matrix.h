@@ -194,7 +194,10 @@ a_6 & a_7  & a_8   \end{array} \right)
 
    public:
 
-     inline constexpr MatrixSym(){}
+#ifdef __NVCC__
+    __device__ __host__ 
+#endif
+    inline constexpr MatrixSym(){}
 
     typedef T  value_type;
 
@@ -232,6 +235,12 @@ a_6 & a_7  & a_8   \end{array} \right)
          return *this;
       }
       */
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+      inline constexpr MatrixSym(const MatrixSym& rhs) {
+         for(unsigned int i=0; i<kSize; ++i) fArray[i] = rhs.Array()[i];
+      }
       inline constexpr MatrixSym<T, D>& operator=(const MatrixSym& rhs) {
          for(unsigned int i=0; i<kSize; ++i) fArray[i] = rhs.Array()[i];
          return *this;

@@ -30,12 +30,12 @@ void genMatrix(M& m, Eng & eng) {
 
 using Float = FLOAT;
 
-using MM5 = MatrixSym<float,5>;
+using MM5 = MatrixSym<Float,5>;
 
 
 // Type your code here, or load an example.
 __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
-     int maxIter = 1000;
+     int maxIter = 100000;
      __shared__ uint64_t gstart, gend;
      uint64_t start, end;
      int tid = blockDim.x * blockIdx.x + threadIdx.x;
