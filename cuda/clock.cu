@@ -1,6 +1,7 @@
+// /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 clock.cu -DCLOCK -DFLOAT=float
 #include "cstdint"
 
-using Float = double;
+using Float = FLOAT;
 
 // Type your code here, or load an example.
 __global__ void square(Float* array,  int64_t * tt, int64_t * tg, int n) {
@@ -26,7 +27,7 @@ __global__ void square(Float* array,  int64_t * tt, int64_t * tg, int n) {
     asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(start));
 #endif
      if (tid<n) {
-//        array[tid] = array[tid] * array[tid];
+        array[tid] = array[tid] * array[tid];
         array[tid] = array[tid] * array[tid] +k;
     }
     // Record end time 
