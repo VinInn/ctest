@@ -1,23 +1,75 @@
 #include "cstdint"
 // Type your code here, or load an example.
-__global__ void square(int* array,  int64_t * t, int n) {
+__global__ void square(int* array,  int64_t * tt, int64_t * tg, int n) {
+     __shared__ uint64_t gstart, gend;
      uint64_t start, end;
      int tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+     auto k = array[tid];
+
+     if (tid==0) {
+#ifdef CLOCK
+      gstart = clock64();
+#else
+      // Record start time
+      asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(gstart));
+#endif
+     }
+     __syncthreads();
 #ifdef CLOCK     
     auto s = clock64();
 #else    
     // Record start time
     asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(start));
 #endif
-     if (tid<n)
-        array[tid] = array[tid] * array[tid];
-    
+     if (tid<n) {
+//        array[tid] = array[tid] * array[tid];
+        array[tid] = array[tid] * array[tid] +k;
+    }
     // Record end time 
 #ifdef CLOCK
-       *t = clock64() -s;
+       tt[tid] = clock64() -s;
 #else
    asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(end));
-   *t = start -end;
-#endif 
+   tt[tid] = end - start;
+#endif
+
+    __syncthreads();
+    if (tid==0) {
+ #ifdef CLOCK
+      *tg = clock64() -gstart;
+#else
+     asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(gend));
+     *tg = gend - gstart;
+#endif
+   }
 }
 
+#include<iostream>
+
+int main(int argc, char** argv) {
+
+  int n = 32;
+  int * a;
+  int64_t * tt;
+  int64_t * tg;
+
+
+  cudaMallocManaged(&a, n*sizeof(int));
+  cudaMallocManaged(&tt, n*sizeof(int64_t));
+  cudaMallocManaged(&tg, sizeof(int64_t));
+
+
+  for (int i=0; i<n; ++i) a[i]=i;
+
+  for (int i=0; i<n; ++i) tt[i]=0;
+  *tg=0;
+  square<<<1,32,0,0>>>(a,tt,tg,n);
+  cudaDeviceSynchronize();
+  for (int i=0; i<n; ++i) std::cout << a[i] <<  ' ';
+  std::cout << std::endl;
+
+
+  for (int i=0; i<n; ++i) std::cout << tt[i] <<  ' ';
+  std::cout << '\n' << *tg << std::endl;
+}
