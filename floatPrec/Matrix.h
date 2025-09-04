@@ -307,9 +307,9 @@ a_6 & a_7  & a_8   \end{array} \right)
      static inline constexpr unsigned int
      offset(unsigned int i, unsigned int j)
      {
-       //if (j > i) std::swap(i, j);
-       return off(i*D+j);
-       // return (i>j) ? (i * (i+1) / 2) + j :  (j * (j+1) / 2) + i;
+       if (j > i) std::swap(i, j);
+       //return off(i*D+j);
+       return (i>j) ? (i * (i+1) / 2) + j :  (j * (j+1) / 2) + i;
      }
 
    private:
@@ -320,6 +320,9 @@ a_6 & a_7  & a_8   \end{array} \right)
 
 // here for test
     template <typename M1, typename M2>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
     inline constexpr void __attribute__((always_inline)) invert55(M1 const& src, M2& dst) {
       using F = typename std::remove_reference<decltype(src(0, 0))>::type;;
       F one(1.0f);

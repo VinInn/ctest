@@ -1,7 +1,8 @@
-// /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 clock.cu -DCLOCK -DFLOAT=float
-#include "cstdint"
+// /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr clock.cu -DCLOCK -DFLOAT=float
+#include<cstdint>
 #include<cmath>
 #include<random>
+#include<cstdio>
 
 #include "Matrix.h"
 
@@ -42,6 +43,7 @@ __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
 
      auto m1 = array[tid];
      MM5 m2;
+
      if (tid==0) {
 #ifdef CLOCK
       gstart = clock64();
