@@ -37,42 +37,42 @@ a_6 & a_7  & a_8   \end{array} \right)
 
       typedef T  value_type;
 
-      inline const T& operator()(unsigned int i, unsigned int j) const {
+      inline constexpr const T& operator()(unsigned int i, unsigned int j) const {
          return fArray[i*D2+j];
       }
-      inline T& operator()(unsigned int i, unsigned int j) {
+      inline constexpr T& operator()(unsigned int i, unsigned int j) {
          return fArray[i*D2+j];
       }
-      inline T& operator[](unsigned int i) { return fArray[i]; }
+      inline constexpr T& operator[](unsigned int i) { return fArray[i]; }
 
-      inline const T& operator[](unsigned int i) const { return fArray[i]; }
+      inline constexpr const T& operator[](unsigned int i) const { return fArray[i]; }
 
-      inline T apply(unsigned int i) const { return fArray[i]; }
+      inline constexpr T apply(unsigned int i) const { return fArray[i]; }
 
-      inline T* Array() { return fArray; }
+      inline constexpr T* Array() { return fArray; }
 
-      inline const T* Array() const { return fArray; }
+      inline constexpr const T* Array() const { return fArray; }
 
       template <class R>
-      inline MatrixStd<T, D1, D2>& operator+=(const R& rhs) {
+      inline constexpr MatrixStd<T, D1, D2>& operator+=(const R& rhs) {
          for(unsigned int i=0; i<kSize; ++i) fArray[i] += rhs[i];
          return *this;
       }
 
       template <class R>
-      inline MatrixStd<T, D1, D2>& operator-=(const R& rhs) {
+      inline constexpr MatrixStd<T, D1, D2>& operator-=(const R& rhs) {
          for(unsigned int i=0; i<kSize; ++i) fArray[i] -= rhs[i];
          return *this;
       }
 
       template <class R>
-      inline MatrixStd<T, D1, D2>& operator=(const R& rhs) {
+      inline constexpr MatrixStd<T, D1, D2>& operator=(const R& rhs) {
          for(unsigned int i=0; i<kSize; ++i) fArray[i] = rhs[i];
          return *this;
       }
 
       template <class R>
-      inline bool operator==(const R& rhs) const {
+      inline constexpr bool operator==(const R& rhs) const {
          bool rc = true;
          for(unsigned int i=0; i<kSize; ++i) {
             rc = rc && (fArray[i] == rhs[i]);
@@ -109,7 +109,7 @@ a_6 & a_7  & a_8   \end{array} \right)
 
    template<unsigned int D>
    struct RowOffsets {
-      inline RowOffsets() {
+      inline constexpr RowOffsets() {
          int v[D];
          v[0]=0;
          for (unsigned int i=1; i<D; ++i)
@@ -121,8 +121,8 @@ a_6 & a_7  & a_8   \end{array} \right)
                fOff[i*D+j] = v[j]+i ;
          }
       }
-      inline int operator()(unsigned int i, unsigned int j) const { return fOff[i*D+j]; }
-      inline int apply(unsigned int i) const { return fOff[i]; }
+      inline constexpr int operator()(unsigned int i, unsigned int j) const { return fOff[i*D+j]; }
+      inline constexpr int apply(unsigned int i) const { return fOff[i]; }
       int fOff[D*D];
    };
 
@@ -194,45 +194,45 @@ a_6 & a_7  & a_8   \end{array} \right)
 
    public:
 
-    /* constexpr */ inline MatrixSym(){}
+     inline constexpr MatrixSym(){}
 
     typedef T  value_type;
 
 
-    inline T & operator()(unsigned int i, unsigned int j)
+    inline constexpr T & operator()(unsigned int i, unsigned int j)
      { return fArray[offset(i, j)]; }
 
-     inline /* constexpr */ T const & operator()(unsigned int i, unsigned int j) const
+     inline constexpr  T const & operator()(unsigned int i, unsigned int j) const
      { return fArray[offset(i, j)]; }
 
-     inline T& operator[](unsigned int i) {
+     inline constexpr T& operator[](unsigned int i) {
        return fArray[off(i)];
      }
 
-     inline /* constexpr */ T const & operator[](unsigned int i) const {
+     inline constexpr  T const & operator[](unsigned int i) const {
        return fArray[off(i)];
      }
 
-     inline /* constexpr */ T apply(unsigned int i) const {
+     inline constexpr  T apply(unsigned int i) const {
        return fArray[off(i)];
      }
 
-     inline T* Array() { return fArray; }
+     inline constexpr T* Array() { return fArray; }
 
-     inline const T* Array() const { return fArray; }
+     inline constexpr const T* Array() const { return fArray; }
 
       /**
          assignment : only symmetric to symmetric allowed
        */
       /*
       template <class R>
-      inline MatrixSym<T, D>& operator=(const R&) {
+      inline constexpr MatrixSym<T, D>& operator=(const R&) {
          static_assert(0==1,
                       "Cannot_assign_general_to_symmetric_matrix_representation");
          return *this;
       }
       */
-      inline MatrixSym<T, D>& operator=(const MatrixSym& rhs) {
+      inline constexpr MatrixSym<T, D>& operator=(const MatrixSym& rhs) {
          for(unsigned int i=0; i<kSize; ++i) fArray[i] = rhs.Array()[i];
          return *this;
       }
@@ -242,13 +242,13 @@ a_6 & a_7  & a_8   \end{array} \right)
        */
       /*
       template <class R>
-      inline MatrixSym<T, D>& operator+=(const R&) {
+      inline constexpr MatrixSym<T, D>& operator+=(const R&) {
          static_assert(0==1,
                       "Cannot_add_general_to_symmetric_matrix_representation");
          return *this;
       }
       */
-      inline MatrixSym<T, D>& operator+=(const MatrixSym& rhs) {
+      inline constexpr MatrixSym<T, D>& operator+=(const MatrixSym& rhs) {
          for(unsigned int i=0; i<kSize; ++i) fArray[i] += rhs.Array()[i];
          return *this;
       }
@@ -258,18 +258,18 @@ a_6 & a_7  & a_8   \end{array} \right)
        */
       /*
       template <class R>
-      inline MatrixSym<T, D>& operator-=(const R&) {
+      inline constexpr MatrixSym<T, D>& operator-=(const R&) {
          static_assert(0==1,
                       "Cannot_substract_general_to_symmetric_matrix_representation");
          return *this;
       }
       */
-      inline MatrixSym<T, D>& operator-=(const MatrixSym& rhs) {
+      inline constexpr MatrixSym<T, D>& operator-=(const MatrixSym& rhs) {
          for(unsigned int i=0; i<kSize; ++i) fArray[i] -= rhs.Array()[i];
          return *this;
       }
       template <class R>
-      inline bool operator==(const R& rhs) const {
+      inline constexpr bool operator==(const R& rhs) const {
          bool rc = true;
          for(unsigned int i=0; i<D*D; ++i) {
             rc = rc && (operator[](i) == rhs[i]);
