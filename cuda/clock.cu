@@ -1,6 +1,9 @@
 #include "cstdint"
+
+using Float = float;
+
 // Type your code here, or load an example.
-__global__ void square(int* array,  int64_t * tt, int64_t * tg, int n) {
+__global__ void square(Float* array,  int64_t * tt, int64_t * tg, int n) {
      __shared__ uint64_t gstart, gend;
      uint64_t start, end;
      int tid = blockDim.x * blockIdx.x + threadIdx.x;
@@ -50,12 +53,12 @@ __global__ void square(int* array,  int64_t * tt, int64_t * tg, int n) {
 int main(int argc, char** argv) {
 
   int n = 32;
-  int * a;
+  Float * a;
   int64_t * tt;
   int64_t * tg;
 
 
-  cudaMallocManaged(&a, n*sizeof(int));
+  cudaMallocManaged(&a, n*sizeof(Float));
   cudaMallocManaged(&tt, n*sizeof(int64_t));
   cudaMallocManaged(&tg, sizeof(int64_t));
 
