@@ -89,7 +89,7 @@ __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
 
 int main(int argc, char** argv) {
 
-  constexpr int n = 32;
+  constexpr int n = 8*128;
   MM5 * a;
   int64_t * tt;
   int64_t * tg;
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 
   for (int i=0; i<n; ++i) tt[i]=0;
   *tg=0;
-  square<<<1,32,0,0>>>(a,tt,tg,n);
+  square<<<8,128,0,0>>>(a,tt,tg,n);
   cudaDeviceSynchronize();
 
   Float maxOn=0;
