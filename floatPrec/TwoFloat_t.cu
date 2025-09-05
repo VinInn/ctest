@@ -31,13 +31,16 @@ if (k==1) {
   auto sf =  f1+f2;
   auto sd = d1 + d2;
 if (k==2) {
+  printf("sum\n" );
   printf("%a,%a\n", sf.hi() , sf.lo() );
   printf("%a\n", double(sf.hi()) + double(sf.lo()) );
   printf("%a\n", sd );
 }
   auto sfn =  f1-f2n;
   auto sdn = d1 - d2n;
+
 if (k==2) {
+  printf("sub\n" );
   printf("%a,%a\n", sfn.hi() , sfn.lo() );
   printf("%a\n", double(sfn.hi()) + double(sfn.lo()) );
   printf("%a\n", sdn );
