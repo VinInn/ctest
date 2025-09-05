@@ -22,7 +22,7 @@ void genMatrix(M& m, Eng & eng) {
   }
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < i; ++j) {
-      float v = 0.3f * std::sqrt(float(m(i, i) * m(j, j)));  // this makes the matrix pos defined
+      float v = 0.3f * std::sqrt(toSingle(m(i, i) * m(j, j)));  // this makes the matrix pos defined
       m(i, j) = v * rgen(eng) + 1.e-9;;
       // m(j, i) = m(i, j);
     }
@@ -132,9 +132,9 @@ int main(int argc, char** argv) {
     for (int i = 0; i < ns; ++i) {
       for (int j = 0; j < i; ++j) {
 #if defined(TWOF)
-         maxOff = std::max(maxOn,std::abs( ((m3(i,j)-m1(i,i))/m1(i,j)).hi() ));
+         maxOff = std::max(maxOn,std::abs( ((m3(i,j)-m1(i,j))/m1(i,j)).hi() ));
 #else
-         maxOff = std::max(maxOn,std::abs( (m3(i,j)-m1(i,i))/m1(i,j) ));
+         maxOff = std::max(maxOn,std::abs( (m3(i,j)-m1(i,j))/m1(i,j) ));
 #endif
       }
     }
