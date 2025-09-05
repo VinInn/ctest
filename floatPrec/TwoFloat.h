@@ -18,6 +18,9 @@ namespace detailsTwoFloat {
        (see https://hal.inria.fr/hal-03798376)
    We also have |lo| < ulp(hi). */
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr void fast_two_sum(T& hi, T& lo, T a, T b) {
   T e;
 
@@ -29,6 +32,9 @@ inline constexpr void fast_two_sum(T& hi, T& lo, T a, T b) {
 
 /* Algorithm 2 from https://hal.science/hal-01351529 */
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr void two_sum (T& s, T& t, T a, T b)
 {
   s = a + b;
@@ -41,6 +47,9 @@ inline constexpr void two_sum (T& s, T& t, T a, T b)
 
 // Add a + (bh + bl), assuming |a| >= |bh|
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr void fast_sum(T& hi, T& lo, T a, T bh,
                             T bl) {
   fast_two_sum(hi, lo, a, bh);
@@ -52,6 +61,9 @@ inline constexpr void fast_sum(T& hi, T& lo, T a, T bh,
 
 // Multiply exactly a and b, such that hi + lo = a * b.
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr void a_mul(T& hi, T& lo, T a, T b) {
   hi = a * b;
   lo = std::fma (a, b, -hi);
@@ -59,6 +71,9 @@ inline constexpr void a_mul(T& hi, T& lo, T a, T b) {
 
 // Multiply a T with a T T : a * (bh + bl)
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr void s_mul (T& hi, T& lo, T a, T bh,
                           T bl) {
   T s;
@@ -71,6 +86,9 @@ inline constexpr void s_mul (T& hi, T& lo, T a, T bh,
 // Returns (ah + al) * (bh + bl) - (al * bl)
 // We can ignore al * bl when assuming al <= ulp(ah) and bl <= ulp(bh)
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr void d_mul(T&hi, T&lo, T ah, T al,
                          T bh, T bl) {
   T s, t;
@@ -81,6 +99,9 @@ inline constexpr void d_mul(T&hi, T&lo, T ah, T al,
 }
 
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr void d_square(T& hi, T& lo, T ah, T al) {
   T s, b = al + al;
 
@@ -90,6 +111,9 @@ inline constexpr void d_square(T& hi, T& lo, T ah, T al) {
 
 
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr void a_div(T& hi, T& lo, T a, T b) {
   auto t = a/b;
   a_mul(hi,lo,t,b);
@@ -100,6 +124,9 @@ inline constexpr void a_div(T& hi, T& lo, T a, T b) {
 }
 
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr void s_div(T& hi, T& lo, T ah, T al, T b) {
   auto t = ah/b;
   a_mul(hi,lo,t,b);
@@ -130,7 +157,7 @@ inline constexpr void s_div(T& hi, T& lo, T ah, T al, T b) {
 template<typename T>
 class TwoFloat {
 public:
-  #ifdef __NVCC__
+#ifdef __NVCC__
      __device__ __host__
 #endif
   constexpr TwoFloat(){}
@@ -168,6 +195,9 @@ public:
   }
 
 
+#ifdef __NVCC__
+     __device__ __host__
+#endif
   constexpr TwoFloat operator-() const {  TwoFloat<T> ret(-mhi, -mlo, detailsTwoFloat::fromMembers()); return ret;}
 
   constexpr T hi() const { return mhi;}

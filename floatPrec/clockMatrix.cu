@@ -1,4 +1,5 @@
 // /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr clock.cu -DCLOCK -DFLOAT=float
+// /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++17 clockMatrix.cu -DFLOAT=float -DTWOF
 #include<cstdint>
 #include<cmath>
 #include<random>
