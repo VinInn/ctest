@@ -7,8 +7,8 @@ int main() {
 
  float h = std::sqrt(2.f);
  float l = 1.e-4*std::sqrt(3.f);
- TwoFloat<float> f(h,l, fromSum);
- TwoFloat<double> d(h,l, fromSum);
+ TwoFloat<float> f(h,l, fromSum());
+ TwoFloat<double> d(h,l, fromSum());
 
 
   std::cout << std::hexfloat << f.hi() << ',' << f.lo() << std::endl;
@@ -16,8 +16,8 @@ int main() {
   std::cout << std::hexfloat << d.hi() << ',' << d.lo() << std::endl;
 
   auto f1 = f;
-  TwoFloat<float> f2(-1.e-3*std::sqrt(3.f),1.e-6*std::sqrt(2.f),  fromSum);
-  TwoFloat<float> f2n(1.e-3*std::sqrt(3.f),-1.e-6*std::sqrt(2.f), fromSum);
+  TwoFloat<float> f2(-1.e-3*std::sqrt(3.f),1.e-6*std::sqrt(2.f),  fromSum());
+  TwoFloat<float> f2n(1.e-3*std::sqrt(3.f),-1.e-6*std::sqrt(2.f), fromSum());
   double d1 = double(f.hi())+double(f.lo());
   double d2 = double(f2.hi())+double(f2.lo());
   double d2n = double(f2n.hi())+double(f2n.lo());
@@ -70,6 +70,27 @@ int main() {
   std::cout << std::hexfloat << md << std::endl;
 }
 
+{
+  std::cout << "square" << std::endl;
+  auto mf =  square(f1);
+  auto mf2 =  f1*f1;
+  auto md = d1*d1;
+  std::cout << std::hexfloat << f1.hi()*f1.hi() << std::endl;
+  std::cout << std::hexfloat << mf.hi() << ',' << mf.lo() << std::endl;
+  std::cout << std::hexfloat << mf2.hi() << ',' << mf2.lo() << std::endl;
+  std::cout << std::hexfloat << double(mf.hi()) + double(mf.lo()) << std::endl;
+  std::cout << std::hexfloat << md << std::endl;
+}
+
+{
+  std::cout << "sqrt" << std::endl;
+  auto mf =  sqrt(f1);
+  auto md = std::sqrt(d1);
+  std::cout << std::hexfloat << std::sqrt(f1.hi()) << std::endl;
+  std::cout << std::hexfloat << mf.hi() << ',' << mf.lo() << std::endl;
+  std::cout << std::hexfloat << double(mf.hi()) + double(mf.lo()) << std::endl;
+  std::cout << std::hexfloat << md << std::endl;
+}
 
   return 0;
 }

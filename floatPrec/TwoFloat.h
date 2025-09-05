@@ -325,7 +325,11 @@ inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const 
   TwoFloat<T> ret(a.hi(), b.hi(),fromSum());
   auto u = a.lo() + b.lo();
   auto w = ret.lo() + u;
+#ifdef FP2_FAST
+  ret.lo() = w;
+#else
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
+#endif
   return ret;
 }
 template<typename T>
@@ -337,7 +341,11 @@ inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const 
   TwoFloat<T> ret(a.hi(), -b.hi(),fromSum());
   auto u = a.lo() - b.lo();
   auto w = ret.lo() + u;
+#ifdef FP2_FAST
+  ret.lo() = w;
+#else
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
+#endif
   return ret;
 }
 #endif
@@ -402,4 +410,33 @@ inline constexpr TwoFloat<T> operator/(TwoFloat<T> const & a, TwoFloat<T> const 
   fast_two_sum(ret.hi(), ret.lo(), t, d);
   return ret;
 #endif
+}
+
+//  Algorithm 6 from https://hal.science/hal-03482567
+template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline constexpr TwoFloat<T> sqrt(TwoFloat<T> const & a) {
+  using namespace detailsTwoFloat;
+  auto s = std::sqrt(a.hi());
+  auto r = std::fma(-s,s,a.hi());
+  r = a.lo() + r;
+  r = r/(T(2)*s);
+#ifdef FP2_FAST
+  return TwoFloat<T>(s,r,fromMembers());
+#else
+  return TwoFloat<T>(s,r,fromFastSum());
+#endif
+}
+
+template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline constexpr TwoFloat<T> square(TwoFloat<T> const & a) {
+  using namespace detailsTwoFloat;
+  TwoFloat<T> ret;
+  d_square(ret.hi(),ret.lo(),a.hi(),a.lo());
+  return ret;
 }
