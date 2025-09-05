@@ -6,6 +6,8 @@ __global__
 #endif
 void go(int k) {
 
+  printf("k %d\n",k);
+
   using namespace detailsTwoFloat;
 
  float h = std::sqrt(2.f);
@@ -27,22 +29,23 @@ if (k==0) {
   double d2n = double(f2n.hi())+double(f2n.lo());
 
 if (k==1) {
+  printf("constr\n");
   printf("%a,%a\n", f2.hi() , f2.lo() );
   printf("%a\n", d2 );
 }
 
+if (k==2) {
   auto sf =  f1+f2;
   auto sd = d1 + d2;
-if (k==2) {
   printf("sum\n" );
   printf("%a,%a\n", sf.hi() , sf.lo() );
   printf("%a\n", double(sf.hi()) + double(sf.lo()) );
   printf("%a\n", sd );
 }
-  auto sfn =  f1-f2n;
-  auto sdn = d1 - d2n;
 
 if (k==2) {
+  auto sfn =  f1-f2n;
+  auto sdn = d1 - d2n;
   printf("sub\n" );
   printf("%a,%a\n", sfn.hi() , sfn.lo() );
   printf("%a\n", double(sfn.hi()) + double(sfn.lo()) );
@@ -88,11 +91,13 @@ if (k==6) {
 
 }
 
+
+#include "cudaCheck.h"
 int main(){
   for (int k=0; k<7; ++k) {
 #ifdef __NVCC__
     go<<<1,1,0,0>>>(k);
-    cudaDeviceSynchronize();
+    cudaCheck(cudaDeviceSynchronize());
 #else
     go(k);
 #endif
