@@ -1,7 +1,10 @@
 #include "TwoFloat.h"
 #include <cstdio>
 
-__global__ void go(int k) {
+#ifdef __NVCC__
+__global__ 
+#endif
+void go(int k) {
 
   using namespace detailsTwoFloat;
 
@@ -87,8 +90,12 @@ if (k==6) {
 
 int main(){
   for (int k=0; k<7; ++k) {
+#ifdef __NVCC__
     go<<<1,1,0,0>>>(k);
     cudaDeviceSynchronize();
+#else
+    go(k);
+#endif
   }
   return 0;
 
