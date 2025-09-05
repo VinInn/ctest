@@ -359,7 +359,7 @@ template<typename T>
 inline constexpr TwoFloat<T> operator*(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret;
-#ifdef MORE_PREC
+#ifdef MORE_PREC_MULT
   a_mul(ret.hi(),ret.lo(),a.hi(),b.hi());
   auto t0 =  a.lo() * b.lo();
   auto t1 =   std::fma(a.hi(),b.lo(),t0); 
