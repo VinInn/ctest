@@ -5,6 +5,7 @@
 #include<cstdio>
 
 #include "Matrix.h"
+#include "TwoFloat.h"
 
 // generate matrices
 template <typename M, typename Eng>
@@ -31,8 +32,11 @@ void genMatrix(M& m, Eng & eng) {
 
 using Float = FLOAT;
 
+#if defined(TWOF)
+using MM5 = MatrixSym<TwoFloat<Float>,5>;
+#else
 using MM5 = MatrixSym<Float,5>;
-
+#endif
 
 // Type your code here, or load an example.
 __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
@@ -89,7 +93,10 @@ __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
 
 int main(int argc, char** argv) {
 
-  constexpr int n = 8*128;
+  constexpr int nB = 1;
+  constexpr int nT = 128;
+
+  constexpr int n = nB*nT;
   MM5 * a;
   int64_t * tt;
   int64_t * tg;
@@ -106,7 +113,7 @@ int main(int argc, char** argv) {
 
   for (int i=0; i<n; ++i) tt[i]=0;
   *tg=0;
-  square<<<8,128,0,0>>>(a,tt,tg,n);
+  square<<<nB,nT,0,0>>>(a,tt,tg,n);
   cudaDeviceSynchronize();
 
   Float maxOn=0;
@@ -116,10 +123,18 @@ int main(int argc, char** argv) {
     auto const & m1 = m0[i];
     auto const & m3 = a[i];
     for (int i=0; i<ns; ++i)
-      maxOn = std::max(maxOn,std::abs(m3(i,i)-m1(i,i))/std::abs(m1(i,i)));
+#if defined(TWOF)
+     maxOn = std::max(maxOn,std::abs( ((m3(i,i)-m1(i,i))/m1(i,i)).hi() ));
+#else
+      maxOn = std::max(maxOn,std::abs( (m3(i,i)-m1(i,i))/m1(i,i) ));
+#endif
     for (int i = 0; i < ns; ++i) {
       for (int j = 0; j < i; ++j) {
-          maxOff = std::max(maxOff,std::abs(m3(i,j)-m1(i,j))/std::abs(m1(i,j)));
+#if defined(TWOF)
+         maxOff = std::max(maxOn,std::abs( ((m3(i,j)-m1(i,i))/m1(i,j)).hi() ));
+#else
+         maxOff = std::max(maxOn,std::abs( (m3(i,j)-m1(i,i))/m1(i,j) ));
+#endif
       }
     }
   }

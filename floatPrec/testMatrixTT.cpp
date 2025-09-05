@@ -2,6 +2,15 @@
 #include<random>
 
 #include "Matrix.h"
+#include"TwoFloat.h"
+
+#ifdef ALL_T
+#define NOP_T
+#define FLOAT_T
+#define FLOAT2_T
+#define DOUBLE_T
+#define DOUBLE2_T
+#endif
 
 // generate matrices
 template <typename M, typename Eng>
@@ -17,7 +26,7 @@ void genMatrix(M& m, Eng & eng) {
   }
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < i; ++j) {
-      float v = 0.3f * std::sqrt(float(m(i, i) * m(j, j)));  // this makes the matrix pos defined
+      float v = 0.3f * std::sqrt( toSingle(m(i, i) * m(j, j)) );  // this makes the matrix pos defined
       m(i, j) = v * rgen(eng) + 1.e-9;;
       // m(j, i) = m(i, j);
     }
@@ -25,18 +34,7 @@ void genMatrix(M& m, Eng & eng) {
 }
 
 
-#include"TwoFloat.h"
-
 #include<iostream>
-
-
-#ifdef ALL_T
-#define NOP_T
-#define FLOAT_T
-#define FLOAT2_T
-#define DOUBLE_T
-#define DOUBLE2_T
-#endif
 
 int main() {
 

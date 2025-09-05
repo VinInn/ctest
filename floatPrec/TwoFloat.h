@@ -118,11 +118,11 @@ inline constexpr void s_div(T& hi, T& lo, T ah, T al, T b) {
      static constexpr From value() { return from;}
    };
 
-   constexpr auto fromMembers = Tag<From::members>();
-   constexpr auto fromFastSum = Tag<From::fastsum>();
-   constexpr auto fromSum = Tag<From::sum>();
-   constexpr auto fromProd = Tag<From::prod>();
-   constexpr auto fromDiv = Tag<From::div>();
+   constexpr auto fromMembers()  { return  Tag<From::members>();}
+   constexpr auto fromFastSum()  { return Tag<From::fastsum>();}
+   constexpr auto fromSum()  { return Tag<From::sum>();}
+   constexpr auto fromProd()  { return Tag<From::prod>();}
+   constexpr auto fromDiv()  { return Tag<From::div>();}
 
 }
 
@@ -130,13 +130,27 @@ inline constexpr void s_div(T& hi, T& lo, T ah, T al, T b) {
 template<typename T>
 class TwoFloat {
 public:
-
+  #ifdef __NVCC__
+     __device__ __host__
+#endif
   constexpr TwoFloat(){}
+#ifdef __NVCC__
+     __device__ __host__
+#endif
   explicit constexpr TwoFloat(T a) : mhi(a), mlo(0) {}
+#ifdef __NVCC__
+     __device__ __host__
+#endif
   constexpr TwoFloat & operator=(T a) { mhi=a; mlo=0; return *this;}
-  explicit constexpr operator const float() const { return mhi;}
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+  explicit constexpr operator T() const { return mhi;}
 
   template<detailsTwoFloat::From f>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
   constexpr TwoFloat(T a, T b, detailsTwoFloat::Tag<f> from ) {
     using namespace detailsTwoFloat;
     using Tag = detailsTwoFloat::Tag<f>;
@@ -154,7 +168,7 @@ public:
   }
 
 
-  constexpr TwoFloat operator-() const {  TwoFloat<T> ret(-mhi, -mlo, detailsTwoFloat::fromMembers); return ret;}
+  constexpr TwoFloat operator-() const {  TwoFloat<T> ret(-mhi, -mlo, detailsTwoFloat::fromMembers()); return ret;}
 
   constexpr T hi() const { return mhi;}
   constexpr T lo() const { return mlo;}
@@ -169,7 +183,7 @@ public:
 template<typename T>
 inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, T b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(b,a.hi(),fromSum);
+  TwoFloat<T> ret(b,a.hi(),fromSum());
   auto u = ret.lo() + a.lo();
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
   return ret;
@@ -183,7 +197,7 @@ inline constexpr TwoFloat<T> operator+(T b, TwoFloat<T> const & a) {
 template<typename T>
 inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, T b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(-b,a.hi(),fromSum);
+  TwoFloat<T> ret(-b,a.hi(),fromSum());
   auto u = ret.lo() + a.lo();
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
   return ret;
@@ -192,7 +206,7 @@ inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, T b) {
 template<typename T>
 inline constexpr TwoFloat<T> operator-(T b, TwoFloat<T> const & a) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(b,-a.hi(),fromSum);
+  TwoFloat<T> ret(b,-a.hi(),fromSum());
   auto u = ret.lo() - a.lo();
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
   return ret;
@@ -214,6 +228,12 @@ inline constexpr TwoFloat<T> operator*(T b, TwoFloat<T> const & a) {
   return a*b;
 }
 
+template<typename T>
+inline constexpr T toSingle(T a) { return a;}
+
+template<typename T>
+inline constexpr T toSingle(TwoFloat<T> const & a) { return a.hi();}
+
 
 
 #ifdef MORE_PREC
@@ -221,8 +241,8 @@ inline constexpr TwoFloat<T> operator*(T b, TwoFloat<T> const & a) {
 template<typename T>
 inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(a.hi(), b.hi(),fromSum);
-  TwoFloat<T> t(a.lo(), b.lo(),fromSum);
+  TwoFloat<T> ret(a.hi(), b.hi(),fromSum());
+  TwoFloat<T> t(a.lo(), b.lo(),fromSum());
   auto u = ret.lo() + t.hi();
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
   auto w = ret.lo() + t.lo();
@@ -232,8 +252,8 @@ inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const 
 template<typename T>
 inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(a.hi(), -b.hi(),fromSum);
-  TwoFloat<T> t(a.lo(), -b.lo(),fromSum);
+  TwoFloat<T> ret(a.hi(), -b.hi(),fromSum());
+  TwoFloat<T> t(a.lo(), -b.lo(),fromSum());
   auto u = ret.lo() + t.hi();
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),u);
   auto w = ret.lo() + t.lo();
@@ -245,7 +265,7 @@ inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const 
 template<typename T>
 inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(a.hi(), b.hi(),fromSum);
+  TwoFloat<T> ret(a.hi(), b.hi(),fromSum());
   auto u = a.lo() + b.lo();
   auto w = ret.lo() + u;
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
@@ -254,7 +274,7 @@ inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const 
 template<typename T>
 inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
-  TwoFloat<T> ret(a.hi(), -b.hi(),fromSum);
+  TwoFloat<T> ret(a.hi(), -b.hi(),fromSum());
   auto u = a.lo() - b.lo();
   auto w = ret.lo() + u;
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
@@ -299,7 +319,7 @@ inline constexpr TwoFloat<T> operator/(TwoFloat<T> const & a, TwoFloat<T> const 
   auto t = T(1.)/b.hi();
   auto rh = std::fma(-b.hi(),t,T(1.));
   auto rl= -b.lo()*t;
-  TwoFloat<T> e(rh,rl,fromFastSum);
+  TwoFloat<T> e(rh,rl,fromFastSum());
   auto d = t*e;
   auto m = t+d;
   return a*m;
