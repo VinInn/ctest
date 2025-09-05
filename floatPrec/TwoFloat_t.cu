@@ -91,8 +91,10 @@ if (k==6) {
 
 }
 
-
+#ifdef __NVCC__
 #include "cudaCheck.h"
+#endif
+
 int main(){
   for (int k=0; k<7; ++k) {
 #ifdef __NVCC__

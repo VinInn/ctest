@@ -181,6 +181,9 @@ public:
 
 
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, T b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret(b,a.hi(),fromSum());
@@ -190,11 +193,17 @@ inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, T b) {
 }
 
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator+(T b, TwoFloat<T> const & a) {
   return a+b;
 }
 
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, T b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret(-b,a.hi(),fromSum());
@@ -204,6 +213,9 @@ inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, T b) {
 }
 
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator-(T b, TwoFloat<T> const & a) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret(b,-a.hi(),fromSum());
@@ -216,6 +228,9 @@ inline constexpr TwoFloat<T> operator-(T b, TwoFloat<T> const & a) {
 
 /* Algorithm 3 from https://hal.science/hal-01351529 */
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator*(TwoFloat<T> const & a, T b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret;
@@ -224,6 +239,9 @@ inline constexpr TwoFloat<T> operator*(TwoFloat<T> const & a, T b) {
 }
 
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator*(T b, TwoFloat<T> const & a) {
   return a*b;
 }
@@ -239,6 +257,9 @@ inline constexpr T toSingle(TwoFloat<T> const & a) { return a.hi();}
 #ifdef MORE_PREC
 // Algorithm 6 from https://hal.science/hal-01351529
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret(a.hi(), b.hi(),fromSum());
@@ -250,6 +271,9 @@ inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const 
   return ret;
 }
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret(a.hi(), -b.hi(),fromSum());
@@ -263,6 +287,9 @@ inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const 
 #else
 // Algorithm 5 from https://hal.science/hal-01351529
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret(a.hi(), b.hi(),fromSum());
@@ -272,6 +299,9 @@ inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const 
   return ret;
 }
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret(a.hi(), -b.hi(),fromSum());
@@ -285,6 +315,9 @@ inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, TwoFloat<T> const 
 
 /* Algorithm 11  from https://hal.science/hal-01351529 */
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator*(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret;
@@ -304,6 +337,9 @@ inline constexpr TwoFloat<T> operator*(TwoFloat<T> const & a, TwoFloat<T> const 
 
 /* Algorithm 15 from https://hal.science/hal-01351529 */
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator/(TwoFloat<T> const & a, T b) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret;
@@ -313,6 +349,9 @@ inline constexpr TwoFloat<T> operator/(TwoFloat<T> const & a, T b) {
 
 /* Algorithm 17  from https://hal.science/hal-01351529 */
 template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> operator/(TwoFloat<T> const & a, TwoFloat<T> const & b) {
   using namespace detailsTwoFloat;
 #ifdef MORE_PREC_DIV
