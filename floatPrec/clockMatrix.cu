@@ -66,8 +66,12 @@ using MM5 = MatrixSym<Float,5>;
 // Type your code here, or load an example.
 __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
      int maxIter = 100000;
+#ifdef CLOCK
+     __shared__ uint64_t gstart;
+#else
      __shared__ uint64_t gstart, gend;
      uint64_t start, end;
+#endif
      int tid = blockDim.x * blockIdx.x + threadIdx.x;
 
      auto m1 = array[tid];
