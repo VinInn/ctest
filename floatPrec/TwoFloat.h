@@ -285,6 +285,7 @@ inline constexpr T toSingle(TwoFloat<T> const & a) { return a.hi();}
 
 
 #ifdef MORE_PREC
+#warning "FP2_PREC ON"
 // Algorithm 6 from https://hal.science/hal-01351529
 template<typename T>
 #ifdef __NVCC__
@@ -326,6 +327,7 @@ inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, TwoFloat<T> const 
   auto u = a.lo() + b.lo();
   auto w = ret.lo() + u;
 #ifdef FP2_FAST
+#warning "FP2_FAST ON"
   ret.lo() = w;
 #else
   fast_two_sum(ret.hi(), ret.lo(), ret.hi(),w);
