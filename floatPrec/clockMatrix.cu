@@ -4,9 +4,32 @@
 #include<cmath>
 #include<random>
 #include<cstdio>
+#include<iostream>
 
 #include "Matrix.h"
 #include "TwoFloat.h"
+
+#define VERIFY
+
+template <typename M>
+inline void verify(M const& m) {
+#ifdef VERIFY
+#warning "Verify ON"
+  int n = M::kRows;
+  for (int i = 0; i < n; ++i)
+       assert(toSingle(m(i,i))>0);
+  //check minors
+  auto d = toSingle(m(0, 0)*m(1,1)) - toSingle(m(0, 1)*m(1,0));
+  if (d<0) std::cout << "??? " << d << std::endl;
+  assert(d > -1.e-8);
+  auto d3 = toSingle(m(1, 0)*m(2,1)) - toSingle(m(2, 0)*m(1,1));
+  auto d2 = toSingle(m(1, 0)*m(2,2)) - toSingle(m(2, 0)*m(1,2));
+  auto d1 = toSingle(m(1, 1)*m(2,2)) - toSingle(m(1, 2)*m(2,1));
+  auto dd = toSingle(m(0,0))*d1-toSingle(m(0,1))*d2+toSingle(m(0,2))*d3;
+  if (dd<0) std::cout << "??? " << dd << std::endl;
+  assert(dd > -1.e-8);
+}
+#endif
 
 // generate matrices
 template <typename M, typename Eng>
@@ -17,13 +40,14 @@ void genMatrix(M& m, Eng & eng) {
 
   // generate first diagonal elemets
   for (int i = 0; i < n; ++i) {
-    float maxVal = i * 1.e10 / (n - 1) + 1;  // max condition is 10^10
-    m(i, i) = maxVal * rgen(eng) + 1.e-9;
+    float maxVal = i * 1.e5 / (n - 1) + 1;  // max condition is 10^5
+    m(i, i) = maxVal * rgen(eng) + 1.e-10;
   }
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < i; ++j) {
       float v = 0.3f * std::sqrt(toSingle(m(i, i) * m(j, j)));  // this makes the matrix pos defined
-      m(i, j) = v * rgen(eng) + 1.e-9;;
+      m(i, j) = v * rgen(eng) + 1.e-10;
+      if (rgen(eng)<0.5f) m(i, j) = -m(i, j);
       // m(j, i) = m(i, j);
     }
   }
@@ -103,13 +127,19 @@ int main(int argc, char** argv) {
   int64_t * tg;
 
    MM5 m0[n];
-
+   
   cudaMallocManaged(&a, n*sizeof(MM5));
   cudaMallocManaged(&tt, n*sizeof(int64_t));
   cudaMallocManaged(&tg, sizeof(int64_t));
 
   std::mt19937 eng;
-  for (int i=0; i<n; ++i) genMatrix(a[i], eng);
+  for (int i=0; i<n; ++i) {
+    MM5 w;
+    genMatrix(a[i], eng);
+    verify(a[i]);
+    invert55(a[i],w);
+    verify(w);
+  }
   for (int i=0; i<n; ++i) m0[i] = a[i];
 
   for (int i=0; i<n; ++i) tt[i]=0;
@@ -123,6 +153,7 @@ int main(int argc, char** argv) {
   for (int i=0; i<n; ++i) {
     auto const & m1 = m0[i];
     auto const & m3 = a[i];
+    verify(m3);
     for (int i=0; i<ns; ++i)
 #if defined(TWOF)
      maxOn = std::max(maxOn,std::abs( ((m3(i,i)-m1(i,i))/m1(i,i)).hi() ));
