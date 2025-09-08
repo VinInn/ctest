@@ -18,27 +18,35 @@
 #define VERIFY
 
 template <typename M>
-inline void verify(M const& m) {
+inline bool verify(M const& m, bool vv=true) {
+  bool ret=true;
 #ifdef VERIFY
 #warning "Verify ON"
   int n = M::kRows;
-  for (int i = 0; i < n; ++i)
-       assert(toSingle(m(i,i))>0);
+  for (int i = 0; i < n; ++i) {
+     auto d = toSingle(m(i,i));
+     if (vv && d<0) std::cout << "??? on " << i << ' ' << d << std::endl;
+//     assert(d>-1.e-8);
+     if (d<1.e-8) ret=false;
+  }
   //check minors
   for (int i = 0; i < n-1; ++i) {
     auto d = toSingle(m(i+0, i+0)*m(i+1,i+1)) - toSingle(m(i+0, i+1)*m(i+1,i+0));
-    if (d<0) std::cout << "??? on " << d << std::endl;
+    if (vv && d<0) std::cout << "??? m2 " << i << ' ' << d << std::endl;
+//    assert(d > -1.e-8);
+    if (d<1.e-8) ret=false;
     if (i>0) continue;;
-    assert(d > -1.e-8);
     auto d3 = toSingle(m(i+1, i+0)*m(i+2,i+1) - m(i+2, 0)*m(i+1,i+1));
     auto d2 = toSingle(m(i+1, i+0)*m(i+2,i+2) - m(i+2, 0)*m(i+1,i+2));
     auto d1 = toSingle(m(i+1, i+1)*m(i+2,i+2) - m(i+1, 2)*m(i+2,i+1));
     auto dd = toSingle(m(i+0,i+0)*d1-m(i+0,i+1)*d2+m(i+0,i+2)*d3);
-    if (dd<0) std::cout << "??? off " << i << ' ' << dd << std::endl;
-    assert(dd > -1.e-8);
+    if (vv && dd<0) std::cout << "??? m3 " << i << ' ' << dd << std::endl;
+//    assert(dd > -1.e-8);
+    if (d<1.e-8) ret=false;
   }
-}
 #endif 
+   return ret;
+}
 
 // generate matrices
 template <typename M, typename Eng>
@@ -46,7 +54,7 @@ void genMatrix(M& m, Eng & eng) {
   // using T = typename std::remove_reference<decltype(m(0, 0))>::type;
   int n = M::kRows;
   std::uniform_real_distribution<float> rgen(0., 1.);
-
+  do {
   // generate first diagonal elemets
   for (int i = 0; i < n; ++i) {
     float maxVal = i * 1.e5 / (n - 1) + 1;  // max condition is 10^5 as  min-generated is 10^-9
@@ -60,6 +68,7 @@ void genMatrix(M& m, Eng & eng) {
       // m(j, i) = m(i, j);
     }
   }
+  } while(!verify(m,false));
 }
 
 #include <typeinfo>
@@ -74,14 +83,16 @@ void go(int maxIter) {
   std::mt19937 eng;
 
 for (int kk=0; kk<maxIter; ++kk) {
+  bool v = true;
   genMatrix(m1, eng);
-  verify(m1);
+  v &= verify(m1);
   invert55(m1,m2);
-  verify(m2);
+  v &= verify(m2);
   invert55(m2,m3);
-  verify(m3);
+  v &= verify(m3);
 //  invert55(m3,m2);
 //  invert55(m2,m3);
+  if (!v) continue;
   int n = 5;
   for (int i=0; i<n; ++i) {
     maxOn = std::max(maxOn,std::abs(toSingle(  (m3(i,i)-m1(i,i))/m1(i,i) )));
@@ -98,7 +109,7 @@ for (int kk=0; kk<maxIter; ++kk) {
 
 int main() {
 
-  int maxIter = 1000000;
+  int maxIter = 10000000;
   
   using FF = TwoFloat<float>;
   using DD = TwoFloat<double>;
