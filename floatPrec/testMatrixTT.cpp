@@ -25,15 +25,18 @@ inline void verify(M const& m) {
   for (int i = 0; i < n; ++i)
        assert(toSingle(m(i,i))>0);
   //check minors
-  auto d = toSingle(m(0, 0)*m(1,1)) - toSingle(m(0, 1)*m(1,0));
-  if (d<0) std::cout << "??? " << d << std::endl;
-  assert(d > -1.e-8);
-  auto d3 = toSingle(m(1, 0)*m(2,1)) - toSingle(m(2, 0)*m(1,1));
-  auto d2 = toSingle(m(1, 0)*m(2,2)) - toSingle(m(2, 0)*m(1,2));
-  auto d1 = toSingle(m(1, 1)*m(2,2)) - toSingle(m(1, 2)*m(2,1));
-  auto dd = toSingle(m(0,0))*d1-toSingle(m(0,1))*d2+toSingle(m(0,2))*d3;
-  if (dd<0) std::cout << "??? " << dd << std::endl;
-  assert(dd > -1.e-8);
+  for (int i = 0; i < n-1; ++i) {
+    auto d = toSingle(m(i+0, i+0)*m(i+1,i+1)) - toSingle(m(i+0, i+1)*m(i+1,i+0));
+    if (d<0) std::cout << "??? on " << d << std::endl;
+    if (i>0) continue;;
+    assert(d > -1.e-8);
+    auto d3 = toSingle(m(i+1, i+0)*m(i+2,i+1) - m(i+2, 0)*m(i+1,i+1));
+    auto d2 = toSingle(m(i+1, i+0)*m(i+2,i+2) - m(i+2, 0)*m(i+1,i+2));
+    auto d1 = toSingle(m(i+1, i+1)*m(i+2,i+2) - m(i+1, 2)*m(i+2,i+1));
+    auto dd = toSingle(m(i+0,i+0)*d1-m(i+0,i+1)*d2+m(i+0,i+2)*d3);
+    if (dd<0) std::cout << "??? off " << i << ' ' << dd << std::endl;
+    assert(dd > -1.e-8);
+  }
 }
 #endif 
 
@@ -59,11 +62,12 @@ void genMatrix(M& m, Eng & eng) {
   }
 }
 
-
+#include <typeinfo>
 #include<iostream>
 
 template<typename T,typename TT=T>
 void go(int maxIter) {
+  std::cout << "testing " << typeid(TT).name() << std::endl;
   T maxOn=0;
   T maxOff=0;
   MatrixSym<TT,5> m1,m2,m3;
@@ -101,6 +105,7 @@ int main() {
 
 #ifdef NOP_T
 {
+  std::cout << "testing NOP" << std::endl;
   float maxOn=0;
   float maxOff=0;
   MatrixSym<float,5> m1,m2,m3;
