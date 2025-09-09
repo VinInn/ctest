@@ -1,0 +1,332 @@
+[innocent@patatrack-bg-01 floatPrec]$ /usr/bin/c++ -O3 -std=c++17 -march=native testMatrixTT.cpp -DNOP_T
+[innocent@patatrack-bg-01 floatPrec]$ ~/scripts/doPerfStatAMD ./a.out
+testing NOP
+0 0
+
+ Performance counter stats for './a.out':
+
+           1035.61 msec task-clock:u              #    0.999 CPUs utilized
+        3171944356      cycles:u                  #    3.063 GHz                      (19.70%)
+            176620      stalled-cycles-backend:u  #    0.01% backend cycles idle      (19.80%)
+            372279      stalled-cycles-frontend:u #    0.01% frontend cycles idle     (19.89%)
+               905      iTLB-load-misses:u        #  271.77% of all iTLB cache accesses  (19.99%)
+               333      iTLB-loads:u              #  321.551 /sec                     (20.08%)
+        8220387042      instructions:u            #    2.59  insn per cycle
+                                                  #    0.00  stalled cycles per insn  (20.18%)
+        1025955554      branch-instructions:u     #  990.680 M/sec                    (20.27%)
+          26592213      branch-misses:u           #    2.59% of all branches          (20.27%)
+        8456132636      ex_ret_ops:u              #    8.165 G/sec                    (20.27%)
+                 0      ex_div_busy:u             #    0.000 /sec                     (20.27%)
+         903044314      fp_ret_sse_avx_ops.all:u  #  871.995 M/sec                    (16.90%)
+         401373832      fp_ret_sse_avx_ops.add_sub_flops:u #  387.574 M/sec                    (13.52%)
+          50175000      fp_ret_sse_avx_ops.mac_flops:u #   48.450 M/sec                    (10.14%)
+         326055695      fp_ret_sse_avx_ops.mult_flops:u #  314.845 M/sec                    (10.14%)
+         125382804      fp_ret_sse_avx_ops.div_flops:u #  121.072 M/sec                    (10.14%)
+        1640891829      fp_ops_retired_by_type.scalar_all:u #    1.584 G/sec                    (10.14%)
+         324563641      fp_ops_retired_by_type.scalar_add:u #  313.404 M/sec                    (13.49%)
+          74892933      fp_ops_retired_by_type.scalar_sub:u #   72.318 M/sec                    (13.39%)
+          24984650      fp_ops_retired_by_type.scalar_mac:u #   24.126 M/sec                    (16.68%)
+         324791033      fp_ops_retired_by_type.scalar_mul:u #  313.624 M/sec                    (16.58%)
+          74998835      fp_ops_retired_by_type.scalar_div:u #   72.420 M/sec                    (19.86%)
+             17694      cache-misses:u            #   16.374 % of all cache refs      (19.77%)
+            108064      cache-references:u        #  104.348 K/sec                    (19.70%)
+             66836      L1-dcache-load-misses:u   #    0.00% of all L1-dcache accesses  (19.70%)
+        2907425297      L1-dcache-loads:u         #    2.807 G/sec                    (19.70%)
+             53013      L1-dcache-prefetches:u    #   51.190 K/sec                    (19.70%)
+              3619      L1-icache-load-misses:u   #    0.69% of all L1-icache accesses  (19.70%)
+            528264      L1-icache-loads:u         #  510.101 K/sec                    (19.70%)
+                15      dTLB-load-misses:u        #    4.70% of all dTLB cache accesses  (19.70%)
+               319      dTLB-loads:u              #  308.032 /sec                     (19.70%)
+
+       1.036470847 seconds time elapsed
+
+       1.022857000 seconds user
+       0.001980000 seconds sys
+
+
+[innocent@patatrack-bg-01 floatPrec]$ /usr/bin/c++ -O3 -std=c++17 -march=native testMatrixTT.cpp -DFLOAT_T
+[innocent@patatrack-bg-01 floatPrec]$ ~/scripts/doPerfStatAMD ./a.out
+testing f
+5.78774e-05 0.295718
+
+ Performance counter stats for './a.out':
+
+           1423.58 msec task-clock:u              #    0.999 CPUs utilized
+        4360528638      cycles:u                  #    3.063 GHz                      (19.81%)
+            406412      stalled-cycles-backend:u  #    0.01% backend cycles idle      (19.88%)
+            304741      stalled-cycles-frontend:u #    0.01% frontend cycles idle     (19.95%)
+               899      iTLB-load-misses:u        #  241.02% of all iTLB cache accesses  (20.02%)
+               373      iTLB-loads:u              #  262.016 /sec                     (20.09%)
+        9274990657      instructions:u            #    2.13  insn per cycle
+                                                  #    0.00  stalled cycles per insn  (20.16%)
+        1028546634      branch-instructions:u     #  722.509 M/sec                    (20.23%)
+          26608824      branch-misses:u           #    2.59% of all branches          (20.23%)
+        9540941358      ex_ret_ops:u              #    6.702 G/sec                    (20.23%)
+                 0      ex_div_busy:u             #    0.000 /sec                     (20.23%)
+        2585882693      fp_ret_sse_avx_ops.all:u  #    1.816 G/sec                    (16.86%)
+         521399543      fp_ret_sse_avx_ops.add_sub_flops:u #  366.260 M/sec                    (13.49%)
+         932804568      fp_ret_sse_avx_ops.mac_flops:u #  655.254 M/sec                    (10.11%)
+         957771543      fp_ret_sse_avx_ops.mult_flops:u #  672.792 M/sec                    (10.12%)
+         174922952      fp_ret_sse_avx_ops.div_flops:u #  122.876 M/sec                    (10.09%)
+        2874793822      fp_ops_retired_by_type.scalar_all:u #    2.019 G/sec                    (10.02%)
+         384893096      fp_ops_retired_by_type.scalar_add:u #  270.371 M/sec                    (13.32%)
+         134942838      fp_ops_retired_by_type.scalar_sub:u #   94.791 M/sec                    (13.25%)
+         464965376      fp_ops_retired_by_type.scalar_mac:u #  326.618 M/sec                    (16.55%)
+         956373294      fp_ops_retired_by_type.scalar_mul:u #  671.810 M/sec                    (16.51%)
+         125185787      fp_ops_retired_by_type.scalar_div:u #   87.938 M/sec                    (19.81%)
+              5850      cache-misses:u            #    3.275 % of all cache refs      (19.81%)
+            178615      cache-references:u        #  125.469 K/sec                    (19.81%)
+             86845      L1-dcache-load-misses:u   #    0.00% of all L1-dcache accesses  (19.81%)
+        2792997071      L1-dcache-loads:u         #    1.962 G/sec                    (19.81%)
+             66688      L1-dcache-prefetches:u    #   46.845 K/sec                    (19.81%)
+              2882      L1-icache-load-misses:u   #    0.47% of all L1-icache accesses  (19.81%)
+            610972      L1-icache-loads:u         #  429.181 K/sec                    (19.81%)
+                 5      dTLB-load-misses:u        #   16.67% of all dTLB cache accesses  (19.81%)
+                30      dTLB-loads:u              #   21.074 /sec                     (19.81%)
+
+       1.424315314 seconds time elapsed
+
+       1.405789000 seconds user
+       0.002967000 seconds sys
+
+
+[innocent@patatrack-bg-01 floatPrec]$ /usr/bin/c++ -O3 -std=c++17 -march=native testMatrixTT.cpp -DFLOAT2_T
+[innocent@patatrack-bg-01 floatPrec]$ ~/scripts/doPerfStatAMD ./a.out
+testing 8TwoFloatIfE
+9.61896e-12 2.31587e-08
+
+ Performance counter stats for './a.out':
+
+           5262.51 msec task-clock:u              #    1.000 CPUs utilized
+       16122614732      cycles:u                  #    3.064 GHz                      (19.95%)
+        1878230420      stalled-cycles-backend:u  #   11.65% backend cycles idle      (19.97%)
+           4436156      stalled-cycles-frontend:u #    0.03% frontend cycles idle     (19.99%)
+               974      iTLB-load-misses:u        #  216.93% of all iTLB cache accesses  (20.01%)
+               449      iTLB-loads:u              #   85.321 /sec                     (20.03%)
+       31436724803      instructions:u            #    1.95  insn per cycle
+                                                  #    0.06  stalled cycles per insn  (20.05%)
+        1716826620      branch-instructions:u     #  326.237 M/sec                    (20.06%)
+          26041472      branch-misses:u           #    1.52% of all branches          (20.06%)
+       32072842888      ex_ret_ops:u              #    6.095 G/sec                    (20.06%)
+                 0      ex_div_busy:u             #    0.000 /sec                     (20.06%)
+       17248122225      fp_ret_sse_avx_ops.all:u  #    3.278 G/sec                    (16.72%)
+        7920799505      fp_ret_sse_avx_ops.add_sub_flops:u #    1.505 G/sec                    (13.38%)
+        7439899915      fp_ret_sse_avx_ops.mac_flops:u #    1.414 G/sec                    (10.03%)
+        1590460445      fp_ret_sse_avx_ops.mult_flops:u #  302.225 M/sec                    (10.03%)
+         299943465      fp_ret_sse_avx_ops.div_flops:u #   56.996 M/sec                    (10.01%)
+       14270742155      fp_ops_retired_by_type.scalar_all:u #    2.712 G/sec                    (10.00%)
+        3443802365      fp_ops_retired_by_type.scalar_add:u #  654.403 M/sec                    (13.32%)
+        4465848392      fp_ops_retired_by_type.scalar_sub:u #  848.616 M/sec                    (13.30%)
+        3715860694      fp_ops_retired_by_type.scalar_mac:u #  706.101 M/sec                    (16.63%)
+        1590355907      fp_ops_retired_by_type.scalar_mul:u #  302.205 M/sec                    (16.63%)
+         250059463      fp_ops_retired_by_type.scalar_div:u #   47.517 M/sec                    (19.95%)
+             85231      cache-misses:u            #    3.869 % of all cache refs      (19.95%)
+           2202879      cache-references:u        #  418.599 K/sec                    (19.95%)
+            317475      L1-dcache-load-misses:u   #    0.00% of all L1-dcache accesses  (19.95%)
+        7557776026      L1-dcache-loads:u         #    1.436 G/sec                    (19.95%)
+            261695      L1-dcache-prefetches:u    #   49.728 K/sec                    (19.95%)
+             78216      L1-icache-load-misses:u   #    0.01% of all L1-icache accesses  (19.95%)
+        1021792320      L1-icache-loads:u         #  194.165 M/sec                    (19.95%)
+                15      dTLB-load-misses:u        #   10.71% of all dTLB cache accesses  (19.95%)
+               140      dTLB-loads:u              #   26.603 /sec                     (19.95%)
+
+       5.263753883 seconds time elapsed
+
+       5.200926000 seconds user
+       0.003957000 seconds sys
+
+
+[innocent@patatrack-bg-01 floatPrec]$ /usr/bin/c++ -O3 -std=c++17 -march=native testMatrixTT.cpp -DFLOAT2_T -DMORE_PREC
+In file included from testMatrixTT.cpp:7:
+TwoFloat.h:288:2: warning: #warning "FP2_PREC ON" [-Wcpp]
+ #warning "FP2_PREC ON"
+  ^~~~~~~
+[innocent@patatrack-bg-01 floatPrec]$ ~/scripts/doPerfStatAMD ./a.out
+testing 8TwoFloatIfE
+6.96197e-12 2.07318e-08
+
+ Performance counter stats for './a.out':
+
+           7567.22 msec task-clock:u              #    1.000 CPUs utilized
+       23169795709      cycles:u                  #    3.062 GHz                      (19.98%)
+        1408870087      stalled-cycles-backend:u  #    6.08% backend cycles idle      (19.99%)
+           3656829      stalled-cycles-frontend:u #    0.02% frontend cycles idle     (20.01%)
+               929      iTLB-load-misses:u        #  262.43% of all iTLB cache accesses  (20.02%)
+               354      iTLB-loads:u              #   46.781 /sec                     (20.03%)
+       40253183439      instructions:u            #    1.74  insn per cycle
+                                                  #    0.04  stalled cycles per insn  (20.05%)
+        1937428539      branch-instructions:u     #  256.029 M/sec                    (20.06%)
+          26156331      branch-misses:u           #    1.35% of all branches          (20.06%)
+       41093519958      ex_ret_ops:u              #    5.430 G/sec                    (20.06%)
+              1766      ex_div_busy:u             #  233.375 /sec                     (20.04%)
+       23059474476      fp_ret_sse_avx_ops.all:u  #    3.047 G/sec                    (16.69%)
+       13633957615      fp_ret_sse_avx_ops.add_sub_flops:u #    1.802 G/sec                    (13.33%)
+        7528835639      fp_ret_sse_avx_ops.mac_flops:u #  994.928 M/sec                    (9.99%)
+        1606656749      fp_ret_sse_avx_ops.mult_flops:u #  212.318 M/sec                    (9.99%)
+         300178094      fp_ret_sse_avx_ops.div_flops:u #   39.668 M/sec                    (9.99%)
+       20056710897      fp_ops_retired_by_type.scalar_all:u #    2.650 G/sec                    (9.99%)
+        5655678249      fp_ops_retired_by_type.scalar_add:u #  747.392 M/sec                    (13.32%)
+        7969746871      fp_ops_retired_by_type.scalar_sub:u #    1.053 G/sec                    (13.32%)
+        3760027156      fp_ops_retired_by_type.scalar_mac:u #  496.884 M/sec                    (16.65%)
+        1605069900      fp_ops_retired_by_type.scalar_mul:u #  212.108 M/sec                    (16.65%)
+         250002680      fp_ops_retired_by_type.scalar_div:u #   33.038 M/sec                    (19.98%)
+            113111      cache-misses:u            #    3.176 % of all cache refs      (19.98%)
+           3561533      cache-references:u        #  470.653 K/sec                    (19.98%)
+            520297      L1-dcache-load-misses:u   #    0.01% of all L1-dcache accesses  (19.98%)
+        8769388307      L1-dcache-loads:u         #    1.159 G/sec                    (19.98%)
+            411091      L1-dcache-prefetches:u    #   54.325 K/sec                    (19.98%)
+            109480      L1-icache-load-misses:u   #    0.01% of all L1-icache accesses  (19.98%)
+        1066652578      L1-icache-loads:u         #  140.957 M/sec                    (19.98%)
+               100      dTLB-load-misses:u        #   12.42% of all dTLB cache accesses  (19.98%)
+               805      dTLB-loads:u              #  106.380 /sec                     (19.98%)
+
+       7.568732897 seconds time elapsed
+
+       7.476781000 seconds user
+       0.002967000 seconds sys
+
+
+[innocent@patatrack-bg-01 floatPrec]$ /usr/bin/c++ -O3 -std=c++17 -march=native testMatrixTT.cpp -DDOUBLE_T
+[innocent@patatrack-bg-01 floatPrec]$ ~/scripts/doPerfStatAMD ./a.out
+testing d
+1.08002e-13 5.41352e-10
+
+ Performance counter stats for './a.out':
+
+           1498.91 msec task-clock:u              #    1.000 CPUs utilized
+        4584728997      cycles:u                  #    3.059 GHz                      (19.95%)
+            463042      stalled-cycles-backend:u  #    0.01% backend cycles idle      (19.95%)
+            454100      stalled-cycles-frontend:u #    0.01% frontend cycles idle     (19.95%)
+              1278      iTLB-load-misses:u        #  265.70% of all iTLB cache accesses  (19.95%)
+               481      iTLB-loads:u              #  320.901 /sec                     (19.95%)
+        9379809077      instructions:u            #    2.05  insn per cycle
+                                                  #    0.00  stalled cycles per insn  (19.96%)
+        1029434183      branch-instructions:u     #  686.790 M/sec                    (20.01%)
+          26142259      branch-misses:u           #    2.54% of all branches          (20.01%)
+        9645734798      ex_ret_ops:u              #    6.435 G/sec                    (20.01%)
+                44      ex_div_busy:u             #   29.355 /sec                     (20.01%)
+        2585754526      fp_ret_sse_avx_ops.all:u  #    1.725 G/sec                    (16.68%)
+         521273785      fp_ret_sse_avx_ops.add_sub_flops:u #  347.770 M/sec                    (13.34%)
+         932416654      fp_ret_sse_avx_ops.mac_flops:u #  622.065 M/sec                    (10.01%)
+         957199305      fp_ret_sse_avx_ops.mult_flops:u #  638.599 M/sec                    (10.01%)
+         175297626      fp_ret_sse_avx_ops.div_flops:u #  116.950 M/sec                    (10.01%)
+        2855945529      fp_ops_retired_by_type.scalar_all:u #    1.905 G/sec                    (10.01%)
+         385537984      fp_ops_retired_by_type.scalar_add:u #  257.213 M/sec                    (13.34%)
+         135212201      fp_ops_retired_by_type.scalar_sub:u #   90.207 M/sec                    (13.34%)
+         465731307      fp_ops_retired_by_type.scalar_mac:u #  310.714 M/sec                    (16.68%)
+         956613059      fp_ops_retired_by_type.scalar_mul:u #  638.208 M/sec                    (16.68%)
+         125207259      fp_ops_retired_by_type.scalar_div:u #   83.532 M/sec                    (20.01%)
+              7170      cache-misses:u            #    4.231 % of all cache refs      (20.01%)
+            169471      cache-references:u        #  113.063 K/sec                    (20.01%)
+             81774      L1-dcache-load-misses:u   #    0.00% of all L1-dcache accesses  (20.01%)
+        2762888430      L1-dcache-loads:u         #    1.843 G/sec                    (20.01%)
+             64320      L1-dcache-prefetches:u    #   42.911 K/sec                    (20.01%)
+              4057      L1-icache-load-misses:u   #    0.60% of all L1-icache accesses  (20.01%)
+            675973      L1-icache-loads:u         #  450.978 K/sec                    (20.01%)
+                19      dTLB-load-misses:u        #    1.17% of all dTLB cache accesses  (20.01%)
+              1619      dTLB-loads:u              #    1.080 K/sec                    (20.01%)
+
+       1.499631778 seconds time elapsed
+
+       1.480461000 seconds user
+       0.002981000 seconds sys
+
+
+[innocent@patatrack-bg-01 floatPrec]$ /usr/bin/c++ -O3 -std=c++17 -march=native testMatrixTT.cpp -DDOUBLE2_T
+[innocent@patatrack-bg-01 floatPrec]$ ~/scripts/doPerfStatAMD ./a.out
+testing 8TwoFloatIdE
+8.91215e-30 6.81636e-26
+
+ Performance counter stats for './a.out':
+
+           4857.62 msec task-clock:u              #    1.000 CPUs utilized
+       14871445403      cycles:u                  #    3.061 GHz                      (19.97%)
+        1463366071      stalled-cycles-backend:u  #    9.84% backend cycles idle      (19.97%)
+           4389339      stalled-cycles-frontend:u #    0.03% frontend cycles idle     (19.97%)
+              1342      iTLB-load-misses:u        #  454.92% of all iTLB cache accesses  (19.97%)
+               295      iTLB-loads:u              #   60.729 /sec                     (19.97%)
+       29834597750      instructions:u            #    2.01  insn per cycle
+                                                  #    0.05  stalled cycles per insn  (19.99%)
+        1717192534      branch-instructions:u     #  353.505 M/sec                    (20.01%)
+          26456665      branch-misses:u           #    1.54% of all branches          (20.01%)
+       30474484757      ex_ret_ops:u              #    6.274 G/sec                    (20.01%)
+                 0      ex_div_busy:u             #    0.000 /sec                     (20.01%)
+       17251508631      fp_ret_sse_avx_ops.all:u  #    3.551 G/sec                    (16.67%)
+        7921424710      fp_ret_sse_avx_ops.add_sub_flops:u #    1.631 G/sec                    (13.34%)
+        7442982712      fp_ret_sse_avx_ops.mac_flops:u #    1.532 G/sec                    (10.00%)
+        1592225428      fp_ret_sse_avx_ops.mult_flops:u #  327.779 M/sec                    (10.00%)
+         300307050      fp_ret_sse_avx_ops.div_flops:u #   61.822 M/sec                    (10.00%)
+       14259075896      fp_ops_retired_by_type.scalar_all:u #    2.935 G/sec                    (10.00%)
+        3446012009      fp_ops_retired_by_type.scalar_add:u #  709.403 M/sec                    (13.34%)
+        4466094299      fp_ops_retired_by_type.scalar_sub:u #  919.399 M/sec                    (13.34%)
+        3715894932      fp_ops_retired_by_type.scalar_mac:u #  764.962 M/sec                    (16.67%)
+        1590230937      fp_ops_retired_by_type.scalar_mul:u #  327.368 M/sec                    (16.67%)
+         250023964      fp_ops_retired_by_type.scalar_div:u #   51.470 M/sec                    (20.01%)
+             84289      cache-misses:u            #    4.054 % of all cache refs      (20.01%)
+           2079244      cache-references:u        #  428.037 K/sec                    (20.01%)
+            352825      L1-dcache-load-misses:u   #    0.00% of all L1-dcache accesses  (20.01%)
+        7498418566      L1-dcache-loads:u         #    1.544 G/sec                    (20.01%)
+            224187      L1-dcache-prefetches:u    #   46.152 K/sec                    (20.01%)
+             73697      L1-icache-load-misses:u   #    0.01% of all L1-icache accesses  (20.01%)
+         961724242      L1-icache-loads:u         #  197.983 M/sec                    (20.01%)
+               494      dTLB-load-misses:u        #   25.92% of all dTLB cache accesses  (20.01%)
+              1906      dTLB-loads:u              #  392.373 /sec                     (19.99%)
+
+       4.858838442 seconds time elapsed
+
+       4.800112000 seconds user
+       0.003953000 seconds sys
+
+
+[innocent@patatrack-bg-01 floatPrec]$ /usr/bin/c++ -O3 -std=c++17 -march=native testMatrixTT.cpp -DDOUBLE2_T -DMORE_PREC
+In file included from testMatrixTT.cpp:7:
+TwoFloat.h:288:2: warning: #warning "FP2_PREC ON" [-Wcpp]
+ #warning "FP2_PREC ON"
+  ^~~~~~~
+[innocent@patatrack-bg-01 floatPrec]$ ~/scripts/doPerfStatAMD ./a.out
+testing 8TwoFloatIdE
+1.01603e-29 7.39924e-26
+
+ Performance counter stats for './a.out':
+
+           6760.71 msec task-clock:u              #    1.000 CPUs utilized
+       20712048363      cycles:u                  #    3.064 GHz                      (19.97%)
+         467486334      stalled-cycles-backend:u  #    2.26% backend cycles idle      (19.98%)
+           5036386      stalled-cycles-frontend:u #    0.02% frontend cycles idle     (20.00%)
+               914      iTLB-load-misses:u        #  265.70% of all iTLB cache accesses  (20.01%)
+               344      iTLB-loads:u              #   50.882 /sec                     (20.03%)
+       37857141668      instructions:u            #    1.83  insn per cycle
+                                                  #    0.01  stalled cycles per insn  (20.04%)
+        1937042551      branch-instructions:u     #  286.515 M/sec                    (20.05%)
+          26068279      branch-misses:u           #    1.35% of all branches          (20.05%)
+       38713144021      ex_ret_ops:u              #    5.726 G/sec                    (20.05%)
+                89      ex_div_busy:u             #   13.164 /sec                     (20.05%)
+       23072387770      fp_ret_sse_avx_ops.all:u  #    3.413 G/sec                    (16.71%)
+       13642430492      fp_ret_sse_avx_ops.add_sub_flops:u #    2.018 G/sec                    (13.37%)
+        7524968870      fp_ret_sse_avx_ops.mac_flops:u #    1.113 G/sec                    (10.02%)
+        1605723590      fp_ret_sse_avx_ops.mult_flops:u #  237.508 M/sec                    (10.01%)
+         300016230      fp_ret_sse_avx_ops.div_flops:u #   44.376 M/sec                    (9.99%)
+       20032580124      fp_ops_retired_by_type.scalar_all:u #    2.963 G/sec                    (9.98%)
+        5655964019      fp_ops_retired_by_type.scalar_add:u #  836.593 M/sec                    (13.31%)
+        7969655549      fp_ops_retired_by_type.scalar_sub:u #    1.179 G/sec                    (13.31%)
+        3759996126      fp_ops_retired_by_type.scalar_mac:u #  556.154 M/sec                    (16.64%)
+        1604994614      fp_ops_retired_by_type.scalar_mul:u #  237.400 M/sec                    (16.64%)
+         250012029      fp_ops_retired_by_type.scalar_div:u #   36.980 M/sec                    (19.97%)
+            109433      cache-misses:u            #    3.398 % of all cache refs      (19.97%)
+           3220805      cache-references:u        #  476.400 K/sec                    (19.97%)
+            508203      L1-dcache-load-misses:u   #    0.01% of all L1-dcache accesses  (19.97%)
+        8839516608      L1-dcache-loads:u         #    1.307 G/sec                    (19.97%)
+            333000      L1-dcache-prefetches:u    #   49.255 K/sec                    (19.97%)
+            160605      L1-icache-load-misses:u   #    0.03% of all L1-icache accesses  (19.97%)
+         460802638      L1-icache-loads:u         #   68.159 M/sec                    (19.97%)
+                20      dTLB-load-misses:u        #    6.06% of all dTLB cache accesses  (19.97%)
+               330      dTLB-loads:u              #   48.811 /sec                     (19.97%)
+
+       6.762193594 seconds time elapsed
+
+       6.683018000 seconds user
+       0.002972000 seconds sys
+
+
+[innocent@patatrack-bg-01 floatPrec]$
+

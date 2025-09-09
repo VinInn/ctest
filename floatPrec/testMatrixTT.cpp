@@ -15,7 +15,7 @@
 #define DOUBLE2_T
 #endif
 
-#define VERIFY
+// #define VERIFY
 
 template <typename M>
 inline bool verify(M const& m, bool vv=true) {
