@@ -13,6 +13,7 @@
 #define FLOAT2_T
 #define DOUBLE_T
 #define DOUBLE2_T
+#define F128_T
 #endif
 
 // #define VERIFY
@@ -154,6 +155,11 @@ for (int kk=0; kk<maxIter; ++kk) {
 #ifdef DOUBLE2_T
   go<double,DD>(maxIter);
 #endif
+
+#ifdef F128_T
+  go<__float128,__float128>(maxIter);
+#endif
+
 
 
   return 0;
