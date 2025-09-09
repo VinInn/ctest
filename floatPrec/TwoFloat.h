@@ -279,6 +279,10 @@ inline constexpr TwoFloat<T> operator*(T b, TwoFloat<T> const & a) {
 template<typename T>
 inline constexpr T toSingle(T a) { return a;}
 
+template<>
+inline constexpr __float128  toSingle<__float128>(__float128 a) { return a;}
+
+
 template<typename T>
 inline constexpr T toSingle(TwoFloat<T> const & a) { return a.hi();}
 

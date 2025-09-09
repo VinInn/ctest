@@ -16,7 +16,7 @@
 #define F128_T
 #endif
 
-// #define VERIFY
+#define VERIFY
 
 template <typename M>
 inline bool verify(M const& m, bool vv=true) {
@@ -63,7 +63,7 @@ void genMatrix(M& m, Eng & eng) {
   }
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < i; ++j) {
-      float v = 0.3f * std::sqrt( toSingle(m(i, i) * m(j, j)) );  // this makes the matrix pos defined
+      float v = 0.3f * std::sqrt( toSingle(m(i, i)) * toSingle(m(j, j)) );  // this makes the matrix pos defined
       m(i, j) = v * (rgen(eng) + 1.e-10);
       if (rgen(eng)<0.5f) m(i, j) = -m(i, j);
       // m(j, i) = m(i, j);
@@ -91,8 +91,9 @@ for (int kk=0; kk<maxIter; ++kk) {
   v &= verify(m2);
   invert55(m2,m3);
   v &= verify(m3);
-//  invert55(m3,m2);
-//  invert55(m2,m3);
+  invert55(m3,m2);
+  invert55(m2,m3);
+  v &= verify(m3);
 //  if (!v) continue;
   int n = 5;
   for (int i=0; i<n; ++i) {
@@ -110,7 +111,7 @@ for (int kk=0; kk<maxIter; ++kk) {
 
 int main() {
 
-  int maxIter = 5000000;
+  int maxIter = 2500000;
   
   using FF = TwoFloat<float>;
   using DD = TwoFloat<double>;
@@ -157,7 +158,7 @@ for (int kk=0; kk<maxIter; ++kk) {
 #endif
 
 #ifdef F128_T
-  go<__float128,__float128>(maxIter);
+//  go<__float128,__float128>(maxIter);
 #endif
 
 

@@ -65,7 +65,7 @@ using MM5 = MatrixSym<Float,5>;
 
 // Type your code here, or load an example.
 __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
-     int maxIter = 100000;
+     int maxIter = 500000;
 #ifdef CLOCK
      __shared__ uint64_t gstart;
 #else
@@ -77,7 +77,7 @@ __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
      auto m1 = array[tid];
      MM5 m2;
 
-     if (tid==0) {
+     if (threadIdx.x==0) {
 #ifdef CLOCK
       gstart = clock64();
 #else
@@ -92,7 +92,7 @@ __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
     // Record start time
     asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(start));
 #endif
-     if (tid<n) {
+    if (tid<n) {
        for (int kk=0; kk<maxIter; ++kk) {
           invert55(m1,m2);
           invert55(m2,m1);
@@ -105,14 +105,14 @@ __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
    tt[tid] = end - start;
 #endif
     }
-
     __syncthreads();
-    if (tid==0) {
+
+    if (threadIdx.x==0) {
  #ifdef CLOCK
-      *tg = clock64() -gstart;
+      tg[blockIdx.x] = clock64() -gstart;
 #else
      asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(gend));
-     *tg = gend - gstart;
+     tg[blockIdx.x] = gend - gstart;
 #endif
    }
    array[tid] = m1;
@@ -120,10 +120,21 @@ __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
 
 #include<iostream>
 
+#ifndef NB
+#define NB 1
+#endif
+
+#ifndef NT
+#define NT 128
+#endif
+
+
 int main(int argc, char** argv) {
 
-  constexpr int nB = 1;
-  constexpr int nT = 128;
+  constexpr int nB = NB;
+  constexpr int nT = NT;
+
+   std::cout << "nb,nt "  << nB << ' ' << nT << std::endl;
 
   constexpr int n = nB*nT;
   MM5 * a;
@@ -134,7 +145,7 @@ int main(int argc, char** argv) {
    
   cudaMallocManaged(&a, n*sizeof(MM5));
   cudaMallocManaged(&tt, n*sizeof(int64_t));
-  cudaMallocManaged(&tg, sizeof(int64_t));
+  cudaMallocManaged(&tg, nB*sizeof(int64_t));
 
   std::mt19937 eng;
   for (int i=0; i<n; ++i) {
@@ -147,7 +158,7 @@ int main(int argc, char** argv) {
   for (int i=0; i<n; ++i) m0[i] = a[i];
 
   for (int i=0; i<n; ++i) tt[i]=0;
-  *tg=0;
+  for (int i=0; i<nB; ++i) tg[i]=0;
   square<<<nB,nT,0,0>>>(a,tt,tg,n);
   cudaDeviceSynchronize();
 
@@ -177,7 +188,9 @@ int main(int argc, char** argv) {
   std::cout << maxOn << ' ' << maxOff << std::endl;
 
   for (int i=0; i<n; ++i) std::cout << tt[i] <<  ' ';
-  std::cout << '\n' << *tg << std::endl;
+  std::cout << '\n' << std::endl;
+  for (int i=0; i<nB; ++i) std::cout << tg[i] <<  ' ';
+  std::cout << '\n' << std::endl;
 
   cudaFree(a);
   cudaFree(tt);
