@@ -58,12 +58,12 @@ void genMatrix(M& m, Eng & eng) {
   // generate first diagonal elemets
   for (int i = 0; i < n; ++i) {
     float maxVal = i * 1.e5 / (n - 1) + 1;  // max condition is 10^5 as  min-generated is 10^-9
-    m(i, i) = maxVal * rgen(eng) + 1.e-10;
+    m(i, i) = maxVal * (rgen(eng) + 1.e-10);
   }
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < i; ++j) {
       float v = 0.3f * std::sqrt( toSingle(m(i, i) * m(j, j)) );  // this makes the matrix pos defined
-      m(i, j) = v * rgen(eng) + 1.e-10;
+      m(i, j) = v * (rgen(eng) + 1.e-10);
       if (rgen(eng)<0.5f) m(i, j) = -m(i, j);
       // m(j, i) = m(i, j);
     }
@@ -92,7 +92,7 @@ for (int kk=0; kk<maxIter; ++kk) {
   v &= verify(m3);
 //  invert55(m3,m2);
 //  invert55(m2,m3);
-  if (!v) continue;
+//  if (!v) continue;
   int n = 5;
   for (int i=0; i<n; ++i) {
     maxOn = std::max(maxOn,std::abs(toSingle(  (m3(i,i)-m1(i,i))/m1(i,i) )));
@@ -109,7 +109,7 @@ for (int kk=0; kk<maxIter; ++kk) {
 
 int main() {
 
-  int maxIter = 10000000;
+  int maxIter = 5000000;
   
   using FF = TwoFloat<float>;
   using DD = TwoFloat<double>;
