@@ -189,6 +189,7 @@ int main(int argc, char** argv) {
 
   for (int i=0; i<n; ++i) std::cout << tt[i] <<  ' ';
   std::cout << '\n' << std::endl;
+  std::cout << "gtime ";
   for (int i=0; i<nB; ++i) std::cout << tg[i] <<  ' ';
   std::cout << '\n' << std::endl;
 

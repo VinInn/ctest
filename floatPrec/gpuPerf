@@ -1,0 +1,25 @@
+#!/bin/bash
+for nt in 16 32 64 128 256 512 1024; do
+ /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++17 clockMatrix.cu -DFLOAT=float -DNB=1 -DCLOCK -DNT=${nt}
+ ./a.out; rm ./a.out
+done
+for nt in 16 32 64 128 256 512 1024; do
+ /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++17 clockMatrix.cu -DFLOAT=double -DNB=1 -DCLOCK -DNT=$nt
+ ./a.out; rm ./a.out
+done
+for nt in 16 32 64 128 256 512 1024; do
+ /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++17 clockMatrix.cu -DFLOAT=float -DTWOF -DNB=1 -DCLOCK -DNT=$nt
+ ./a.out; rm ./a.out
+done
+for nt in 16 32 64 128 256 512 1024; do
+ /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++17 clockMatrix.cu -DFLOAT=double -DTWOF -DNB=1 -DCLOCK -DNT=$nt
+ ./a.out; rm ./a.out
+done
+for nt in 16 32 64 128 256 512 1024; do
+ /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++17 clockMatrix.cu -DFLOAT=float -DTWOF -DMORE_PREC -DNB=1 -DCLOCK -DNT=$nt
+ ./a.out; rm ./a.out
+done
+for nt in 16 32 64 128 256 512 1024; do
+ /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++17 clockMatrix.cu -DFLOAT=double -DTWOF -DMORE_PREC -DNB=1 -DCLOCK -DNT=$nt
+ ./a.out; rm ./a.out
+done
