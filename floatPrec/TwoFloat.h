@@ -2,6 +2,7 @@
 #include <cmath>
 #include <algorithm>
 #include<cassert>
+#include<ostream>
 
 namespace detailsTwoFloat {
 
@@ -164,7 +165,7 @@ public:
 #ifdef __NVCC__
      __device__ __host__
 #endif
-  explicit constexpr TwoFloat(T a) : mhi(a), mlo(0) {}
+  /*explicit*/ constexpr TwoFloat(T a) : mhi(a), mlo(0) {}
 #ifdef __NVCC__
      __device__ __host__
 #endif
@@ -172,7 +173,7 @@ public:
 #ifdef __NVCC__
      __device__ __host__
 #endif
-  explicit constexpr operator T() const { return mhi;}
+  /*explicit*/ constexpr operator T() const { return mhi;}
 
   template<detailsTwoFloat::From f>
 #ifdef __NVCC__
@@ -200,6 +201,13 @@ public:
 #endif
   constexpr TwoFloat operator-() const {  TwoFloat<T> ret(-mhi, -mlo, detailsTwoFloat::fromMembers()); return ret;}
 
+  constexpr TwoFloat & operator-=(TwoFloat<T> const & a);
+  constexpr TwoFloat & operator+=(TwoFloat<T> const & a);
+  constexpr TwoFloat & operator*=(TwoFloat<T> const & a);
+  constexpr TwoFloat & operator/=(TwoFloat<T> const & a);
+
+
+
   constexpr T hi() const { return mhi;}
   constexpr T lo() const { return mlo;}
   constexpr T & hi() { return mhi;}
@@ -207,7 +215,17 @@ public:
 
   T mhi;
   T mlo;
+
+  // friend ostream& operator<<(ostream&, TwoFloat&);
+
 };
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, TwoFloat<T> const & t)
+{
+    os << t.hi() << ',' << t.lo();
+    return os;
+}
 
 
 template<typename T>
@@ -279,9 +297,10 @@ inline constexpr TwoFloat<T> operator*(T b, TwoFloat<T> const & a) {
 template<typename T>
 inline constexpr T toSingle(T a) { return a;}
 
+/*
 template<>
 inline constexpr __float128  toSingle<__float128>(__float128 a) { return a;}
-
+*/
 
 template<typename T>
 inline constexpr T toSingle(TwoFloat<T> const & a) { return a.hi();}
@@ -445,4 +464,44 @@ inline constexpr TwoFloat<T> square(TwoFloat<T> const & a) {
   TwoFloat<T> ret;
   d_square(ret.hi(),ret.lo(),a.hi(),a.lo());
   return ret;
+}
+
+template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline
+constexpr TwoFloat<T> & TwoFloat<T>::operator-=(TwoFloat<T> const & a) {
+   *this = *this -a;
+   return *this;
+}
+
+template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline
+constexpr TwoFloat<T> & TwoFloat<T>::operator+=(TwoFloat<T> const & a) {
+   *this = *this +a;
+   return *this;
+}
+
+template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline
+constexpr TwoFloat<T> & TwoFloat<T>::operator*=(TwoFloat<T> const & a) {
+   *this = *this *a;
+   return *this;
+}
+
+template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline
+constexpr TwoFloat<T> & TwoFloat<T>::operator/=(TwoFloat<T> const & a) {
+   *this = *this /a;
+   return *this;
 }
