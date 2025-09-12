@@ -27,11 +27,11 @@ namespace Rfit
   using Matrix4d = Eigen::Matrix<FF, 4, 4>;
   using Matrix5d = Eigen::Matrix<FF, 5, 5>;
   using Matrix6d = Eigen::Matrix<FF, 6, 6>;
-  using MatrixXFF = Eigen:: Matrix<FF, Eigen::Dynamic, Eigen::Dynamic>;
+  using MatrixXFF = Eigen::Matrix<FF, Eigen::Dynamic, Eigen::Dynamic>;
   using VectorXFF = Eigen::Vector<FF, Eigen::Dynamic>;
 
  template<int N>
- using Matrix3xNd = Eigen::Matrix<FF, 3, N>; // used for inputs hits
+ using Matrix3xNd = Eigen::Matrix<Float, 3, N>; // used for inputs hits
  
 
   struct circle_fit

@@ -1,2 +1,3 @@
-c++  -Ofast  -g -mfma -mavx2 $1 -I/afs/cern.ch/user/i/innocent/eigen/
+c++ -O3 -std=c++17 -march=native -DUSE_BL -I/afs/cern.ch/work/i/innocent/public/w4/eigen -I../../floatPrec testRiemannFit.cpp
+// c++  -Ofast  -g -mfma -mavx2 $1 -I/afs/cern.ch/user/i/innocent/eigen/
 # -I/data/vin/cmssw/slc7_amd64_gcc700/external/eigen/1f44b667dd9aeeb153284b15fc7fe159d2c09329-patatrack/include/eigen3 $1 \

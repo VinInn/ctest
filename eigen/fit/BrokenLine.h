@@ -139,7 +139,7 @@ namespace BrokenLine {
     Matrix2d R=RotationMatrix(slope);
     
     // calculate radii and s
-    results.radii=hits.block(0,0,2,n)-fast_fit.head(2)*MatrixXd::Constant(1,n,1);
+    results.radii=hits.block(0,0,2,n)-fast_fit.head(2)*Rfit::MatrixXd::Constant(1,n,1);
     e=-fast_fit(2)*fast_fit.head(2)/fast_fit.head(2).norm();
     for(i=0;i<n;i++) {
       d=results.radii.block(0,i,2,1);
@@ -535,7 +535,7 @@ namespace BrokenLine {
     circle.cov=Jacob*circle.cov*Jacob.transpose();
     
     helix.par << circle.par, line.par;
-    helix.cov=MatrixXd::Zero(5, 5);
+    helix.cov=Rfit::MatrixXd::Zero(5, 5);
     helix.cov.block(0,0,3,3)=circle.cov;
     helix.cov.block(3,3,2,2)=line.cov;
     helix.q=circle.q;
