@@ -2,6 +2,7 @@
 #define RecoPixelVertexing_PixelTrackFitting_interface_FitUtils_h
 
 
+
 #include "FitResult.h"
 
 #include "../choleskyInversion.h"
@@ -11,51 +12,50 @@ namespace Rfit
 {
 
 
-  constexpr double d = 1.e-4;          //!< used in numerical derivative (J2 in Circle_fit())
+  constexpr Float d = 1.e-4;          //!< used in numerical derivative (J2 in Circle_fit())
 
 
+  using VectorXd = VectorXFF;
+  using MatrixXd = MatrixXFF;
+  template<int N>
+  using MatrixNd = Eigen::Matrix<FF, N, N>;
+  template<int N>
+  using MatrixNplusONEd = Eigen::Matrix<FF, N+1, N+1>; 
+  template<int N>
+  using ArrayNd = Eigen::Array<FF, N, N>;
+  template<int N>
+  using Matrix2Nd = Eigen::Matrix<FF, 2 * N, 2 * N>;
+  template<int N>
+  using Matrix3Nd = Eigen::Matrix<FF, 3 * N, 3 * N>;
+  template<int N>
+  using Matrix2xNd = Eigen::Matrix<FF, 2, N>;
+  template<int N>
+  using Array2xNd = Eigen::Array<FF, 2, N>;
+  template<int N>
+  using MatrixNx3d = Eigen::Matrix<FF, N, 3>;
+  template<int N>
+  using MatrixNx5d = Eigen::Matrix<FF, N, 5>;
+  template<int N>
+  using VectorNd = Eigen::Matrix<FF, N, 1>;
+  template<int N>
+  using VectorNplusONEd  = Eigen::Matrix<FF, N+1, 1>;
+  template<int N>
+  using Vector2Nd = Eigen::Matrix<FF, 2 * N, 1>;
+  template<int N>
+  using Vector3Nd = Eigen::Matrix<FF, 3 * N, 1>;
+  template<int N>
+  using RowVectorNd = Eigen::Matrix<FF, 1, 1, N>;
+  template<int N>
+  using RowVector2Nd = Eigen::Matrix<FF, 1, 2 * N>;
 
-  using VectorXd = Eigen::VectorXd;
-  using MatrixXd = Eigen::MatrixXd;
-  template<int N>
-  using MatrixNd = Eigen::Matrix<double, N, N>;
-  template<int N>
-  using MatrixNplusONEd = Eigen::Matrix<double, N+1, N+1>; 
-  template<int N>
-  using ArrayNd = Eigen::Array<double, N, N>;
-  template<int N>
-  using Matrix2Nd = Eigen::Matrix<double, 2 * N, 2 * N>;
-  template<int N>
-  using Matrix3Nd = Eigen::Matrix<double, 3 * N, 3 * N>;
-  template<int N>
-  using Matrix2xNd = Eigen::Matrix<double, 2, N>;
-  template<int N>
-  using Array2xNd = Eigen::Array<double, 2, N>;
-  template<int N>
-  using MatrixNx3d = Eigen::Matrix<double, N, 3>;
-  template<int N>
-  using MatrixNx5d = Eigen::Matrix<double, N, 5>;
-  template<int N>
-  using VectorNd = Eigen::Matrix<double, N, 1>;
-  template<int N>
-  using VectorNplusONEd  = Eigen::Matrix<double, N+1, 1>;
-  template<int N>
-  using Vector2Nd = Eigen::Matrix<double, 2 * N, 1>;
-  template<int N>
-  using Vector3Nd = Eigen::Matrix<double, 3 * N, 1>;
-  template<int N>
-  using RowVectorNd = Eigen::Matrix<double, 1, 1, N>;
-  template<int N>
-  using RowVector2Nd = Eigen::Matrix<double, 1, 2 * N>;
 
-
-  using Matrix2x3d = Eigen::Matrix<double, 2, 3>;
+  using Matrix2x3d = Eigen::Matrix<FF, 2, 3>;
 
   
   using Matrix3f = Eigen::Matrix3f;
   using Vector3f = Eigen::Vector3f;
   using Vector4f = Eigen::Vector4f;
-  using Vector6f = Eigen::Matrix<double, 6, 1>;
+  using Vector6f = Eigen::Matrix<FF, 6, 1>;
 
 
 
@@ -85,7 +85,7 @@ namespace Rfit
   template <typename T>
   constexpr T sqr(const T a)
   {
-    return a * a;
+    return square(a);
   }
   
   /*!
@@ -96,7 +96,7 @@ namespace Rfit
     \return z component of the cross product.
   */
   
-  __host__ __device__ inline double cross2D(const Vector2d& a, const Vector2d& b)
+  __host__ __device__ inline FF cross2D(const Vector2d& a, const Vector2d& b)
   {
     return a.x() * b.y() - a.y() * b.x();
   }
@@ -175,17 +175,17 @@ namespace Rfit
     \param error flag for errors computation.
   */
   __host__ __device__
-  inline void par_uvrtopak(circle_fit& circle, const double B, const bool error)
+  inline void par_uvrtopak(circle_fit& circle, const FF B, const bool error)
   {
     Vector3d par_pak;
-    const double temp0 = circle.par.head(2).squaredNorm();
-    const double temp1 = sqrt(temp0);
+    const FF temp0 = circle.par.head(2).squaredNorm();
+    const FF temp1 = sqrt(temp0);
     par_pak << atan2(circle.q * circle.par(0), -circle.q * circle.par(1)),
       circle.q * (temp1 - circle.par(2)), circle.par(2) * B;
     if (error)
       {
-        const double temp2 = sqr(circle.par(0)) * 1. / temp0;
-        const double temp3 = 1. / temp1 * circle.q;
+        const FF temp2 = sqr(circle.par(0)) * 1. / temp0;
+        const FF temp3 = 1. / temp1 * circle.q;
         Matrix3d J4;
         J4 << -circle.par(1) * temp2 * 1. / sqr(circle.par(0)), temp2 * 1. / circle.par(0), 0., 
 	  circle.par(0) * temp3, circle.par(1) * temp3, -circle.q,

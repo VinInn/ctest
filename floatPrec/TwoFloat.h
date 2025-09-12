@@ -459,6 +459,14 @@ template<typename T>
 #ifdef __NVCC__
      __device__ __host__
 #endif
+inline constexpr T square(T a) {
+   return a*a;
+}
+
+template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
 inline constexpr TwoFloat<T> square(TwoFloat<T> const & a) {
   using namespace detailsTwoFloat;
   TwoFloat<T> ret;

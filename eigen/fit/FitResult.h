@@ -9,23 +9,29 @@
 
 // #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
+#include "TwoFloat.h"
+
 namespace Rfit
 {
 
+  using Float = float;
+  using FF = TwoFloat<Float>;
 
-  using Vector2d = Eigen::Vector2d;
-  using Vector3d = Eigen::Vector3d;
-  using Vector4d = Eigen::Vector4d;
-  using Vector5d = Eigen::Matrix<double, 5, 1>;
-  using Matrix2d = Eigen::Matrix2d;
-  using Matrix3d = Eigen::Matrix3d;
-  using Matrix4d = Eigen::Matrix4d;
-  using Matrix5d = Eigen::Matrix<double, 5, 5>;
-  using Matrix6d = Eigen::Matrix<double, 6, 6>;
 
+  using Vector2d = Eigen::Vector<FF,2>;
+  using Vector3d = Eigen::Vector<FF,3>;
+  using Vector4d = Eigen::Vector<FF,4>;
+  using Vector5d = Eigen::Matrix<FF, 5, 1>;
+  using Matrix2d = Eigen::Matrix<FF, 2, 2>;
+  using Matrix3d = Eigen::Matrix<FF, 3, 3>;
+  using Matrix4d = Eigen::Matrix<FF, 4, 4>;
+  using Matrix5d = Eigen::Matrix<FF, 5, 5>;
+  using Matrix6d = Eigen::Matrix<FF, 6, 6>;
+  using MatrixXFF = Eigen:: Matrix<FF, Eigen::Dynamic, Eigen::Dynamic>;
+  using VectorXFF = Eigen::Vector<FF, Eigen::Dynamic>;
 
  template<int N>
- using Matrix3xNd = Eigen::Matrix<double, 3, N>; // used for inputs hits
+ using Matrix3xNd = Eigen::Matrix<FF, 3, N>; // used for inputs hits
  
 
   struct circle_fit
@@ -49,7 +55,7 @@ namespace Rfit
       |cov(c_t,c_t)|cov(Zip,c_t)| \n
       |cov(c_t,Zip)|cov(Zip,Zip)|
     */
-    double chi2 = 0.0;
+    float chi2 = 0.0;
   };
   
   struct helix_fit

@@ -49,13 +49,13 @@ namespace BrokenLine {
     
     \return the variance of the planar angle ((theta_0)^2 /3).
   */
-  __host__ __device__ inline double MultScatt(const double& length, const double B, const double R, int Layer, double slope) {
-    constexpr double XXI_0 = 0.06/16.; //!< inverse of radiation length of the material in cm
+  __host__ __device__ inline Float MultScatt(const Float& length, const Float B, const Float R, int Layer, Float slope) {
+    constexpr Float XXI_0 = 0.06/16.; //!< inverse of radiation length of the material in cm
     //if(Layer==1) XXI_0=0.06/16.;
     // else XXI_0=0.06/16.;
     //XX_0*=1;
-    constexpr double geometry_factor=0.7; //!< number between 1/3 (uniform material) and 1 (thin scatterer) to be manually tuned
-    constexpr double fact = geometry_factor*sqr(13.6/1000.);
+    constexpr Float geometry_factor=0.7; //!< number between 1/3 (uniform material) and 1 (thin scatterer) to be manually tuned
+    constexpr Float fact = geometry_factor*sqr(13.6/1000.);
     return fact/sqr(1.*B*R*sqrt(1.+sqr(slope)))
       *(std::abs(length)*XXI_0)*sqr(1.+0.038*log(std::abs(length)*XXI_0));
   }
@@ -67,7 +67,7 @@ namespace BrokenLine {
     
     \return 2D rotation matrix.
   */
-  __host__ __device__ inline Matrix2d RotationMatrix(double slope) {
+  __host__ __device__ inline Matrix2d RotationMatrix(Float slope) {
     Matrix2d Rot;
     Rot(0,0)=1./sqrt(1.+sqr(slope));
     Rot(0,1)=slope*Rot(0,0);
@@ -84,8 +84,8 @@ namespace BrokenLine {
     \param y0 y coordinate of the translation vector.
     \param Jacob passed by reference in order to save stack.
   */
-  __host__ __device__ inline void TranslateKarimaki(karimaki_circle_fit& circle, double x0, double y0, Matrix3d& Jacob) {
-    double A,U,BB,C,DO,DP,uu,xi,v,mu,lambda,zeta;
+  __host__ __device__ inline void TranslateKarimaki(karimaki_circle_fit& circle, Float x0, Float y0, Matrix3d& Jacob) {
+    Float A,U,BB,C,DO,DP,uu,xi,v,mu,lambda,zeta;
     DP=x0*cos(circle.par(0))+y0*sin(circle.par(0));
     DO=x0*sin(circle.par(0))-y0*cos(circle.par(0))+circle.par(1);
     uu=1+circle.par(2)*circle.par(1);
@@ -123,7 +123,7 @@ namespace BrokenLine {
   template<typename M3xN, typename V4, int N>
   __host__ __device__ inline void prepareBrokenLineData(const M3xN& hits,
 							const V4& fast_fit,
-							const double B,
+							const Float B,
 							PreparedBrokenLineData<N> & results) {
     constexpr auto n = N;
     u_int i;
@@ -134,7 +134,7 @@ namespace BrokenLine {
     e=hits.block(0,n-1,2,1)-hits.block(0,n-2,2,1);
     results.q = cross2D(d,e)>0 ? -1 : 1;
     
-    const double slope=-results.q/fast_fit(3);
+    const Float slope=-results.q/fast_fit(3);
     
     Matrix2d R=RotationMatrix(slope);
     
@@ -253,7 +253,7 @@ namespace BrokenLine {
   __host__ __device__ inline void BL_Circle_fit(const M3xN& hits,
 						const  M6xN & hits_ge,
 						const V4& fast_fit,
-						const double B,
+						const Float B,
 						PreparedBrokenLineData<N>& data,
 						karimaki_circle_fit & circle_results
                                                ) {
@@ -267,7 +267,7 @@ namespace BrokenLine {
     const auto & S=data.S;
     auto & Z=data.Z;
     auto & VarBeta=data.VarBeta;
-    const double slope=-circle_results.q/fast_fit(3);
+    const Float slope=-circle_results.q/fast_fit(3);
     VarBeta*=1.+sqr(slope); // the kink angles are projected!
     
     for(i=0;i<n;i++) {
@@ -277,7 +277,7 @@ namespace BrokenLine {
     Matrix2d V; // covariance matrix
     VectorNd<N> w; // weights
     Matrix2d RR; // rotation matrix point by point
-    //double Slope; // slope of the circle point by point
+    //Float Slope; // slope of the circle point by point
     for(i=0;i<n;i++) {
       V(0,0)=hits_ge.col(i)[0];                // x errors
       V(0,1)=V(1,0)=hits_ge.col(i)[1];   // cov_xy
@@ -340,7 +340,7 @@ namespace BrokenLine {
     assert(circle_results.q*circle_results.par(1)<=0);
     
     Vector2d eMinusd=e-d;
-    double tmp1=eMinusd.squaredNorm();
+    Float tmp1=eMinusd.squaredNorm();
     
     Matrix3d Jacob;
     Jacob << (radii(1,0)*eMinusd(0)-eMinusd(1)*radii(0,0))/tmp1,(radii(1,1)*eMinusd(0)-eMinusd(1)*radii(0,1))/tmp1,0,
@@ -392,7 +392,7 @@ namespace BrokenLine {
   template<typename V4, typename M6xN, int N>
   __host__ __device__ inline void BL_Line_fit(const  M6xN & hits_ge,
 					      const V4& fast_fit,
-					      const double B,
+					      const Float B,
 					      const PreparedBrokenLineData<N>& data,
 					      line_fit & line_results) {
     constexpr u_int n = N;
@@ -403,7 +403,7 @@ namespace BrokenLine {
     const auto & Z=data.Z;
     const auto& VarBeta=data.VarBeta;
     
-    const double slope=-data.q/fast_fit(3);
+    const Float slope=-data.q/fast_fit(3);
     Matrix2d R=RotationMatrix(slope);
     
     Matrix3d V=Matrix3d::Zero(); // covariance matrix XYZ
@@ -512,7 +512,7 @@ namespace BrokenLine {
     \return (phi,Tip,p_t,cot(theta)),Zip), their covariance matrix and the chi2's of the circle and line fits.
   */
   template<int N>
-  inline helix_fit BL_Helix_fit(const Matrix3xNd<N>& hits, const Eigen::Matrix<float,6,N>& hits_ge, const double B)
+  inline helix_fit BL_Helix_fit(const Matrix3xNd<N>& hits, const Eigen::Matrix<float,6,N>& hits_ge, const Float B)
 {
     helix_fit helix;
     Vector4d fast_fit;

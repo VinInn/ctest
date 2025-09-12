@@ -22,7 +22,7 @@ namespace Rfit {
   constexpr uint32_t stride() { return maxNumberOfTracks();}
   // hits
   template<int N>
-  using Matrix3xNd = Eigen::Matrix<double,3,N>;
+  using Matrix3xNd = Eigen::Matrix<FF,3,N>;
   template<int N>
   using Map3xNd = Eigen::Map<Matrix3xNd<N>,0,Eigen::Stride<3*stride(),stride()> >;
   // errors
@@ -31,7 +31,7 @@ namespace Rfit {
   template<int N>
   using Map6xNf = Eigen::Map<Matrix6xNf<N>,0,Eigen::Stride<6*stride(),stride()> >;
   // fast fit
-  using Map4d = Eigen::Map<Vector4d,0,Eigen::InnerStride<stride()> >;
+  using Map4d = Eigen::Map<Rfit::Vector4d,0,Eigen::InnerStride<stride()> >;
 
 }
 
@@ -96,7 +96,7 @@ void fillHitsAndHitsCov(M3xN & hits, M6xN & hits_ge) {
 
 template<int N>
 void testFit() {
-  constexpr double B = 0.0113921;
+  constexpr Rfit::Float B = 0.0113921;
   Rfit::Matrix3xNd<N> hits;
   Rfit::Matrix6xNf<N> hits_ge = MatrixXf::Zero(6,N);
 
@@ -111,9 +111,9 @@ void testFit() {
 
   // FAST_FIT_CPU
 #ifdef USE_BL
-  Vector4d fast_fit_results; BrokenLine::BL_Fast_fit(hits, fast_fit_results);
+  Rfit::Vector4d fast_fit_results; BrokenLine::BL_Fast_fit(hits, fast_fit_results);
 #else
-  Vector4d fast_fit_results; Rfit::Fast_fit(hits, fast_fit_results);
+  Rfit::Vector4d fast_fit_results; Rfit::Fast_fit(hits, fast_fit_results);
 #endif
   std::cout << "Fitted values (FastFit, [X0, Y0, R, tan(theta)]):\n" << fast_fit_results << std::endl;
 
