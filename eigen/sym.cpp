@@ -1,3 +1,4 @@
+//  /usr/bin/c++ -O3 -std=c++17 -march=native sym.cpp -I/Users/innocent/eigen -I/Users/innocent/RealStuff/ctest/floatPrec
 #include <cmath>
 #include <Eigen/Core>
 
