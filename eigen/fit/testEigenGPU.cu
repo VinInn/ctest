@@ -301,7 +301,9 @@ void testFit() {
   cudaCheck(cudaMemset(fast_fit_resultsGPU, 0, Rfit::maxNumberOfTracks()*sizeof(Rfit::Vector4d)));
   cudaCheck(cudaMemset(line_fit_resultsGPU, 0, Rfit::maxNumberOfTracks()*sizeof(Rfit::line_fit)));
 
-  int nbl0 = Ntracks/64;
+  int ntr = 2*128;
+
+  int nbl0 = Ntracks/ntr;
 
   int nbl = 16;
 
@@ -309,11 +311,11 @@ void testFit() {
   int64_t * tg;
   cudaMallocManaged(&tg, nbl*sizeof(int64_t));
 
-  kernelPrintSizes<N><<<nbl0, 64>>>(hitsGPU,hits_geGPU);
-  kernelFillHitsAndHitsCov<N><<<nbl0, 64>>>(hitsGPU,hits_geGPU);
+  kernelPrintSizes<N><<<nbl0, ntr>>>(hitsGPU,hits_geGPU);
+  kernelFillHitsAndHitsCov<N><<<nbl0, ntr>>>(hitsGPU,hits_geGPU);
 
   // FAST_FIT GPU
-  kernelFastFit<N><<<nbl, 64>>>(hitsGPU, fast_fit_resultsGPU,Ntracks,tg);
+  kernelFastFit<N><<<nbl, ntr>>>(hitsGPU, fast_fit_resultsGPU,Ntracks,tg);
   cudaDeviceSynchronize();
 
   std::cout << "fastfit gtime ";
@@ -344,7 +346,7 @@ void testFit() {
   circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
 
   // fit on GPU
-  kernelBrokenLineFit<N><<<nbl, 64>>>(hitsGPU, hits_geGPU,
+  kernelBrokenLineFit<N><<<nbl, ntr>>>(hitsGPU, hits_geGPU,
 					  fast_fit_resultsGPU, B,
 					  circle_fit_resultsGPU,
 					  line_fit_resultsGPU,
