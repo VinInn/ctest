@@ -14,8 +14,8 @@
 namespace Rfit
 {
 
-  using Float = float;
-  using FF = TwoFloat<Float>;
+  using Float = double;
+  using FF = Float; // TwoFloat<Float>;
 
 
   using Vector2d = Eigen::Vector<FF,2>;
