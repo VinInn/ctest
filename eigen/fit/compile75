@@ -1,5 +1,6 @@
 /usr/local/cuda/bin/nvcc $1 -DUSE_BL \
 -I/afs/cern.ch/work/i/innocent/public/w4/eigen -I../../floatPrec \
+-DMORE_PREC \
 -gencode arch=compute_75,code=sm_75 -O3 -std=c++17 --expt-relaxed-constexpr --expt-extended-lambda --generate-line-info --source-in-ptx \
 --compiler-options '-O3 -Wall -g -march=native'
 # --compiler-options '-O3 -Wall -g'

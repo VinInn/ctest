@@ -54,15 +54,21 @@ void kernelPrintSizes(Rfit::FF * __restrict__ phits,
 
 template<int N>
 __global__
-void kernelFastFit(Rfit::FF * __restrict__ phits, Rfit::FF * __restrict__ presults) {
+void kernelFastFit(Rfit::FF * __restrict__ phits, Rfit::FF * __restrict__ presults, int64_t * tg) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3xNd<N> hits(phits+i,3,N);
   Rfit::Map4d result(presults+i,4);
+  __shared__ uint64_t gstart;
+  if (threadIdx.x==0) gstart = clock64();
+  __syncthreads();
+
 #ifdef USE_BL
   BrokenLine::BL_Fast_fit(hits, result);
 #else
   Rfit::Fast_fit(hits,  result);
 #endif
+
+if (threadIdx.x==0) tg[blockIdx.x] = clock64() -gstart;
 }
 
 #ifdef USE_BL
@@ -74,9 +80,16 @@ void kernelBrokenLineFit(Rfit::FF * __restrict__ phits,
 			 Rfit::FF * __restrict__ pfast_fit_input, 
 			 Rfit::Float B,
 			 Rfit::circle_fit * circle_fit,
-			 Rfit::line_fit * line_fit
+			 Rfit::line_fit * line_fit,
+                         int64_t * tg
 			 ) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
+
+  __shared__ uint64_t gstart;
+  if (threadIdx.x==0) gstart = clock64();
+  __syncthreads();
+
+
   Rfit::Map3xNd<N> hits(phits+i,3,N);
   Rfit::Map4d   fast_fit_input(pfast_fit_input+i,4);
   Rfit::Map6xNf<N> hits_ge(phits_ge+i,6,N);
@@ -95,6 +108,10 @@ void kernelBrokenLineFit(Rfit::FF * __restrict__ phits,
     0,0,-B/std::copysign(Rfit::sqr(circle_fit_results.par(2)),circle_fit_results.par(2));
   circle_fit_results.par(2)=B/std::abs(circle_fit_results.par(2));
   circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
+
+  __syncthreads();
+  if (threadIdx.x==0) tg[blockIdx.x] = clock64() -gstart;
+
 
 #ifdef TEST_DEBUG
 if (0==i) {
@@ -273,13 +290,21 @@ void testFit() {
   cudaCheck(cudaMemset(fast_fit_resultsGPU, 0, Rfit::maxNumberOfTracks()*sizeof(Rfit::Vector4d)));
   cudaCheck(cudaMemset(line_fit_resultsGPU, 0, Rfit::maxNumberOfTracks()*sizeof(Rfit::line_fit)));
 
+  int64_t * tg;
+  cudaMallocManaged(&tg, 64*sizeof(int64_t));
 
   kernelPrintSizes<N><<<Ntracks/64, 64>>>(hitsGPU,hits_geGPU);
   kernelFillHitsAndHitsCov<N><<<Ntracks/64, 64>>>(hitsGPU,hits_geGPU);
 
   // FAST_FIT GPU
-  kernelFastFit<N><<<Ntracks/64, 64>>>(hitsGPU, fast_fit_resultsGPU);
+  kernelFastFit<N><<<Ntracks/64, 64>>>(hitsGPU, fast_fit_resultsGPU,tg);
   cudaDeviceSynchronize();
+
+  std::cout << "fastfit gtime ";
+  for (int i=0; i<64; ++i) std::cout << tg[i] <<  ' ';
+  std::cout << '\n' << std::endl;
+  cudaDeviceSynchronize();
+
   
   cudaMemcpy(fast_fit_resultsGPUret, fast_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Vector4d), cudaMemcpyDeviceToHost);
   Rfit::Map4d fast_fit(fast_fit_resultsGPUret+10,4);
@@ -306,7 +331,12 @@ void testFit() {
   kernelBrokenLineFit<N><<<Ntracks/64, 64>>>(hitsGPU, hits_geGPU,
 					  fast_fit_resultsGPU, B,
 					  circle_fit_resultsGPU,
-					  line_fit_resultsGPU);
+					  line_fit_resultsGPU,
+                                          tg);
+  cudaDeviceSynchronize();
+  std::cout << "BLfit gtime ";
+  for (int i=0; i<64; ++i) std::cout << tg[i] <<  ' ';
+  std::cout << '\n' << std::endl;
   cudaDeviceSynchronize();
 
   
