@@ -23,7 +23,7 @@ namespace Rfit {
   constexpr uint32_t stride() { return maxNumberOfTracks();}
   // hits
   template<int N>
-  using Matrix3xNd = Eigen::Matrix<Float,3,N>;
+  using Matrix3xNd = Eigen::Matrix<FF,3,N>;
   template<int N>
   using Map3xNd = Eigen::Map<Matrix3xNd<N>,0,Eigen::Stride<3*stride(),stride()> >;
   // errors
@@ -40,7 +40,7 @@ namespace Rfit {
 
 template<int N>
 __global__
-void kernelPrintSizes(Rfit::Float * __restrict__ phits,
+void kernelPrintSizes(Rfit::FF * __restrict__ phits,
                       float * __restrict__ phits_ge
 		      ) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
@@ -54,7 +54,7 @@ void kernelPrintSizes(Rfit::Float * __restrict__ phits,
 
 template<int N>
 __global__
-void kernelFastFit(Rfit::Float * __restrict__ phits, Rfit::FF * __restrict__ presults) {
+void kernelFastFit(Rfit::FF * __restrict__ phits, Rfit::FF * __restrict__ presults) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3xNd<N> hits(phits+i,3,N);
   Rfit::Map4d result(presults+i,4);
@@ -69,7 +69,7 @@ void kernelFastFit(Rfit::Float * __restrict__ phits, Rfit::FF * __restrict__ pre
 
 template<int N>
 __global__
-void kernelBrokenLineFit(Rfit::Float * __restrict__ phits,
+void kernelBrokenLineFit(Rfit::FF * __restrict__ phits,
 			 float * __restrict__ phits_ge, 
 			 Rfit::FF * __restrict__ pfast_fit_input, 
 			 Rfit::Float B,
@@ -107,7 +107,7 @@ if (0==i) {
 
 template<int N>
 __global__
-void kernelCircleFit(Rfit::Float * __restrict__ phits,
+void kernelCircleFit(Rfit::FF * __restrict__ phits,
     float * __restrict__ phits_ge, 
     Rfit::FF * __restrict__ pfast_fit_input, 
     Rfit::Float B,
@@ -154,7 +154,7 @@ if (0==i) {
 
 template<int N>
 __global__
-void kernelLineFit(Rfit::Float * __restrict__ phits,
+void kernelLineFit(Rfit::FF * __restrict__ phits,
 		   float * __restrict__ phits_ge,
                    Rfit::Float B,
                    Rfit::circle_fit * circle_fit,
@@ -219,7 +219,7 @@ void fillHitsAndHitsCov(M3xN & hits, M6xN & hits_ge) {
 
 template<int N>
 __global__
-void kernelFillHitsAndHitsCov(Rfit::Float * __restrict__ phits,
+void kernelFillHitsAndHitsCov(Rfit::FF * __restrict__ phits,
   float * phits_ge) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3xNd<N> hits(phits+i,3,N);
@@ -233,7 +233,7 @@ void testFit() {
   constexpr Rfit::Float B = 0.0113921;
   Rfit::Matrix3xNd<N> hits;
   Rfit::Matrix6xNf<N> hits_ge = Eigen::MatrixXf::Zero(6,N);
-  Rfit::Float * hitsGPU = nullptr;;
+  Rfit::FF * hitsGPU = nullptr;;
   float * hits_geGPU = nullptr;
   Rfit::FF * fast_fit_resultsGPU = nullptr;
   Rfit::FF * fast_fit_resultsGPUret = new Rfit::FF[Rfit::maxNumberOfTracks()*sizeof(Rfit::Vector4d)];
