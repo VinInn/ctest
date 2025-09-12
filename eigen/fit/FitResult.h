@@ -31,7 +31,7 @@ namespace Rfit
   using VectorXFF = Eigen::Vector<FF, Eigen::Dynamic>;
 
  template<int N>
- using Matrix3xNd = Eigen::Matrix<Float, 3, N>; // used for inputs hits
+ using Matrix3xNd = Eigen::Matrix<FF, 3, N>; // used for inputs hits
  
 
   struct circle_fit
