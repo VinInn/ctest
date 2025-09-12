@@ -384,6 +384,12 @@ void testFit() {
   std::cout << "Fitted cov (CircleFit) GPU:\n" << circle_fit_resultsGPUret->cov << std::endl;
   std::cout << "Fitted cov (LineFit): GPU\n" << line_fit_resultsGPUret->cov << std::endl;
 
+  cudaCheck(cudaFree(hitsGPU));
+  cudaCheck(cudaFree(hits_geGPU));
+  cudaCheck(cudaFree(fast_fit_resultsGPU));
+  cudaCheck(cudaFree(line_fit_resultsGPU));
+  cudaCheck(cudaFree(circle_fit_resultsGPU));
+
 }
 
 int main (int argc, char * argv[]) {
