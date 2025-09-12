@@ -25,7 +25,7 @@ namespace Rfit {
   constexpr uint32_t stride() { return maxNumberOfTracks();}
   // hits
   template<int N>
-  using Matrix3xNd = Eigen::Matrix<double,3,N>;
+  using Matrix3xNd = Eigen::Matrix<FF,3,N>;
   template<int N>
   using Map3xNd = Eigen::Map<Matrix3xNd<N>,0,Eigen::Stride<3*stride(),stride()> >;
   // errors
@@ -34,7 +34,7 @@ namespace Rfit {
   template<int N>
   using Map6xNf = Eigen::Map<Matrix6xNf<N>,0,Eigen::Stride<6*stride(),stride()> >;
   // fast fit
-  using Map4d = Eigen::Map<Vector4d,0,Eigen::InnerStride<stride()> >;
+  using Map4d = Eigen::Map<RFit::Vector4d,0,Eigen::InnerStride<stride()> >;
 
 }
 
@@ -42,7 +42,7 @@ namespace Rfit {
 
 template<int N>
 __global__
-void kernelPrintSizes(double * __restrict__ phits,
+void kernelPrintSizes(Rfit::Float * __restrict__ phits,
                       float * __restrict__ phits_ge
 		      ) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
@@ -50,13 +50,13 @@ void kernelPrintSizes(double * __restrict__ phits,
   Rfit::Map6xNf<N> hits_ge(phits_ge+i,6,4);
   if (i!=0) return;
   printf("GPU sizes %lu %lu %lu %lu %lu\n",sizeof(hits[i]),sizeof(hits_ge[i]),
-	 sizeof(Vector4d),sizeof(Rfit::line_fit),sizeof(Rfit::circle_fit));
+	 sizeof(RFit::Vector4d),sizeof(Rfit::line_fit),sizeof(Rfit::circle_fit));
 }
 
 
 template<int N>
 __global__
-void kernelFastFit(double * __restrict__ phits, double * __restrict__ presults) {
+void kernelFastFit(Rfit::Float * __restrict__ phits, Rfit::Float * __restrict__ presults) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3xNd<N> hits(phits+i,3,N);
   Rfit::Map4d result(presults+i,4);
@@ -71,10 +71,10 @@ void kernelFastFit(double * __restrict__ phits, double * __restrict__ presults) 
 
 template<int N>
 __global__
-void kernelBrokenLineFit(double * __restrict__ phits,
+void kernelBrokenLineFit(Rfit::Float * __restrict__ phits,
 			 float * __restrict__ phits_ge, 
-			 double * __restrict__ pfast_fit_input, 
-			 double B,
+			 Rfit::Float * __restrict__ pfast_fit_input, 
+			 Rfit::Float B,
 			 Rfit::circle_fit * circle_fit,
 			 Rfit::line_fit * line_fit
 			 ) {
@@ -109,10 +109,10 @@ if (0==i) {
 
 template<int N>
 __global__
-void kernelCircleFit(double * __restrict__ phits,
+void kernelCircleFit(Rfit::Float * __restrict__ phits,
     float * __restrict__ phits_ge, 
-    double * __restrict__ pfast_fit_input, 
-    double B,
+    Rfit::Float * __restrict__ pfast_fit_input, 
+    Rfit::Float B,
     Rfit::circle_fit * circle_fit_resultsGPU) {
 
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
@@ -156,11 +156,11 @@ if (0==i) {
 
 template<int N>
 __global__
-void kernelLineFit(double * __restrict__ phits,
+void kernelLineFit(Rfit::Float * __restrict__ phits,
 		   float * __restrict__ phits_ge,
-                   double B,
+                   Rfit::Float B,
                    Rfit::circle_fit * circle_fit,
-                   double * __restrict__ pfast_fit_input,
+                   Rfit::Float * __restrict__ pfast_fit_input,
                    Rfit::line_fit * line_fit)
 {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
@@ -221,7 +221,7 @@ void fillHitsAndHitsCov(M3xN & hits, M6xN & hits_ge) {
 
 template<int N>
 __global__
-void kernelFillHitsAndHitsCov(double * __restrict__ phits,
+void kernelFillHitsAndHitsCov(Rfit::Float * __restrict__ phits,
   float * phits_ge) {
   auto i = blockIdx.x*blockDim.x + threadIdx.x;
   Rfit::Map3xNd<N> hits(phits+i,3,N);
@@ -232,13 +232,13 @@ void kernelFillHitsAndHitsCov(double * __restrict__ phits,
 
 template<int N>
 void testFit() {
-  constexpr double B = 0.0113921;
+  constexpr Rfit::Float B = 0.0113921;
   Rfit::Matrix3xNd<N> hits;
   Rfit::Matrix6xNf<N> hits_ge = MatrixXf::Zero(6,N);
-  double * hitsGPU = nullptr;;
+  Rfit::Float * hitsGPU = nullptr;;
   float * hits_geGPU = nullptr;
-  double * fast_fit_resultsGPU = nullptr;
-  double * fast_fit_resultsGPUret = new double[Rfit::maxNumberOfTracks()*sizeof(Vector4d)];
+  Rfit::Float * fast_fit_resultsGPU = nullptr;
+  Rfit::Float * fast_fit_resultsGPUret = new Rfit::Float[Rfit::maxNumberOfTracks()*sizeof(Vector4d)];
   Rfit::circle_fit * circle_fit_resultsGPU = nullptr;
   Rfit::circle_fit * circle_fit_resultsGPUret = new Rfit::circle_fit();
   Rfit::line_fit * line_fit_resultsGPU = nullptr;
