@@ -5,6 +5,7 @@
 #include<random>
 #include<cstdio>
 #include<iostream>
+#include<limits>
 
 #include "Matrix.h"
 #include "TwoFloat.h"
@@ -64,7 +65,7 @@ using MM5 = MatrixSym<Float,5>;
 #endif
 
 // Type your code here, or load an example.
-__global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
+__global__ void inv2(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
      int maxIter = 500000;
      __shared__  long long ostart, lstart, lend;
      __shared__  unsigned long long  gstart, gend;
@@ -76,8 +77,8 @@ __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
 
      if (threadIdx.x==0) {
       ostart = clock64();
-      asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(lstart));
-      gend=0;  lstart=ostart; lend=0;
+      gstart = std::numeric_limits<unsigned long long>::max();
+      gend=0;  lstart=std::numeric_limits<long long>::max(); lend=0;
      }
      __syncthreads();
 
@@ -151,7 +152,7 @@ int main(int argc, char** argv) {
 
   for (int i=0; i<n; ++i) tt[i]=0;
   for (int i=0; i<nB; ++i) tg[i]=0;
-  square<<<nB,nT,0,0>>>(a,tt,tg,n);
+  inv2<<<nB,nT,0,0>>>(a,tt,tg,n);
   cudaDeviceSynchronize();
 
   Float maxOn=0;
