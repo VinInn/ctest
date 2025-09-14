@@ -134,7 +134,7 @@ namespace BrokenLine {
     e=hits.block(0,n-1,2,1)-hits.block(0,n-2,2,1);
     results.q = cross2D(d,e)>0 ? -1 : 1;
     
-    const Float slope=-results.q/fast_fit(3);
+    const FF slope=-results.q/fast_fit(3);
     
     Matrix2d R=RotationMatrix(slope);
     
@@ -221,7 +221,7 @@ namespace BrokenLine {
     result(1)=hits(1,0)+(a(0)*c.squaredNorm()+c(0)*a.squaredNorm())*tmp;
     // check Wikipedia for these formulas
     
-    result(2)=sqrt(a.squaredNorm()*b.squaredNorm()*c.squaredNorm())/(2.*std::abs(cross2D(b,a)));
+    result(2)=sqrt(a.squaredNorm()*b.squaredNorm()*c.squaredNorm())/(2.*fabs(cross2D(b,a)));
     // Using Math Olympiad's formula R=abc/(4A)
     
     const Rfit::Vector2d d=hits.block(0,0,2,1)-result.head(2);
@@ -530,8 +530,8 @@ namespace BrokenLine {
     // the circle fit gives k, but here we want p_t, so let's change the parameter and the covariance matrix
     Jacob << 1.,0,0,
       0,1.,0,
-      0,0,-std::abs(circle.par(2))*B/(sqr(circle.par(2))*circle.par(2));
-    circle.par(2)=B/std::abs(circle.par(2));
+      0,0,-fabs(circle.par(2))*B/(sqr(circle.par(2))*circle.par(2));
+    circle.par(2)=B/fabs(circle.par(2));
     circle.cov=Jacob*circle.cov*Jacob.transpose();
     
     helix.par << circle.par, line.par;

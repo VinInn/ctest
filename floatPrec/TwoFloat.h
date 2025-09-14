@@ -463,6 +463,25 @@ inline constexpr T square(T a) {
    return a*a;
 }
 
+
+template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline constexpr T fabs(T a) {
+   return std::abs(a);
+}
+
+template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline constexpr TwoFloat<T> fabs(TwoFloat<T> const & a) {
+  using namespace detailsTwoFloat;
+  return TwoFloat<T>(fabs(a.hi()),fabs(a.lo()),fromMembers());
+}
+
+
 template<typename T>
 #ifdef __NVCC__
      __device__ __host__

@@ -86,6 +86,7 @@ namespace choleskyInversion {
 
 
   template<typename M1, typename M2> 
+  __host__ __device__
   inline constexpr
   void invert11(M1 const & src, M2 & dst) {
     using F = decltype(src(0,0));
@@ -93,6 +94,7 @@ namespace choleskyInversion {
   }
   
   template<typename M1, typename M2> 
+  __host__ __device__
   inline constexpr
   void invert22(M1 const & src, M2 & dst) {
     using F = decltype(src(0,0));
@@ -108,6 +110,7 @@ namespace choleskyInversion {
   }
   
   template<typename M1, typename M2> 
+  __host__ __device__
   inline constexpr
   void invert33(M1 const & src, M2 & dst) {
     using F = decltype(src(0,0));
@@ -134,6 +137,7 @@ namespace choleskyInversion {
   }
 
   template<typename M1, typename M2> 
+  __host__ __device__
   inline constexpr
   void invert44(M1 const & src, M2 & dst) {
     using F = decltype(src(0,0));
@@ -174,6 +178,7 @@ namespace choleskyInversion {
 
   
   template<typename M1, typename M2> 
+  __host__ __device__
   inline constexpr
   void invert55(M1 const & src, M2 & dst) {
     using F = decltype(src(0,0));
@@ -231,6 +236,7 @@ namespace choleskyInversion {
   }
 
   template<typename M1, typename M2> 
+  __host__ __device__
   inline __attribute__((always_inline)) constexpr
   void invert66(M1 const & src, M2 & dst) {
     using F = decltype(src(0,0));
