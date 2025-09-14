@@ -67,7 +67,7 @@ namespace BrokenLine {
     
     \return 2D rotation matrix.
   */
-  __host__ __device__ inline Matrix2d RotationMatrix(Float slope) {
+  __host__ __device__ inline Matrix2d RotationMatrix(FF slope) {
     Matrix2d Rot;
     Rot(0,0)=1./sqrt(1.+sqr(slope));
     Rot(0,1)=slope*Rot(0,0);
@@ -84,8 +84,8 @@ namespace BrokenLine {
     \param y0 y coordinate of the translation vector.
     \param Jacob passed by reference in order to save stack.
   */
-  __host__ __device__ inline void TranslateKarimaki(karimaki_circle_fit& circle, Float x0, Float y0, Matrix3d& Jacob) {
-    Float A,U,BB,C,DO,DP,uu,xi,v,mu,lambda,zeta;
+  __host__ __device__ inline void TranslateKarimaki(karimaki_circle_fit& circle, FF x0, FF y0, Matrix3d& Jacob) {
+    FF A,U,BB,C,DO,DP,uu,xi,v,mu,lambda,zeta;
     DP=x0*cos(circle.par(0))+y0*sin(circle.par(0));
     DO=x0*sin(circle.par(0))-y0*cos(circle.par(0))+circle.par(1);
     uu=1+circle.par(2)*circle.par(1);
@@ -212,9 +212,9 @@ namespace BrokenLine {
     constexpr uint32_t N = M3xN::ColsAtCompileTime;
     constexpr auto n = N; // get the number of hits
     
-    const Vector2d a=hits.block(0,n/2,2,1)-hits.block(0,0,2,1);
-    const Vector2d b=hits.block(0,n-1,2,1)-hits.block(0,n/2,2,1);
-    const Vector2d c=hits.block(0,0,2,1)-hits.block(0,n-1,2,1);
+    const Rfit::Vector2d a=hits.block(0,n/2,2,1)-hits.block(0,0,2,1);
+    const Rfit::Vector2d b=hits.block(0,n-1,2,1)-hits.block(0,n/2,2,1);
+    const Rfit::Vector2d c=hits.block(0,0,2,1)-hits.block(0,n-1,2,1);
 
     auto tmp = 0.5/cross2D(c,a);
     result(0)=hits(0,0)-(a(1)*c.squaredNorm()+c(1)*a.squaredNorm())*tmp;
@@ -224,8 +224,8 @@ namespace BrokenLine {
     result(2)=sqrt(a.squaredNorm()*b.squaredNorm()*c.squaredNorm())/(2.*std::abs(cross2D(b,a)));
     // Using Math Olympiad's formula R=abc/(4A)
     
-    const Vector2d d=hits.block(0,0,2,1)-result.head(2);
-    const Vector2d e=hits.block(0,n-1,2,1)-result.head(2);
+    const Rfit::Vector2d d=hits.block(0,0,2,1)-result.head(2);
+    const Rfit::Vector2d e=hits.block(0,n-1,2,1)-result.head(2);
     
     result(3)=result(2)*atan2(cross2D(d, e), d.dot(e))/(hits(2,n-1)-hits(2,0));
     // ds/dz slope between last and first point
@@ -340,11 +340,11 @@ namespace BrokenLine {
     assert(circle_results.q*circle_results.par(1)<=0);
     
     Vector2d eMinusd=e-d;
-    Float tmp1=eMinusd.squaredNorm();
+    auto tmp1=eMinusd.squaredNorm();
     
     Matrix3d Jacob;
     Jacob << (radii(1,0)*eMinusd(0)-eMinusd(1)*radii(0,0))/tmp1,(radii(1,1)*eMinusd(0)-eMinusd(1)*radii(0,1))/tmp1,0,
-      (circle_results.q/2)*(eMinusd(0)*radii(0,0)+eMinusd(1)*radii(1,0))/sqrt(sqr(2*fast_fit(2))-tmp1),(circle_results.q/2)*(eMinusd(0)*radii(0,1)+eMinusd(1)*radii(1,1))/sqrt(sqr(2*fast_fit(2))-tmp1),0,
+      (0.5*circle_results.q)*(eMinusd(0)*radii(0,0)+eMinusd(1)*radii(1,0))/sqrt(sqr(2*fast_fit(2))-tmp1),(circle_results.q/2)*(eMinusd(0)*radii(0,1)+eMinusd(1)*radii(1,1))/sqrt(sqr(2*fast_fit(2))-tmp1),0,
       0,0,circle_results.q;
     
     circle_results.cov << I(0,0), I(0,1), I(0,n),
@@ -403,7 +403,7 @@ namespace BrokenLine {
     const auto & Z=data.Z;
     const auto& VarBeta=data.VarBeta;
     
-    const Float slope=-data.q/fast_fit(3);
+    const FF slope=-data.q/fast_fit(3);
     Matrix2d R=RotationMatrix(slope);
     
     Matrix3d V=Matrix3d::Zero(); // covariance matrix XYZ

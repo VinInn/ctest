@@ -57,8 +57,6 @@ namespace Rfit
   using Vector4f = Eigen::Vector4f;
   using Vector6f = Eigen::Matrix<FF, 6, 1>;
 
-
-
   
   using u_int = unsigned int;
 

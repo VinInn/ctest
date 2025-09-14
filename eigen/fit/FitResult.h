@@ -11,11 +11,19 @@
 
 #include "TwoFloat.h"
 
+#ifndef FLOAT
+#define FLOAT float;
+#endif
+
 namespace Rfit
 {
 
-  using Float = double;
-  using FF = Float; // TwoFloat<Float>;
+  using Float = FLOAT;
+#if defined(TWOF)
+  using FF = TwoFloat<Float>;
+#else
+  using FF = Float;
+#endif
 
 
   using Vector2d = Eigen::Vector<FF,2>;

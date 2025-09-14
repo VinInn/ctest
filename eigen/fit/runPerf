@@ -1,0 +1,17 @@
+#!/bin/bash
+for nt in 16 32 64 128 256; do
+ source compile75 "testEigenGPU.cu -DTWOF -DFLOAT=float -DNT=${nt}"
+./a.out; rm ./a.out
+done
+for nt in 16 32 64 128 256; do
+ source compile75 "testEigenGPU.cu -DFLOAT=double -DNT=${nt}"
+./a.out; rm ./a.out
+done
+for nt in 16 32 64 128 256; do
+ source compile75 "testEigenGPU.cu -DTWOF -DFLOAT=float -DNT=${nt}"
+./a.out; rm ./a.out
+done
+for nt in 16 32 64 128 256; do
+ source compile75 "testEigenGPU.cu -DTWOF -DFLOAT=double -DNT=${nt}"
+./a.out; rm ./a.out
+done

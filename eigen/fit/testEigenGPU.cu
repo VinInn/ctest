@@ -19,7 +19,7 @@
 //#include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
 
 namespace Rfit {
-  constexpr uint32_t maxNumberOfTracks() { return 5*1024; }
+  constexpr uint32_t maxNumberOfTracks() { return 17*1024; }
   constexpr uint32_t stride() { return maxNumberOfTracks();}
   // hits
   template<int N>
@@ -290,8 +290,8 @@ void testFit() {
 #endif
   std::cout << "Fitted values (FastFit, [X0, Y0, R, tan(theta)]):\n" << fast_fit_results << std::endl;
 
-  // for timing    purposes we fit    4096 tracks
-  constexpr uint32_t Ntracks = 4096;
+  // for timing    purposes we fit   16K tracks
+  constexpr uint32_t Ntracks = 16*1024;
   cudaCheck(cudaMalloc(&hitsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix3xNd<N>)));
   cudaCheck(cudaMalloc(&hits_geGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix6xNf<N>)));
   cudaCheck(cudaMalloc(&fast_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Vector4d)));
@@ -301,11 +301,18 @@ void testFit() {
   cudaCheck(cudaMemset(fast_fit_resultsGPU, 0, Rfit::maxNumberOfTracks()*sizeof(Rfit::Vector4d)));
   cudaCheck(cudaMemset(line_fit_resultsGPU, 0, Rfit::maxNumberOfTracks()*sizeof(Rfit::line_fit)));
 
-  int ntr = 2*128;
+#ifndef NB
+#define NB 1
+#endif
+#ifndef NT
+#define NT 128
+#endif
+
+  int ntr = NT;
 
   int nbl0 = Ntracks/ntr;
 
-  int nbl = 16;
+  int nbl = NB;
 
 
   int64_t * tg;
