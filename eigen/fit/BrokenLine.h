@@ -216,7 +216,7 @@ namespace BrokenLine {
     const Rfit::Vector2d b=hits.block(0,n-1,2,1)-hits.block(0,n/2,2,1);
     const Rfit::Vector2d c=hits.block(0,0,2,1)-hits.block(0,n-1,2,1);
 
-    auto tmp = 0.5/cross2D(c,a);
+    FF tmp = 0.5/cross2D(c,a);
     result(0)=hits(0,0)-(a(1)*c.squaredNorm()+c(1)*a.squaredNorm())*tmp;
     result(1)=hits(1,0)+(a(0)*c.squaredNorm()+c(0)*a.squaredNorm())*tmp;
     // check Wikipedia for these formulas
@@ -267,7 +267,7 @@ namespace BrokenLine {
     const auto & S=data.S;
     auto & Z=data.Z;
     auto & VarBeta=data.VarBeta;
-    const Float slope=-circle_results.q/fast_fit(3);
+    const FF slope=-circle_results.q/fast_fit(3);
     VarBeta*=1.+sqr(slope); // the kink angles are projected!
     
     for(i=0;i<n;i++) {
@@ -416,7 +416,7 @@ namespace BrokenLine {
       V(1,1)=hits_ge.col(i)[2];                // y errors
       V(2,1)=V(1,2)=hits_ge.col(i)[4];   // cov_yz
       V(2,2)=hits_ge.col(i)[5];                // z errors
-      auto tmp = 1./radii.block(0,i,2,1).norm();
+      FF tmp = 1./radii.block(0,i,2,1).norm();
       JacobXYZtosZ(0,0)=radii(1,i)*tmp;
       JacobXYZtosZ(0,1)=-radii(0,i)*tmp;
       JacobXYZtosZ(1,2)=1.;
