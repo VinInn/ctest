@@ -85,19 +85,18 @@ __global__ void inv2(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
     if (tid<n) {
       unsigned long long ss;
       asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(ss));
-      gstart = atomicMin(&gstart,ss);
+      atomicMin(&gstart,ss);
       auto s = clock64();
-      lstart = atomicMin(&lstart,s);
+      atomicMin(&lstart,s);
        for (int kk=0; kk<maxIter; ++kk) {
           invert55(m1,m2);
           invert55(m2,m1);
        }
        // Record end time 
       tt[tid] = clock64() -s;
-      lend = atomicMax(&lend,clock64());
+      atomicMax(&lend,clock64());
       asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(ss));
-      gend = atomicMin(&gend,ss);
-      lend = atomicMax(&lend,clock64());
+      atomicMax(&gend,ss);
     }
     __syncthreads();
 
