@@ -66,56 +66,48 @@ using MM5 = MatrixSym<Float,5>;
 // Type your code here, or load an example.
 __global__ void square(MM5 * array,  int64_t * tt, int64_t * tg, int n) {
      int maxIter = 500000;
-#ifdef CLOCK
-     __shared__ uint64_t gstart;
-#else
-     __shared__ uint64_t gstart, gend;
-     uint64_t start, end;
-#endif
+     __shared__  long long ostart, lstart, lend;
+     __shared__  unsigned long long  gstart, gend;
+
      int tid = blockDim.x * blockIdx.x + threadIdx.x;
 
      auto m1 = array[tid];
      MM5 m2;
 
      if (threadIdx.x==0) {
-#ifdef CLOCK
-      gstart = clock64();
-#else
-      // Record start time
-      asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(gstart));
-#endif
+      ostart = clock64();
+      asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(lstart));
+      gend=0;  lstart=ostart; lend=0;
      }
      __syncthreads();
-#ifdef CLOCK     
-    auto s = clock64();
-#else    
-    // Record start time
-    asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(start));
-#endif
+
     if (tid<n) {
+      unsigned long long ss;
+      asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(ss));
+      gstart = atomicMin(&gstart,ss);
+      auto s = clock64();
+      lstart = atomicMin(&lstart,s);
        for (int kk=0; kk<maxIter; ++kk) {
           invert55(m1,m2);
           invert55(m2,m1);
        }
-    // Record end time 
-#ifdef CLOCK
-       tt[tid] = clock64() -s;
-#else
-   asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(end));
-   tt[tid] = end - start;
-#endif
+       // Record end time 
+      tt[tid] = clock64() -s;
+      lend = atomicMax(&lend,clock64());
+      asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(ss));
+      gend = atomicMin(&gend,ss);
+      lend = atomicMax(&lend,clock64());
     }
     __syncthreads();
 
     if (threadIdx.x==0) {
- #ifdef CLOCK
-      tg[blockIdx.x] = clock64() -gstart;
-#else
-     asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(gend));
-     tg[blockIdx.x] = gend - gstart;
-#endif
-   }
-   array[tid] = m1;
+      tg[blockIdx.x] = clock64() -ostart;
+      tg[blockIdx.x+gridDim.x] =  lend - lstart;
+      tg[blockIdx.x+2*gridDim.x] =  gend - gstart;
+
+    }
+
+    array[tid] = m1;
 }
 
 #include<iostream>
@@ -145,7 +137,7 @@ int main(int argc, char** argv) {
    
   cudaMallocManaged(&a, n*sizeof(MM5));
   cudaMallocManaged(&tt, n*sizeof(int64_t));
-  cudaMallocManaged(&tg, nB*sizeof(int64_t));
+  cudaMallocManaged(&tg, 3*nB*sizeof(int64_t));
 
   std::mt19937 eng;
   for (int i=0; i<n; ++i) {
@@ -190,7 +182,8 @@ int main(int argc, char** argv) {
   for (int i=0; i<n; ++i) std::cout << tt[i] <<  ' ';
   std::cout << '\n' << std::endl;
   std::cout << "gtime ";
-  for (int i=0; i<nB; ++i) std::cout << tg[i] <<  ' ';
+  for (int i=0; i<nB; ++i) 
+     std::cout << '(' << tg[i] << ' ' << tg[i+nB] <<  ' ' << tg[i+nB] << ") ";
   std::cout << '\n' << std::endl;
 
   cudaFree(a);
