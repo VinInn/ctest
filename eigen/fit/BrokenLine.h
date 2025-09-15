@@ -55,9 +55,9 @@ namespace BrokenLine {
     // else XXI_0=0.06/16.;
     //XX_0*=1;
     constexpr Float geometry_factor=0.7; //!< number between 1/3 (uniform material) and 1 (thin scatterer) to be manually tuned
-    constexpr Float fact = geometry_factor*sqr(13.6/1000.);
-    return fact/sqr(1.*B*R*sqrt(1.+sqr(slope)))
-      *(std::abs(length)*XXI_0)*sqr(1.+0.038*log(std::abs(length)*XXI_0));
+    constexpr Float fact = geometry_factor*sqr(Float(13.6/1000.));
+    return fact/sqr(one*B*R*sqrt(one+sqr(slope)))
+      *(std::abs(length)*XXI_0)*sqr(one+Float(0.038)*log(std::abs(length)*XXI_0));
   }
   
   /*!
@@ -69,7 +69,7 @@ namespace BrokenLine {
   */
   __host__ __device__ inline Matrix2d RotationMatrix(FF slope) {
     Matrix2d Rot;
-    Rot(0,0)=1./sqrt(1.+sqr(slope));
+    Rot(0,0)=one/sqrt(1.+sqr(slope));
     Rot(0,1)=slope*Rot(0,0);
     Rot(1,0)=-Rot(0,1);
     Rot(1,1)=Rot(0,0);
@@ -86,25 +86,28 @@ namespace BrokenLine {
   */
   __host__ __device__ inline void TranslateKarimaki(karimaki_circle_fit& circle, FF x0, FF y0, Matrix3d& Jacob) {
     FF A,U,BB,C,DO,DP,uu,xi,v,mu,lambda,zeta;
-    DP=x0*cos(circle.par(0))+y0*sin(circle.par(0));
-    DO=x0*sin(circle.par(0))-y0*cos(circle.par(0))+circle.par(1);
-    uu=1+circle.par(2)*circle.par(1);
-    C=-circle.par(2)*y0+uu*cos(circle.par(0));
-    BB=circle.par(2)*x0+uu*sin(circle.par(0));
+    Float cs = std::cos(toSingle(circle.par(0)));
+    Float sn = std::sin(toSingle(circle.par(0)));
+
+    DP=x0*cs+y0*sn;
+    DO=x0*sn-y0*cs+circle.par(1);
+    uu=one+circle.par(2)*circle.par(1);
+    C=-circle.par(2)*y0+uu*cs;
+    BB=circle.par(2)*x0+uu*sn;
     A=2.*DO+circle.par(2)*(sqr(DO)+sqr(DP));
-    U=sqrt(1.+circle.par(2)*A);
-    xi=1./(sqr(BB)+sqr(C));
-    v=1.+circle.par(2)*DO;
-    lambda=(0.5*A)/(U*sqr(1.+U));
-    mu=1./(U*(1.+U))+circle.par(2)*lambda;
+    U=sqrt(one+circle.par(2)*A);
+    xi=one/(sqr(BB)+sqr(C));
+    v=one+circle.par(2)*DO;
+    lambda=(op5*A)/(U*sqr(one+U));
+    mu=one/(U*(one+U))+circle.par(2)*lambda;
     zeta=sqr(DO)+sqr(DP);
     
     Jacob << xi*uu*v, -xi*sqr(circle.par(2))*DP, xi*DP,
-      2.*mu*uu*DP, 2.*mu*v, mu*zeta-lambda*A,
-      0, 0, 1.;
+      two*mu*uu*DP, two*mu*v, mu*zeta-lambda*A,
+      0, 0, one;
     
-    circle.par(0)=atan2(BB,C);
-    circle.par(1)=A/(1+U);
+    circle.par(0)=std::atan2(toSingle(BB),toSingle(C));
+    circle.par(1)=A/(one+U);
     // circle.par(2)=circle.par(2);
     
     circle.cov=Jacob*circle.cov*Jacob.transpose();
@@ -134,7 +137,7 @@ namespace BrokenLine {
     e=hits.block(0,n-1,2,1)-hits.block(0,n-2,2,1);
     results.q = cross2D(d,e)>0 ? -1 : 1;
     
-    const FF slope=-results.q/fast_fit(3);
+    const FF slope=-Float(results.q)/fast_fit(3);
     
     Matrix2d R=RotationMatrix(slope);
     
@@ -143,7 +146,7 @@ namespace BrokenLine {
     e=-fast_fit(2)*fast_fit.head(2)/fast_fit.head(2).norm();
     for(i=0;i<n;i++) {
       d=results.radii.block(0,i,2,1);
-      results.s(i)=results.q*fast_fit(2)*atan2(cross2D(d,e),d.dot(e)); // calculates the arc length
+      results.s(i)=Float(results.q)*fast_fit(2)*atan2(cross2D(d,e),d.dot(e)); // calculates the arc length
     }
     VectorNd<N> z=hits.block(2,0,1,n).transpose();
     
@@ -181,16 +184,16 @@ namespace BrokenLine {
     MatrixNd<N> C_U=MatrixNd<N>::Zero();
     for(i=0;i<n;i++) {
       C_U(i,i)=w(i);
-      if(i>1) C_U(i,i)+=1./(VarBeta(i-1)*sqr(S(i)-S(i-1)));
-      if(i>0 && i<n-1) C_U(i,i)+=(1./VarBeta(i))*sqr((S(i+1)-S(i-1))/((S(i+1)-S(i))*(S(i)-S(i-1))));
-      if(i<n-2) C_U(i,i)+=1./(VarBeta(i+1)*sqr(S(i+1)-S(i)));
+      if(i>1) C_U(i,i)+=one/(VarBeta(i-1)*sqr(S(i)-S(i-1)));
+      if(i>0 && i<n-1) C_U(i,i)+=(one/VarBeta(i))*sqr((S(i+1)-S(i-1))/((S(i+1)-S(i))*(S(i)-S(i-1))));
+      if(i<n-2) C_U(i,i)+=one/(VarBeta(i+1)*sqr(S(i+1)-S(i)));
       
-      if(i>0 && i<n-1) C_U(i,i+1)=1./(VarBeta(i)*(S(i+1)-S(i)))*(-(S(i+1)-S(i-1))/((S(i+1)-S(i))*(S(i)-S(i-1))));
-      if(i<n-2) C_U(i,i+1)+=1./(VarBeta(i+1)*(S(i+1)-S(i)))*(-(S(i+2)-S(i))/((S(i+2)-S(i+1))*(S(i+1)-S(i))));
+      if(i>0 && i<n-1) C_U(i,i+1)=one/(VarBeta(i)*(S(i+1)-S(i)))*(-(S(i+1)-S(i-1))/((S(i+1)-S(i))*(S(i)-S(i-1))));
+      if(i<n-2) C_U(i,i+1)+=one/(VarBeta(i+1)*(S(i+1)-S(i)))*(-(S(i+2)-S(i))/((S(i+2)-S(i+1))*(S(i+1)-S(i))));
       
-      if(i<n-2) C_U(i,i+2)=1./(VarBeta(i+1)*(S(i+2)-S(i+1))*(S(i+1)-S(i)));
+      if(i<n-2) C_U(i,i+2)=one/(VarBeta(i+1)*(S(i+2)-S(i+1))*(S(i+1)-S(i)));
 
-      C_U(i,i)*=0.5;
+      C_U(i,i)*=op5;
     }
     return C_U+C_U.transpose();
   }
@@ -216,18 +219,18 @@ namespace BrokenLine {
     const Rfit::Vector2d b=hits.block(0,n-1,2,1)-hits.block(0,n/2,2,1);
     const Rfit::Vector2d c=hits.block(0,0,2,1)-hits.block(0,n-1,2,1);
 
-    FF tmp = 0.5/cross2D(c,a);
+    FF tmp = op5/cross2D(c,a);
     result(0)=hits(0,0)-(a(1)*c.squaredNorm()+c(1)*a.squaredNorm())*tmp;
     result(1)=hits(1,0)+(a(0)*c.squaredNorm()+c(0)*a.squaredNorm())*tmp;
     // check Wikipedia for these formulas
     
-    result(2)=sqrt(a.squaredNorm()*b.squaredNorm()*c.squaredNorm())/(2.*fabs(cross2D(b,a)));
+    result(2)=sqrt(a.squaredNorm()*b.squaredNorm()*c.squaredNorm())/(two*fabs(cross2D(b,a)));
     // Using Math Olympiad's formula R=abc/(4A)
     
     const Rfit::Vector2d d=hits.block(0,0,2,1)-result.head(2);
     const Rfit::Vector2d e=hits.block(0,n-1,2,1)-result.head(2);
     
-    result(3)=result(2)*atan2(cross2D(d, e), d.dot(e))/(hits(2,n-1)-hits(2,0));
+    result(3)=result(2)*std::atan2(cross2D(d, e), d.dot(e))/(hits(2,n-1)-hits(2,0));
     // ds/dz slope between last and first point
     
   }
@@ -267,8 +270,8 @@ namespace BrokenLine {
     const auto & S=data.S;
     auto & Z=data.Z;
     auto & VarBeta=data.VarBeta;
-    const FF slope=-circle_results.q/fast_fit(3);
-    VarBeta*=1.+sqr(slope); // the kink angles are projected!
+    const FF slope=-Float(circle_results.q)/fast_fit(3);
+    VarBeta*=one+sqr(slope); // the kink angles are projected!
     
     for(i=0;i<n;i++) {
       Z(i)=radii.block(0,i,2,1).norm()-fast_fit(2);
@@ -284,7 +287,7 @@ namespace BrokenLine {
       V(1,1)=hits_ge.col(i)[2];                // y errors
       //Slope=-radii(0,i)/radii(1,i);
       RR=RotationMatrix(-radii(0,i)/radii(1,i));
-      w(i)=1./((RR*V*RR.transpose())(1,1)); // compute the orthogonal weight point by point
+      w(i)=one/((RR*V*RR.transpose())(1,1)); // compute the orthogonal weight point by point
     }
     
     VectorNplusONEd<N> r_u;
@@ -300,16 +303,16 @@ namespace BrokenLine {
     for(i=0;i<n;i++) {
       C_U(i,n) =0;
       if(i>0 && i<n-1) {
-	C_U(i,n)+=-(s(i+1)-s(i-1))*(s(i+1)-s(i-1))/(2.*VarBeta(i)*(s(i+1)-s(i))*(s(i)-s(i-1)));
+	C_U(i,n)+=-(s(i+1)-s(i-1))*(s(i+1)-s(i-1))/(two*VarBeta(i)*(s(i+1)-s(i))*(s(i)-s(i-1)));
       }
       if(i>1) {
-	C_U(i,n)+=(s(i)-s(i-2))/(2.*VarBeta(i-1)*(s(i)-s(i-1)));
+	C_U(i,n)+=(s(i)-s(i-2))/(two*VarBeta(i-1)*(s(i)-s(i-1)));
       }
       if(i<n-2) {
-	C_U(i,n)+=(s(i+2)-s(i))/(2.*VarBeta(i+1)*(s(i+1)-s(i)));
+	C_U(i,n)+=(s(i+2)-s(i))/(two*VarBeta(i+1)*(s(i+1)-s(i)));
       }
       C_U(n,i) = C_U(i,n);
-      if(i>0 && i<n-1) C_U(n,n)+=sqr(s(i+1)-s(i-1))/(4.*VarBeta(i));
+      if(i>0 && i<n-1) C_U(n,n)+=sqr(s(i+1)-s(i-1))/(Float(4.)*VarBeta(i));
     }
 
 #ifdef CPP_DUMP
@@ -334,8 +337,8 @@ namespace BrokenLine {
     Vector2d e=hits.block(0,1,2,1)+(-Z(1)+u(1))*radii.block(0,1,2,1);
     
     circle_results.par << atan2((e-d)(1),(e-d)(0)),
-      -circle_results.q*(fast_fit(2)-sqrt(sqr(fast_fit(2))- 0.25*(e-d).squaredNorm())),
-      circle_results.q*(1./fast_fit(2)+u(n));
+      -Float(circle_results.q)*(fast_fit(2)-sqrt(sqr(fast_fit(2))- Float(0.25)*(e-d).squaredNorm())),
+      Float(circle_results.q)*(one/fast_fit(2)+u(n));
     
     assert(circle_results.q*circle_results.par(1)<=0);
     
@@ -344,8 +347,8 @@ namespace BrokenLine {
     
     Matrix3d Jacob;
     Jacob << (radii(1,0)*eMinusd(0)-eMinusd(1)*radii(0,0))/tmp1,(radii(1,1)*eMinusd(0)-eMinusd(1)*radii(0,1))/tmp1,0,
-      (0.5*circle_results.q)*(eMinusd(0)*radii(0,0)+eMinusd(1)*radii(1,0))/sqrt(sqr(2*fast_fit(2))-tmp1),(circle_results.q/2)*(eMinusd(0)*radii(0,1)+eMinusd(1)*radii(1,1))/sqrt(sqr(2*fast_fit(2))-tmp1),0,
-      0,0,circle_results.q;
+      (op5*Float(circle_results.q))*(eMinusd(0)*radii(0,0)+eMinusd(1)*radii(1,0))/sqrt(sqr(two*fast_fit(2))-tmp1),(op5*Float(circle_results.q))*(eMinusd(0)*radii(0,1)+eMinusd(1)*radii(1,1))/sqrt(sqr(two*fast_fit(2))-tmp1),0,
+      0,0,Float(circle_results.q);
     
     circle_results.cov << I(0,0), I(0,1), I(0,n),
       I(1,0), I(1,1), I(1,n),
@@ -355,8 +358,8 @@ namespace BrokenLine {
     
     //...Translate in the system in which the first corrected hit is the origin, adding the m.s. correction...
     
-    TranslateKarimaki(circle_results,0.5*(e-d)(0),0.5*(e-d)(1),Jacob);
-    circle_results.cov(0,0)+=(1+sqr(slope))*MultScatt(S(1)-S(0),B,fast_fit(2),2,slope);
+    TranslateKarimaki(circle_results,op5*(e-d)(0),op5*(e-d)(1),Jacob);
+    circle_results.cov(0,0)+=(one+sqr(slope))*MultScatt(S(1)-S(0),B,fast_fit(2),two,slope);
     
     //...And translate back to the original system
     
@@ -403,7 +406,7 @@ namespace BrokenLine {
     const auto & Z=data.Z;
     const auto& VarBeta=data.VarBeta;
     
-    const FF slope=-data.q/fast_fit(3);
+    const FF slope=Float(-data.q)/fast_fit(3);
     Matrix2d R=RotationMatrix(slope);
     
     Matrix3d V=Matrix3d::Zero(); // covariance matrix XYZ
@@ -416,11 +419,11 @@ namespace BrokenLine {
       V(1,1)=hits_ge.col(i)[2];                // y errors
       V(2,1)=V(1,2)=hits_ge.col(i)[4];   // cov_yz
       V(2,2)=hits_ge.col(i)[5];                // z errors
-      FF tmp = 1./radii.block(0,i,2,1).norm();
+      FF tmp = one/radii.block(0,i,2,1).norm();
       JacobXYZtosZ(0,0)=radii(1,i)*tmp;
       JacobXYZtosZ(0,1)=-radii(0,i)*tmp;
-      JacobXYZtosZ(1,2)=1.;
-      w(i)=1./((R*JacobXYZtosZ*V*JacobXYZtosZ.transpose()*R.transpose())(1,1)); // compute the orthogonal weight point by point
+      JacobXYZtosZ(1,2)=one;
+      w(i)=one/((R*JacobXYZtosZ*V*JacobXYZtosZ.transpose()*R.transpose())(1,1)); // compute the orthogonal weight point by point
     }
     
     VectorNd<N> r_u;
@@ -440,23 +443,23 @@ namespace BrokenLine {
     
     // line parameters in the system in which the first hit is the origin and with axis along SZ
     line_results.par << (u(1)-u(0))/(S(1)-S(0)), u(0);
-    auto idiff = 1./(S(1)-S(0));
+    auto idiff = one/(S(1)-S(0));
     line_results.cov << (I(0,0)-2*I(0,1)+I(1,1))*sqr(idiff)+MultScatt(S(1)-S(0),B,fast_fit(2),2,slope),
       (I(0,1)-I(0,0))*idiff,
       (I(0,1)-I(0,0))*idiff, I(0,0);
     
     // translate to the original SZ system
     Matrix2d Jacob;
-    Jacob(0,0)=1.;
+    Jacob(0,0)=one;
     Jacob(0,1)=0;
     Jacob(1,0)=-S(0);
-    Jacob(1,1)=1.;
+    Jacob(1,1)=one;
     line_results.par(1)+=-line_results.par(0)*S(0);
     line_results.cov=Jacob*line_results.cov*Jacob.transpose();
     
     // rotate to the original sz system
     auto tmp=R(0,0)-line_results.par(0)*R(0,1);
-    Jacob(1,1)=1./tmp;
+    Jacob(1,1)=one/tmp;
     Jacob(0,0)=Jacob(1,1)*Jacob(1,1);
     Jacob(0,1)=0;
     Jacob(1,0)=line_results.par(1)*R(0,1)*Jacob(0,0);
@@ -528,8 +531,8 @@ namespace BrokenLine {
     BL_Circle_fit(hits,hits_ge,fast_fit,B,data,circle);
     
     // the circle fit gives k, but here we want p_t, so let's change the parameter and the covariance matrix
-    Jacob << 1.,0,0,
-      0,1.,0,
+    Jacob << one,0,0,
+      0,one,0,
       0,0,-fabs(circle.par(2))*B/(sqr(circle.par(2))*circle.par(2));
     circle.par(2)=B/fabs(circle.par(2));
     circle.cov=Jacob*circle.cov*Jacob.transpose();

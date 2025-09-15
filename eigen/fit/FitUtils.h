@@ -14,6 +14,9 @@ namespace Rfit
 
   constexpr Float d = 1.e-4;          //!< used in numerical derivative (J2 in Circle_fit())
 
+  constexpr Float one = 1.0;
+  constexpr Float two = 2.0;
+  constexpr Float op5 = 0.5;
 
   using VectorXd = VectorXFF;
   using MatrixXd = MatrixXFF;
@@ -175,18 +178,19 @@ namespace Rfit
   __host__ __device__
   inline void par_uvrtopak(circle_fit& circle, const FF B, const bool error)
   {
+    Float fq = float(circle.q);
     Vector3d par_pak;
     const FF temp0 = circle.par.head(2).squaredNorm();
     const FF temp1 = sqrt(temp0);
-    par_pak << atan2(circle.q * circle.par(0), -circle.q * circle.par(1)),
-      circle.q * (temp1 - circle.par(2)), circle.par(2) * B;
+    par_pak << atan2(fq * circle.par(0), -fq * circle.par(1)),
+      fq * (temp1 - circle.par(2)), circle.par(2) * B;
     if (error)
       {
-        const FF temp2 = sqr(circle.par(0)) * 1. / temp0;
-        const FF temp3 = 1. / temp1 * circle.q;
+        const FF temp2 = sqr(circle.par(0))  / temp0;
+        const FF temp3 = fq / temp1;
         Matrix3d J4;
-        J4 << -circle.par(1) * temp2 * 1. / sqr(circle.par(0)), temp2 * 1. / circle.par(0), 0., 
-	  circle.par(0) * temp3, circle.par(1) * temp3, -circle.q,
+        J4 << -circle.par(1) * temp2 / sqr(circle.par(0)), temp2/ circle.par(0), 0., 
+	  circle.par(0) * temp3, circle.par(1) * temp3, -fq,
 	  0., 0., B;
         circle.cov = J4 * circle.cov * J4.transpose();
       }
