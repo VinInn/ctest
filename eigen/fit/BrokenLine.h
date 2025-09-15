@@ -94,7 +94,7 @@ namespace BrokenLine {
     uu=one+circle.par(2)*circle.par(1);
     C=-circle.par(2)*y0+uu*cs;
     BB=circle.par(2)*x0+uu*sn;
-    A=2.*DO+circle.par(2)*(sqr(DO)+sqr(DP));
+    A=two*DO+circle.par(2)*(sqr(DO)+sqr(DP));
     U=sqrt(one+circle.par(2)*A);
     xi=one/(sqr(BB)+sqr(C));
     v=one+circle.par(2)*DO;

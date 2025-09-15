@@ -116,7 +116,7 @@ void kernelBrokenLineFit(Rfit::FF * __restrict__ phits,
   Jacob << 1.,0,0,
     0,1.,0,
     0,0,-B/std::copysign(Rfit::sqr(circle_fit_results.par(2)),circle_fit_results.par(2));
-  circle_fit_results.par(2)=B/std::abs(circle_fit_results.par(2));
+  circle_fit_results.par(2)=B/fabs(circle_fit_results.par(2));
   circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
   }
   
@@ -349,7 +349,7 @@ void testFit() {
   Jacob << 1.,0,0,
     0,1.,0,
     0,0,-B/std::copysign(Rfit::sqr(circle_fit_results.par(2)),circle_fit_results.par(2));
-  circle_fit_results.par(2)=B/std::abs(circle_fit_results.par(2));
+  circle_fit_results.par(2)=B/fabs(circle_fit_results.par(2));
   circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
 
   // fit on GPU

@@ -176,13 +176,13 @@ namespace Rfit
     \param error flag for errors computation.
   */
   __host__ __device__
-  inline void par_uvrtopak(circle_fit& circle, const FF B, const bool error)
+  inline void par_uvrtopak(circle_fit& circle, const Float B, const bool error)
   {
     Float fq = float(circle.q);
     Vector3d par_pak;
     const FF temp0 = circle.par.head(2).squaredNorm();
     const FF temp1 = sqrt(temp0);
-    par_pak << atan2(fq * circle.par(0), -fq * circle.par(1)),
+    par_pak << std::atan2(fq * toSingle(circle.par(0)), -fq * toSingle(circle.par(1))),
       fq * (temp1 - circle.par(2)), circle.par(2) * B;
     if (error)
       {
