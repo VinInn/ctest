@@ -14,9 +14,16 @@ namespace Rfit
 
   constexpr Float d = 1.e-4;          //!< used in numerical derivative (J2 in Circle_fit())
 
+#ifdef __CUDA_ARCH__
+  __device__ __constant__ Float one = 1.0;
+  __device__ __constant__ Float two = 2.0;
+  __device__ __constant__ Float op5 = 0.5;
+#else
   constexpr Float one = 1.0;
   constexpr Float two = 2.0;
   constexpr Float op5 = 0.5;
+#endif
+
 
   using VectorXd = VectorXFF;
   using MatrixXd = MatrixXFF;
