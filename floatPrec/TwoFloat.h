@@ -551,6 +551,8 @@ inline constexpr TwoFloat<T> fabs(TwoFloat<T> const & a) {
   return {fabs(a.hi()),fabs(a.lo()),fromMembers()};
 }
 
+
+
 template<typename T>
 #ifdef __NVCC__
      __device__ __host__
@@ -641,15 +643,15 @@ template<typename V>
 #ifdef __NVCC__
      __device__ __host__
 #endif
-inline constexpr auto squaredNorm(V const  & v, int n) -> TwoFloat<typename std::remove_cvref<decltype(v[0])>::type> {
-   using T = typename std::remove_cvref<decltype(v[0])>::type;
+inline constexpr auto squaredNorm(V const  & v, int n) -> typename std::remove_cvref<decltype(v[0])>::type {
+   using TT = typename std::remove_cvref<decltype(v[0])>::type;
    using namespace detailsTwoFloat;
-   TwoFloat<T> a0 = square2(v[0]); 
-   TwoFloat<T> a1 = square2(v[1]);
-   TwoFloat<T>  sum{a0.hi(),a1.hi(),fromSum()};
-   T s = a0.lo()+a1.lo();
+   TT a0 = square(v[0]); 
+   TT a1 = square(v[1]);
+   TT  sum{a0.hi(),a1.hi(),fromSum()};
+   auto s = a0.lo()+a1.lo();
    for (int  i=2; i<n; ++i) {
-      TwoFloat<T> const & a = square2(v[i]);
+      TT const & a = square(v[i]);
       sum += a.hi();
       s += a.lo(); 
    }

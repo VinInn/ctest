@@ -220,9 +220,9 @@ namespace BrokenLine {
     const Rfit::Vector2d c=hits.block(0,0,2,1)-hits.block(0,n-1,2,1);
 
     FF tmp = op5/cross2D(c,a);
-    FF an = squaredNorm(a);
-    FF bn = squaredNorm(b);
-    FF cn = squaredNorm(c);
+    FF const & an = squaredNorm(a);
+    FF const & bn = squaredNorm(b);
+    FF const & cn = squaredNorm(c);
     result(0)=hits(0,0)-(a(1)*cn+c(1)*an)*tmp;
     result(1)=hits(1,0)+(a(0)*cn+c(0)*an)*tmp;
     // check Wikipedia for these formulas
@@ -338,15 +338,13 @@ namespace BrokenLine {
     
     Vector2d d=hits.block(0,0,2,1)+(-Z(0)+u(0))*radii.block(0,0,2,1);
     Vector2d e=hits.block(0,1,2,1)+(-Z(1)+u(1))*radii.block(0,1,2,1);
-    
-    circle_results.par << atan2((e-d)(1),(e-d)(0)),
-      -Float(circle_results.q)*(fast_fit(2)-sqrt(sqr(fast_fit(2))- Float(0.25)*(e-d).squaredNorm())),
+    Vector2d eMinusd=e-d;
+    FF tmp1=squaredNorm(eMinusd);
+    circle_results.par << atan2(eMinusd(1),eMinusd(0)),
+      -Float(circle_results.q)*(fast_fit(2)-sqrt(sqr(fast_fit(2))- Float(0.25)*tmp1)),
       Float(circle_results.q)*(one/fast_fit(2)+u(n));
     
     assert(circle_results.q*circle_results.par(1)<=0);
-    
-    Vector2d eMinusd=e-d;
-    auto tmp1=eMinusd.squaredNorm();
     
     Matrix3d Jacob;
     Jacob << (radii(1,0)*eMinusd(0)-eMinusd(1)*radii(0,0))/tmp1,(radii(1,1)*eMinusd(0)-eMinusd(1)*radii(0,1))/tmp1,0,
