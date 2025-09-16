@@ -143,7 +143,7 @@ namespace BrokenLine {
     
     // calculate radii and s
     results.radii=hits.block(0,0,2,n)-fast_fit.head(2)*Rfit::MatrixXd::Constant(1,n,1);
-    e=-fast_fit(2)*fast_fit.head(2)/fast_fit.head(2).norm();
+    e=-fast_fit(2)*fast_fit.head(2)/norm(fast_fit.head(2));
     for(i=0;i<n;i++) {
       d=results.radii.block(0,i,2,1);
       results.s(i)=Float(results.q)*fast_fit(2)*atan2(cross2D(d,e),d.dot(e)); // calculates the arc length
@@ -220,11 +220,14 @@ namespace BrokenLine {
     const Rfit::Vector2d c=hits.block(0,0,2,1)-hits.block(0,n-1,2,1);
 
     FF tmp = op5/cross2D(c,a);
-    result(0)=hits(0,0)-(a(1)*c.squaredNorm()+c(1)*a.squaredNorm())*tmp;
-    result(1)=hits(1,0)+(a(0)*c.squaredNorm()+c(0)*a.squaredNorm())*tmp;
+    FF an = squaredNorm(a);
+    FF bn = squaredNorm(b);
+    FF cn = squaredNorm(c);
+    result(0)=hits(0,0)-(a(1)*cn+c(1)*an)*tmp;
+    result(1)=hits(1,0)+(a(0)*cn+c(0)*an)*tmp;
     // check Wikipedia for these formulas
     
-    result(2)=sqrt(a.squaredNorm()*b.squaredNorm()*c.squaredNorm())/(two*fabs(cross2D(b,a)));
+    result(2)=sqrt(an*bn*cn)/(two*fabs(cross2D(b,a)));
     // Using Math Olympiad's formula R=abc/(4A)
     
     const Rfit::Vector2d d=hits.block(0,0,2,1)-result.head(2);

@@ -82,7 +82,20 @@ namespace Rfit
 #endif
   }
 
-  
+
+  template<typename V>
+  __host__ __device__
+  inline constexpr
+  auto norm(V const & src) {
+#ifdef FAST_SN
+     return sqrt(squaredNorm(src,V::SizeAtCompileTime));
+#else
+    return src.norm();
+#endif
+  }
+
+
+
   template <class C>
   __host__ __device__ void printIt(C* m, const char* prefix = "")
   {
