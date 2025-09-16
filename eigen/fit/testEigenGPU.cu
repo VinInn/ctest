@@ -258,10 +258,16 @@ void kernelFillHitsAndHitsCov(Rfit::FF * __restrict__ phits,
 
 template<int N>
 void testFit() {
+
+  // for timing    purposes we fit   16K tracks
+  constexpr uint32_t Ntracks = 16*1024;
+
   constexpr Rfit::Float B = 0.0113921;
   Rfit::Matrix3xNd<N> hits;
   Rfit::Matrix6xNf<N> hits_ge = Eigen::MatrixXf::Zero(6,N);
-  Rfit::FF * hitsGPU = nullptr;;
+
+#ifndef  NOGPU
+  Rfit::FF * hitsGPU = nullptr;
   float * hits_geGPU = nullptr;
   Rfit::FF * fast_fit_resultsGPU = nullptr;
   Rfit::FF * fast_fit_resultsGPUret = new Rfit::FF[Rfit::maxNumberOfTracks()*sizeof(Rfit::Vector4d)];
@@ -269,6 +275,7 @@ void testFit() {
   Rfit::circle_fit * circle_fit_resultsGPUret = new Rfit::circle_fit();
   Rfit::line_fit * line_fit_resultsGPU = nullptr;
   Rfit::line_fit * line_fit_resultsGPUret = new Rfit::line_fit();
+#endif
 
   fillHitsAndHitsCov(hits, hits_ge);
 
@@ -282,16 +289,23 @@ void testFit() {
   std::cout << "Generated hits:\n" << hits << std::endl;
   std::cout << "Generated cov:\n" << hits_ge << std::endl;
 
+ Rfit::Vector4d fast_fit_results[Ntracks];
+ uint32_t kk=0;
+#ifdef  NOGPU
+for (uint32_t k=0;k<32*Ntracks; ++k, kk=k/32) 
+#endif
+{
+assert(kk<Ntracks);
   // FAST_FIT_CPU
 #ifdef USE_BL
-  Rfit::Vector4d fast_fit_results; BrokenLine::BL_Fast_fit(hits, fast_fit_results);
+  BrokenLine::BL_Fast_fit(hits, fast_fit_results[kk]);
 #else
-  Rfit::Vector4d fast_fit_results; Rfit::Fast_fit(hits, fast_fit_results);
+  Rfit::Fast_fit(hits, fast_fit_results[kk]);
 #endif
-  std::cout << "Fitted values (FastFit, [X0, Y0, R, tan(theta)]):\n" << fast_fit_results << std::endl;
+}
 
-  // for timing    purposes we fit   16K tracks
-  constexpr uint32_t Ntracks = 16*1024;
+  std::cout << "Fitted values (FastFit, [X0, Y0, R, tan(theta)]):\n" << fast_fit_results[0] << std::endl;
+
 
 #ifndef  NOGPU
   cudaCheck(cudaMalloc(&hitsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix3xNd<N>)));
@@ -345,14 +359,21 @@ void testFit() {
   BrokenLine::karimaki_circle_fit circle_fit_results;
   Rfit::line_fit line_fit_results;
   Rfit::Matrix3d Jacob;
-  BrokenLine::prepareBrokenLineData(hits,fast_fit_results,B,data);
-  BrokenLine::BL_Line_fit(hits_ge,fast_fit_results,B,data,line_fit_results);
-  BrokenLine::BL_Circle_fit(hits,hits_ge,fast_fit_results,B,data,circle_fit_results);
+  kk=0;
+#ifdef  NOGPU
+for (uint32_t k=0; k<32*Ntracks; ++k,kk=k/32) 
+#endif
+{
+  assert(kk<Ntracks);
+  BrokenLine::prepareBrokenLineData(hits,fast_fit_results[kk],B,data);
+  BrokenLine::BL_Line_fit(hits_ge,fast_fit_results[kk],B,data,line_fit_results);
+  BrokenLine::BL_Circle_fit(hits,hits_ge,fast_fit_results[kk],B,data,circle_fit_results);
   Jacob << 1.,0,0,
     0,1.,0,
     0,0,-B/std::copysign(Rfit::sqr(circle_fit_results.par(2)),circle_fit_results.par(2));
   circle_fit_results.par(2)=B/fabs(circle_fit_results.par(2));
   circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
+}
 
 #ifndef NOGPU
   // fit on GPU
