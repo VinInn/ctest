@@ -373,6 +373,10 @@ for (uint32_t k=0; k<32*Ntracks; ++k,kk=k/32)
     0,0,-B/std::copysign(Rfit::sqr(circle_fit_results.par(2)),circle_fit_results.par(2));
   circle_fit_results.par(2)=B/fabs(circle_fit_results.par(2));
   circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
+  assert(toSingle(line_fit_results.par(0))>=0);
+  assert(toSingle(line_fit_results.cov(0,0))>=0);
+  assert(toSingle(circle_fit_results.par(2))>=0);
+  assert(toSingle(circle_fit_results.cov(0,0))>=0);
 }
 
 #ifndef NOGPU
