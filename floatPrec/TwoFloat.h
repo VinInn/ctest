@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <type_traits>
 #include <algorithm>
 #include<cassert>
 #include<ostream>
@@ -218,6 +219,7 @@ public:
   constexpr T lo() const { return mlo;}
   constexpr T & hi() { return mhi;}
   constexpr T & lo() { return mlo;}
+
 
   T mhi;
   T mlo;
@@ -504,6 +506,33 @@ inline constexpr T square(T a) {
    return a*a;
 }
 
+template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline constexpr TwoFloat<T> square(TwoFloat<T> const & a) {
+  using namespace detailsTwoFloat;
+  TwoFloat<T> ret;
+  d_square(ret.hi(),ret.lo(),a.hi(),a.lo());
+  return ret;
+}
+
+template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline constexpr TwoFloat<T> square2(T a) {
+using namespace detailsTwoFloat;
+   return  {a,a,fromProd()};
+}
+
+template<typename T>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline constexpr TwoFloat<T> square2(TwoFloat<T> const & a) {
+  return square(a);
+}
 
 template<typename T>
 #ifdef __NVCC__
@@ -519,19 +548,7 @@ template<typename T>
 #endif
 inline constexpr TwoFloat<T> fabs(TwoFloat<T> const & a) {
   using namespace detailsTwoFloat;
-  return TwoFloat<T>(fabs(a.hi()),fabs(a.lo()),fromMembers());
-}
-
-
-template<typename T>
-#ifdef __NVCC__
-     __device__ __host__
-#endif
-inline constexpr TwoFloat<T> square(TwoFloat<T> const & a) {
-  using namespace detailsTwoFloat;
-  TwoFloat<T> ret;
-  d_square(ret.hi(),ret.lo(),a.hi(),a.lo());
-  return ret;
+  return {fabs(a.hi()),fabs(a.lo()),fromMembers()};
 }
 
 template<typename T>
@@ -617,3 +634,24 @@ constexpr TwoFloat<T> & TwoFloat<T>::operator/=(T  a) {
    return *this;
 }
 
+
+
+//  Algorithm 10 from https://hal.science/hal-03482567
+template<typename V>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline constexpr auto squaredNorm(V  & v, int n) -> TwoFloat<typename std::remove_reference<decltype(v[0])>::type> {
+   using T = typename std::remove_reference<decltype(v[0])>::type;
+   using namespace detailsTwoFloat;
+   TwoFloat<T> a0 = square2(v[0]); 
+   TwoFloat<T> a1 = square2(v[1]);
+   TwoFloat<T>  sum{a0.hi(),a1.hi(),fromSum()};
+   T s = a0.lo()+a1.lo();
+   for (int  i=2; i<n; ++i) {
+      TwoFloat<T> const & a = square2(v[i]);
+      sum += a.hi();
+      s += a.lo(); 
+   }
+   return sum + s;
+} 

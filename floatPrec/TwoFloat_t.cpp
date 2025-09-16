@@ -4,6 +4,53 @@
 int main() {
 
   using namespace detailsTwoFloat;
+  using FF = TwoFloat<float>;
+  using DD = TwoFloat<double>;
+
+  {
+    float a = 4.f;
+    float b = 1.e-7;
+    FF aa{a};
+    FF bb{b};
+    std::cout << std::hexfloat << a << ' ' << b << ' ' << -a << std::endl;
+    std::cout << std::hexfloat << aa << ' ' << bb << ' ' << -aa << std::endl;
+    std::cout << std::hexfloat << (a + b -a) << std::endl;
+    std::cout << std::hexfloat << (aa + bb -aa) << std::endl;
+    FF s{0};
+    s+=a;
+    s+=b;
+    s-=a;
+    std::cout << std::hexfloat << s << std::endl;
+    std::cout << std::endl;
+    std::cout << std::hexfloat << a << ' ' << b << ' ' << b << std::endl;
+    std::cout << std::hexfloat << aa << ' ' << bb << ' ' << bb << std::endl;
+    std::cout << std::hexfloat << (a + b + b) << std::endl;
+    std::cout << std::hexfloat << (aa + bb + bb) << std::endl;
+    s =a;
+    s+=b;
+    s+=b;
+    std::cout << std::hexfloat << s << std::endl;
+    std::cout << std::endl;
+    std::cout <<"squared norm"<< std::endl;
+
+    float v[4] = {2.f,1.e-4,1.e-4,2.f};
+    FF vv[4];
+    float sf=0;
+    FF sff=0;
+    for (int i=0; i<4; ++i) {
+      vv[i]=v[i];
+      sf+=v[i]*v[i];
+      sff+=vv[i]*vv[i];
+
+    }
+    std::cout << std::hexfloat << sf << std::endl;
+    std::cout << std::hexfloat << sff << std::endl;
+    FF sn = squaredNorm(v,4);
+    std::cout << std::hexfloat << sn << std::endl;
+    FF ssn = squaredNorm(vv,4);
+    std::cout << std::hexfloat << ssn << std::endl;
+    std::cout << std::endl;
+  }
 
  float h = std::sqrt(2.f);
  float l = 1.e-4*std::sqrt(3.f);
