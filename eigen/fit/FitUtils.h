@@ -70,7 +70,17 @@ namespace Rfit
   
   using u_int = unsigned int;
 
-
+// Eigen interface
+  template<typename V>
+  __host__ __device__
+  inline constexpr
+  auto squaredNorm(V const & src) {
+#ifdef FAST_SN 
+     return squaredNorm(src,V::SizeAtCompileTime);
+#else
+    return src.squaredNorm();
+#endif
+  }
 
   
   template <class C>
@@ -187,7 +197,7 @@ namespace Rfit
   {
     Float fq = float(circle.q);
     Vector3d par_pak;
-    const FF temp0 = circle.par.head(2).squaredNorm();
+    const FF temp0 = squaredNorm(circle.par.head(2));
     const FF temp1 = sqrt(temp0);
     par_pak << std::atan2(fq * toSingle(circle.par(0)), -fq * toSingle(circle.par(1))),
       fq * (temp1 - circle.par(2)), circle.par(2) * B;
@@ -205,6 +215,7 @@ namespace Rfit
   }
   
 }
+
 
 
 #endif

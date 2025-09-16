@@ -1,6 +1,6 @@
 /usr/local/cuda/bin/nvcc $1 -DUSE_BL -DEIGEN_NO_DEBUG \
 -I/afs/cern.ch/work/i/innocent/public/w4/eigen -I../../floatPrec \
--gencode arch=compute_75,code=sm_75 -O3 -std=c++17 --expt-relaxed-constexpr --expt-extended-lambda --generate-line-info --source-in-ptx \
+-gencode arch=compute_75,code=sm_75 -O3 -std=c++20 --expt-relaxed-constexpr --expt-extended-lambda --generate-line-info --source-in-ptx \
 --compiler-options '-O3 -Wall -g -march=native'  -diag-suppress 20040
 # --compiler-options '-O3 -Wall -g'
 # -DEIGEN_NO_DEBUG
