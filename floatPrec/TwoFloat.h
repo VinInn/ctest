@@ -641,8 +641,8 @@ template<typename V>
 #ifdef __NVCC__
      __device__ __host__
 #endif
-inline constexpr auto squaredNorm(V  & v, int n) -> TwoFloat<typename std::remove_reference<decltype(v[0])>::type> {
-   using T = typename std::remove_reference<decltype(v[0])>::type;
+inline constexpr auto squaredNorm(V const  & v, int n) -> TwoFloat<typename std::remove_cvref<decltype(v[0])>::type> {
+   using T = typename std::remove_cvref<decltype(v[0])>::type;
    using namespace detailsTwoFloat;
    TwoFloat<T> a0 = square2(v[0]); 
    TwoFloat<T> a1 = square2(v[1]);
