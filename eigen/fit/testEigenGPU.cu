@@ -292,6 +292,8 @@ void testFit() {
 
   // for timing    purposes we fit   16K tracks
   constexpr uint32_t Ntracks = 16*1024;
+
+#ifndef  NOGPU
   cudaCheck(cudaMalloc(&hitsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix3xNd<N>)));
   cudaCheck(cudaMalloc(&hits_geGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Matrix6xNf<N>)));
   cudaCheck(cudaMalloc(&fast_fit_resultsGPU, Rfit::maxNumberOfTracks()*sizeof(Rfit::Vector4d)));
@@ -335,7 +337,7 @@ void testFit() {
   Rfit::Map4d fast_fit(fast_fit_resultsGPUret+10,4);
   std::cout << "Fitted values (FastFit, [X0, Y0, R, tan(theta)]): GPU\n" << fast_fit << std::endl;
   //assert(isEqualFuzzy(fast_fit_results, fast_fit));
-
+#endif
 
 #ifdef USE_BL
   // CIRCLE AND LINE FIT CPU
@@ -352,6 +354,7 @@ void testFit() {
   circle_fit_results.par(2)=B/fabs(circle_fit_results.par(2));
   circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
 
+#ifndef NOGPU
   // fit on GPU
   kernelBrokenLineFit<N><<<nbl, ntr>>>(hitsGPU, hits_geGPU,
 					  fast_fit_resultsGPU, B,
@@ -364,7 +367,7 @@ void testFit() {
   for (int i=0; i<nbl; ++i) std::cout << tg[i] <<  ' ';
   std::cout << '\n' << std::endl;
   cudaDeviceSynchronize();
-
+#endif
   
 #else
   // CIRCLE_FIT CPU
@@ -391,22 +394,24 @@ void testFit() {
 
   std::cout << "Fitted values (CircleFit):\n" << circle_fit_results.par << std::endl;
 
-  
+#ifndef NOGPU  
   cudaMemcpy(circle_fit_resultsGPUret, circle_fit_resultsGPU,
 	     sizeof(Rfit::circle_fit), cudaMemcpyDeviceToHost);
   std::cout << "Fitted values (CircleFit) GPU:\n" << circle_fit_resultsGPUret->par << std::endl;
   // assert(isEqualFuzzy(circle_fit_results.par, circle_fit_resultsGPUret->par));
-  
+#endif
   
   std::cout << "Fitted values (LineFit):\n" << line_fit_results.par << std::endl;
-    // LINE_FIT GPU
+#ifndef NOGPU
+  // LINE_FIT GPU
   cudaMemcpy(line_fit_resultsGPUret, line_fit_resultsGPU, sizeof(Rfit::line_fit), cudaMemcpyDeviceToHost);
   std::cout << "Fitted values (LineFit) GPU:\n" << line_fit_resultsGPUret->par << std::endl;
 //  assert(isEqualFuzzy(line_fit_results.par, line_fit_resultsGPUret->par, N==5 ? 1e-4 : 1e-6)); // requires fma on CPU
-
+#endif
   
   std::cout << "Fitted cov (CircleFit) CPU:\n" << circle_fit_results.cov << std::endl;
   std::cout << "Fitted cov (LineFit): CPU\n" << line_fit_results.cov << std::endl;
+#ifndef NOGPU
   std::cout << "Fitted cov (CircleFit) GPU:\n" << circle_fit_resultsGPUret->cov << std::endl;
   std::cout << "Fitted cov (LineFit): GPU\n" << line_fit_resultsGPUret->cov << std::endl;
 
@@ -415,7 +420,7 @@ void testFit() {
   cudaCheck(cudaFree(fast_fit_resultsGPU));
   cudaCheck(cudaFree(line_fit_resultsGPU));
   cudaCheck(cudaFree(circle_fit_resultsGPU));
-
+#endif
 }
 
 int main (int argc, char * argv[]) {
