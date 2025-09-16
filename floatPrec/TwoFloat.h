@@ -161,7 +161,7 @@ public:
 #ifdef __NVCC__
      __device__ __host__
 #endif
-  constexpr TwoFloat(){}
+  constexpr TwoFloat() = default;
 #ifdef __NVCC__
      __device__ __host__
 #endif
@@ -179,7 +179,7 @@ public:
 #ifdef __NVCC__
      __device__ __host__
 #endif
-  constexpr TwoFloat(T a, T b, detailsTwoFloat::Tag<f> from ) {
+  constexpr TwoFloat(T a, T b, detailsTwoFloat::Tag<f>) {
     using namespace detailsTwoFloat;
     using Tag = detailsTwoFloat::Tag<f>;
     if constexpr (Tag::value()==From::members) {
@@ -199,7 +199,9 @@ public:
 #ifdef __NVCC__
      __device__ __host__
 #endif
-  constexpr TwoFloat operator-() const {  TwoFloat<T> ret(-mhi, -mlo, detailsTwoFloat::fromMembers()); return ret;}
+//  constexpr TwoFloat operator-() const {  TwoFloat<T> ret(-mhi, -mlo, detailsTwoFloat::fromMembers()); return ret;}
+  constexpr TwoFloat operator-() const {  return TwoFloat<T>{-mhi, -mlo, detailsTwoFloat::fromMembers()};}
+
 
   constexpr TwoFloat & operator-=(TwoFloat<T> const & a);
   constexpr TwoFloat & operator+=(TwoFloat<T> const & a);
