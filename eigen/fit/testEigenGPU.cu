@@ -449,7 +449,9 @@ for (uint32_t k=0; k<32*Ntracks; ++k,kk=k/32)
 }
 
 int main (int argc, char * argv[]) {
+#ifndef NOGPU
   exitSansCUDADevices();
+#endif
 
   testFit<4>();
 //  testFit<3>();
