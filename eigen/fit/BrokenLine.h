@@ -146,7 +146,7 @@ namespace BrokenLine {
     e=-fast_fit(2)*fast_fit.head(2)/norm(fast_fit.head(2));
     for(i=0;i<n;i++) {
       d=results.radii.block(0,i,2,1);
-      results.s(i)=Float(results.q)*fast_fit(2)*atan2(cross2D(d,e),d.dot(e)); // calculates the arc length
+      results.s(i)=Float(results.q)*fast_fit(2)*std::atan2(cross2D(d,e),d.dot(e)); // calculates the arc length
     }
     VectorNd<N> z=hits.block(2,0,1,n).transpose();
     
@@ -340,7 +340,7 @@ namespace BrokenLine {
     Vector2d e=hits.block(0,1,2,1)+(-Z(1)+u(1))*radii.block(0,1,2,1);
     Vector2d eMinusd=e-d;
     FF tmp1=squaredNorm(eMinusd);
-    circle_results.par << atan2(eMinusd(1),eMinusd(0)),
+    circle_results.par << std::atan2(eMinusd(1),eMinusd(0)),
       -Float(circle_results.q)*(fast_fit(2)-sqrt(sqr(fast_fit(2))- Float(0.25)*tmp1)),
       Float(circle_results.q)*(one/fast_fit(2)+u(n));
     
