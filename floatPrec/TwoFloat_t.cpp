@@ -45,7 +45,7 @@ int main() {
     }
     std::cout << std::hexfloat << sf << std::endl;
     std::cout << std::hexfloat << sff << std::endl;
-    FF sn = squaredNorm(v,4);
+    FF sn = squaredNorm2(v,4);
     std::cout << std::hexfloat << sn << std::endl;
     FF ssn = squaredNorm(vv,4);
     std::cout << std::hexfloat << ssn << std::endl;

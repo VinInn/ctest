@@ -503,6 +503,7 @@ template<typename T>
      __device__ __host__
 #endif
 inline constexpr T square(T a) {
+   static_assert(std::is_floating_point_v<T>);
    return a*a;
 }
 
@@ -526,6 +527,7 @@ using namespace detailsTwoFloat;
    return  {a,a,fromProd()};
 }
 
+/*
 template<typename T>
 #ifdef __NVCC__
      __device__ __host__
@@ -533,12 +535,14 @@ template<typename T>
 inline constexpr TwoFloat<T> square2(TwoFloat<T> const & a) {
   return square(a);
 }
+*/
 
 template<typename T>
 #ifdef __NVCC__
      __device__ __host__
 #endif
 inline constexpr T fabs(T a) {
+   static_assert(std::is_floating_point_v<T>);
    return std::abs(a);
 }
 
@@ -657,3 +661,25 @@ inline constexpr auto squaredNorm(V const  & v, int n) -> typename std::remove_c
    }
    return sum + s;
 } 
+
+
+template<typename V>
+#ifdef __NVCC__
+     __device__ __host__
+#endif
+inline constexpr auto squaredNorm2(V const  & v, int n) -> TwoFloat<typename std::remove_cvref<decltype(v[0])>::type> {
+   using T = typename std::remove_cvref<decltype(v[0])>::type;
+   using TT = TwoFloat<typename std::remove_cvref<decltype(v[0])>::type>;
+   static_assert(std::is_floating_point_v<T>);
+   using namespace detailsTwoFloat;
+   TT a0 = square2(v[0]);
+   TT a1 = square2(v[1]);
+   TT  sum{a0.hi(),a1.hi(),fromSum()};
+   auto s = a0.lo()+a1.lo();
+   for (int  i=2; i<n; ++i) {
+      TT const & a = square2(v[i]);
+      sum += a.hi();
+      s += a.lo();
+   }
+   return sum + s;
+}
