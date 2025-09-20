@@ -22,8 +22,8 @@ namespace Rfit {
   constexpr uint32_t maxNumberOfTracks() { return 17*1024; }
   constexpr uint32_t stride() { return maxNumberOfTracks();}
   // hits
-  template<int N>
-  using Matrix3xNd = Eigen::Matrix<FF,3,N>;
+//  template<int N>
+//  using Matrix3xNd = Eigen::Matrix<FF,3,N>;
   template<int N>
   using Map3xNd = Eigen::Map<Matrix3xNd<N>,0,Eigen::Stride<3*stride(),stride()> >;
   // errors
