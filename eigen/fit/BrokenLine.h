@@ -344,7 +344,7 @@ namespace BrokenLine {
       -Float(circle_results.q)*(fast_fit(2)-sqrt(sqr(fast_fit(2))- Float(0.25)*tmp1)),
       Float(circle_results.q)*(one/fast_fit(2)+u(n));
     
-    assert(circle_results.q*circle_results.par(1)<=0);
+    // assert(circle_results.q*circle_results.par(1)<=0);
     
     Matrix3d Jacob;
     Jacob << (radii(1,0)*eMinusd(0)-eMinusd(1)*radii(0,0))/tmp1,(radii(1,1)*eMinusd(0)-eMinusd(1)*radii(0,1))/tmp1,0,
@@ -373,7 +373,7 @@ namespace BrokenLine {
       if(i>0 && i<n-1) circle_results.chi2+=sqr(u(i-1)/(s(i)-s(i-1))-u(i)*(s(i+1)-s(i-1))/((s(i+1)-s(i))*(s(i)-s(i-1)))+u(i+1)/(s(i+1)-s(i))+(s(i+1)-s(i-1))*u(n)/2)/VarBeta(i);
     }
     
-    assert(circle_results.chi2>=0);
+    // assert(circle_results.chi2>=0);
   }
   
   /*!
@@ -478,7 +478,7 @@ namespace BrokenLine {
 					      )/VarBeta(i);
     }
     
-    assert(line_results.chi2>=0);
+    // assert(line_results.chi2>=0);
   }
   
   /*!

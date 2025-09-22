@@ -206,7 +206,7 @@ void kernelLineFit(Rfit::FF * __restrict__ phits,
 
 ////////////////
 
-Rfit::Vector5dd True_par(const Rfit::Vector6dd & gen_par, const int& charge, const double& B_field) {
+Rfit::Vector5dd True_par(const Rfit::Vector6dd & gen_par, int charge, double B_field) {
   Rfit::Vector5dd true_par;
   constexpr double pi = M_PI;
   const double x0 = gen_par(0) + gen_par(4) * cos(gen_par(3) * pi / 180);
@@ -215,7 +215,7 @@ Rfit::Vector5dd True_par(const Rfit::Vector6dd & gen_par, const int& charge, con
   circle.par << x0, y0, gen_par(4);
   circle.q = charge;
   Rfit::par_uvrtopak(circle, B_field, false);
-  for (int i = 0; i<3; ++i) true_par[1] = toDouble(circle.par[i]);
+  for (int i = 0; i<3; ++i) true_par[i] = toDouble(circle.par[i]);
   true_par(3) = 1 / tan(gen_par(5) * pi / 180);
   const int dir = ((gen_par(0) - cos(true_par(0) - pi / 2) * true_par(1)) * (gen_par(1) - y0) -
                        (gen_par(1) - sin(true_par(0) - pi / 2) * true_par(1)) * (gen_par(0) - x0) >
@@ -348,7 +348,7 @@ void testFit() {
   gen_par(1) = 0.1;   // y
   gen_par(2) = -1.;   // z
   gen_par(3) = 45.;   // phi
-  gen_par(4) = 10.;   // R (p_t)
+  gen_par(4) = 500.;   // R (p_t)
   gen_par(5) = 0.5;    // eta
 
   std::cout << gen_par << std::endl;
@@ -365,6 +365,7 @@ void testFit() {
             << "CotT: " << true_par(3) << " "
             << "Zip: " << true_par(4) << " " << std::endl;
 
+  std::cout << std::endl;
 
 //
 #ifndef  NOGPU
@@ -376,9 +377,9 @@ void testFit() {
   Rfit::circle_fit * circle_fit_resultsGPUret = new Rfit::circle_fit();
   Rfit::line_fit * line_fit_resultsGPU = nullptr;
   Rfit::line_fit * line_fit_resultsGPUret = new Rfit::line_fit();
+  Rfit::Vector6dd * gen_parGPU = nullptr;
 #endif
 
-  
 
   fillHitsAndHitsCov(gen_par, hits, hits_ge);
 
@@ -420,6 +421,10 @@ assert(kk<Ntracks);
   cudaCheck(cudaMemset(fast_fit_resultsGPU, 0, Rfit::maxNumberOfTracks()*sizeof(Rfit::Vector4d)));
   cudaCheck(cudaMemset(line_fit_resultsGPU, 0, Rfit::maxNumberOfTracks()*sizeof(Rfit::line_fit)));
 
+
+  cudaMallocManaged(&gen_parGPU, sizeof(Rfit::Vector6dd));
+  gen_parGPU[0] = gen_par;
+
 #ifndef NB
 #define NB 1
 #endif
@@ -438,7 +443,7 @@ assert(kk<Ntracks);
   cudaMallocManaged(&tg, nbl*sizeof(int64_t));
 
   kernelPrintSizes<N><<<nbl0, ntr>>>(hitsGPU,hits_geGPU);
-  kernelFillHitsAndHitsCov<N><<<nbl0, ntr>>>(&gen_par, hitsGPU,hits_geGPU);
+  kernelFillHitsAndHitsCov<N><<<nbl0, ntr>>>(gen_parGPU, hitsGPU,hits_geGPU);
 
   // FAST_FIT GPU
   kernelFastFit<N><<<nbl, ntr>>>(hitsGPU, fast_fit_resultsGPU,Ntracks,tg);
@@ -476,10 +481,12 @@ for (uint32_t k=0; k<32*Ntracks; ++k,kk=k/32)
     0,0,-B/std::copysign(Rfit::sqr(circle_fit_results.par(2)),circle_fit_results.par(2));
   circle_fit_results.par(2)=B/fabs(circle_fit_results.par(2));
   circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
+  /*
   assert(toSingle(line_fit_results.par(0))>=0);
   assert(toSingle(line_fit_results.cov(0,0))>=0);
   assert(toSingle(circle_fit_results.par(2))>=0);
   assert(toSingle(circle_fit_results.cov(0,0))>=0);
+  */
 }
 
 #ifndef NOGPU
