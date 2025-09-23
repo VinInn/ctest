@@ -9,6 +9,24 @@
 
 #include "FitUtils.h"
 
+/*
+#include<iostream>
+template<typename D>
+struct Vectorize {
+  inline constexpr Vectorize(Eigen::DenseBase<D> const & iv) : v(iv){} 
+  using M = Eigen::DenseBase<D>;
+  using T = typename M::Scalar;
+  T const &  operator [](int i)  const {
+    std::cout << M::ColsAtCompileTime <<','<<M::RowsAtCompileTime<<std::endl;
+    if constexpr (M::ColsAtCompileTime==1) return  v(0,i);
+    else if constexpr (M::RowsAtCompileTime==1) return  v(i,0);
+    else {assert(0); return v(0,0);}
+  }
+ 
+  M const & v;
+};
+*/
+
 namespace BrokenLine {
   
   using namespace Rfit;
@@ -57,7 +75,7 @@ namespace BrokenLine {
     constexpr Float geometry_factor=0.7; //!< number between 1/3 (uniform material) and 1 (thin scatterer) to be manually tuned
     constexpr Float fact = geometry_factor*sqr(Float(13.6/1000.));
     return fact/sqr(one*B*R*sqrt(one+sqr(slope)))
-      *(std::abs(length)*XXI_0)*sqr(one+Float(0.038)*log(std::abs(length)*XXI_0));
+      *(std::abs(length)*XXI_0)*sqr(one+Float(0.038)*std::log(std::abs(length)*XXI_0));
   }
   
   /*!
@@ -69,7 +87,7 @@ namespace BrokenLine {
   */
   __host__ __device__ inline Matrix2d RotationMatrix(FF slope) {
     Matrix2d Rot;
-    Rot(0,0)=one/sqrt(1.+sqr(slope));
+    Rot(0,0)=one/sqrt(one+sqr(slope));
     Rot(0,1)=slope*Rot(0,0);
     Rot(1,0)=-Rot(0,1);
     Rot(1,1)=Rot(0,0);
@@ -132,7 +150,7 @@ namespace BrokenLine {
     u_int i;
     Vector2d d;
     Vector2d e;
-    
+
     d=hits.block(0,1,2,1)-hits.block(0,0,2,1);
     e=hits.block(0,n-1,2,1)-hits.block(0,n-2,2,1);
     results.q = cross2D(d,e)>0 ? -1 : 1;
