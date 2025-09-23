@@ -250,7 +250,18 @@ namespace BrokenLine {
     
     result(2)=sqrt(an*bn*cn)/(two*fabs(cross2D(b,a)));
     // Using Math Olympiad's formula R=abc/(4A)
-    
+
+    /*    
+    // limit pt to 100 GeV
+    constexpr Float rmax = 8770;
+    if (toSingle(result(2))>rmax) {
+      auto s = rmax/result(2);
+      result(0)*=s;
+      result(1)*=s;
+      result(2)*=s;
+    }
+    */
+
     const Rfit::Vector2d d=hits.block(0,0,2,1)-result.head(2);
     const Rfit::Vector2d e=hits.block(0,n-1,2,1)-result.head(2);
     

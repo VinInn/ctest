@@ -348,7 +348,7 @@ void testFit() {
   gen_par(1) = 0.1;   // y
   gen_par(2) = -1.;   // z
   gen_par(3) = 45.;   // phi
-  gen_par(4) = 1000.;   // R (p_t)
+  gen_par(4) = 500000.;   // R (p_t)
   gen_par(5) = 0.5;    // eta
 
   std::cout << gen_par << std::endl;
