@@ -72,9 +72,12 @@ namespace BrokenLine {
     //if(Layer==1) XXI_0=0.06/16.;
     // else XXI_0=0.06/16.;
     //XX_0*=1;
+    // limit R to 20GeV...
+    auto pt2 = std::min(Float(20.), B*R);
+    pt2 *= pt2; 
     constexpr Float geometry_factor=0.7; //!< number between 1/3 (uniform material) and 1 (thin scatterer) to be manually tuned
     constexpr Float fact = geometry_factor*sqr(Float(13.6/1000.));
-    return fact/sqr(one*B*R*sqrt(one+sqr(slope)))
+    return fact/(pt2*(one+sqr(slope)))
       *(std::abs(length)*XXI_0)*sqr(one+Float(0.038)*std::log(std::abs(length)*XXI_0));
   }
   
