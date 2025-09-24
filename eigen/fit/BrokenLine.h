@@ -154,8 +154,8 @@ namespace BrokenLine {
     Vector2d d;
     Vector2d e;
 
-    d=hits.block(0,1,2,1)-hits.block(0,0,2,1);
-    e=hits.block(0,n-1,2,1)-hits.block(0,n-2,2,1);
+    d=hits.template block<2,1>(0,1)-hits.template block<2,1>(0,0);
+    e=hits.template block<2,1>(0,n-1)-hits.template block<2,1>(0,n-2);
     results.q = cross2D(d,e)>0 ? -1 : 1;
     
     const FF slope=-Float(results.q)/fast_fit(3);
@@ -163,23 +163,23 @@ namespace BrokenLine {
     Matrix2d R=RotationMatrix(slope);
     
     // calculate radii and s
-    results.radii=hits.block(0,0,2,n)-fast_fit.head(2)*Rfit::MatrixXd::Constant(1,n,1);
+    results.radii=hits.template block<2,N>(0,0)-fast_fit.head(2)*Rfit::MatrixXd::Constant(1,n,1);
     e=-fast_fit(2)*fast_fit.head(2)/norm(fast_fit.head(2));
     for(i=0;i<n;i++) {
-      d=results.radii.block(0,i,2,1);
+      d=results.radii.template block<2,1>(0,i);
       results.s(i)=Float(results.q)*fast_fit(2)*std::atan2(cross2D(d,e),d.dot(e)); // calculates the arc length
     }
-    VectorNd<N> z=hits.block(2,0,1,n).transpose();
+    VectorNd<N> z=hits.template block<1,N>(2,0).transpose();
     
     //calculate S and Z
     Matrix2xNd<N> pointsSZ=Matrix2xNd<N>::Zero();
     for(i=0;i<n;i++) {
       pointsSZ(0,i)=results.s(i);
       pointsSZ(1,i)=z(i);
-      pointsSZ.block(0,i,2,1)=R*pointsSZ.block(0,i,2,1);
+      pointsSZ.template block<2,1>(0,i)=R*pointsSZ.template block<2,1>(0,i);
     }
-    results.S=pointsSZ.block(0,0,1,n).transpose();
-    results.Z=pointsSZ.block(1,0,1,n).transpose();
+    results.S=pointsSZ.template block<1,N>(0,0).transpose();
+    results.Z=pointsSZ.template block<1,N>(1,0).transpose();
     
     //calculate VarBeta
     results.VarBeta(0)=results.VarBeta(n-1)=0;
@@ -236,9 +236,9 @@ namespace BrokenLine {
     constexpr uint32_t N = M3xN::ColsAtCompileTime;
     constexpr auto n = N; // get the number of hits
     
-    const Rfit::Vector2d a=hits.block(0,n/2,2,1)-hits.block(0,0,2,1);
-    const Rfit::Vector2d b=hits.block(0,n-1,2,1)-hits.block(0,n/2,2,1);
-    const Rfit::Vector2d c=hits.block(0,0,2,1)-hits.block(0,n-1,2,1);
+    const Rfit::Vector2d a=hits.template block<2,1>(0,n/2)-hits.template block<2,1>(0,0);
+    const Rfit::Vector2d b=hits.template block<2,1>(0,n-1)-hits.template block<2,1>(0,n/2);
+    const Rfit::Vector2d c=hits.template block<2,1>(0,0)-hits.template block<2,1>(0,n-1);
 
     FF tmp = op5/cross2D(c,a);
     FF const & an = squaredNorm(a);
@@ -262,8 +262,8 @@ namespace BrokenLine {
     }
     */
 
-    const Rfit::Vector2d d=hits.block(0,0,2,1)-result.head(2);
-    const Rfit::Vector2d e=hits.block(0,n-1,2,1)-result.head(2);
+    const Rfit::Vector2d d=hits.template block<2,1>(0,0)-result.head(2);
+    const Rfit::Vector2d e=hits.template block<2,1>(0,n-1)-result.head(2);
     
     result(3)=result(2)*std::atan2(cross2D(d, e), d.dot(e))/(hits(2,n-1)-hits(2,0));
     // ds/dz slope between last and first point
@@ -309,7 +309,7 @@ namespace BrokenLine {
     VarBeta*=one+sqr(slope); // the kink angles are projected!
     
     for(i=0;i<n;i++) {
-      Z(i)=radii.block(0,i,2,1).norm()-fast_fit(2);
+      Z(i)=radii.template block<2,1>(0,i).norm()-fast_fit(2);
     }
     
     Matrix2d V; // covariance matrix
@@ -332,7 +332,7 @@ namespace BrokenLine {
     }
     
     MatrixNplusONEd<N> C_U;
-    C_U.block(0,0,n,n)=MatrixC_u(w,s,VarBeta);
+    C_U.template block<N,N>(0,0)=MatrixC_u(w,s,VarBeta);
     C_U(n,n) =0;
     //add the border to the C_u matrix
     for(i=0;i<n;i++) {
@@ -365,11 +365,11 @@ namespace BrokenLine {
     
     // compute (phi, d_ca, k) in the system in which the midpoint of the first two corrected hits is the origin...
     
-    radii.block(0,0,2,1)/=radii.block(0,0,2,1).norm();
-    radii.block(0,1,2,1)/=radii.block(0,1,2,1).norm();
+    radii.template block<2,1>(0,0)/=radii.template block<2,1>(0,0).norm();
+    radii.template block<2,1>(0,1)/=radii.template block<2,1>(0,1).norm();
     
-    Vector2d d=hits.block(0,0,2,1)+(-Z(0)+u(0))*radii.block(0,0,2,1);
-    Vector2d e=hits.block(0,1,2,1)+(-Z(1)+u(1))*radii.block(0,1,2,1);
+    Vector2d d=hits.template block<2,1>(0,0)+(-Z(0)+u(0))*radii.template block<2,1>(0,0);
+    Vector2d e=hits.template block<2,1>(0,1)+(-Z(1)+u(1))*radii.template block<2,1>(0,1);
     Vector2d eMinusd=e-d;
     FF tmp1=squaredNorm(eMinusd);
     circle_results.par << std::atan2(eMinusd(1),eMinusd(0)),
@@ -452,7 +452,7 @@ namespace BrokenLine {
       V(1,1)=hits_ge.col(i)[2];                // y errors
       V(2,1)=V(1,2)=hits_ge.col(i)[4];   // cov_yz
       V(2,2)=hits_ge.col(i)[5];                // z errors
-      FF tmp = one/radii.block(0,i,2,1).norm();
+      FF tmp = one/radii.template block<2,1>(0,i).norm();
       JacobXYZtosZ(0,0)=radii(1,i)*tmp;
       JacobXYZtosZ(0,1)=-radii(0,i)*tmp;
       JacobXYZtosZ(1,2)=one;
@@ -572,8 +572,8 @@ namespace BrokenLine {
     
     helix.par << circle.par, line.par;
     helix.cov=Rfit::MatrixXd::Zero(5, 5);
-    helix.cov.block(0,0,3,3)=circle.cov;
-    helix.cov.block(3,3,2,2)=line.cov;
+    helix.cov.template block<3,3>(0,0)=circle.cov;
+    helix.cov.template block<2,2>(3,3)=line.cov;
     helix.q=circle.q;
     helix.chi2_circle=circle.chi2;
     helix.chi2_line=line.chi2;
