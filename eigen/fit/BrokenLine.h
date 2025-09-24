@@ -309,7 +309,7 @@ namespace BrokenLine {
     VarBeta*=one+sqr(slope); // the kink angles are projected!
     
     for(i=0;i<n;i++) {
-      Z(i)=radii.template block<2,1>(0,i).norm()-fast_fit(2);
+      Z(i)=norm(radii.template block<2,1>(0,i).reshaped())-fast_fit(2);
     }
     
     Matrix2d V; // covariance matrix
@@ -365,8 +365,8 @@ namespace BrokenLine {
     
     // compute (phi, d_ca, k) in the system in which the midpoint of the first two corrected hits is the origin...
     
-    radii.template block<2,1>(0,0)/=radii.template block<2,1>(0,0).norm();
-    radii.template block<2,1>(0,1)/=radii.template block<2,1>(0,1).norm();
+    radii.template block<2,1>(0,0)/=norm(radii.template block<2,1>(0,0).reshaped());
+    radii.template block<2,1>(0,1)/=norm(radii.template block<2,1>(0,1).reshaped());
     
     Vector2d d=hits.template block<2,1>(0,0)+(-Z(0)+u(0))*radii.template block<2,1>(0,0);
     Vector2d e=hits.template block<2,1>(0,1)+(-Z(1)+u(1))*radii.template block<2,1>(0,1);
@@ -452,7 +452,7 @@ namespace BrokenLine {
       V(1,1)=hits_ge.col(i)[2];                // y errors
       V(2,1)=V(1,2)=hits_ge.col(i)[4];   // cov_yz
       V(2,2)=hits_ge.col(i)[5];                // z errors
-      FF tmp = one/radii.template block<2,1>(0,i).norm();
+      FF tmp = one/norm(radii.template block<2,1>(0,i).reshaped());
       JacobXYZtosZ(0,0)=radii(1,i)*tmp;
       JacobXYZtosZ(0,1)=-radii(0,i)*tmp;
       JacobXYZtosZ(1,2)=one;
