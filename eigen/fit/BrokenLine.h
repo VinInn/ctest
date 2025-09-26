@@ -477,7 +477,7 @@ namespace BrokenLine {
     // line parameters in the system in which the first hit is the origin and with axis along SZ
     line_results.par << (u(1)-u(0))/(S(1)-S(0)), u(0);
     auto idiff = one/(S(1)-S(0));
-    line_results.cov << (I(0,0)-2*I(0,1)+I(1,1))*sqr(idiff)+MultScatt(S(1)-S(0),B,fast_fit(2),2,slope),
+    line_results.cov << (I(0,0)-two*I(0,1)+I(1,1))*sqr(idiff)+MultScatt(S(1)-S(0),B,fast_fit(2),2,slope),
       (I(0,1)-I(0,0))*idiff,
       (I(0,1)-I(0,0))*idiff, I(0,0);
     
