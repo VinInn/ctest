@@ -235,12 +235,13 @@ std::ostream& operator<<(std::ostream& os, TwoFloat<T> const & t)
     return os;
 }
 
-template<typename T, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
+template<typename T>
+//, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
 #ifdef __NVCC__
      __device__ __host__
 #endif
-inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, U b) {
-  static_assert( std::is_same<T, U>() );
+inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, T b) {
+  // static_assert( std::is_same<T, U>() );
   using namespace detailsTwoFloat;
   TwoFloat<T> ret(b,a.hi(),fromSum());
   auto u = ret.lo() + a.lo();
@@ -248,21 +249,22 @@ inline constexpr TwoFloat<T> operator+(TwoFloat<T> const & a, U b) {
   return ret;
 }
 
-template<typename T, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
+template<typename T>
+//, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
 #ifdef __NVCC__
      __device__ __host__
 #endif
-inline constexpr TwoFloat<T> operator+(U b, TwoFloat<T> const & a) {
-  static_assert( std::is_same<T, U>() );
+inline constexpr TwoFloat<T> operator+(T b, TwoFloat<T> const & a) {
   return a+b;
 }
 
-template<typename T, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
+template<typename T>
+// , typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
 #ifdef __NVCC__
      __device__ __host__
 #endif
-inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, U b) {
-  static_assert( std::is_same<T, U>() );
+inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, T b) {
+  // static_assert( std::is_same<T, U>() );
   using namespace detailsTwoFloat;
   TwoFloat<T> ret(-b,a.hi(),fromSum());
   auto u = ret.lo() + a.lo();
@@ -270,12 +272,13 @@ inline constexpr TwoFloat<T> operator-(TwoFloat<T> const & a, U b) {
   return ret;
 }
 
-template<typename T, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
+template<typename T>
+//, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
 #ifdef __NVCC__
      __device__ __host__
 #endif
-inline constexpr TwoFloat<T> operator-(U b, TwoFloat<T> const & a) {
-  static_assert( std::is_same<T, U>() );
+inline constexpr TwoFloat<T> operator-(T b, TwoFloat<T> const & a) {
+  // static_assert( std::is_same<T, U>() );
   using namespace detailsTwoFloat;
   TwoFloat<T> ret(b,-a.hi(),fromSum());
   auto u = ret.lo() - a.lo();
@@ -286,24 +289,26 @@ inline constexpr TwoFloat<T> operator-(U b, TwoFloat<T> const & a) {
 
 
 /* Algorithm 3 from https://hal.science/hal-01351529 */
-template<typename T, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
+template<typename T>
+// typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
 #ifdef __NVCC__
      __device__ __host__
 #endif
-inline constexpr TwoFloat<T> operator*(TwoFloat<T> const & a, U b) {
-  static_assert( std::is_same<T, U>() );
+inline constexpr TwoFloat<T> operator*(TwoFloat<T> const & a, T b) {
+  // static_assert( std::is_same<T, U>() );
   using namespace detailsTwoFloat;
   TwoFloat<T> ret;
   s_mul(ret.hi(),ret.lo(), b, a.hi(), a.lo());
   return ret;
 }
 
-template<typename T, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
+template<typename T>
+// , typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
 #ifdef __NVCC__
      __device__ __host__
 #endif
-inline constexpr TwoFloat<T> operator*(U b, TwoFloat<T> const & a) {
-  static_assert( std::is_same<T, U>() );
+inline constexpr TwoFloat<T> operator*(T b, TwoFloat<T> const & a) {
+  // static_assert( std::is_same<T, U>() );
   return a*b;
 }
 
@@ -420,12 +425,13 @@ inline constexpr TwoFloat<T> operator*(TwoFloat<T> const & a, TwoFloat<T> const 
 
 
 /* Algorithm 15 from https://hal.science/hal-01351529 */
-template<typename T, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
+template<typename T>
+//, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
 #ifdef __NVCC__
      __device__ __host__
 #endif
-inline constexpr TwoFloat<T> operator/(TwoFloat<T> const & a, U b) {
-  static_assert( std::is_same<T, U>() );
+inline constexpr TwoFloat<T> operator/(TwoFloat<T> const & a, T b) {
+  // static_assert( std::is_same<T, U>() );
   using namespace detailsTwoFloat;
   TwoFloat<T> ret;
   s_div(ret.hi(),ret.lo(), a.hi(), a.lo(),b);
@@ -459,12 +465,13 @@ inline constexpr TwoFloat<T> operator/(TwoFloat<T> const & a, TwoFloat<T> const 
 #endif
 }
 
-template<typename T, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
+template<typename T>
+//, typename U, typename = typename std::enable_if_t<std::is_same_v<T, U>>>
 #ifdef __NVCC__
      __device__ __host__
 #endif
-inline constexpr TwoFloat<T> operator/(U a, TwoFloat<T> const & b) {
-  static_assert( std::is_same<T, U>() );
+inline constexpr TwoFloat<T> operator/(T a, TwoFloat<T> const & b) {
+  // static_assert( std::is_same<T, U>() );
   using namespace detailsTwoFloat;
 #ifdef TWOFLOAT_PRECISE_DIV
   auto t = T(1.)/b.hi();
