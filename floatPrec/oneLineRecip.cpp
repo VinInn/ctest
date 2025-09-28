@@ -1,5 +1,6 @@
 #include <cmath>
 #include<cstdio>
+#include<cstring>
 
 #include <x86intrin.h>
 #include<tuple>
@@ -40,6 +41,21 @@ ulp_error (float x)
  return {ldexpf (errf, 24 - ef),ldexp(errd, 48 - ed)};
 }
 
+std::pair<int,int>
+iulp_error (float x)
+{
+ auto y = rsqrt (x);
+ double z = 1./sqrt(double(x));
+ float hi = z;
+ float lo = float(z-double(hi));
+ int ih, il, dh,dl;
+ memcpy(&ih,&y.first,sizeof(float));
+ memcpy(&il,&y.second,sizeof(float));
+ memcpy(&dh,&hi,sizeof(float));
+ memcpy(&dl,&lo,sizeof(float));
+ return {ih-dh,il-dl};
+}
+
 
 void merr() {
   float x, maxerr = 0;
@@ -64,25 +80,33 @@ int main(int n, char * w[]) {
    float a1 = float(1-n) + 0x1.99999ep-4; // 0.1f;
    float a2 = float(n)*0.0118255867f;
 
-   float v[] = {0,0,0x1.04458p+0,0x1.13e07p+1,0x1.fffffcp+1};
+   float v[] = {0,0,0x1.04458p+0,0x1.13e07p+1,0x1.fffffcp+1,0x1.f02102p-13};
    v[0] = a1;v[1]=a2;
 
 for ( auto k : v) {
 
    float y;
    _mm_store_ss( &y, _mm_rsqrt_ss( _mm_load_ss( &k ) ) );
-   printf("%a %a\n",k,y);
+   printf("intr %a %a\n",k,y);
    y =  y * (1.5f - 0.5f * k * (y * y));
-   printf("%a %a\n",k,y);
+   printf("1NR %a %a\n",k,y);
 
    float q = 1.f/std::sqrt(k);
-   printf("%a %a\n",k,q);
+   printf("libm %a %a\n",k,q);
 
    auto qf = rsqrt(k);
-   printf("%a %a,%a %a\n",k,qf.first,qf.second, double(qf.first)+double(qf.second));
+   printf("me %a {%a,%a} = %a\n",k,qf.first,qf.second, double(qf.first)+double(qf.second));
 
    double qd = 1./std::sqrt(double(k));
-   printf("%a %a %a %a\n",k,qd, float(qd)-qf.first, qd-(double(qf.first)+double(qf.second)));
+   printf("double %a %a  %a %a\n",k,qd, float(qd)-qf.first, qd-(double(qf.first)+double(qf.second)));
+
+   auto r = ulp_error (k);
+   printf ("x=%a errf=%f  ", k, r.first);
+   printf (" errd=%f\n", r.second);
+   auto ir = iulp_error(k);
+   printf ("x=%a errf=%d  ", k, ir.first);
+   printf (" errd=%d\n", ir.second);
+
 }
 
   merr();
