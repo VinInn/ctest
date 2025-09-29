@@ -75,11 +75,11 @@ namespace Rfit
   __host__ __device__
   inline constexpr
   auto squaredNorm(V const & src) {
-#ifdef FAST_SN 
-     return squaredNorm(src,V::SizeAtCompileTime);
-#else
-    return src.squaredNorm();
-#endif
+     using T = typename std::remove_cvref<decltype(src[0])>::type;
+     if constexpr(std::is_floating_point_v<T>)
+        return src.squaredNorm();
+     else
+        return ::squaredNorm(src,V::SizeAtCompileTime);
   }
 
 
@@ -87,11 +87,15 @@ namespace Rfit
   __host__ __device__
   inline constexpr
   auto norm(V const & src) {
-#ifdef FAST_SN
-     return sqrt(squaredNorm(src,V::SizeAtCompileTime));
-#else
-    return src.norm();
-#endif
+     return sqrt(squaredNorm(src));
+  }
+
+
+  template<typename V>
+  __host__ __device__
+  inline constexpr
+  auto invNorm(V const & src) {
+     return rsqrt(squaredNorm(src));
   }
 
 

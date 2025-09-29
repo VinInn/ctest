@@ -90,7 +90,7 @@ namespace BrokenLine {
   */
   __host__ __device__ inline Matrix2d RotationMatrix(FF slope) {
     Matrix2d Rot;
-    Rot(0,0)=one/sqrt(one+sqr(slope));
+    Rot(0,0)=rsqrt(one+sqr(slope));
     Rot(0,1)=slope*Rot(0,0);
     Rot(1,0)=-Rot(0,1);
     Rot(1,1)=Rot(0,0);
@@ -164,7 +164,7 @@ namespace BrokenLine {
     
     // calculate radii and s
     results.radii=hits.template block<2,N>(0,0)-fast_fit.head(2)*Rfit::MatrixXd::Constant(1,n,1);
-    e=-fast_fit(2)*fast_fit.head(2)/norm(fast_fit.head(2));
+    e=-fast_fit(2)*fast_fit.head(2)*invNorm(fast_fit.head(2));
     for(i=0;i<n;i++) {
       d=results.radii.template block<2,1>(0,i);
       results.s(i)=Float(results.q)*fast_fit(2)*std::atan2(cross2D(d,e),d.dot(e)); // calculates the arc length
@@ -380,7 +380,7 @@ namespace BrokenLine {
     
     Matrix3d Jacob;
     Jacob << (radii(1,0)*eMinusd(0)-eMinusd(1)*radii(0,0))/tmp1,(radii(1,1)*eMinusd(0)-eMinusd(1)*radii(0,1))/tmp1,0,
-      (op5*Float(circle_results.q))*(eMinusd(0)*radii(0,0)+eMinusd(1)*radii(1,0))/sqrt(sqr(two*fast_fit(2))-tmp1),(op5*Float(circle_results.q))*(eMinusd(0)*radii(0,1)+eMinusd(1)*radii(1,1))/sqrt(sqr(two*fast_fit(2))-tmp1),0,
+      (op5*Float(circle_results.q))*(eMinusd(0)*radii(0,0)+eMinusd(1)*radii(1,0))*rsqrt(sqr(two*fast_fit(2))-tmp1),(op5*Float(circle_results.q))*(eMinusd(0)*radii(0,1)+eMinusd(1)*radii(1,1))*sqrt(sqr(two*fast_fit(2))-tmp1),0,
       0,0,Float(circle_results.q);
     
     circle_results.cov << I(0,0), I(0,1), I(0,n),
@@ -452,7 +452,7 @@ namespace BrokenLine {
       V(1,1)=hits_ge.col(i)[2];                // y errors
       V(2,1)=V(1,2)=hits_ge.col(i)[4];   // cov_yz
       V(2,2)=hits_ge.col(i)[5];                // z errors
-      FF tmp = one/norm(radii.template block<2,1>(0,i).reshaped());
+      FF tmp = invNorm(radii.template block<2,1>(0,i).reshaped());
       JacobXYZtosZ(0,0)=radii(1,i)*tmp;
       JacobXYZtosZ(0,1)=-radii(0,i)*tmp;
       JacobXYZtosZ(1,2)=one;
