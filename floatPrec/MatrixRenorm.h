@@ -329,7 +329,7 @@ a_6 & a_7  & a_8   \end{array} \right)
       int e[5];
       for (int i=0; i<5; ++i) {
         std::frexp(src(i,i), &e[i]);
-        e[i] =0; // /= 2;
+        e[i] /= 2;
       }
 //#endif
       F one(1.0f);

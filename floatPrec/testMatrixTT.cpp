@@ -4,6 +4,7 @@
 
 
 #include "Matrix.h"
+// Renorm.h"
 #include"TwoFloat.h"
 #include<iostream>
 
@@ -28,8 +29,10 @@ inline bool verify(M const& m, bool vv=true) {
      auto d = toSingle(m(i,i));
      if (vv && d<0) std::cout << "??? on " << i << ' ' << d << std::endl;
 //     assert(d>-1.e-8);
-     if (d<1.e-8) ret=false;
+     if (d<1.e-8) {ret=false; break;}
   }
+  if (!ret)  {for (int i = 0; i < n; ++i) {std::cout << m(i,i) << ' ';} std::cout << std::endl;}
+  if (!ret) return ret;
   //check minors
   for (int i = 0; i < n-1; ++i) {
     auto d = toSingle(m(i+0, i+0)*m(i+1,i+1)) - toSingle(m(i+0, i+1)*m(i+1,i+0));
@@ -111,7 +114,7 @@ for (int kk=0; kk<maxIter; ++kk) {
 
 int main() {
 
-  int maxIter = 2500000;
+  int maxIter = 25000000;
   
   using FF = TwoFloat<float>;
   using DD = TwoFloat<double>;
