@@ -5,7 +5,7 @@
 
 #include "Matrix.h"
 // Renorm.h"
-#include"TwoFloat.h"
+#include <TwoFloat.h>
 #include<iostream>
 
 #ifdef ALL_T
@@ -20,14 +20,14 @@
 #define VERIFY
 
 template <typename M>
-inline bool verify(M const& m, bool vv=true) {
+inline bool verify(std::string const & hi,M const& m, bool vv=true) {
   bool ret=true;
 #ifdef VERIFY
 #warning "Verify ON"
   int n = M::kRows;
   for (int i = 0; i < n; ++i) {
      auto d = toSingle(m(i,i));
-     if (vv && d<0) std::cout << "??? on " << i << ' ' << d << std::endl;
+     if (vv && d<0) std::cout << hi << "??? on " << i << ' ' << d << std::endl;
 //     assert(d>-1.e-8);
      if (d<1.e-8) {ret=false; break;}
   }
@@ -36,7 +36,7 @@ inline bool verify(M const& m, bool vv=true) {
   //check minors
   for (int i = 0; i < n-1; ++i) {
     auto d = toSingle(m(i+0, i+0)*m(i+1,i+1)) - toSingle(m(i+0, i+1)*m(i+1,i+0));
-    if (vv && d<0) std::cout << "??? m2 " << i << ' ' << d << std::endl;
+    if (vv && d<0) std::cout << hi << "??? m2 " << i << ' ' << d << std::endl;
 //    assert(d > -1.e-8);
     if (d<1.e-8) ret=false;
     if (i>0) continue;;
@@ -72,7 +72,7 @@ void genMatrix(M& m, Eng & eng) {
       // m(j, i) = m(i, j);
     }
   }
-  } while(!verify(m,false));
+  } while(!verify("gen",m,false));
 }
 
 #include <typeinfo>
@@ -83,22 +83,23 @@ void go(int maxIter) {
   std::cout << "testing " << typeid(TT).name() << std::endl;
   T maxOn=0;
   T maxOff=0;
-  MatrixSym<TT,5> m1,m2,m3;
+  T maxOnOld=0;
+  T maxOffOld=0;
+  MatrixSym<TT,5> m1,m2,m3, mon, moff;
   std::mt19937 eng;
-
+  int n = 5; 
 for (int kk=0; kk<maxIter; ++kk) {
   bool v = true;
   genMatrix(m1, eng);
-  v &= verify(m1);
+  v &= verify("1",m1);
   invert55(m1,m2);
-  v &= verify(m2);
+  v &= verify("2",m2);
   invert55(m2,m3);
-  v &= verify(m3);
+  v &= verify("3",m3);
   invert55(m3,m2);
   invert55(m2,m3);
-  v &= verify(m3);
-//  if (!v) continue;
-  int n = 5;
+  v &= verify("4",m3);
+  if (!v) continue;
   for (int i=0; i<n; ++i) {
     maxOn = std::max(maxOn,std::abs(toSingle(  (m3(i,i)-m1(i,i))/m1(i,i) )));
   }
@@ -107,10 +108,16 @@ for (int kk=0; kk<maxIter; ++kk) {
       maxOff = std::max(maxOff,std::abs(toSingle( (m3(i,j)-m1(i,j))/m1(i,j) )));
     }
   }
+  if (maxOn>maxOnOld) { maxOnOld=maxOn; mon=m1;}
+  if (maxOff>maxOffOld) { maxOffOld=maxOff; moff=m1;}
 }
-  std::cout << maxOn << ' ' << maxOff << std::endl;
-}
+  std::cout << "prec " << maxOn << ' ' << maxOff << std::endl;
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j <= i; ++j) { std::cout << mon(i,j)<< ' ' ;}} std::cout << std::endl;
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j <= i; ++j) { std::cout << moff(i,j)<< ' ' ;}} std::cout << std::endl;
 
+}
 
 int main() {
 
@@ -129,7 +136,7 @@ int main() {
 
 for (int kk=0; kk<maxIter; ++kk) {
   genMatrix(m1, eng);
-  verify(m1);
+  verify("gen",m1);
   m3 = m1;
   int n = 5;
   for (int i=0; i<n; ++i)
@@ -140,7 +147,7 @@ for (int kk=0; kk<maxIter; ++kk) {
     }
   }
 }
-  std::cout << maxOn << ' ' << maxOff << std::endl;
+  std::cout << "prec " << maxOn << ' ' << maxOff << std::endl;
 }
 #endif
 
