@@ -79,7 +79,7 @@ float logE(float x) {
 }
 
 float logE4(float y) {
-  constexpr float log2 = std::log(2);
+  const float log2 = std::log(2);
   return (y<log2) ? -0x2.p-8 + y * (-0x3.917bdp0 + y * (0x1.03954cp4 + y * (-0x2.c2de08p4 + y * (0x3.c0ed6p4 + y * (-0x1.ef10bp4))))) 
     :  y*(-0x8.p0 + y * (0x1.6a07c8p4 + y * (-0x1.c0a04p4 + y * (0x1.2218dp4 + y * (-0x5.f6ecfp0 + y * 0xc.9bbep-4))))) ;
     // -0x2.p0 + y * (0x3.0a88b8p0 + y * (-0x2.2ea5f8p0 + y * (0xd.6112cp-4 + y * (-0x2.96e18p-4 + y * 0x3.29a5ep-8)))) ;
@@ -100,7 +100,7 @@ int main() {
   printf("%a\n",1.-0x8.p-16);
 
   //  accTest(logE,logE4, std::numeric_limits<float>::min()*10000, 4 );
-  accTest(erf,erf4, .01, 8  );
+  accTest(::erf,erf4, .01, 8  );
 
 
   accTest(logE,logE4, std::log(2), 2 );
