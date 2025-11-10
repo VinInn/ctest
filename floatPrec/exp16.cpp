@@ -39,6 +39,16 @@ int main() {
     }
    std::cout << std::endl;
   }
+  double nce[4] = {std::exp(-c),std::exp(ldexp(-c,4)),std::exp(ldexp(-c,8)),std::exp(ldexp(-c,12))};
+  float nefact[4][16];
+  for (int i=0; i<16; ++i) {
+    for (int j=0; j<4; ++j) {
+      nefact[j][i]= std::pow(nce[j],i);
+      std::cout << nefact[j][i] << ' ';
+    }
+   std::cout << std::endl;
+  }
+
 
 {
   I16 u; u.i16 = 1024+19;
@@ -46,13 +56,15 @@ int main() {
 }
 
 {
-  uint16_t eta = std::round(3.5*(std::numeric_limits<int16_t>::max()/5.));
+  int16_t eta = std::round(-3.5*(std::numeric_limits<int16_t>::max()/5.));
   std::cout << eta << ' ' << eta*(5./std::numeric_limits<int16_t>::max()) << std::endl;
 {
-  I16 u; u.i16 = eta;
+  I16 u; u.i16 = std::abs(eta);
   std::cout << (uint16_t)(u.i4.b0) << ',' << (uint16_t)(u.i4.b1) << ',' << (uint16_t)(u.i4.b2) << ',' << (uint16_t)(u.i4.b3) << std::endl;
   std::cout << "exp(3.5) " << std::exp(3.5) << ' ' <<  efact[0][u.i4.b0]*efact[1][u.i4.b1]*efact[2][u.i4.b2]*efact[3][u.i4.b3] << std::endl;
   std::cout << "exp(3.5) " << std::exp(3.5) << ' ' <<  efact[0][u.i4.b0] << ' ' <<efact[1][u.i4.b1] << ' ' <<efact[2][u.i4.b2] << ' ' << efact[3][u.i4.b3] << std::endl;
+  std::cout << "exp(-3.5) " << std::exp(-3.5) << ' ' <<  nefact[0][u.i4.b0]*nefact[1][u.i4.b1]*nefact[2][u.i4.b2]*nefact[3][u.i4.b3] << std::endl;
+  std::cout << "sch(3.5) " << std::sinh(3.5) << ' ' << std::cosh(3.5) << std::endl;
 }
 }
 
