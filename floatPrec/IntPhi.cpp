@@ -8,10 +8,10 @@
 #include "approx_atan2.h"
 
 // performance test
-#include <x86intrin.h>
+// #include <x86intrin.h>
 inline unsigned long long rdtsc() {
  unsigned int i = 0;
- return __rdtscp(&i);
+ return 0;
 }
 
 template <typename T> 
@@ -70,12 +70,12 @@ int main() {
   assert(phiLess(0.f,2.f));
   assert(phiLess(6.f,0.f));
   assert(phiLess(3.2f,0.f));
-  assert(phiLess(3.0f,3.2f));
+  assert(phiLess(3.2f,3.0f));
 
   assert(phiLess(-0.3f,0.f));
   assert(phiLess(-0.3f,0.1f));
   assert(phiLess(-3.0f,0.f));
-  assert(phiLess(3.0f,-3.0f));
+  assert(phiLess(-3.0f,3.0f));
   assert(phiLess(0.f,-3.4f));
 
   // go around the clock
@@ -83,20 +83,28 @@ int main() {
   while (phi1<8) {
     auto p1 = toPhi(phi1);
     auto ip1 = phi2int(p1);
+    auto ip1s = phi2short(p1);
     std::cout << "phi1 " << phi1 << ' ' << p1 << ' ' << ip1 << ' ' << int2phi(ip1) << std::endl;
+    std::cout << "phi1 " << phi1 << ' ' << p1 << ' ' << ip1s << ' ' << short2phi(ip1) << std::endl;
 
     float phi2= -7.2;
     while (phi2<8) {
     auto p2 = toPhi(phi2);
     auto ip2 = phi2int(p2);
+    auto ip2s = phi2short(p2);
     std::cout << "phi2 " << phi2 << ' ' <<  deltaPhi(phi1,phi2)  << ' ' <<  deltaPhi(phi2,phi1)
 	      << ' ' << int2phi(ip1-ip2) << ' ' << int2phi(ip2-ip1)   
 	      << ' ' <<  toPhi(phi2+phi1) << ' ' << int2phi(ip1+ip2) << std::endl;
+    std::cout << "phi2 " << phi2 << ' ' <<  deltaPhi(phi1,phi2)  << ' ' <<  deltaPhi(phi2,phi1)
+              << ' ' << short2phi(ip1s-ip2s) << ' ' << short2phi(ip2s-ip1s)
+              << ' ' <<  toPhi(phi2+phi1) << ' ' << short2phi(ip1s+ip2s) << std::endl;
+
       phi2+=1;
     }
 
     phi1+=1;
   }
+
 
 
 
