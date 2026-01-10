@@ -20,8 +20,14 @@ inline float fastPow(float a, float b) {
     float d;
     uint32_t x;
   } u = { a };
-  u.x = (uint32_t)(b * (u.x - 1064866808) + 1064866808);
+  u.x = (uint32_t)(b * (u.x - 1064866808) + 1064866808);  // 0.971007823944
   return u.d;
+}
+
+inline float fastPow1(float a, float b) {
+  auto x0 = fastPow(a,b);
+  return x0*(1.f-b*(1.f-a/fastPow(x0,1.f/b))); 
+
 }
 
 int main() {
@@ -36,6 +42,11 @@ int main() {
 
   for (float x=0.5f; x<20.f; x+=0.5f)
     std::cout << x << " " << std::pow(x,-1.0228f) << " " << fastPow(x,1.f-0.0228f)/x/x << ' ' << 1. -fastPow(x,1.f-0.0228f)/x/x/std::pow(x,-1.0228f)<< std::endl;
+   
+  float x = 3.5f;
+  std::cout << x << " " << std::pow(x,4.5f) << " " << fastPow(x,4.5f) << ' ' << 1. -fastPow(x,4.5f)/std::pow(x,4.5f)<< std::endl;
+  std::cout << x << " " << std::pow(x,4.5f) << " " << fastPow1(x,4.5f) << ' ' << 1. -fastPow1(x,4.5f)/std::pow(x,4.5f)<< std::endl;
+  std::cout << x << " " << std::pow(std::pow(x,4.5f),1./4.5f) << " " << fastPow(fastPow(x,4.5f),1.f/4.5f) << std::endl;
 
   return 0;
 
