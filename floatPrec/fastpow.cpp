@@ -37,9 +37,15 @@ int main() {
   double accMin = eps/cut;
   std::cout << "eps/cut/accMin " << eps << " " << cut << " " << accMin
 	    << std::endl;
-  for (double acc=accMin; acc<eps;  acc*=10.)
-    std::cout << acc << " " << std::pow(eps/acc,0.2) << " " << fastPow(eps/acc,0.2) << std::endl;
 
+  std::cout << "double " << std::endl;  
+  for (double acc=accMin; acc<eps;  acc*=10.) {
+    auto x = eps/acc;
+    auto y = fastPow(eps/acc,0.2);
+    std::cout << acc << " " << std::pow(eps/acc,0.2) << " " << y <<   ' ' << y - 0.2*(y-x/(y*y*y*y)) << std::endl;
+  }
+
+  std::cout << "single " << std::endl;
   for (float x=0.5f; x<20.f; x+=0.5f)
     std::cout << x << " " << std::pow(x,-1.0228f) << " " << fastPow(x,1.f-0.0228f)/x/x << ' ' << 1. -fastPow(x,1.f-0.0228f)/x/x/std::pow(x,-1.0228f)<< std::endl;
    
