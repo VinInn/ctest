@@ -29,6 +29,14 @@ print("   float s = ", horner(s5) , ";");
 print("   float s = ", horner(s7) , ";");
 print("   float c = ", horner(c) , ";");
 
+s=fpminimax(sin(x)/x, [|0,2,4,6|],   [|24...|], [0;1/4*pi], floating, absolute);
+display=decimal;
+acc=floor(-log2(sup(supnorm(s, sin(x)/x, [0;1/4*pi], absolute, 2^(-40)))));
+print( " absolute accuracy is ",  acc, "bits" );
+display=hexadecimal;
+print("   float s = ", horner(s) , ";");
+display=decimal;
+print("   float s = ", horner(s) , ";");
 
 
 
