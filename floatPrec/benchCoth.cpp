@@ -26,6 +26,24 @@ struct poly {
    }
 };
 
+
+double ddd=0;
+#include<iostream>
+void end(benchmark::State& state) {
+   using T = float;
+   T sum=0;
+    std::cout << ddd << std::endl;
+   for (auto _ : state) {
+     for (T x=T(-1);  x<T(1); x+=T(1.e-7)) { 
+       sum+=x;
+     }
+     benchmark::DoNotOptimize(sum);
+   }
+   ddd+=sum;
+   std::cout << ddd << std::endl;
+}
+
+
 template<typename F>
 void loop(benchmark::State& state) {
    using T = F::Float;
@@ -34,10 +52,15 @@ void loop(benchmark::State& state) {
    T sum=0;
    for (auto _ : state) {
      benchmark::DoNotOptimize(sum);
-     for (T x=T(-1);  x<T(1); x+=T(1.e-6))
+     for (T x=T(-1);  x<T(1); x+=T(1.e-7)) {
+//       benchmark::DoNotOptimize(x);
+       // benchmark::DoNotOptimize(sum);
        sum += f(x);
+       // benchmark::DoNotOptimize(sum);
+     }
      benchmark::DoNotOptimize(sum);
    }
+   ddd+=sum;
 }
 
 
@@ -58,7 +81,7 @@ BENCHMARK(sf);
 BENCHMARK(sd);
 BENCHMARK(pf);
 BENCHMARK(pd);
-
+BENCHMARK(end);
 
 
 BENCHMARK_MAIN();
