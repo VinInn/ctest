@@ -32,6 +32,17 @@ struct poly {
 };
 
 
+template<typename T>
+struct pade {
+   using Float=T;
+   T operator()(T x) {
+     T p = T(0.843551) + x*(T(-0.0488014) + x*(T(-0.0333239) + x*(T(0.00191492) + x*T(0.000527805) )));
+     T q = T(1.0) + x*(T(0.479197) + x*(T(0.429426) + x*(T(0.0416364) + x*T(0.0185811)  )));
+     return p/q;
+   }
+};
+
+
 double ddd=0;
 #include<iostream>
 void end(benchmark::State& state) {
@@ -83,6 +94,8 @@ void sd(benchmark::State& state) { loop<secosh<double>>(state);}
 void pf(benchmark::State& state) { loop<poly<float>>(state);}
 void pd(benchmark::State& state) { loop<poly<double>>(state);}
 
+void af(benchmark::State& state) { loop<pade<float>>(state);}
+void ad(benchmark::State& state) { loop<pade<double>>(state);}
 
 
 BENCHMARK(nf);
@@ -91,6 +104,8 @@ BENCHMARK(sf);
 BENCHMARK(sd);
 BENCHMARK(pf);
 BENCHMARK(pd);
+BENCHMARK(af);
+BENCHMARK(ad);
 BENCHMARK(end);
 
 
