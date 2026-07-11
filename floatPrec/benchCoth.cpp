@@ -1,3 +1,6 @@
+// c++ -O3 benchCoth.cpp -I/data/innocent/benchmark/include /data/innocent/benchmark/build/src/libbenchmark.a -march=native -std=c++26 -pthread -lpfm
+// ./a.out --benchmark_perf_counters=CYCLES,INSTRUCTIONS
+
 #include <benchmark/benchmark.h>
 #include<cmath>
 
