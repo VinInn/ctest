@@ -1,5 +1,5 @@
 // c++ -O3 benchCoth.cpp -I/data/innocent/benchmark/include /data/innocent/benchmark/build/src/libbenchmark.a -march=native -std=c++26 -pthread -lpfm
-// ./a.out --benchmark_perf_counters=CYCLES,INSTRUCTIONS
+// ./a.out --benchmark_perf_counters=CYCLES,INSTRUCTIONS,RETIRED_FP_OPS_BY_TYPE:SCALAR_MAC,RETIRED_FP_OPS_BY_TYPE:SCALAR_ALL
 
 #include <benchmark/benchmark.h>
 #include<cmath>
