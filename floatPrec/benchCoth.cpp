@@ -1,5 +1,7 @@
 // c++ -O3 benchCoth.cpp -I/data/innocent/benchmark/include /data/innocent/benchmark/build/src/libbenchmark.a -march=native -std=c++26 -pthread -lpfm
 // ./a.out --benchmark_perf_counters=CYCLES,INSTRUCTIONS,RETIRED_FP_OPS_BY_TYPE:SCALAR_MAC,RETIRED_FP_OPS_BY_TYPE:SCALAR_ALL
+// c++ -Ofast benchCoth.cpp -I/data/innocent/benchmark/include /data/innocent/benchmark/build/src/libbenchmark.a -march=native -std=c++26 -pthread -lpfm -funroll-loops -funroll-all-loops
+// ./a.out --benchmark_perf_counters=CYCLES,INSTRUCTIONS,RETIRED_FP_OPS_BY_TYPE:SCALAR_MAC,RETIRED_FP_OPS_BY_TYPE:SCALAR_ALL,RETIRED_FP_OPS_BY_TYPE:VECTOR_MAC
 
 #include <benchmark/benchmark.h>
 #include<cmath>
@@ -37,8 +39,10 @@ void end(benchmark::State& state) {
    T sum=0;
     std::cout << ddd << std::endl;
    for (auto _ : state) {
-     for (T x=T(-1);  x<T(1); x+=T(1.e-7)) { 
+     T x=T(-1);    
+     for (int i=0; i<4*1024*1024;i++) { 
        sum+=x;
+       x+=T(1.e-7);
      }
      benchmark::DoNotOptimize(sum);
    }
@@ -55,10 +59,13 @@ void loop(benchmark::State& state) {
    T sum=0;
    for (auto _ : state) {
      benchmark::DoNotOptimize(sum);
-     for (T x=T(-1);  x<T(1); x+=T(1.e-7)) {
+//     for (T x=T(-1);  x<T(1); x+=T(1.e-7)) {
+     T x=T(-1);
+     for (int i=0; i<4*1024*1024;i++) {
 //       benchmark::DoNotOptimize(x);
        // benchmark::DoNotOptimize(sum);
        sum += f(x);
+       x+=T(1.e-7);
        // benchmark::DoNotOptimize(sum);
      }
      benchmark::DoNotOptimize(sum);
