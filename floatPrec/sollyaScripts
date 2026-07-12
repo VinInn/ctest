@@ -276,6 +276,13 @@ p =  fpminimax(cos(x)-1,[|4,6|],[|23...|],[-pi/4,pi/4],floating, absolute,0-x^2/
 p =  fpminimax(sin(x*(pi/2^15)),[|3,5,7|],[|23...|],[-(2^15)/4,2^15/4],floating, absolute,0+(pi/2^15)*x);
 
 
+p=fpminimax(1/cosh(x),[|0,2,3,4,5,6,7,8,9|],[|24...|], [0,1.2], floating, relative);
+display=decimal;
+dirtyinfnorm(p*cosh(x),[0,1.2]);
+print(" return ", horner(p) , ";")
+
+
+
 
 plot [-1:1] x * (-664694912 + x*x * 131209024) -683565276*(atan((1-x)/(1+x))-atan(1));
 plot [-1:1] x * (-680392064 + x*x * (197338400 + x*x * (-54233256)))  -683565276*(atan((1-x)/(1+x))-atan(1));
