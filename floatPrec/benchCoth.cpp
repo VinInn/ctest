@@ -42,6 +42,7 @@ template<typename T>
 struct poly {
    using Float=T;
    T operator()(T x) {
+     x = std::abs(x);
      return 
      T(0.999999986449) + x*(T(2.06961523705e-6) + x*( T(-0.500073072319) + x*( T(0.00106750423055) + x*( T(0.200707822535) + x*( T(0.0295750777896) + x*( T(-0.150307883454) + x*( T(0.0821370891714) + x*T(-0.0150543655971)
       )))))));
@@ -53,6 +54,7 @@ template<typename T>
 struct pade {
    using Float=T;
    T operator()(T x) {
+     x = std::abs(x);
      T p = T(0.843551) + x*(T(-0.0488014) + x*(T(-0.0333239) + x*(T(0.00191492) + x*T(0.000527805) )));
      T q = T(1.0) + x*(T(0.479197) + x*(T(0.429426) + x*(T(0.0416364) + x*T(0.0185811)  )));
      return p/q;
