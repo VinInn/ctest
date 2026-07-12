@@ -4,9 +4,26 @@
 // ./a.out --benchmark_perf_counters=CYCLES,INSTRUCTIONS,RETIRED_FP_OPS_BY_TYPE:SCALAR_MAC,RETIRED_FP_OPS_BY_TYPE:SCALAR_ALL,RETIRED_FP_OPS_BY_TYPE:VECTOR_MAC
 
 #include <benchmark/benchmark.h>
+
+void
+add_flop_counters(benchmark::State &state, auto flop_per_iteration)
+{
+  state.counters["FLOP"] = {static_cast<double>(flop_per_iteration),
+                            benchmark::Counter::kIsIterationInvariantRate};
+  if (state.counters.contains("CYCLES"))
+    state.counters["FLOP/cycle"] = {flop_per_iteration / state.counters["CYCLES"],
+                                    benchmark::Counter::kIsIterationInvariant};
+}
+
+void
+add_IPC_counters(benchmark::State &state)
+{
+  if (state.counters.contains("CYCLES") && state.counters.contains("INSTRUCTIONS"))
+    state.counters["IPC"] = {state.counters["INSTRUCTIONS"] / state.counters["CYCLES"]};
+}
+
+
 #include<cmath>
-
-
 
 template<typename T>
 struct naive {
@@ -57,6 +74,7 @@ void end(benchmark::State& state) {
      }
      benchmark::DoNotOptimize(sum);
    }
+   add_IPC_counters(state);
    ddd+=sum;
    std::cout << ddd << std::endl;
 }
@@ -81,6 +99,7 @@ void loop(benchmark::State& state) {
      }
      benchmark::DoNotOptimize(sum);
    }
+   add_IPC_counters(state);
    ddd+=sum;
 }
 
