@@ -106,6 +106,34 @@ void loop(benchmark::State& state) {
 }
 
 
+
+
+#include "Exp16.h"
+Exp16 exp16(5.);
+
+void loop16(benchmark::State& state) {
+   float sum=0;
+   for (auto _ : state) {
+     benchmark::DoNotOptimize(sum);
+//     for (T x=T(-1);  x<T(1); x+=T(1.e-7)) {
+     uint16_t x = 0;
+     for (int i=0; i<4*1024*1024;i++) {
+//       benchmark::DoNotOptimize(x);
+       // benchmark::DoNotOptimize(sum);
+       sum += 2.f/(exp16.pexp(x)+exp16.nexp(x));
+       x+=1;
+       // benchmark::DoNotOptimize(sum);
+     }
+     benchmark::DoNotOptimize(sum);
+   }
+   add_IPC_counters(state);
+   ddd+=sum;
+}
+
+
+void e16(benchmark::State& state) { loop16(state);}
+
+
 void nf(benchmark::State& state) { loop<naive<float>>(state);}
 void nd(benchmark::State& state) { loop<naive<double>>(state);}
 
@@ -127,6 +155,7 @@ BENCHMARK(pf);
 BENCHMARK(pd);
 BENCHMARK(af);
 BENCHMARK(ad);
+BENCHMARK(e16);
 BENCHMARK(end);
 
 
