@@ -61,6 +61,41 @@ struct pade {
    }
 };
 
+#include "Horner.h"
+
+struct sech9 {
+   using Float=float;
+float operator()(float x) {
+  constexpr float c[10] = {0.00484524607845, -0.0414213996033, 0.141985913707, -0.223653720345, 0.0820334481706, 0.178636110405, 0.00629169010252, -0.500693216667, 3.04210804006e-5, 0.999999773462};
+  return horner<9>(x,c);
+}
+};
+
+struct sech8 {
+   using Float=float;
+float operator()(float x) {
+  constexpr float c[9] = {-0.00879617718167, 0.0505179227683, -0.0855020983306, -0.0394092119823, 0.24122061376, -0.0117719227185, -0.498093455092, -0.000112573426959, 1.00000105203};
+  return horner<8>(x,c);
+}
+};
+
+struct sech6 {
+   using Float=float;
+float operator() (float x) {
+  constexpr float c[7] = {0.0325071921628, -0.183832500115, 0.340654638413, -0.0501527552854, -0.490379984351, -0.000761535402113, 1.00001123574};
+  return horner<6>(x,c);
+}
+};
+
+struct sech5 {
+   using Float=float;
+float operator() (float x) {
+  constexpr float c[6] = {-0.0371366267403, 0.0924264377937, 0.143342769817, -0.558449420714, 0.00795787347873, 0.999832461682};
+  return horner<5>(x,c);
+}
+};
+
+
 
 
 float fin[1024];
@@ -173,6 +208,12 @@ void pd(benchmark::State& state) { loop<poly<double>>(state);}
 void af(benchmark::State& state) { loop<pade<float>>(state);}
 void ad(benchmark::State& state) { loop<pade<double>>(state);}
 
+
+void h5(benchmark::State& state) { loop<sech5>(state);}
+void h6(benchmark::State& state) { loop<sech6>(state);}
+void h8(benchmark::State& state) { loop<sech8>(state);}
+void h9(benchmark::State& state) { loop<sech9>(state);}
+
 void ef(benchmark::State& state) { end<float>(state);}
 void ed(benchmark::State& state) { end<double>(state);}
 
@@ -187,6 +228,10 @@ BENCHMARK(pf);
 BENCHMARK(pd);
 BENCHMARK(af);
 BENCHMARK(ad);
+BENCHMARK(h5);
+BENCHMARK(h6);
+BENCHMARK(h8);
+BENCHMARK(h9);
 BENCHMARK(e16);
 
 BENCHMARK(ef);
