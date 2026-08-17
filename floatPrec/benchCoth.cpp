@@ -62,23 +62,64 @@ struct pade {
 };
 
 
-double ddd=0;
+
+float fin[1024];
+double din[1024];
+float fout[1024]
+double dout[1024];
+
+double dummy=0;
+
+template<typename T>
+struct data{
+  static T *  in()
+  static T * out();
+
+};
+
+
+template<>
+struct data<float>{
+  static float * in{ return fin;}
+  static float * out{ return fout;}
+};
+
+
+template<>
+struct data<double>{
+  static double * in() { return din;}
+  static double *  out() { return dout;}
+};
+
 #include<iostream>
-void end(benchmark::State& state) {
-   using T = float;
-   T sum=0;
+void start(benchmark::State& state) {
     std::cout << ddd << std::endl;
    for (auto _ : state) {
-     T x=T(-1);    
-     for (int i=0; i<4*1024*1024;i++) { 
-       sum+=x;
-       x+=T(1.e-7);
+     T x=T(-1);
+     for (int i=0; i<4*1024;i++) {
+       for(j=0; j<1024; ++j) 
+         fin[i]==x;
+         din[i]==x; 
+         x=+T(1.e-3);
+       }
      }
-     benchmark::DoNotOptimize(sum);
+     benchmark::DoNotOptimize(fin);
+     benchmark::DoNotOptimize(fout);
    }
    add_IPC_counters(state);
-   ddd+=sum;
-   std::cout << ddd << std::endl;
+   std::cout << fin[100] << std::endl;
+}
+template<typename T>
+void end(benchmark::State& state) {
+    std::cout << ddd << std::endl;
+   for (auto _ : state) {
+     for (int i=0; i<4*1024;i++) {
+       for(j=0; j<1024; ++j) data<T>::out()[j]=data<T>::in()[j];
+       benchmark::DoNotOptimize(data::out<T>());
+     }
+   }
+   add_IPC_counters(state);
+   std::cout << out[100] << std::endl;
 }
 
 
@@ -87,22 +128,14 @@ void loop(benchmark::State& state) {
    using T = F::Float;
 //   using F = secosh<float>;
    F f;
-   T sum=0;
    for (auto _ : state) {
      benchmark::DoNotOptimize(sum);
-//     for (T x=T(-1);  x<T(1); x+=T(1.e-7)) {
-     T x=T(-1);
-     for (int i=0; i<4*1024*1024;i++) {
-//       benchmark::DoNotOptimize(x);
-       // benchmark::DoNotOptimize(sum);
-       sum += f(x);
-       x+=T(1.e-7);
-       // benchmark::DoNotOptimize(sum);
+     for (int i=0; i<4*1024;i++) {
+       for(j=0; j<1024; ++j) data<T>::out()[j]=f(data<T>::in()[j]);
+       benchmark::DoNotOptimize(data::out<T>());
      }
-     benchmark::DoNotOptimize(sum);
    }
    add_IPC_counters(state);
-   ddd+=sum;
 }
 
 
@@ -112,19 +145,16 @@ void loop(benchmark::State& state) {
 Exp16 exp16(5.);
 
 void loop16(benchmark::State& state) {
-   float sum=0;
    for (auto _ : state) {
      benchmark::DoNotOptimize(sum);
-//     for (T x=T(-1);  x<T(1); x+=T(1.e-7)) {
      uint16_t x = 0;
-     for (int i=0; i<4*1024*1024;i++) {
-//       benchmark::DoNotOptimize(x);
-       // benchmark::DoNotOptimize(sum);
-       sum += 2.f/(exp16.pexp(x)+exp16.nexp(x));
-       x+=1;
-       // benchmark::DoNotOptimize(sum);
+     for (int i=0; i<4*1024;i++) {
+       for(j=0; j<1024; ++j) {
+         fout[j] =  2.f/(exp16.pexp(x)+exp16.nexp(x));
+         x+=1;
+         }
+       benchmark::DoNotOptimize(fout);
      }
-     benchmark::DoNotOptimize(sum);
    }
    add_IPC_counters(state);
    ddd+=sum;
@@ -146,6 +176,11 @@ void pd(benchmark::State& state) { loop<poly<double>>(state);}
 void af(benchmark::State& state) { loop<pade<float>>(state);}
 void ad(benchmark::State& state) { loop<pade<double>>(state);}
 
+void ef(benchmark::State& state) { end<float>>(state);}
+void ed(benchmark::State& state) { end<double>>(state);}
+
+
+BENCHMARK(start);
 
 BENCHMARK(nf);
 BENCHMARK(nd);
@@ -156,7 +191,9 @@ BENCHMARK(pd);
 BENCHMARK(af);
 BENCHMARK(ad);
 BENCHMARK(e16);
-BENCHMARK(end);
+
+BENCHMARK(ef);
+BENCHMARK(ed);
 
 
 BENCHMARK_MAIN();
