@@ -2,7 +2,7 @@
 // ./a.out --benchmark_perf_counters=CYCLES,INSTRUCTIONS,RETIRED_FP_OPS_BY_TYPE:SCALAR_MAC,RETIRED_FP_OPS_BY_TYPE:SCALAR_ALL
 // c++ -Ofast benchCoth.cpp -I/data/innocent/benchmark/include /data/innocent/benchmark/build/src/libbenchmark.a -march=native -std=c++26 -pthread -lpfm -funroll-loops -funroll-all-loops
 // ./a.out --benchmark_perf_counters=CYCLES,INSTRUCTIONS,RETIRED_FP_OPS_BY_TYPE:SCALAR_MAC,RETIRED_FP_OPS_BY_TYPE:SCALAR_ALL,RETIRED_FP_OPS_BY_TYPE:VECTOR_MAC
-
+// ./a.out --benchmark_out=results.csv ; grep "cpu_time" results.csv | cut -f2 -d':' | tr '\n' ' '
 #include <benchmark/benchmark.h>
 
 void
@@ -187,7 +187,7 @@ void loop16(benchmark::State& state) {
          x+=1;
        }
        benchmark::DoNotOptimize(fout);
-     }
+       }
    }
    add_IPC_counters(state);
 }
@@ -220,18 +220,24 @@ void ed(benchmark::State& state) { end<double>(state);}
 
 BENCHMARK(start);
 
-BENCHMARK(nf);
 BENCHMARK(nd);
-BENCHMARK(sf);
+BENCHMARK(nf);
+#ifdef ALL
 BENCHMARK(sd);
-BENCHMARK(pf);
+#endif
+BENCHMARK(sf);
+#ifdef ALL
 BENCHMARK(pd);
-BENCHMARK(af);
+BENCHMARK(pf);
 BENCHMARK(ad);
-BENCHMARK(h5);
-BENCHMARK(h6);
-BENCHMARK(h8);
+BENCHMARK(af);
+#endif
 BENCHMARK(h9);
+#ifdef ALL
+BENCHMARK(h8);
+#endif
+BENCHMARK(h6);
+BENCHMARK(h5);
 BENCHMARK(e16);
 
 BENCHMARK(ef);
