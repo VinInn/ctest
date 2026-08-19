@@ -97,7 +97,7 @@ float operator() (float x) {
 
 
 
-
+uint16_t iin[1024];
 float fin[1024];
 double din[1024];
 float fout[1024];
@@ -131,8 +131,10 @@ struct data<double>{
 void start(benchmark::State& state) {
    for (auto _ : state) {
      float x=-1.;
+     uint16_t y=0;
      for (int i=0; i<4*1024;i++) {
-       for(int j=0; j<1024; ++j) { 
+       for(int j=0; j<1024; ++j) {
+         iin[j] = y++; 
          fin[j]=x;
          din[j]=x; 
          x+=float(1.e-7);
@@ -180,14 +182,11 @@ Exp16 exp16(5.);
 void loop16(benchmark::State& state) {
    for (auto _ : state) {
      benchmark::DoNotOptimize(fout);
-     uint16_t x = 0;
      for (int i=0; i<4*1024;i++) {
-       for(int j=0; j<1024; ++j) {
-         fout[j] =  2.f/(exp16.pexp(x)+exp16.nexp(x));
-         x+=1;
-       }
+       for(int j=0; j<1024; ++j)
+         fout[j] =  2.f/(exp16.pexp(iin[j])+exp16.nexp(iin[j]));
        benchmark::DoNotOptimize(fout);
-       }
+     }
    }
    add_IPC_counters(state);
 }
