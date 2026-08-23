@@ -183,7 +183,7 @@ int main(int argc, char** argv) {
   std::cout << '\n' << std::endl;
   std::cout << "gtime ";
   for (int i=0; i<nB; ++i) 
-     std::cout << '(' << tg[i] << ' ' << tg[i+nB] <<  ' ' << tg[i+nB] << ") ";
+     std::cout << '(' << tg[i] << ' ' << tg[i+nB] <<  ' ' << tg[i+nB+nB] << ") ";
   std::cout << '\n' << std::endl;
 
   cudaFree(a);
