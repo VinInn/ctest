@@ -20,9 +20,9 @@ __global__ void square(Float* array,  int64_t * tt, int64_t * tg, int n) {
 #endif
      }
      __syncthreads();
-#ifdef CLOCK     
+#ifdef CLOCK
     auto s = clock64();
-#else    
+#else
     // Record start time
     asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(start));
 #endif
