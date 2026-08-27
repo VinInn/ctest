@@ -1,0 +1,103 @@
+// /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 clockMatrix.cu -DNT=512 -DNB=4
+#include<cstdint>
+#include<cmath>
+#include<random>
+#include<cstdio>
+#include<iostream>
+#include<limits>
+
+
+template<typename F, typename T>
+__global__ void clockit(T * outV,  T const * inV, int64_t * tt, int64_t * tg, int n,  int maxIter) {
+     int maxIter = 500000;
+     __shared__  long long ostart, lstart, lend;
+     __shared__  unsigned long long  gstart, gend;
+
+     int tid = blockDim.x * blockIdx.x + threadIdx.x;
+     F f;
+     auto m1 = inV[tid];
+     T m2;
+
+     if (threadIdx.x==0) {
+      ostart = clock64();
+      gstart = std::numeric_limits<unsigned long long>::max();
+      gend=0;  lstart=std::numeric_limits<long long>::max(); lend=0;
+     }
+     __syncthreads();
+
+    if (tid<n) {
+      unsigned long long ss;
+      asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(ss));
+      atomicMin(&gstart,ss);
+      auto s = clock64();
+      atomicMin(&lstart,s);
+       for (int kk=0; kk<maxIter; ++kk) {
+          m2 = f(m1);
+       }
+       // Record end time 
+      tt[tid] = clock64() -s;
+      atomicMax(&lend,clock64());
+      asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(ss));
+      atomicMax(&gend,ss);
+    }
+    __syncthreads();
+
+    if (threadIdx.x==0) {
+      tg[blockIdx.x] = clock64() -ostart;
+      tg[blockIdx.x+gridDim.x] =  lend - lstart;
+      tg[blockIdx.x+2*gridDim.x] =  gend - gstart;
+
+    }
+
+    outV[tid]=m2;
+}
+
+#include<iostream>
+
+#ifndef NB
+#define NB 1
+#endif
+
+#ifndef NT
+#define NT 128
+#endif
+
+template<typename G, typename F, typename T>
+void doClock() {
+  constexpr int nB = NB;
+  constexpr int nT = NT;
+
+  std::cout << "nb,nt "  << nB << ' ' << nT << std::endl;
+
+  constexpr int n = nB*nT;
+  T * a;
+  T * b;
+  int64_t * tt;
+  int64_t * tg;
+
+   
+  cudaMallocManaged(&a, n*sizeof(T));
+  cudaMallocManaged(&b, n*sizeof(T));
+  cudaMallocManaged(&tt, n*sizeof(int64_t));
+  cudaMallocManaged(&tg, 3*nB*sizeof(int64_t));
+
+  G g;
+  for (int i=0; i<n; ++i) a[i] = g(i);
+
+  for (int i=0; i<n; ++i) tt[i]=0;
+  for (int i=0; i<nB; ++i) tg[i]=0;
+  clockit<F,T><<<nB,nT,0,0>>>(b, a, tt,tg,n);
+  cudaDeviceSynchronize();
+
+  for (int i=0; i<n; ++i) std::cout << tt[i] <<  ' ';
+  std::cout << '\n' << std::endl;
+  std::cout << "gtime ";
+  for (int i=0; i<nB; ++i) 
+     std::cout << '(' << tg[i] << ' ' << tg[i+nB] <<  ' ' << tg[i+nB+nB] << ") ";
+  std::cout << '\n' << std::endl;
+
+  cudaFree(a);
+  cudaFree(b);
+  cudaFree(tt);
+  cudaFree(tg);
+}
