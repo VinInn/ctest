@@ -16,7 +16,7 @@ __global__ void clockit(T * outV,  T const * inV, int64_t * tt, int64_t * tg, in
      int tid = blockDim.x * blockIdx.x + threadIdx.x;
      F f;
      auto m1 = inV[tid];
-     T m2;
+     volatile T m2;
 
      if (threadIdx.x==0) {
       ostart = clock64();
@@ -95,8 +95,11 @@ void doClock() {
   clockit<F,T><<<nB,nT,0,0>>>(b, a, tt,tg,n, maxIter);
   cudaDeviceSynchronize();
 
+
+#ifdef THTIME
   for (int i=0; i<n; ++i) std::cout << tt[i] <<  ' ';
   std::cout << '\n' << std::endl;
+#endif
   std::cout << "gtime ";
   for (int i=0; i<nB; ++i) 
      std::cout << '(' << tg[i] << ' ' << tg[i+nB] <<  ' ' << tg[i+nB+nB] << ") ";
