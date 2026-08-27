@@ -1,5 +1,15 @@
 #pragma once
 #include<cmath>
+
+#ifndef HOST_DEVICE_CONSTANT
+#ifdef __CUDA_ARCH__
+#define HOST_DEVICE_CONSTANT __device__ constexpr
+#else
+#define HOST_DEVICE_CONSTANT constexpr
+#endif
+#endif
+
+
 template<int N>
 float horner(float x, float const * const c) {
 #if  defined(__FMA__) || defined(FP_FAST_FMA)
