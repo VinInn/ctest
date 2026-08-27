@@ -1,4 +1,5 @@
 // /usr/local/cuda/bin/nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 clockMatrix.cu -DNT=512 -DNB=4
+#pragma once
 #include<cstdint>
 #include<cmath>
 #include<random>
@@ -9,7 +10,6 @@
 
 template<typename F, typename T>
 __global__ void clockit(T * outV,  T const * inV, int64_t * tt, int64_t * tg, int n,  int maxIter) {
-     int maxIter = 500000;
      __shared__  long long ostart, lstart, lend;
      __shared__  unsigned long long  gstart, gend;
 
@@ -62,10 +62,16 @@ __global__ void clockit(T * outV,  T const * inV, int64_t * tt, int64_t * tg, in
 #define NT 128
 #endif
 
+#ifndef MX
+#define MX 5000
+#endif
+
+
 template<typename G, typename F, typename T>
 void doClock() {
   constexpr int nB = NB;
   constexpr int nT = NT;
+  constexpr int maxIter = MX;
 
   std::cout << "nb,nt "  << nB << ' ' << nT << std::endl;
 
@@ -86,7 +92,7 @@ void doClock() {
 
   for (int i=0; i<n; ++i) tt[i]=0;
   for (int i=0; i<nB; ++i) tg[i]=0;
-  clockit<F,T><<<nB,nT,0,0>>>(b, a, tt,tg,n);
+  clockit<F,T><<<nB,nT,0,0>>>(b, a, tt,tg,n, maxIter);
   cudaDeviceSynchronize();
 
   for (int i=0; i<n; ++i) std::cout << tt[i] <<  ' ';
