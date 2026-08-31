@@ -91,6 +91,11 @@ struct G {
   constexpr T operator()(int i) { return T(i)*T(1.e-7);}
 };
 
+template<typename T>
+struct U {
+  constexpr T operator()(T x) { return x;}
+};
+
 /*
 #include "Exp16.h"
 Exp16 exp16(5.);
@@ -114,6 +119,8 @@ int main() {
   doClock<G<float>,poly<float>,float>("polyf");
   doClock<G<float>,sech9,float>("sech9");
   doClock<G<float>,sech5,float>("sech5");
+  doClock<G<double>,U<double>,double>("Ud");
+  doClock<G<float>,U<float>,float>("Uf");
 
    return 0;
 }

@@ -16,7 +16,7 @@ __global__ void clockit(T * outV,  T const * inV, int64_t * tt, int64_t * tg, in
      int tid = blockDim.x * blockIdx.x + threadIdx.x;
      F f;
      auto m1 = inV[tid];
-     volatile T m2;
+     /*volatile*/ T m2=0;
 
      if (threadIdx.x==0) {
       ostart = clock64();
@@ -32,11 +32,12 @@ __global__ void clockit(T * outV,  T const * inV, int64_t * tt, int64_t * tg, in
       auto s = clock64();
       atomicMin(&lstart,s);
        for (int kk=0; kk<maxIter; ++kk) {
-          m2 = f(m1);
+          m2 = f(m1+m2*T(.1e-12));
        }
        // Record end time 
-      tt[tid] = clock64() -s;
-      atomicMax(&lend,clock64());
+      auto e = clock64();
+      tt[tid] = e - s;
+      atomicMax(&lend,e);
       asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(ss));
       atomicMax(&gend,ss);
     }
