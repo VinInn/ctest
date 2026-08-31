@@ -9,9 +9,16 @@
 #endif
 #endif
 
+#ifdef __NVCC__
+#define HD_INLINE __device__ __host__ constexpr
+#else
+#define HD_INLINE inline constexpr
+#endif
+
+
 
 template<int N>
-float horner(float x, float const * const c) {
+HD_INLINE float horner(float x, float const * const c) {
 #if  defined(__FMA__) || defined(FP_FAST_FMA)
   return std::fma(x,horner<N-1>(x,c),c[N]);
 #else
@@ -21,6 +28,6 @@ float horner(float x, float const * const c) {
 
 template<>
 inline
-float horner<0>(float x, float const * const c) {
+HD_INLINE float horner<0>(float x, float const * const c) {
   return c[0];
 }

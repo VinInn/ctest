@@ -66,9 +66,9 @@ __global__ void clockit(T * outV,  T const * inV, int64_t * tt, int64_t * tg, in
 #define MX 5000
 #endif
 
-
+#include<string>
 template<typename G, typename F, typename T>
-void doClock() {
+void doClock(std::string const & fname="") {
   constexpr int nB = NB;
   constexpr int nT = NT;
   constexpr int maxIter = MX;
@@ -95,6 +95,7 @@ void doClock() {
   clockit<F,T><<<nB,nT,0,0>>>(b, a, tt,tg,n, maxIter);
   cudaDeviceSynchronize();
 
+  std::cout << fname << "(" <<a[nT-1] <<") = "<< b[nT-1] << std::endl;
 
 #ifdef THTIME
   for (int i=0; i<n; ++i) std::cout << tt[i] <<  ' ';
