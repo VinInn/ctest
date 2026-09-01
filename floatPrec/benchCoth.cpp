@@ -63,11 +63,12 @@ struct pade {
 
 #include "Horner.h"
 
+template<typename T>
 struct sech9 {
-   using Float=float;
-float operator()(float x) {
-  HOST_DEVICE_CONSTANT float c[10] = {0.00484524607845, -0.0414213996033, 0.141985913707, -0.223653720345, 0.0820334481706, 0.178636110405, 0.00629169010252, -0.500693216667, 3.04210804006e-5, 0.999999773462};
-  return horner<9>(x,c);
+   using Float=T;
+float operator()(Float x) {
+  HOST_DEVICE_CONSTANT Float c[10] = {0.00484524607845, -0.0414213996033, 0.141985913707, -0.223653720345, 0.0820334481706, 0.178636110405, 0.00629169010252, -0.500693216667, 3.04210804006e-5, 0.999999773462};
+  return horner<9,Float>(x,c);
 }
 };
 
@@ -211,7 +212,8 @@ void ad(benchmark::State& state) { loop<pade<double>>(state);}
 void h5(benchmark::State& state) { loop<sech5>(state);}
 void h6(benchmark::State& state) { loop<sech6>(state);}
 void h8(benchmark::State& state) { loop<sech8>(state);}
-void h9(benchmark::State& state) { loop<sech9>(state);}
+void h9f(benchmark::State& state) { loop<sech9<float>>(state);}
+void h9d(benchmark::State& state) { loop<sech9<double>>(state);}
 
 void ef(benchmark::State& state) { end<float>(state);}
 void ed(benchmark::State& state) { end<double>(state);}
@@ -231,7 +233,8 @@ BENCHMARK(pf);
 BENCHMARK(ad);
 BENCHMARK(af);
 #endif
-BENCHMARK(h9);
+BENCHMARK(h9d);
+BENCHMARK(h9f);
 #ifdef ALL
 BENCHMARK(h8);
 #endif
