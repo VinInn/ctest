@@ -8,17 +8,22 @@
 #include<limits>
 
 
-template<typename F, typename T>
-__global__ void clockit(T * outV,  T const * inV, int64_t * tt, int64_t * tg, int n,  int maxIter) {
+template<typename F>
+__host__ __device__ constexpr void init(F & f) {}
+
+
+template<typename F, typename T, typename U=T>
+__global__ void clockit(T * outV,  U const * inV, int64_t * tt, int64_t * tg, int n,  int maxIter) {
      __shared__  long long ostart, lstart, lend;
      __shared__  unsigned long long  gstart, gend;
 
      int tid = blockDim.x * blockIdx.x + threadIdx.x;
-     F f;
+     __shared__ F f;
      auto m1 = inV[tid];
      /*volatile*/ T m2=0;
 
      if (threadIdx.x==0) {
+      init(f);
       ostart = clock64();
       gstart = std::numeric_limits<unsigned long long>::max();
       gend=0;  lstart=std::numeric_limits<long long>::max(); lend=0;
@@ -32,7 +37,7 @@ __global__ void clockit(T * outV,  T const * inV, int64_t * tt, int64_t * tg, in
       auto s = clock64();
       atomicMin(&lstart,s);
        for (int kk=0; kk<maxIter; ++kk) {
-          m2 = f(m1+m2*T(.1e-12));
+          m2 = f(m1+U(m2*T(.1e-12)));
        }
        // Record end time 
       auto e = clock64();
@@ -68,7 +73,7 @@ __global__ void clockit(T * outV,  T const * inV, int64_t * tt, int64_t * tg, in
 #endif
 
 #include<string>
-template<typename G, typename F, typename T>
+template<typename G, typename F, typename T, typename U=T>
 void doClock(std::string const & fname="") {
   constexpr int nB = NB;
   constexpr int nT = NT;
@@ -77,13 +82,13 @@ void doClock(std::string const & fname="") {
   std::cout << "nb,nt "  << nB << ' ' << nT << std::endl;
 
   constexpr int n = nB*nT;
-  T * a;
+  U * a;
   T * b;
   int64_t * tt;
   int64_t * tg;
 
    
-  cudaMallocManaged(&a, n*sizeof(T));
+  cudaMallocManaged(&a, n*sizeof(U));
   cudaMallocManaged(&b, n*sizeof(T));
   cudaMallocManaged(&tt, n*sizeof(int64_t));
   cudaMallocManaged(&tg, 3*nB*sizeof(int64_t));
@@ -93,7 +98,7 @@ void doClock(std::string const & fname="") {
 
   for (int i=0; i<n; ++i) tt[i]=0;
   for (int i=0; i<nB; ++i) tg[i]=0;
-  clockit<F,T><<<nB,nT,0,0>>>(b, a, tt,tg,n, maxIter);
+  clockit<F,T,U><<<nB,nT,0,0>>>(b, a, tt,tg,n, maxIter);
   cudaDeviceSynchronize();
 
   std::cout << fname << "(" <<a[nT-1] <<") = "<< b[nT-1] << std::endl;
