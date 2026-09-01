@@ -17,17 +17,22 @@
 
 
 
-template<int N>
-HD_INLINE float horner(float x, float const * const c) {
-#if  defined(__FMA__) || defined(FP_FAST_FMA)
-  return std::fma(x,horner<N-1>(x,c),c[N]);
-#else
-  return x*horner<N-1>(x,c)+c[N];
-#endif
+template<typename Float, int N>
+struct Horner {
+HD_INLINE Float operator()(Float x, Float const * const c) {
+  Horner<Float,N-1> horner;
+  #if  defined(__FMA__) || defined(FP_FAST_FMA)
+    return std::fma(x,horner(x,c),c[N]);
+  #else
+    return x*horner(x,c)+c[N];
+  #endif
 }
+};
 
-template<>
-inline
-HD_INLINE float horner<0>(float x, float const * const c) {
-  return c[0];
-}
+template<typename Float>
+struct Horner<Float,0> {
+  HD_INLINE Float operator()(Float x, Float const * const c) { return c[0]; }
+};
+
+template<int N, typename Float>
+HD_INLINE Float horner(Float x, Float const * const c) { Horner<Float,N> f; return f(x,c);} 

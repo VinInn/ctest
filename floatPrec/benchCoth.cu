@@ -47,12 +47,25 @@ struct pade {
 
 
 namespace sech9_c {
-  HOST_DEVICE_CONSTANT float c[10] = {0.00484524607845, -0.0414213996033, 0.141985913707, -0.223653720345, 0.0820334481706, 0.178636110405, 0.00629169010252, -0.500693216667, 3.04210804006e-5, 0.999999773462};
+  HOST_DEVICE_CONSTANT float c[10] = {0.00484524607845, -0.0414213996033, 0.141985913707, -0.223653720345, 0.0820334481706, 0.178636110405, 
+                                      0.00629169010252, -0.500693216667, 3.04210804006e-5, 0.999999773462};
 }
 struct sech9 {
    using Float=float;
    HD_INLINE float operator()(float x) {
      return horner<9>(x,sech9_c::c);
+   }
+};
+
+
+namespace sech9_d {
+  HOST_DEVICE_CONSTANT double c[10] = {0.00484524607845, -0.0414213996033, 0.141985913707, -0.223653720345, 0.0820334481706, 0.178636110405,
+                                      0.00629169010252, -0.500693216667, 3.04210804006e-5, 0.999999773462};
+}
+struct sech9d {
+   using Float=double;
+   HD_INLINE Float operator()(Float x) {
+     return horner<9>(x,sech9_d::c);
    }
 };
 
@@ -125,6 +138,7 @@ int main() {
   doClock<G<double>,poly<double>,double>("polyd");
   doClock<G<float>,poly<float>,float>("polyf");
 
+  doClock<G<double>,sech9d,double>("sech9d");
   doClock<G<float>,sech9,float>("sech9");
   doClock<G<float>,sech5,float>("sech5");
 
