@@ -10,9 +10,9 @@
 #endif
 
 #ifdef __NVCC__
-#define HD_INLINE __device__ __host__ constexpr
+#define HD_INLINE __device__ __host__ inline
 #else
-#define HD_INLINE inline constexpr
+#define HD_INLINE inline
 #endif
 
 
