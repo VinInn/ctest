@@ -7,7 +7,7 @@
 #include <limits>
 #include <cstdint>
 
-struct Exp16 {
+struct Exp16_4 {
 
   struct HB {
     uint8_t b0:4;
@@ -20,10 +20,10 @@ struct Exp16 {
     HB i4;
   };
 
-#ifdef __CUDA__ARCH__
-  HD_INLINE Exp16() {}
-#endif 
-  HD_INLINE explicit Exp16(double emax) {
+//#ifdef __CUDA__ARCH__
+  HD_INLINE Exp16_4() {}
+//#endif 
+  HD_INLINE explicit Exp16_4(double emax) {
     double c = (emax/std::numeric_limits<uint16_t>::max());
     double ce[4] = {std::exp(c),std::exp(ldexp(c,4)),std::exp(ldexp(c,8)),std::exp(ldexp(c,12))};
     for (int i=0; i<16; ++i) {

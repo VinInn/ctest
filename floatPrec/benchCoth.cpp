@@ -178,9 +178,10 @@ void loop(benchmark::State& state) {
 
 
 #include "Exp16.h"
-Exp16 exp16(5.);
 
+template<typename EXP>
 void loop16(benchmark::State& state) {
+   EXP exp16(5.);
    for (auto _ : state) {
      benchmark::DoNotOptimize(fout);
      for (int i=0; i<4*1024;i++) {
@@ -193,7 +194,8 @@ void loop16(benchmark::State& state) {
 }
 
 
-void e16(benchmark::State& state) { loop16(state);}
+void e16_2(benchmark::State& state) { loop16<Exp16_2>(state);}
+void e16_4(benchmark::State& state) { loop16<Exp16_4>(state);}
 
 
 void nf(benchmark::State& state) { loop<naive<float>>(state);}
@@ -240,7 +242,9 @@ BENCHMARK(h8);
 #endif
 BENCHMARK(h6);
 BENCHMARK(h5);
-BENCHMARK(e16);
+
+BENCHMARK(e16_2);
+BENCHMARK(e16_4);
 
 BENCHMARK(ef);
 BENCHMARK(ed);

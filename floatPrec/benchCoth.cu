@@ -112,16 +112,19 @@ struct U {
 
 #include "Exp16.h"
 
-
+template<typename EXP>
 struct sechI {
   HD_INLINE sechI(){}
-  HD_INLINE void init(double r=5.) { exp16 = Exp16(r); }
-  Exp16 exp16;
+  HD_INLINE void init(double r=5.) { exp16 = EXP(r); }
+  EXP exp16;
   HD_INLINE float operator()(int x){ return 2.f/(exp16.pexp(x)+exp16.nexp(x)); }
 };
 
 template<>
-HD_INLINE void init<sechI>(sechI & f) { f.init();}
+HD_INLINE void init<sechI<Exp16_2>>(sechI<Exp16_2> & f) { f.init();}
+template<>
+HD_INLINE void init<sechI<Exp16_4>>(sechI<Exp16_4> & f) { f.init();}
+
 
 struct GI {
   HD_INLINE float operator()(int i) { return 16*i;}
@@ -142,7 +145,8 @@ int main() {
   doClock<G<float>,sech9,float>("sech9");
   doClock<G<float>,sech5,float>("sech5");
 
-  doClock<GI,sechI,float,int>("int LUT");
+  doClock<GI,sechI<Exp16_2>,float,int>("int 2LUT");
+  doClock<GI,sechI<Exp16_4>,float,int>("int 4LUT");
 
   doClock<G<double>,U<double>,double>("Ud");
   doClock<G<float>,U<float>,float>("Uf");
