@@ -16,7 +16,11 @@ int main() {
 
 {
   Exp16::I16 u; u.i16 = 1024+19;
+#ifdef EXP16_4
   std::cout << (uint16_t)(u.i4.b0) << ',' << (uint16_t)(u.i4.b1) << ',' << (uint16_t)(u.i4.b2) << ',' << (uint16_t)(u.i4.b3) << std::endl;
+#else
+  std::cout << (uint16_t)(u.i8.b0) << ',' << (uint16_t)(u.i8.b1) << std::endl;;
+#endif
 }
 
 {
@@ -24,7 +28,11 @@ int main() {
   std::cout << eta << ' ' << eta*(5./std::numeric_limits<uint16_t>::max()) << std::endl;
 {
   Exp16::I16 u; u.i16 = std::abs(eta);
+#ifdef EXP16_4
   std::cout << (uint16_t)(u.i4.b0) << ',' << (uint16_t)(u.i4.b1) << ',' << (uint16_t)(u.i4.b2) << ',' << (uint16_t)(u.i4.b3) << std::endl;
+#else
+  std::cout << (uint16_t)(u.i8.b0) << ',' << (uint16_t)(u.i8.b1) << std::endl;;
+#endif
   std::cout << "exp(3.5) " << std::exp(3.5) << ' ' <<   exp16.pexp(eta) << std::endl;
   std::cout << "exp(-3.5) " << std::exp(-3.5) << ' ' <<   exp16.nexp(eta) << std::endl;
   std::cout << "sch(3.5) " << std::sinh(3.5) << ' ' << std::cosh(3.5) << std::endl;
@@ -36,7 +44,11 @@ int main() {
   std::cout << eta << ' ' << eta*(5./std::numeric_limits<uint16_t>::max()) << std::endl;
 {
   Exp16::I16 u; u.i16 = eta;
+#ifdef EXP16_4
   std::cout << (uint16_t)(u.i4.b0) << ',' << (uint16_t)(u.i4.b1) << ',' << (uint16_t)(u.i4.b2) << ',' << (uint16_t)(u.i4.b3) << std::endl;
+#else
+  std::cout << (uint16_t)(u.i8.b0) << ',' << (uint16_t)(u.i8.b1) << std::endl;;
+#endif
 }
 }
 
