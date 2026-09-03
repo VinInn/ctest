@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Horner.h"
 #include <cmath>
-#include <iostream>
 #include <limits>
 #include <cstdint>
 
@@ -13,6 +13,7 @@ struct LUT16 {
     for (int i=0; i<65536; i++) {
       lut[i] = f(c*i);
     }
+  }
 
   float operator[](int i) const { return lut[i];} 
 

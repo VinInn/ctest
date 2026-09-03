@@ -135,7 +135,7 @@ void start(benchmark::State& state) {
      uint16_t y=0;
      for (int i=0; i<4*1024;i++) {
        for(int j=0; j<1024; ++j) {
-         iin[j] = y++; 
+         iin[j] = y; y+=14; 
          fin[j]=x;
          din[j]=x; 
          x+=float(1.e-7);
@@ -193,9 +193,43 @@ void loop16(benchmark::State& state) {
    add_IPC_counters(state);
 }
 
+#include "LUT16.h"
+void lut16(benchmark::State& state) {
+   LUT16 lut(secosh<double>(),5.);
+   for (auto _ : state) {
+     benchmark::DoNotOptimize(fout);
+     for (int i=0; i<4*1024;i++) {
+       for(int j=0; j<1024; ++j)
+         fout[j] =  lut[iin[j]];
+       benchmark::DoNotOptimize(fout);
+     }
+   }
+   add_IPC_counters(state);
+}
+
+
+double nexp(double x) { return exp(-x);}
+
+void lut16_4(benchmark::State& state) {
+   LUT16 lut1(secosh<double>(),5.);
+   LUT16 lut2(nexp,5.);
+   LUT16 lut3(::exp,5.);
+   LUT16 lut4(::log,5.);
+   for (auto _ : state) {
+     benchmark::DoNotOptimize(fout);
+     for (int i=0; i<4*1024;i++) {
+       for(int j=0; j<1024; ++j)
+         fout[j] =  lut1[iin[j]]+lut2[iin[j]]+lut3[iin[j]]+lut4[iin[j]];
+       benchmark::DoNotOptimize(fout);
+     }
+   }
+   add_IPC_counters(state);
+}
 
 void e16_2(benchmark::State& state) { loop16<Exp16_2>(state);}
 void e16_4(benchmark::State& state) { loop16<Exp16_4>(state);}
+void l16(benchmark::State& state) { lut16(state);}
+void l16_4(benchmark::State& state) { lut16_4(state);}
 
 
 void nf(benchmark::State& state) { loop<naive<float>>(state);}
@@ -245,6 +279,8 @@ BENCHMARK(h5);
 
 BENCHMARK(e16_2);
 BENCHMARK(e16_4);
+BENCHMARK(l16);
+BENCHMARK(l16_4);
 
 BENCHMARK(ef);
 BENCHMARK(ed);
