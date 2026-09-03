@@ -15,7 +15,8 @@ struct LUT16 {
     }
   }
 
-  float operator[](int i) const { return lut[i];} 
+  HD_INLINE float operator[](int i) const { return lut[i];} 
+  HD_INLINE float operator()(int i) const { return lut[i];}
 
   float lut[65536];
 };

@@ -125,9 +125,16 @@ HD_INLINE void init<sechI<Exp16_2>>(sechI<Exp16_2> & f) { f.init();}
 template<>
 HD_INLINE void init<sechI<Exp16_4>>(sechI<Exp16_4> & f) { f.init();}
 
+#include "LUT16.h"
+struct sechL {
+  HD_INLINE sechL(){}
+  HD_INLINE void init(double r=5.) { lut = LUT16(secosh<double>(),5.); }
+  LUT16 lut;
+  HD_INLINE float operator()(int x){ return lut[x]; }
+};
 
 struct GI {
-  HD_INLINE float operator()(int i) { return 16*i;}
+  HD_INLINE float operator()(int i) { return 14*i;}
 };
 
 
@@ -147,6 +154,8 @@ int main() {
 
   doClock<GI,sechI<Exp16_2>,float,int>("int 2LUT");
   doClock<GI,sechI<Exp16_4>,float,int>("int 4LUT");
+  doClock<GI,sechL,float,int>("int LUT");
+
 
   doClock<G<double>,U<double>,double>("Ud");
   doClock<G<float>,U<float>,float>("Uf");
