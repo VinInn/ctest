@@ -131,29 +131,41 @@ HD_INLINE void init<sechI<Exp16_4>>(sechI<Exp16_4> & f) { f.init();}
 
 __device__ LUT16 lutP;
 
+__device__ LUT16 lut1P;
+__device__ LUT16 lut2P;
+__device__ LUT16 lut3P;
+__device__ LUT16 lut4P;
+
+double pexp(double x) { return exp(x);}
+double nexp(double x) { return exp(-x);}
+double logs2(double x) { return log(2*x+1);}
 
 struct sechL {
   HD_INLINE sechL(){}
-  HD_INLINE void init(double r=5.) { 
-/*
-#ifdef __CUDA__ARCH__
-    //lut = lutP; // new(lutP) LUT16(secosh<double>(),5.); 
-#else
-    lut = new  LUT16(secosh<double>(),5.);
-#endif
-*/
+  HD_INLINE void init() { 
   }
-  // LUT16 * lut;
   HD_INLINE float operator()(int x){ return lutP[x]; }
+};
+
+struct sech4L {
+  HD_INLINE sech4L(){}
+  HD_INLINE void init() {
+  }
+  HD_INLINE float operator()(int x){ return lut1P[x]+lut2P[x]+lut3P[x]+lut4P[x]; }
 };
 
 struct GI {
   GI()  {
-//    LUT16 * p;
-//    cudaMalloc(&p,sizeof(LUT16));
     LUT16 lut(secosh<double>(),5.);
-//     cudaMemcpy(p,&lut,sizeof(LUT16),cudaMemcpyDefault);
     cudaMemcpyToSymbol(lutP,&lut,sizeof(LUT16));
+    LUT16 lut1(secosh<double>(),5.);
+    cudaMemcpyToSymbol(lut1P,&lut1,sizeof(LUT16));
+    LUT16 lut2(nexp,5.);
+    cudaMemcpyToSymbol(lut2P,&lut2,sizeof(LUT16));
+    LUT16 lut3(pexp,5.);
+    cudaMemcpyToSymbol(lut3P,&lut3,sizeof(LUT16));
+    LUT16 lut4(logs2,5.);
+    cudaMemcpyToSymbol(lut4P,&lut4,sizeof(LUT16));
   }
   HD_INLINE float operator()(int i) { return 14*i;}
 };
@@ -173,10 +185,10 @@ int main() {
   doClock<G<float>,sech9,float>("sech9");
   doClock<G<float>,sech5,float>("sech5");
 
-  doClock<GI,sechI<Exp16_2>,float,int>("int 2LUT");
-  doClock<GI,sechI<Exp16_4>,float,int>("int 4LUT");
+  doClock<GI,sechI<Exp16_2>,float,int>("int LUT2");
+  doClock<GI,sechI<Exp16_4>,float,int>("int LUT4");
   doClock<GI,sechL,float,int>("int LUT");
-
+  doClock<GI,sech4L,float,int>("int 4LUT");
 
   doClock<G<double>,U<double>,double>("Ud");
   doClock<G<float>,U<float>,float>("Uf");
