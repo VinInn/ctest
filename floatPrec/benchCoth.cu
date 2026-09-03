@@ -125,15 +125,36 @@ HD_INLINE void init<sechI<Exp16_2>>(sechI<Exp16_2> & f) { f.init();}
 template<>
 HD_INLINE void init<sechI<Exp16_4>>(sechI<Exp16_4> & f) { f.init();}
 
+
+
 #include "LUT16.h"
+
+__device__ LUT16 lutP;
+
+
 struct sechL {
   HD_INLINE sechL(){}
-  HD_INLINE void init(double r=5.) { lut = LUT16(secosh<double>(),5.); }
-  LUT16 lut;
-  HD_INLINE float operator()(int x){ return lut[x]; }
+  HD_INLINE void init(double r=5.) { 
+/*
+#ifdef __CUDA__ARCH__
+    //lut = lutP; // new(lutP) LUT16(secosh<double>(),5.); 
+#else
+    lut = new  LUT16(secosh<double>(),5.);
+#endif
+*/
+  }
+  // LUT16 * lut;
+  HD_INLINE float operator()(int x){ return lutP[x]; }
 };
 
 struct GI {
+  GI()  {
+//    LUT16 * p;
+//    cudaMalloc(&p,sizeof(LUT16));
+    LUT16 lut(secosh<double>(),5.);
+//     cudaMemcpy(p,&lut,sizeof(LUT16),cudaMemcpyDefault);
+    cudaMemcpyToSymbol(lutP,&lut,sizeof(LUT16));
+  }
   HD_INLINE float operator()(int i) { return 14*i;}
 };
 
