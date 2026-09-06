@@ -5,18 +5,21 @@
 #include <limits>
 #include <cstdint>
 
-struct LUT16 {
+template<int N>
+struct LUT {
+  static constexpr int NBins = N
   HD_INLINE LUT16() {}
   template<typename F>
-  HD_INLINE LUT16(F f,double emax) {
-    double c = (emax/std::numeric_limits<uint16_t>::max());
-    for (int i=0; i<65536; i++) {
+  HD_INLINE LUT(F f,double emax) {
+    double c = (emax/NBINS);
+    for (int i=0; i<NBins; i++) {
       lut[i] = f(c*i);
     }
   }
 
   HD_INLINE float operator[](int i) const { return lut[i];} 
   HD_INLINE float operator()(int i) const { return lut[i];}
-  float lut[65536];
+  float lut[NBins];
 };
 
+using LUT16 = LUT<65536>;

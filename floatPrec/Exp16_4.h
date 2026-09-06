@@ -24,7 +24,7 @@ struct Exp16_4 {
   HD_INLINE Exp16_4() {}
 //#endif 
   HD_INLINE explicit Exp16_4(double emax) {
-    double c = (emax/std::numeric_limits<uint16_t>::max());
+    double c = ldexp(emax,-16);
     double ce[4] = {std::exp(c),std::exp(ldexp(c,4)),std::exp(ldexp(c,8)),std::exp(ldexp(c,12))};
     for (int i=0; i<16; ++i) {
       for (int j=0; j<4; ++j) {

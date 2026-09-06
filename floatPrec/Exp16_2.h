@@ -22,7 +22,7 @@ struct Exp16_2 {
   HD_INLINE Exp16_2() {}
 // #endif 
   HD_INLINE explicit Exp16_2(double emax) {
-    double c = (emax/std::numeric_limits<uint16_t>::max());
+    double c = ldexp(emax,-16);
     double ce[2] = {std::exp(c),std::exp(ldexp(c,8))};
     for (int i=0; i<256; ++i) {
       for (int j=0; j<2; ++j) {

@@ -5,11 +5,12 @@
 
 int main() {
 
-  std::cout << std::numeric_limits<uint16_t>::max() << std::endl;
-  std::cout << 5./std::numeric_limits<uint16_t>::max() << std::endl;
-  std::cout << std::numeric_limits<uint16_t>::max()/5. << std::endl;
+  std::cout << ldexp(1,16) << std::endl;
+  std::cout << ldexp(5.,-16) << std::endl;
+  std::cout << ldexp(1./5.,16) << std::endl;
+  std::cout << std::numeric_limits<uint16_t>::max()*ldexp(5.,-16) << std::endl;
 
-  double c = (5./std::numeric_limits<uint16_t>::max());
+  double c = ldexp(5.,-16);
   std::cout << "exp " << std::exp(c) << ' ' << std::exp(ldexp(c,4)) << ' ' << std::exp(ldexp(c,8)) << ' ' << std::exp(ldexp(c,12))  << std::endl;
   Exp16  exp16(5.);
 
@@ -24,8 +25,8 @@ int main() {
 }
 
 {
-  int16_t eta = std::round(3.5*(std::numeric_limits<uint16_t>::max()/5.));
-  std::cout << eta << ' ' << eta*(5./std::numeric_limits<uint16_t>::max()) << std::endl;
+  int16_t eta = std::round(3.5*ldexp(1./5.,16));
+  std::cout << eta << ' ' << eta*ldexp(5.,-16) << std::endl;
 {
   Exp16::I16 u; u.i16 = std::abs(eta);
 #ifdef EXP16_4
@@ -40,8 +41,8 @@ int main() {
 }
 
 {
-  uint16_t eta = std::round(4.9*(std::numeric_limits<uint16_t>::max()/5.));
-  std::cout << eta << ' ' << eta*(5./std::numeric_limits<uint16_t>::max()) << std::endl;
+  uint16_t eta = std::round(4.9*ldexp(1./5.,16));
+  std::cout << eta << ' ' << eta*ldexp(5.,-16) << std::endl;
 {
   Exp16::I16 u; u.i16 = eta;
 #ifdef EXP16_4
