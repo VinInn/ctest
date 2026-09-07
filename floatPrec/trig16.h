@@ -33,7 +33,8 @@ namespace trig16 {
     assert(r>=0);
     assert(r<LUT<14>::NBins);
     float a = sin14(r);  // sin
-    float b = sin14(LUT<14>::NBins-1 - r);  // cos
+    // float b = r==0 ? 1.f : sin14(LUT<14>::NBins - r);  // cos
+    float b = sin14(LUT<14>::NBins - r);  // cos
     // std::cout << a << ' ' << b << std::endl;
     a = (sc==0) ? a : -a;
     b = (ss==0) ? b : -b;

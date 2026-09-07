@@ -13,14 +13,14 @@ struct LUT {
   template<typename F>
   HD_INLINE LUT(F f,double emax) {
     double c = (emax/(NBins));
-    for (int i=0; i<NBins; i++) {
+    for (int i=0; i<NBins+1; i++) {
       lut[i] = f(c*i);
     }
   }
 
   HD_INLINE float operator[](int i) const { return lut[i];} 
   HD_INLINE float operator()(int i) const { return lut[i];}
-  float lut[NBins];
+  float lut[NBins+1];
 };
 
 using LUT16 = LUT<16>;
