@@ -7,11 +7,12 @@
 
 template<int N>
 struct LUT {
-  static constexpr int NBins = N
-  HD_INLINE LUT16() {}
+  // static constexpr int NBits = N;
+  static constexpr int NBins = 1<<N;
+  HD_INLINE LUT() {}
   template<typename F>
   HD_INLINE LUT(F f,double emax) {
-    double c = (emax/NBINS);
+    double c = (emax/(NBins));
     for (int i=0; i<NBins; i++) {
       lut[i] = f(c*i);
     }
@@ -22,4 +23,4 @@ struct LUT {
   float lut[NBins];
 };
 
-using LUT16 = LUT<65536>;
+using LUT16 = LUT<16>;
