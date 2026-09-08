@@ -7,11 +7,14 @@
 
 int main() {
 
-   std::cout << trig16::pi4d << ' ' << trig16::mask << ' ' << trig16::cto16 << std::endl;
+   using trig16::Sin14;
+   std::cout << trig16::pi4 << ' ' << trig16::mask << ' ' << Sin14::coeff << ' ' << Sin14::coefi << std::endl;
+   std::cout << Sin14::tof(Sin14::NBins) << ' ' << Sin14::toi(trig16::pi4) << std::endl;
+   std::cout << Sin14::tof(-Sin14::NBins) << ' ' << Sin14::toi(-trig16::pi4) << std::endl;
 
-   LUT<14> sin14(std::sin<double>,trig16::pi2d);
-   std::cout << sin14(0) << ' ' << sin14(LUT<14>::NBins-1) << std::endl;
-   std::cout << sin14(1) << ' ' << sin14(LUT<14>::NBins-2) << std::endl;
+   trig16::Sin14 sin14(std::sin<float>);
+   std::cout << sin14(0) << ' ' << sin14(trig16::Sin14::NBins-1) << std::endl;
+   std::cout << sin14(1) << ' ' << sin14(trig16::Sin14::NBins-2) << std::endl;
 
    double a[4] = {0.5,2.,-2.,-0.5};
    for ( auto x : a ) {
@@ -22,7 +25,7 @@ int main() {
 
    float emaxS = 0; int lS=0;
    float emaxC = 0; int lC=0;
-   for (int i = -LUT<15>::NBins; i<LUT<15>::NBins; ++i) {
+   for (int i = -trig16::Sin15::NBins; i<trig16::Sin15::NBins; ++i) {
      float x = trig16::tof(i);
      auto [s,c] = trig16::sincos(i);
      auto dS = std::abs(s-std::sin(x));
