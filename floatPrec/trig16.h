@@ -14,6 +14,7 @@ namespace trig16 {
   HOST_DEVICE_CONSTANT float pi4 = 0.25*M_PI;
   HOST_DEVICE_CONSTANT float pi2 = 0.5*M_PI;
   HOST_DEVICE_CONSTANT float pi32 = 0.03125*M_PI;
+  HOST_DEVICE_CONSTANT float pi64 = 0.015625*M_PI;
   HOST_DEVICE_CONSTANT uint16_t mask = 3<<14;
   
   using Sin14 = LUT<14,std::bit_cast<uint32_t>(pi2)>;
@@ -23,10 +24,10 @@ namespace trig16 {
 
   Sin14  sin14(std::sin<float>);
 
-  using  Lut10 = LUT<10,std::bit_cast<uint32_t>(pi32)>;
-  Lut10  sin10(std::sin<float>);
-  Lut10  cos10(std::cos<float>);
-  constexpr float tick[5] = {0, 2*pi32, 4*pi32, 6*pi32, 8*pi32};
+  using  Lut9 = LUT<9,std::bit_cast<uint32_t>(pi64)>;
+  Lut9  sin9(std::sin<float>);
+  Lut9  cos9(std::cos<float>);
+  constexpr float tick[9] = {0, pi32, 2*pi32, 3*pi32, 4*pi32, 5*pi32, 6*pi32, 7*pi32, 8*pi32};
 
 
   HD_INLINE std::tuple<float,float> sincos(int16_t x) {
