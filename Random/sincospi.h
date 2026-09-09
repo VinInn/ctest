@@ -4,16 +4,17 @@
 #include <cstring>
 #include <cmath>
 #include <tuple>
+#include <bit>
 
 // credit    https://marc-b-reynolds.github.io/math/2020/03/11/SinCosPi.html
 
 
-inline uint32_t f32_to_bits(float x)   { uint32_t u; memcpy(&u,&x,4); return u; }
-inline float f32_from_bits(uint32_t x) { float u;    memcpy(&u,&x,4); return u; }
+constexpr uint32_t f32_to_bits(float x)   { return std::bit_cast<uint32_t>(x);}
+constexpr float f32_from_bits(uint32_t x) { return std::bit_cast<float>(x);; }
 
-inline float f32_mulsign(float v, uint32_t s) { return f32_from_bits(f32_to_bits(v)^s); }
+constexpr float f32_mulsign(float v, uint32_t s) { return f32_from_bits(f32_to_bits(v)^s); }
 
-inline 
+constexpr 
 std::tuple<float,float> f32_sincospi(float a)
 {
 
