@@ -27,10 +27,10 @@ namespace trig16 {
   using  Lut9 = LUT<9,std::bit_cast<uint32_t>(pi64)>;
   Lut9  sin9(std::sin<float>);
   Lut9  cos9(std::cos<float>);
-  HOST_DEVICE_CONSTANT float sinT[16] = {0x0p+0, 0x1.91f66p-5, 0x1.917a6cp-4, 0x1.2c8106p-3, 0x1.8f8b84p-3, 0x1.f19f9ap-3, 0x1.294062p-2, 0x1.58f9a8p-2, 0x1.87de2cp-2, 0x1.b5d1p-2, 0x1.e2b5d4p-2, 0x1.07387ap-1, 0x1.1c73b4p-1, 0x1.30ff8p-1, 0x1.44cf34p-1, 0x1.57d694p-1};
-  HOST_DEVICE_CONSTANT float cosT[16] = {0x1p+0, 0x1.ff621ep-1, 0x1.fd88dap-1, 0x1.fa7558p-1, 0x1.f6297cp-1, 0x1.f0a7fp-1, 0x1.e9f416p-1, 0x1.e2121p-1, 0x1.d906bcp-1, 0x1.ced7bp-1, 0x1.c38b2ep-1, 0x1.b72834p-1, 0x1.a9b662p-1, 0x1.9b3e04p-1, 0x1.8bc806p-1, 0x1.7b5df2p-1};
+  HOST_DEVICE_CONSTANT float sinT[17] = {0x0p+0, 0x1.91f66p-5, 0x1.917a6cp-4, 0x1.2c8106p-3, 0x1.8f8b84p-3, 0x1.f19f9ap-3, 0x1.294062p-2, 0x1.58f9a8p-2, 0x1.87de2cp-2, 0x1.b5d1p-2, 0x1.e2b5d4p-2, 0x1.07387ap-1, 0x1.1c73b4p-1, 0x1.30ff8p-1, 0x1.44cf34p-1, 0x1.57d694p-1, 0x1.6a09e6p-1};
+  HOST_DEVICE_CONSTANT float cosT[17] = {0x1p+0, 0x1.ff621ep-1, 0x1.fd88dap-1, 0x1.fa7558p-1, 0x1.f6297cp-1, 0x1.f0a7fp-1, 0x1.e9f416p-1, 0x1.e2121p-1, 0x1.d906bcp-1, 0x1.ced7bp-1, 0x1.c38b2ep-1, 0x1.b72834p-1, 0x1.a9b662p-1, 0x1.9b3e04p-1, 0x1.8bc806p-1, 0x1.7b5df2p-1, 0x1.6a09e6p-1};
 
-  HD_INLINE std::tuple<float,float> sincos(int16_t x) {
+  HD_INLINE std::tuple<float,float> sincos14(int16_t x) {
     uint16_t q = x&mask;  // quadrant
     uint16_t ss = q>>15; // final sign sin; sign cos before switch
     uint16_t c = (q>>14)&1;  // cos or sin
@@ -50,6 +50,35 @@ namespace trig16 {
   }
 
 
+  HD_INLINE std::tuple<float,float> sincos9(int16_t x) {
+     uint16_t q = (x&mask);  // quadrant
+     int16_t y = x - 16384; // rotate by -pi/2
+     int16_t z = x - q;  // move to first quadrant
+     assert(z>=0);
+     assert(z<16384);
+     uint16_t  sw = ((x-8192)>>14)&1;
+     z  = (z > 8192) ? 16384 -z : z;
+
+     // valid in first octant...
+     constexpr uint16_t mask9 = 511;
+     constexpr uint16_t mask13 = 15<<9;
+     uint16_t r = z&mask9;
+     assert(r<512);
+     uint16_t bin = (z&mask13)>>9;
+     assert(bin<16); 
+     auto s = trig16::sinT[bin]*trig16::cos9(r) + trig16::cosT[bin]*trig16::sin9(r);
+     auto c = trig16::cosT[bin]*trig16::cos9(r) - trig16::sinT[bin]*trig16::sin9(r);
+
+     // back to full range
+     auto s1 = s;
+     s = sw ? s : c;
+     c = sw ? c : s1;
+     s =  (x<0) ? -s : s;  // sin sign
+     c =  (y<0) ? c : -c;  // cos sign
+     return {s,c};
+  }
+
+
 }
 
 #ifdef GENTABLE
@@ -59,11 +88,11 @@ int main() {
 
    std::string trail = "  HOST_DEVICE_CONSTANT float ";
 
-   std::cout << std::hexfloat << trail << "sinT[16] = {" << 0.0f;
-   for (int i=1; i<16; ++i) std::cout << std::hexfloat << ", " << std::sin(float(i)*trig16::pi64);
+   std::cout << std::hexfloat << trail << "sinT[17] = {" << 0.0f;
+   for (int i=1; i<17; ++i) std::cout << std::hexfloat << ", " << std::sin(float(i)*trig16::pi64);
    std::cout <<"};" << std::endl;
-   std::cout << trail << "cosT[16] = {" << 1.0f;
-   for (int i=1; i<16; ++i) std::cout << std::hexfloat << ", " << std::cos(float(i)*trig16::pi64);
+   std::cout << trail << "cosT[17] = {" << 1.0f;
+   for (int i=1; i<17; ++i) std::cout << std::hexfloat << ", " << std::cos(float(i)*trig16::pi64);
    std::cout <<"};" << std::endl; 
    return 0;
 }
