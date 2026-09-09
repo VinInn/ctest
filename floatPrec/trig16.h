@@ -64,8 +64,8 @@ namespace trig16 {
      constexpr uint16_t mask13 = 15<<9;
      uint16_t r = z&mask9;
      assert(r<512);
-     uint16_t bin = (z&mask13)>>9;
-     assert(bin<16); 
+     uint16_t bin = (z == 8192) ? 16 : (z&mask13)>>9;
+     assert(bin<17); 
      auto s = trig16::sinT[bin]*trig16::cos9(r) + trig16::cosT[bin]*trig16::sin9(r);
      auto c = trig16::cosT[bin]*trig16::cos9(r) - trig16::sinT[bin]*trig16::sin9(r);
 
