@@ -63,7 +63,7 @@ int main() {
    for (int i = -trig16::Sin15::NBins; i<trig16::Sin15::NBins; ++i) {
      int16_t j = i;
      uint16_t r = j&mask9;
-     assert(r<1024);
+     assert(r<512);
      uint16_t bin = (j&mask13)>>9;
      int u = bin&1; // subtract...
      assert(bin<16);
