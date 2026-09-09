@@ -65,24 +65,11 @@ int main() {
      uint16_t r = j&mask9;
      assert(r<512);
      uint16_t bin = (j&mask13)>>9;
-     int u = bin&1; // subtract...
      assert(bin<16);
-     int tick = (bin+1)/2;
-     auto a = trig16::tick[tick];
-     float x = a + ( (u==1) ? -trig16::tof(512-r) : trig16::tof(r));
-     assert(x>=0);
-     assert(x<=0.25f*trig16::pi);
-     if (std::abs(x -trig16::tof(j&8191)) > 1.e-6f) {
-        std::cout << j << ' ' << (j&8191) << ' ' << r << ' ' << trig16::tof(r) << ' ' << bin << ' ' << x << ' ' << trig16::tof(j&8191) << std::endl;
-     }
-     float s,c;
-     uint16_t rr = (u==1) ? 512-r : r;
-     s = (rr==512) ? trig16::sinPI64 : trig16::sin9(rr);
-     c = (rr==512) ? trig16::cosPI64 : trig16::cos9(rr);
-     auto s2 = trig16::cosT[tick]*s;
-     auto c2 = trig16::sinT[tick]*s;
-     s = trig16::sinT[tick]*c +  ( (u==1) ? -s2 : s2);
-     c = trig16::cosT[tick]*c +  ( (u==1) ? c2 : -c2);
+     auto s = trig16::sinT[bin]*trig16::cos9(r) + trig16::cosT[bin]*trig16::sin9(r);
+     auto c = trig16::cosT[bin]*trig16::cos9(r) - trig16::sinT[bin]*trig16::sin9(r);
+
+     float x = bin*trig16::pi64  + trig16::tof(r);
      if (std::abs(s-std::sin(x))> 5.e-7f || std::abs(c-std::cos(x))> 5.e-7f) {
        std::cout << j << ' ' << (j&8191) << ' ' << r << ' ' << s << ' ' << std::sin(x) << ' ' << c << ' ' << std::cos(x) << std::endl;
     }
