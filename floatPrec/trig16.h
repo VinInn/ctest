@@ -16,7 +16,7 @@ namespace trig16 {
   HOST_DEVICE_CONSTANT float pi32 = 0.03125*M_PI;
   HOST_DEVICE_CONSTANT float pi64 = 0.015625*M_PI;
   HOST_DEVICE_CONSTANT uint16_t mask = 3<<14;
-  
+
   using Sin14 = LUT<14,std::bit_cast<uint32_t>(pi2)>;
   using Sin15 = LUT<15,std::bit_cast<uint32_t>(pi)>;
   HD_INLINE int16_t to16(float x) { return Sin15::toi(x);}
@@ -30,6 +30,13 @@ namespace trig16 {
   HOST_DEVICE_CONSTANT float sinT[17] = {0x0p+0, 0x1.91f66p-5, 0x1.917a6cp-4, 0x1.2c8106p-3, 0x1.8f8b84p-3, 0x1.f19f9ap-3, 0x1.294062p-2, 0x1.58f9a8p-2, 0x1.87de2cp-2, 0x1.b5d1p-2, 0x1.e2b5d4p-2, 0x1.07387ap-1, 0x1.1c73b4p-1, 0x1.30ff8p-1, 0x1.44cf34p-1, 0x1.57d694p-1, 0x1.6a09e6p-1};
   HOST_DEVICE_CONSTANT float cosT[17] = {0x1p+0, 0x1.ff621ep-1, 0x1.fd88dap-1, 0x1.fa7558p-1, 0x1.f6297cp-1, 0x1.f0a7fp-1, 0x1.e9f416p-1, 0x1.e2121p-1, 0x1.d906bcp-1, 0x1.ced7bp-1, 0x1.c38b2ep-1, 0x1.b72834p-1, 0x1.a9b662p-1, 0x1.9b3e04p-1, 0x1.8bc806p-1, 0x1.7b5df2p-1, 0x1.6a09e6p-1};
 
+  // https://godbolt.org/z/1Yd748rYq
+  HD_INLINE float negIf(float x, uint16_t s) { 
+    int a=s; a<<=31;
+    return  std::bit_cast<float>(a^std::bit_cast<int>(x));
+  }
+
+
   HD_INLINE std::tuple<float,float> sincos14(int16_t x) {
     uint16_t q = x&mask;  // quadrant
     uint16_t ss = q>>15; // final sign sin; sign cos before switch
@@ -42,8 +49,8 @@ namespace trig16 {
     float a = sin14(r);  // sin
     float b = r==0 ? 1.f : sin14(Sin14::NBins - r);  // cos
     // std::cout << a << ' ' << b << std::endl;
-    a = (sc==0) ? a : -a;
-    b = (ss==0) ? b : -b;
+    a = negIf(a,sc);
+    b = negIf(b,ss);
     // now move back
     // std::cout << x << ' ' << q << ' ' << sc << ' ' << x << ' ' << r << std::endl;
     return {c ? b : a, c ? a : b}; 
@@ -52,12 +59,12 @@ namespace trig16 {
 
   HD_INLINE std::tuple<float,float> sincos9(int16_t x) {
      uint16_t q = (x&mask);  // quadrant
-     int16_t y = x - 16384; // rotate by -pi/2
+     int16_t y = x + 16384; // rotate by pi/2
      int16_t z = x - q;  // move to first quadrant
      assert(z>=0);
      assert(z<16384);
      uint16_t  sw = ((x-8192)>>14)&1;
-     z  = (z > 8192) ? 16384 -z : z;
+     z  = (z > 8192) ? 16384 -z : z;  // fold around pi/4
 
      // valid in first octant...
      constexpr uint16_t mask9 = 511;
@@ -73,8 +80,8 @@ namespace trig16 {
      auto s1 = s;
      s = sw ? s : c;
      c = sw ? c : s1;
-     s =  (x<0) ? -s : s;  // sin sign
-     c =  (y<0) ? c : -c;  // cos sign
+     s =  negIf(s,x>>15);  // sin sign
+     c =  negIf(c,y>>15);  // cos sign
      return {s,c};
   }
 
