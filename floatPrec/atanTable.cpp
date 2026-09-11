@@ -82,12 +82,13 @@ std::cout << std::endl;
 
   int nerr=0; int w=0;
   for (int i=-32768; i<32768; ++i) {
-    for (float z = -0.5e-5; z< 0.51e-5; z+=0.51e-5) {
+    for (float z = -0.7e-5f; z< 0.71e-5f; z+=0.35e-5f) {
       float y = std::sin(trig16::tof(i)+z);
       float x = std::cos(trig16::tof(i)+z);
       auto a = trig16::atan216(y,x);
       if (std::abs(i-a)>0) nerr++;
-      if (std::abs(i-a)>1) std::cout << i << ' ' << a << ' ' << i-a << std::endl;
+      if (std::abs(i-a)>1) std::cout << i << ' ' << x << ','<<y << ' ' << z << ' '
+         << (std::abs(x) - std::abs(y))/(std::abs(x) + std::abs(y)) << ' ' << a << ' ' << i-a << std::endl;
       w++;
     }
   }

@@ -103,11 +103,12 @@ namespace trig16 {
   }
 
 
-  uint16_t atan13[aBins];
+  uint16_t atan13[aBins+1];
   
   struct Gatan {
     Gatan() {
      for (int i=0; i<aBins; ++i) atan13[i] = atanR(i);
+     atan13[aBins]=0;
     }
   };
 
@@ -116,20 +117,21 @@ namespace trig16 {
   HD_INLINE int16_t atan216(float y, float x) {
 
     auto r = (std::abs(x) - std::abs(y))/(std::abs(x) + std::abs(y));
-
+    auto q = std::abs(r)+1.f;
+    assert(q<=2.f);    
     uint32_t mask13 = (2*aBins-1)<<(aShift-1);
-    assert(std::abs(r)<=1.f);
     // round to nearest....
-    int32_t a = ((std::bit_cast<uint32_t>(std::abs(r)+1.f)&mask13)+(1<<(aShift-1)))>>aShift;
-    //assert(a>=0);
-    //assert(a<8192);
+    int32_t a = ((std::bit_cast<uint32_t>(q)&mask13)+(1<<(aShift-1)))>>aShift;
+    assert(a>=0);
+    assert(a<=aBins);
+    if (q>=2.f) a=aBins;
     auto b = atan13[a] -8192;
     // std::cout << r << ' ' << a << ' ' << b << std::endl;
-    if (x<0) r = -r;    
-    if (r<0) b = -b;
-    auto angle = (x>=0) ? 8192 : 24576;
+    if (x<0.0f) r = -r;    
+    if (r<0.0f) b = -b;
+    auto angle = (x>=0.0f) ? 8192 : 24576;
     angle += b;
-    return ( (y < 0)) ? - angle : angle ;
+    return ( (y < 0.0f)) ? - angle : angle ;
     
     return angle;
   }
