@@ -91,8 +91,8 @@ namespace trig16 {
   }
 
 
-  constexpr int aShift = 9;
-  constexpr int aBins= 2*8192;
+  constexpr int aShift = 9; //  +1;
+  constexpr int aBins= 16384; // /2;
   HD_INLINE uint16_t atanR(int i) {
     float x = setMantissa(1.f,i<<aShift) - 1.f;
     float a = -std::atan((x-1.f)/(x+1.f));
