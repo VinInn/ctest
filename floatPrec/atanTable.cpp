@@ -80,13 +80,15 @@ int main() {
 
 std::cout << std::endl;
 
-
-  for (int i=0; /*-32768;*/ i<32768; i+=512) {
+  int nerr=0;
+  for (int i=-32768; i<32768; ++i) {
     float y = std::sin(trig16::tof(i));
     float x = std::cos(trig16::tof(i));
     auto a = trig16::atan216(y,x);
-    std::cout << i << ' ' << a << std::endl;
+    if (std::abs(i-a)>0) nerr++;
+    if (std::abs(i-a)>1) std::cout << i << ' ' << a << ' ' << i-a << std::endl;
   }
+  std::cout << "atan2 err " << nerr << std::endl;
 
   return 0.;
 }
