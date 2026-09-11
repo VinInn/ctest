@@ -86,6 +86,48 @@ namespace trig16 {
   }
 
 
+  HD_INLINE float setMantissa(float x, uint32_t m) {
+   return std::bit_cast<float>(std::bit_cast<uint32_t>(x)|m);
+  }
+
+  HD_INLINE uint16_t atanR(int i) {
+    assert(i>=0);
+    assert(i<=8192);
+    float x = setMantissa(1.f,i<<10) - 1.f;
+    assert(x>=0);
+    assert(x<=1.f);
+    float a = -std::atan((x-1.f)/(x+1.f));
+    assert(a>=0);
+    int16_t j = trig16::to16(a);
+    assert(j>=0);
+    assert(j<=8192);
+    return j;
+  }
+
+
+  LUT<13,0>  atan13(atanR);
+
+  HD_INLINE int16_t atan216(float y, float x) {
+
+    auto r= (std::abs(x) - std::abs(y))/(std::abs(x) + std::abs(y));
+
+    uint32_t mask14 = 8191<<10;
+    assert(std::abs(r)<=1.f);
+    int32_t a = (std::bit_cast<uint32_t>(std::abs(r)+1.f)&mask14)>>10;
+    assert(a>=0);
+    assert(a<8192);
+    auto b = atan13[a];
+    std::cout << r << ' ' << a << ' ' << b << std::endl;
+    /*
+    if (r<0) a = -a; 
+    auto angle = (x>=0) ? 8192 : 24576;
+    angle += a;
+    return ( (y < 0)) ? - angle : angle ;
+    */
+    return b;
+  }
+
+
 }
 
 #ifdef GENTABLE

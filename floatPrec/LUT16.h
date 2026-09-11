@@ -19,7 +19,11 @@ struct LUT {
   template<typename F>
   HD_INLINE explicit LUT(F f) {
     for (int i=0; i<NBins; i++) {
-      lut[i] = f(tof(i));
+      if constexpr(MAX>0) {
+        lut[i] = f(tof(i));
+      } else {
+        lut[i] = f(i);
+      }
     }
   }
 

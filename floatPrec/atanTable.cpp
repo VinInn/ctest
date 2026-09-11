@@ -29,7 +29,7 @@ int main() {
      else if (j!=(k-1)) skip++;
      k=j;
    }
-  std::cout << "16: " << dup << ' ' << skip << std::endl;
+  std::cout << "15: " << dup << ' ' << skip << std::endl;
   }
 
   {
@@ -44,7 +44,7 @@ int main() {
      else if (j!=(k-1)) skip++;
      k=j;
    }
-  std::cout << "15: " << dup << ' ' << skip << std::endl;
+  std::cout << "14: " << dup << ' ' << skip << std::endl;
   }
 
   {
@@ -59,7 +59,7 @@ int main() {
      else if (j!=(k-1)) skip++;
      k=j;
    }
-  std::cout << "14: " << dup << ' ' << skip << std::endl;
+  std::cout << "13: " << dup << ' ' << skip << std::endl;
   }
 
   {
@@ -74,7 +74,18 @@ int main() {
      else if (j!=(k-1)) skip++;
      k=j;
    }
-  std::cout << "13: " << dup << ' ' << skip << std::endl;
+  std::cout << "12: " << dup << ' ' << skip << std::endl;
+  }
+
+
+std::cout << std::endl;
+
+
+  for (int i=0; /*-32768;*/ i<32768; i+=512) {
+    float y = std::sin(trig16::tof(i));
+    float x = std::cos(trig16::tof(i));
+    auto a = trig16::atan216(y,x);
+    std::cout << i << ' ' << a << std::endl;
   }
 
   return 0.;
