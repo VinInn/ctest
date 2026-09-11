@@ -90,8 +90,11 @@ namespace trig16 {
    return std::bit_cast<float>(std::bit_cast<uint32_t>(x)|m);
   }
 
+
+  constexpr int aShift = 9;
+  constexpr int aBins= 2*8192;
   HD_INLINE uint16_t atanR(int i) {
-    float x = setMantissa(1.f,i<<10) - 1.f;
+    float x = setMantissa(1.f,i<<aShift) - 1.f;
     float a = -std::atan((x-1.f)/(x+1.f));
     int16_t j = trig16::to16(a);
     assert(j>=0);
@@ -100,11 +103,11 @@ namespace trig16 {
   }
 
 
-  uint16_t atan13[8192];
+  uint16_t atan13[aBins];
   
   struct Gatan {
     Gatan() {
-     for (int i=0; i<8192; ++i) atan13[i] = atanR(i);
+     for (int i=0; i<aBins; ++i) atan13[i] = atanR(i);
     }
   };
 
@@ -114,10 +117,10 @@ namespace trig16 {
 
     auto r = (std::abs(x) - std::abs(y))/(std::abs(x) + std::abs(y));
 
-    uint32_t mask13 = (2*8192-1)<<9;
+    uint32_t mask13 = (2*aBins-1)<<(aShift-1);
     assert(std::abs(r)<=1.f);
     // round to nearest....
-    int32_t a = ((std::bit_cast<uint32_t>(std::abs(r)+1.f)&mask13)+(1<<9))>>10;
+    int32_t a = ((std::bit_cast<uint32_t>(std::abs(r)+1.f)&mask13)+(1<<(aShift-1)))>>aShift;
     //assert(a>=0);
     //assert(a<8192);
     auto b = atan13[a] -8192;
