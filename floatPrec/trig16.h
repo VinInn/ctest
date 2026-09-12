@@ -96,8 +96,8 @@ namespace trig16 {
   constexpr float aFromI = 1./aBins;
   constexpr float aToF = aBins;
   HD_INLINE uint16_t atanR(int i) {
-//    float x = aFromI*float(i);
-    float x = setMantissa(1.f,i<<aShift) - 1.f;
+    float x = aFromI*float(i);
+//    float x = setMantissa(1.f,i<<aShift) - 1.f;
     float a = -std::atan((x-1.f)/(x+1.f));
     int16_t j = trig16::to16(a);
     assert(j>=0);
@@ -120,14 +120,14 @@ namespace trig16 {
   HD_INLINE int16_t atan216(float y, float x) {
 
     auto r = (std::abs(x) - std::abs(y))/(std::abs(x) + std::abs(y));
-    
+    /*
     auto q = std::abs(r)+1.f;
     assert(q<=2.f);    
     uint32_t mask13 = (2*aBins-1)<<(aShift-1);
     // round to nearest....
     int32_t a = ((std::bit_cast<uint32_t>(q)&mask13)+(1<<(aShift-1)))>>aShift;
-    
-    // int32_t a = std::abs(r)*aToF;
+    */
+    int32_t a = std::round(std::abs(r)*aToF);
     assert(a>=0);
     assert(a<=aBins);
     // if (q>=2.f) a=aBins;
