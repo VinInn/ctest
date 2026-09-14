@@ -129,24 +129,38 @@ HD_INLINE void init<sechI<Exp16_4>>(sechI<Exp16_4> & f) { f.init();}
 
 #include "LUT16.h"
 using LUT5 = LUT<16,std::bit_cast<uint32_t>(5.0f)>;
+using ILUT5 = LUT16<16,std::bit_cast<uint32_t>(5.0f),std::bit_cast<uint32_t>(1.0f)>;
 
 __device__ LUT5 lutP;
-
 __device__ LUT5 lut1P;
 __device__ LUT5 lut2P;
 __device__ LUT5 lut3P;
 __device__ LUT5 lut4P;
 
+__device__ ILUT5 ilutP;
+__device__ ILUT5 ilut1P;
+__device__ ILUT5 ilut2P;
+__device__ ILUT5 ilut3P;
+__device__ ILUT5 ilut4P;
 
-float pexp(float x) { return expf(x);}
+
+
+float pexp(float x) { return expf(x)/expf(5.f);}
 float nexp(float x) { return expf(-x);}
-float logs2(float x) { return logf(2*x+1);}
+float logs2(float x) { return logf(2*x+1)/3.f;}
 
 struct sechL {
   HD_INLINE sechL(){}
   HD_INLINE void init() { 
   }
   HD_INLINE float operator()(int x){ return lutP[x]; }
+};
+
+struct sechIL {
+  HD_INLINE sechIL(){}
+  HD_INLINE void init() {
+  }
+  HD_INLINE float operator()(int x){ return ilutP[x]; }
 };
 
 struct sech4L {
@@ -156,6 +170,13 @@ struct sech4L {
   HD_INLINE float operator()(int x){ return lut1P[x]+lut2P[x]+lut3P[x]+lut4P[x]; }
 };
 
+
+struct sech4IL {
+  HD_INLINE sech4IL(){}
+  HD_INLINE void init() {
+  }
+  HD_INLINE float operator()(int x){ return ilut1P[x]+ilut2P[x]+ilut3P[x]+ilut4P[x]; }
+};
 
 struct GI {
   GI()  {
@@ -169,6 +190,18 @@ struct GI {
     cudaMemcpyToSymbol(lut3P,&lut3,sizeof(LUT5));
     LUT5 lut4{logs2};
     cudaMemcpyToSymbol(lut4P,&lut4,sizeof(LUT5));
+
+    ILUT5 ilut{secosh<float>()};
+    cudaMemcpyToSymbol(ilutP,&ilut,sizeof(ILUT5));
+    ILUT5 ilut1{secosh<float>()};
+    cudaMemcpyToSymbol(ilut1P,&ilut1,sizeof(ILUT5));
+    ILUT5 ilut2{nexp};
+    cudaMemcpyToSymbol(ilut2P,&ilut2,sizeof(ILUT5));
+    ILUT5 ilut3{pexp};
+    cudaMemcpyToSymbol(ilut3P,&ilut3,sizeof(ILUT5));
+    ILUT5 ilut4{logs2};
+    cudaMemcpyToSymbol(ilut4P,&ilut4,sizeof(ILUT5));
+
   }
   HD_INLINE uint16_t operator()(int i) { return 13*uint16_t(i);}
 };
@@ -192,6 +225,8 @@ int main() {
   doClock<GI,sechI<Exp16_4>,float,int>("int LUT4");
   doClock<GI,sechL,float,int>("int LUT");
   doClock<GI,sech4L,float,int>("int 4LUT");
+  doClock<GI,sechIL,float,int>("int LUT16");
+  doClock<GI,sech4IL,float,int>("int 4LUT16");
 
   doClock<G<double>,U<double>,double>("Ud");
   doClock<G<float>,U<float>,float>("Uf");
