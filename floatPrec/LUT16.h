@@ -33,5 +33,36 @@ struct LUT {
 };
 
 
-template<uint32_t MAX>
-using LUT16 = LUT<16,MAX>;
+template<int N, uint32_t XMAX,  uint32_t YMAX>
+struct LUT16 {
+  static constexpr int NBins = 1<<N;
+  static constexpr int max16 = 65536;
+  static constexpr float fmax = std::bit_cast<float>(XMAX);
+  static constexpr float coeff = fmax/float(NBins);
+  static constexpr float coefi = float(NBins)/fmax;
+  static HD_INLINE float tof(int i) { return coeff*float(i); }
+  static HD_INLINE float toi(float x) { return std::round(coefi*x); }
+
+  static constexpr float ymax = std::bit_cast<float>(YMAX);
+  static constexpr float ycoeff = ymax/float(max16);
+  static constexpr float ycoefi = float(max16)/ymax;
+  static HD_INLINE float ytof(int i) { return ycoeff*float(i); }
+  static HD_INLINE float ytoi(float x) { return std::round(ycoefi*x); }
+
+
+  HD_INLINE LUT16() {}
+  template<typename F>
+  HD_INLINE explicit LUT16(F f) {
+    for (int i=0; i<NBins; i++) {
+      if constexpr(XMAX>0) {
+        lut[i] = ytoi(f(tof(i)));
+      } else {
+        lut[i] = f(i);
+      }
+    }
+  }
+
+  HD_INLINE float operator[](int i) const { return ytof(lut[i]);}
+  HD_INLINE float operator()(int i) const { return ytof(lut[i]);}
+  uint16_t lut[NBins];
+};
