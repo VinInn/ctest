@@ -194,8 +194,11 @@ void loop16(benchmark::State& state) {
 }
 
 #include "LUT16.h"
+
+using LUT5 = LUT<16,std::bit_cast<uint32_t>(5.0f)>;
+
 void lut16(benchmark::State& state) {
-   LUT16 lut(secosh<double>(),5.);
+   LUT5 lut{secosh<float>()};
    for (auto _ : state) {
      benchmark::DoNotOptimize(fout);
      for (int i=0; i<4*1024;i++) {
@@ -208,13 +211,13 @@ void lut16(benchmark::State& state) {
 }
 
 
-double nexp(double x) { return exp(-x);}
+float nexp(float x) { return expf(-x);}
 
 void lut16_4(benchmark::State& state) {
-   LUT16 lut1(secosh<double>(),5.);
-   LUT16 lut2(nexp,5.);
-   LUT16 lut3(::exp,5.);
-   LUT16 lut4(::log,5.);
+   LUT5 lut1{secosh<float>()};
+   LUT5 lut2{nexp};
+   LUT5 lut3{::expf};
+   LUT5 lut4{::logf};
    for (auto _ : state) {
      benchmark::DoNotOptimize(fout);
      for (int i=0; i<4*1024;i++) {

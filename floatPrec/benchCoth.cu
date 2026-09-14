@@ -128,17 +128,19 @@ HD_INLINE void init<sechI<Exp16_4>>(sechI<Exp16_4> & f) { f.init();}
 
 
 #include "LUT16.h"
+using LUT5 = LUT<16,std::bit_cast<uint32_t>(5.0f)>;
 
-__device__ LUT16 lutP;
+__device__ LUT5 lutP;
 
-__device__ LUT16 lut1P;
-__device__ LUT16 lut2P;
-__device__ LUT16 lut3P;
-__device__ LUT16 lut4P;
+__device__ LUT5 lut1P;
+__device__ LUT5 lut2P;
+__device__ LUT5 lut3P;
+__device__ LUT5 lut4P;
 
-double pexp(double x) { return exp(x);}
-double nexp(double x) { return exp(-x);}
-double logs2(double x) { return log(2*x+1);}
+
+float pexp(float x) { return expf(x);}
+float nexp(float x) { return expf(-x);}
+float logs2(float x) { return logf(2*x+1);}
 
 struct sechL {
   HD_INLINE sechL(){}
@@ -154,18 +156,19 @@ struct sech4L {
   HD_INLINE float operator()(int x){ return lut1P[x]+lut2P[x]+lut3P[x]+lut4P[x]; }
 };
 
+
 struct GI {
   GI()  {
-    LUT16 lut(secosh<double>(),5.);
-    cudaMemcpyToSymbol(lutP,&lut,sizeof(LUT16));
-    LUT16 lut1(secosh<double>(),5.);
-    cudaMemcpyToSymbol(lut1P,&lut1,sizeof(LUT16));
-    LUT16 lut2(nexp,5.);
-    cudaMemcpyToSymbol(lut2P,&lut2,sizeof(LUT16));
-    LUT16 lut3(pexp,5.);
-    cudaMemcpyToSymbol(lut3P,&lut3,sizeof(LUT16));
-    LUT16 lut4(logs2,5.);
-    cudaMemcpyToSymbol(lut4P,&lut4,sizeof(LUT16));
+    LUT5 lut{secosh<float>()};
+    cudaMemcpyToSymbol(lutP,&lut,sizeof(LUT5));
+    LUT5 lut1{secosh<float>()};
+    cudaMemcpyToSymbol(lut1P,&lut1,sizeof(LUT5));
+    LUT5 lut2{nexp};
+    cudaMemcpyToSymbol(lut2P,&lut2,sizeof(LUT5));
+    LUT5 lut3{pexp};
+    cudaMemcpyToSymbol(lut3P,&lut3,sizeof(LUT5));
+    LUT5 lut4{logs2};
+    cudaMemcpyToSymbol(lut4P,&lut4,sizeof(LUT5));
   }
   HD_INLINE uint16_t operator()(int i) { return 13*uint16_t(i);}
 };
