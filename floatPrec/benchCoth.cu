@@ -160,7 +160,7 @@ struct sechIL {
   HD_INLINE sechIL(){}
   HD_INLINE void init() {
   }
-  HD_INLINE float operator()(int x){ return ilutP[x]; }
+  HD_INLINE float operator()(int x){ return ilutP[x]/*+ilutP[x]+ilutP[x]+ilutP[x]*/; }
 };
 
 struct sech4L {
@@ -178,6 +178,11 @@ struct sech4IL {
   HD_INLINE float operator()(int x){ return ilut1P[x]+ilut2P[x]+ilut3P[x]+ilut4P[x]; }
 };
 
+
+#include<random>
+    std::random_device rd;  // a seed source for the random number engine
+    std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+    std::uniform_int_distribution<> rint16(0,65536);
 struct GI {
   GI()  {
     LUT5 lut{secosh<float>()};
@@ -203,7 +208,11 @@ struct GI {
     cudaMemcpyToSymbol(ilut4P,&ilut4,sizeof(ILUT5));
 
   }
-  HD_INLINE uint16_t operator()(int i) { return 17*13*uint16_t(i);}
+#ifdef __CUDA__ARCH__
+   uint16_t operator()(int i) { return i;}
+#else
+   uint16_t operator()(int i) { return rint16(gen);}
+#endif
 };
 
 
