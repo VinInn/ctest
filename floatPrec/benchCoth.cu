@@ -203,7 +203,7 @@ struct GI {
     cudaMemcpyToSymbol(ilut4P,&ilut4,sizeof(ILUT5));
 
   }
-  HD_INLINE uint16_t operator()(int i) { return 13*uint16_t(i);}
+  HD_INLINE uint16_t operator()(int i) { return 17*13*uint16_t(i);}
 };
 
 
