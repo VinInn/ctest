@@ -39,7 +39,7 @@ struct SCAd9 {
 
 template<typename T>
 struct G {
-  constexpr T operator()(int i) { return T(i)*T(1.e-4);}
+  constexpr T operator()(int i) { return T(2)*T(i)/T(NB*NT) -T(1);}
 };
 
 template<typename T>
