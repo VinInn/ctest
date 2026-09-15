@@ -129,13 +129,18 @@ struct data<double>{
 
 #include<iostream>
 
+#include<random>
+    std::random_device rd;  // a seed source for the random number engine
+    std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+    std::uniform_int_distribution<> rint16(0,65536);
+
 void start(benchmark::State& state) {
    for (auto _ : state) {
      float x=-1.;
      uint16_t y=0;
      for (int i=0; i<4*1024;i++) {
        for(int j=0; j<1024; ++j) {
-         iin[j] = y; y+=14; 
+         iin[j] = rint16(gen); // y; y+=13; 
          fin[j]=x;
          din[j]=x; 
          x+=float(1.e-7);

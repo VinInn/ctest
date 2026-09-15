@@ -131,17 +131,17 @@ HD_INLINE void init<sechI<Exp16_4>>(sechI<Exp16_4> & f) { f.init();}
 using LUT5 = LUT<16,std::bit_cast<uint32_t>(5.0f)>;
 using ILUT5 = LUT16<16,std::bit_cast<uint32_t>(5.0f),std::bit_cast<uint32_t>(1.0f)>;
 
-__device__ LUT5 lutP;
-__device__ LUT5 lut1P;
-__device__ LUT5 lut2P;
-__device__ LUT5 lut3P;
-__device__ LUT5 lut4P;
+__device__ const LUT5 lutP;
+__device__ const LUT5 lut1P;
+__device__ const LUT5 lut2P;
+__device__ const LUT5 lut3P;
+__device__ const LUT5 lut4P;
 
-__device__ ILUT5 ilutP;
-__device__ ILUT5 ilut1P;
-__device__ ILUT5 ilut2P;
-__device__ ILUT5 ilut3P;
-__device__ ILUT5 ilut4P;
+__device__ const ILUT5 ilutP;
+__device__ const ILUT5 ilut1P;
+__device__ const ILUT5 ilut2P;
+__device__ const ILUT5 ilut3P;
+__device__ const ILUT5 ilut4P;
 
 
 

@@ -27,8 +27,13 @@ struct LUT {
     }
   }
 
-  HD_INLINE float operator[](int i) const { return lut[i];} 
+#ifdef __CUDA_ARCH__
+  HD_INLINE float operator[](int i) const { return __ldg(lut+i);} 
+  HD_INLINE float operator()(int i) const { return __ldg(lut+i);}
+#else
+  HD_INLINE float operator[](int i) const { return lut[i];}
   HD_INLINE float operator()(int i) const { return lut[i];}
+#endif
   float lut[NBins];
 };
 
@@ -62,7 +67,12 @@ struct LUT16 {
     }
   }
 
+#if defined __CUDA_ARCH__  && TEXTURE
+  HD_INLINE float operator[](int i) const { return ytof(__ldg(lut+i));}
+  HD_INLINE float operator()(int i) const { return ytof(__ldg(lut+i));}
+#else
   HD_INLINE float operator[](int i) const { return ytof(lut[i]);}
   HD_INLINE float operator()(int i) const { return ytof(lut[i]);}
+#endif
   uint16_t lut[NBins];
 };
