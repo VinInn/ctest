@@ -12,7 +12,7 @@
 struct SCAstd {
    using Float=float;
    HD_INLINE float operator()(float x) {
-      auto s = sinf(x); auto c = cosf(x);
+      auto s = sinpif(x); auto c = cospif(x);
       return atan2f(s,c);
    }
 };
