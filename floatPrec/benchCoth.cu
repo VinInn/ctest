@@ -99,9 +99,15 @@ struct sech5 {
 };
 
 
+
+#include<random>
+    std::random_device rd;  // a seed source for the random number engine
+    std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+    std::uniform_int_distribution<> rint16(0,65536);
+    std::uniform_real_distribution<float> rfloat(0.,5.);
 template<typename T>
 struct G {
-  constexpr T operator()(int i) { return T(i)*T(1.e-4);}
+  constexpr T operator()(int i) { return rfloat(gen);} // T(i)*T(1.e-4);}
 };
 
 template<typename T>
@@ -153,14 +159,14 @@ struct sechL {
   HD_INLINE sechL(){}
   HD_INLINE void init() { 
   }
-  HD_INLINE float operator()(int x){ return lutP[x]; }
+  HD_INLINE float operator()(int x){ return lutP[x];} // +lutP[2*x]+lutP[3*x]+lutP[4*x]; }
 };
 
 struct sechIL {
   HD_INLINE sechIL(){}
   HD_INLINE void init() {
   }
-  HD_INLINE float operator()(int x){ return ilutP[x]/*+ilutP[x]+ilutP[x]+ilutP[x]*/; }
+  HD_INLINE float operator()(int x){ return ilutP[x]/*+ilutP[2*x]+ilutP[3*x]+ilutP[4*x]*/; }
 };
 
 struct sech4L {
@@ -179,10 +185,6 @@ struct sech4IL {
 };
 
 
-#include<random>
-    std::random_device rd;  // a seed source for the random number engine
-    std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> rint16(0,65536);
 struct GI {
   GI()  {
     LUT5 lut{secosh<float>()};

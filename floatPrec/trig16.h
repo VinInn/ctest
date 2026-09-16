@@ -21,12 +21,27 @@ namespace trig16 {
   using Sin15 = LUT<15,std::bit_cast<uint32_t>(pi)>;
   HD_INLINE int16_t to16(float x) { return Sin15::toi(x);}
   HD_INLINE float tof(int16_t x) { return  Sin15::tof(x);}
-
-  Sin14  sin14(std::sin<float>);
-
   using  Lut9 = LUT<9,std::bit_cast<uint32_t>(pi64)>;
-  Lut9  sin9(std::sin<float>);
-  Lut9  cos9(std::cos<float>);
+
+  struct Sin {
+    HD_INLINE static float operator()(float x) { return sinf(x);}
+  };
+  struct Cos {
+    HD_INLINE static float operator()(float x) { return cosf(x);}
+  };
+
+#ifndef __CUDA_ARCH__
+  Sin14  sin14L(Sin{});
+
+  Lut9  sin9L(Sin{});
+  Lut9  cos9L(Cos{});
+#endif
+
+  __device__ const Sin14  sin14;
+  __device__ const Lut9  sin9;
+  __device__ const Lut9  cos9;
+
+
   HOST_DEVICE_CONSTANT float sinT[17] = {0x0p+0, 0x1.91f66p-5, 0x1.917a6cp-4, 0x1.2c8106p-3, 0x1.8f8b84p-3, 0x1.f19f9ap-3, 0x1.294062p-2, 0x1.58f9a8p-2, 0x1.87de2cp-2, 0x1.b5d1p-2, 0x1.e2b5d4p-2, 0x1.07387ap-1, 0x1.1c73b4p-1, 0x1.30ff8p-1, 0x1.44cf34p-1, 0x1.57d694p-1, 0x1.6a09e6p-1};
   HOST_DEVICE_CONSTANT float cosT[17] = {0x1p+0, 0x1.ff621ep-1, 0x1.fd88dap-1, 0x1.fa7558p-1, 0x1.f6297cp-1, 0x1.f0a7fp-1, 0x1.e9f416p-1, 0x1.e2121p-1, 0x1.d906bcp-1, 0x1.ced7bp-1, 0x1.c38b2ep-1, 0x1.b72834p-1, 0x1.a9b662p-1, 0x1.9b3e04p-1, 0x1.8bc806p-1, 0x1.7b5df2p-1, 0x1.6a09e6p-1};
 
@@ -106,19 +121,31 @@ namespace trig16 {
   }
 
 
-  uint16_t atan13[aBins+1];
-  
+  uint16_t atan13L[aBins+1];
+
+#ifdef __NVCC__
+  __device__ const uint16_t atan13[aBins+1]= {0};
+#endif
+
+
   struct Gatan {
     Gatan() {
-     for (int i=0; i<aBins; ++i) atan13[i] = atanR(i);
-     atan13[aBins]=0;
+     for (int i=0; i<aBins; ++i) atan13L[i] = atanR(i);
+     atan13L[aBins]=0;
     }
+#ifdef __NVCC__
+     cudaMemcpyToSymbol(atan13,atan13L,sizeof(uint16_t)*(aBins+1));
+#endif
   };
 
   Gatan gatan;
 
   HD_INLINE int16_t atan216(float y, float x) {
-
+#ifdef __CUDA_ARCH__
+    uint16_t const * atanP = atan13;
+#else
+   uint16_t const * atanP = atan13L;
+#endif
     auto r = (std::abs(x) - std::abs(y))/(std::abs(x) + std::abs(y));
     /*
     auto q = std::abs(r)+1.f;
@@ -131,7 +158,7 @@ namespace trig16 {
     assert(a>=0);
     assert(a<=aBins);
     // if (q>=2.f) a=aBins;
-    auto b = atan13[a] -8192;
+    auto b = atanP[a] -8192;
     // std::cout << r << ' ' << a << ' ' << b << std::endl;
     if (x<0.0f) r = -r;    
     if (r<0.0f) b = -b;

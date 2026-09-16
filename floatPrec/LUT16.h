@@ -16,6 +16,7 @@ struct LUT {
   static HD_INLINE float toi(float x) { return std::round(coefi*x); }
 
   HD_INLINE LUT() {}
+//#ifndef __CUDA_ARCH__
   template<typename F>
   HD_INLINE explicit LUT(F f) {
     for (int i=0; i<NBins; i++) {
@@ -26,6 +27,7 @@ struct LUT {
       }
     }
   }
+//#endif
 
 #ifdef __CUDA_ARCH__
   HD_INLINE float operator[](int i) const { return __ldg(lut+i);} 
@@ -56,6 +58,7 @@ struct LUT16 {
 
 
   HD_INLINE LUT16() {}
+// #ifndef __CUDA_ARCH__
   template<typename F>
   HD_INLINE explicit LUT16(F f) {
     for (int i=0; i<NBins; i++) {
@@ -66,6 +69,7 @@ struct LUT16 {
       }
     }
   }
+// #endif
 
 #if defined __CUDA_ARCH__  && TEXTURE
   HD_INLINE float operator[](int i) const { return ytof(__ldg(lut+i));}
