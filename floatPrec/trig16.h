@@ -121,30 +121,34 @@ namespace trig16 {
   }
 
 
-  uint16_t atan13L[aBins+1];
+struct  Atan13L {
+  uint16_t v[aBins+1];
+};
+
+Atan13L atan13L;
 
 #ifdef __NVCC__
-  __device__ const uint16_t atan13[aBins+1]= {0};
+  __device__ const Atan13L atan13{};
 #endif
 
 
   struct Gatan {
     Gatan() {
-     for (int i=0; i<aBins; ++i) atan13L[i] = atanR(i);
-     atan13L[aBins]=0;
-    }
+      for (int i=0; i<aBins; ++i) atan13L.v[i] = atanR(i);
+      atan13L.v[aBins]=0;
 #ifdef __NVCC__
-     cudaMemcpyToSymbol(atan13,atan13L,sizeof(uint16_t)*(aBins+1));
+      cudaMemcpyToSymbol(atan13,&atan13L,sizeof(Atan13L));
 #endif
+    }  
   };
 
   Gatan gatan;
 
   HD_INLINE int16_t atan216(float y, float x) {
 #ifdef __CUDA_ARCH__
-    uint16_t const * atanP = atan13;
+    uint16_t const * atanP = atan13.v;
 #else
-   uint16_t const * atanP = atan13L;
+   uint16_t const * atanP = atan13L.v;
 #endif
     auto r = (std::abs(x) - std::abs(y))/(std::abs(x) + std::abs(y));
     /*
