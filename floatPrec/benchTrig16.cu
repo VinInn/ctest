@@ -35,12 +35,36 @@ struct SCAd9 {
    }
 };
 
+struct SCAi14 {
+  HD_INLINE int16_t operator()(int16_t x) {
+    auto [s,c] = trig16::sincos14(x);
+    return trig16::atan216(s,c);
+  }
+};
 
+struct SCAi9 {
+  HD_INLINE int16_t operator()(int16_t x) {
+    auto [s,c] = trig16::sincos9(x);
+    return trig16::atan216(s,c);
+  }
+};
+
+#include<random>
+    std::random_device rd;  // a seed source for the random number engine
+    std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+    std::uniform_int_distribution<> rint16(0,65536);
+    std::uniform_real_distribution<float> rfloat(-1.f,1.f);
 
 template<typename T>
 struct G {
-  constexpr T operator()(int i) { return T(2)*T(i)/T(NB*NT) -T(1);}
+  constexpr T operator()(int i) { return rfloat(gen);}
 };
+
+
+struct GI {
+  constexpr int16_t operator()(int i) { return rint16(gen)-32768;}
+};
+
 
 template<typename T>
 struct U {
@@ -54,8 +78,11 @@ int main() {
   doClock<G<float>,SCAstd,float>("float std");
   doClock<G<float>,SCAd15,float>("float");
   doClock<G<float>,SCAd9,float>("float 16");
+  doClock<GI,SCAi14,int16_t>("int16_t 14");
+  doClock<GI,SCAi9,int16_t>("int16_t 9");
 
   doClock<G<float>,U<float>,float>("Uf");
+
 
   return 0;
 

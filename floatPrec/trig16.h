@@ -30,12 +30,12 @@ namespace trig16 {
     HD_INLINE static float operator()(float x) { return cosf(x);}
   };
 
-#ifndef __CUDA_ARCH__
+//#ifndef __CUDA_ARCH__
   Sin14  sin14L(Sin{});
 
   Lut9  sin9L(Sin{});
   Lut9  cos9L(Cos{});
-#endif
+//#endif
 
   __device__ const Sin14  sin14;
   __device__ const Lut9  sin9;
@@ -131,13 +131,15 @@ Atan13L atan13L;
   __device__ const Atan13L atan13{};
 #endif
 
-
   struct Gatan {
     Gatan() {
       for (int i=0; i<aBins; ++i) atan13L.v[i] = atanR(i);
       atan13L.v[aBins]=0;
 #ifdef __NVCC__
       cudaMemcpyToSymbol(atan13,&atan13L,sizeof(Atan13L));
+      cudaMemcpyToSymbol(sin14,&sin14L,sizeof(Sin14));
+      cudaMemcpyToSymbol(sin9,&sin9L,sizeof(Lut9));
+      cudaMemcpyToSymbol(cos9,&cos9L,sizeof(Lut9));
 #endif
     }  
   };
