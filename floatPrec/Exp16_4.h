@@ -75,3 +75,50 @@ float nefact[4][16];
 
 };
 
+// https://godbolt.org/z/ee4d1nEsx
+typedef float __attribute__( ( vector_size( 4*16 ) ) ) float32x16_t;
+typedef int   __attribute__( ( vector_size( 4*16 ) ) ) int32x16_t;
+typedef uint16_t   __attribute__( ( vector_size( 2*16 ) ) ) int16x16_t;
+
+
+struct Exp16V {
+
+  explicit ExpV(double emax) {
+    double c = ldexp(emax,-16);
+    double ce[4] = {std::exp(c),std::exp(ldexp(c,4)),std::exp(ldexp(c,8)),std::exp(ldexp(c,12))};
+    for (int i=0; i<16; ++i) {
+      for (int j=0; j<4; ++j) {
+        pefact[j][i]= std::pow(ce[j],i);
+//      std::cout << efact[j][i] << ' ';
+      }
+//   std::cout << std::endl;
+    }
+    double nce[4] = {std::exp(-c),std::exp(ldexp(-c,4)),std::exp(ldexp(-c,8)),std::exp(ldexp(-c,12))};
+    for (int i=0; i<16; ++i) {
+      for (int j=0; j<4; ++j) {
+        nefact[j][i]= std::pow(nce[j],i);
+//      std::cout << nefact[j][i] << ' ';
+      }
+//    std::cout << std::endl;
+    }
+  }
+
+
+  float32x16_t lut(float32x16_t c, int16x16_t x, int s) {
+    int16x16_t b0 = (x>>s)&15;
+    int32x16_t m = {b0[0],b0[1],b0[2],b0[3],b0[4],b0[5],b0[6],b0[7],
+                    b0[8+0],b0[8+1],b0[8+2],b0[8+3],b0[8+4],b0[8+5],b0[8+6],b0[8+7]};
+    return  __builtin_shuffle(c,m);
+  }
+  float32x16_t pexp(int16x16_t x)  {
+    return lut(pefact[0],x,0)*lut(pefact[1],x,4)*lut(pefact[2],x,8)*lut(pefact[3],x,12);
+  }
+  float32x16_t nexp(int16x16_t x)  {
+    return lut(nefact[0],x,0)*lut(nefact[1],x,4)*lut(nefact[2],x,8)*lut(nefact[3],x,12);
+  }
+
+
+  float32x16_t pefact[4];
+  float32x16_t nefact[4];
+
+};
