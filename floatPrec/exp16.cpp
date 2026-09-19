@@ -25,7 +25,7 @@ int main() {
 }
 
 {
-  int16_t eta = std::round(3.5*ldexp(1./5.,16));
+  uint16_t eta = std::round(3.5*ldexp(1./5.,16));
   std::cout << eta << ' ' << eta*ldexp(5.,-16) << std::endl;
 {
   Exp16::I16 u; u.i16 = std::abs(eta);
@@ -37,6 +37,18 @@ int main() {
   std::cout << "exp(3.5) " << std::exp(3.5) << ' ' <<   exp16.pexp(eta) << std::endl;
   std::cout << "exp(-3.5) " << std::exp(-3.5) << ' ' <<   exp16.nexp(eta) << std::endl;
   std::cout << "sch(3.5) " << std::sinh(3.5) << ' ' << std::cosh(3.5) << std::endl;
+
+#ifdef EXP16_4
+  Exp16V exp16v(5.);
+  Exp16V::Int16 etaV; for (int i=0; i<16;++i) etaV[i]=eta;
+  std::cout << "sizes " << sizeof(Exp16V::Int16) << ' ' <<  sizeof(Exp16V::Float) << std::endl;
+  auto ep = exp16v.pexp(etaV);
+  auto en = exp16v.nexp(etaV);
+  std::cout << "V " << etaV[0] << ' ' << ep[0] << ' ' << en[0] << std::endl;
+  std::cout << "V " << etaV[7] << ' ' << ep[7] << ' ' << en[7] << std::endl;
+  std::cout << "V " << etaV[15] << ' ' << ep[15] << ' ' << en[15] << std::endl;
+#endif
+
 }
 }
 

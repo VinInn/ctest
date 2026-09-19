@@ -82,8 +82,9 @@ typedef uint16_t   __attribute__( ( vector_size( 2*16 ) ) ) int16x16_t;
 
 
 struct Exp16V {
-
-  explicit ExpV(double emax) {
+  using Float =  float32x16_t;
+  using Int16 = int16x16_t;
+  explicit Exp16V(double emax) {
     double c = ldexp(emax,-16);
     double ce[4] = {std::exp(c),std::exp(ldexp(c,4)),std::exp(ldexp(c,8)),std::exp(ldexp(c,12))};
     for (int i=0; i<16; ++i) {
