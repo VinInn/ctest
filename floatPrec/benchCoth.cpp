@@ -198,6 +198,22 @@ void loop16(benchmark::State& state) {
    add_IPC_counters(state);
 }
 
+void loop16V(benchmark::State& state) {
+   Exp16V exp16(5.);
+   Exp16V::Int16 const * x = (Exp16V::Int16 const *)(iin); 
+   Exp16V::Float  * y = (Exp16V::Float *)(fout);
+   for (auto _ : state) {
+     benchmark::DoNotOptimize(fout);
+     for (int i=0; i<4*1024;i++) {
+       for(int j=0; j<1024/16; ++j)
+         y[j] =  2.f/(exp16.pexp(x[j])+exp16.nexp(x[j]));
+       benchmark::DoNotOptimize(fout);
+     }
+   }
+   add_IPC_counters(state);
+}
+
+
 #include "LUT16.h"
 
 using LUT5 = LUT<16,std::bit_cast<uint32_t>(5.0f)>;
@@ -236,6 +252,8 @@ void lut16_4(benchmark::State& state) {
 
 void e16_2(benchmark::State& state) { loop16<Exp16_2>(state);}
 void e16_4(benchmark::State& state) { loop16<Exp16_4>(state);}
+void e16V(benchmark::State& state) { loop16V(state);}
+
 void l16(benchmark::State& state) { lut16(state);}
 void l16_4(benchmark::State& state) { lut16_4(state);}
 
@@ -287,6 +305,7 @@ BENCHMARK(h5);
 
 BENCHMARK(e16_2);
 BENCHMARK(e16_4);
+BENCHMARK(e16V);
 BENCHMARK(l16);
 BENCHMARK(l16_4);
 
