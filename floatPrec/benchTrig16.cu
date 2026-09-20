@@ -1,4 +1,4 @@
-// nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 benchTrig16.cu -DNT=512 -DNB=4 -DMX=10000
+// nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 benchTrig16.cu -DNT=512 -DNB=4 -DMX=10000 -DNDEBUG
 // ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ' '
 
 #include "../cuda/clockCuda.h"
@@ -100,7 +100,7 @@ int main() {
   doClock<GI,SCAipl,int16_t>("int16_t pl");
 
   doClock<G<float>,U<float>,float>("Uf");
-
+  doClock<GI,U<int16_t>,int16_t>("Ui");
 
   return 0;
 

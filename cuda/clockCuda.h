@@ -6,7 +6,7 @@
 #include<cstdio>
 #include<iostream>
 #include<limits>
-
+#include<type_traits>
 
 template<typename F>
 __host__ __device__ constexpr void init(F & f) {}
@@ -37,7 +37,11 @@ __global__ void clockit(T * outV,  U const * inV, int64_t * tt, int64_t * tg, in
       auto s = clock64();
       atomicMin(&lstart,s);
        for (int kk=0; kk<maxIter; ++kk) {
-          m2 = f(m1+U(m2*T(.1e-12)));
+         if constexpr (std::is_floating_point<T>::value) {
+           m2 = f(m1+U(m2*T(.1e-12)));
+         } else {
+           m2 = f(m1+U(m2>>15));
+         }
        }
        // Record end time 
       auto e = clock64();
