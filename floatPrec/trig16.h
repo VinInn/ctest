@@ -15,6 +15,7 @@ namespace trig16 {
   HOST_DEVICE_CONSTANT float pi2 = 0.5*M_PI;
   HOST_DEVICE_CONSTANT float pi32 = 0.03125*M_PI;
   HOST_DEVICE_CONSTANT float pi64 = 0.015625*M_PI;
+  HOST_DEVICE_CONSTANT float pi128 = 0.5*pi64;
   HOST_DEVICE_CONSTANT uint16_t mask = 3<<14;
 
   using Sin14 = LUT<14,std::bit_cast<uint32_t>(pi2)>;
@@ -32,18 +33,23 @@ namespace trig16 {
 
 //#ifndef __CUDA_ARCH__
   Sin14  sin14L(Sin{});
-
   Lut9  sin9L(Sin{});
   Lut9  cos9L(Cos{});
 //#endif
-
+#ifdef __NVCC__
   __device__ const Sin14  sin14;
   __device__ const Lut9  sin9;
   __device__ const Lut9  cos9;
-
+#else
+ Sin14  sin14(Sin{});
+  Lut9  sin9(Sin{});
+  Lut9  cos9(Cos{});
+#endif
 
   HOST_DEVICE_CONSTANT float sinT[17] = {0x0p+0, 0x1.91f66p-5, 0x1.917a6cp-4, 0x1.2c8106p-3, 0x1.8f8b84p-3, 0x1.f19f9ap-3, 0x1.294062p-2, 0x1.58f9a8p-2, 0x1.87de2cp-2, 0x1.b5d1p-2, 0x1.e2b5d4p-2, 0x1.07387ap-1, 0x1.1c73b4p-1, 0x1.30ff8p-1, 0x1.44cf34p-1, 0x1.57d694p-1, 0x1.6a09e6p-1};
   HOST_DEVICE_CONSTANT float cosT[17] = {0x1p+0, 0x1.ff621ep-1, 0x1.fd88dap-1, 0x1.fa7558p-1, 0x1.f6297cp-1, 0x1.f0a7fp-1, 0x1.e9f416p-1, 0x1.e2121p-1, 0x1.d906bcp-1, 0x1.ced7bp-1, 0x1.c38b2ep-1, 0x1.b72834p-1, 0x1.a9b662p-1, 0x1.9b3e04p-1, 0x1.8bc806p-1, 0x1.7b5df2p-1, 0x1.6a09e6p-1};
+  HOST_DEVICE_CONSTANT float sinC[17] = {0x1.92156p-6, 0x1.2d520ap-4, 0x1.f564e6p-4, 0x1.5e2144p-3, 0x1.c0b826p-3, 0x1.111d28p-2, 0x1.4135cap-2, 0x1.708854p-2, 0x1.9ef796p-2, 0x1.cc66eap-2, 0x1.f8ba5p-2, 0x1.11eb36p-1, 0x1.26d056p-1, 0x1.3affa4p-1, 0x1.4e6caep-1, 0x1.610b76p-1, 0x1.72d084p-1};
+  HOST_DEVICE_CONSTANT float cosC[17] = {0x1.ffd886p-1, 0x1.fe9cdap-1, 0x1.fc2648p-1, 0x1.f8765p-1, 0x1.f38f3ap-1, 0x1.ed740ep-1, 0x1.e6288ep-1, 0x1.ddb13cp-1, 0x1.d4134cp-1, 0x1.c954b2p-1, 0x1.bd7c0ap-1, 0x1.b090a4p-1, 0x1.a29a7ap-1, 0x1.93a224p-1, 0x1.83b0ep-1, 0x1.72d084p-1, 0x1.610b74p-1};
 
   // https://godbolt.org/z/1Yd748rYq
   HD_INLINE float negIf(float x, uint16_t s) { 
@@ -72,6 +78,7 @@ namespace trig16 {
   }
 
 
+template<bool L=true>
   HD_INLINE std::tuple<float,float> sincos9(int16_t x) {
      uint16_t q = (x&mask);  // quadrant
      int16_t y = x + 16384; // rotate by pi/2
@@ -87,9 +94,17 @@ namespace trig16 {
      uint16_t r = z&mask9;
      assert(r<512);
      uint16_t bin = (z == 8192) ? 16 : (z&mask13)>>9;
-     assert(bin<17); 
-     auto s = trig16::sinT[bin]*trig16::cos9(r) + trig16::cosT[bin]*trig16::sin9(r);
-     auto c = trig16::cosT[bin]*trig16::cos9(r) - trig16::sinT[bin]*trig16::sin9(r);
+     assert(bin<17);
+     float s,c;
+     if constexpr (L) {
+       s = trig16::sinT[bin]*trig16::cos9(r) + trig16::cosT[bin]*trig16::sin9(r);
+       c = trig16::cosT[bin]*trig16::cos9(r) - trig16::sinT[bin]*trig16::sin9(r);
+     } else {
+       auto sr = tof(r-256);
+       auto cr = 1.0f - 0.5f*sr*sr;
+       s = trig16::sinC[bin]*cr + trig16::cosC[bin]*sr;
+       c = trig16::cosC[bin]*cr - trig16::sinC[bin]*sr;
+     } 
 
      // back to full range
      auto s1 = s;
@@ -181,16 +196,24 @@ Atan13L atan13L;
 #ifdef GENTABLE
 #include<iostream>
 #include<string>
+#include<cmath>
 int main() {
 
    std::string trail = "  HOST_DEVICE_CONSTANT float ";
-
+   float pi64 = M_PI/64.;
+   float pi128 = M_PI/128.;
    std::cout << std::hexfloat << trail << "sinT[17] = {" << 0.0f;
-   for (int i=1; i<17; ++i) std::cout << std::hexfloat << ", " << std::sin(float(i)*trig16::pi64);
+   for (int i=1; i<17; ++i) std::cout << std::hexfloat << ", " << std::sin(float(i)*pi64);
    std::cout <<"};" << std::endl;
    std::cout << trail << "cosT[17] = {" << 1.0f;
-   for (int i=1; i<17; ++i) std::cout << std::hexfloat << ", " << std::cos(float(i)*trig16::pi64);
+   for (int i=1; i<17; ++i) std::cout << std::hexfloat << ", " << std::cos(float(i)*pi64);
    std::cout <<"};" << std::endl; 
+   std::cout << std::hexfloat << trail << "sinC[17] = {" << std::sin(pi128);
+   for (int i=1; i<17; ++i) std::cout << std::hexfloat << ", " << std::sin(pi128+float(i)*pi64);
+   std::cout <<"};" << std::endl;
+   std::cout << trail << "cosC[17] = {" << std::cos(pi128);
+   for (int i=1; i<17; ++i) std::cout << std::hexfloat << ", " << std::cos(pi128+float(i)*pi64);
+   std::cout <<"};" << std::endl;
    return 0;
 }
 #endif

@@ -30,7 +30,7 @@ int main() {
    std::cout << Sin14::tof(-Sin14::NBins) << ' ' << Sin14::toi(-trig16::pi4) << std::endl;
 
 
-   trig16::Sin14 sin14(std::sin<float>);
+   trig16::Sin14 sin14(trig16::Sin{});
    std::cout << sin14(0) << ' ' << sin14(trig16::Sin14::NBins-1) << std::endl;
    std::cout << sin14(1) << ' ' << sin14(trig16::Sin14::NBins-2) << std::endl;
 
@@ -51,17 +51,23 @@ int main() {
    error(trig16::sincos14);
    std::cout << std::endl;
 
-   std::cout << "sincos9" << std::endl;
-   error(trig16::sincos9);
+   std::cout << "sincos9 lut" << std::endl;
+   error(trig16::sincos9<true>);
+   std::cout << std::endl;
+
+   std::cout << "sincos9 poly" << std::endl;
+   error(trig16::sincos9<false>);
    std::cout << std::endl;
 
 
    std::cout << "\n____________\n"  << std::endl;
 
    for ( auto x : a ) {
-     auto [s,c] = trig16::sincos9(trig16::to16(x));
+     auto [s,c] = trig16::sincos9<true>(trig16::to16(x));
+     auto [sp,cp] = trig16::sincos9<false>(trig16::to16(x));
      std::cout << x << ' ' << trig16::to16(x) << ' ' << std::sin(x)<<',' << std::cos(x)
-             << ' ' << s <<',' << c << std::endl;
+             << ' ' << s <<',' << c
+             << ' ' << sp <<',' << cp << std::endl;
    }
 
    std::cout << "\n____________\n"  << std::endl;
