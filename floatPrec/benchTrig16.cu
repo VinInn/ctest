@@ -9,9 +9,17 @@
 
 
 
-struct SCAstd {
+struct SCAstdd {
+   using Float=double;
+   HD_INLINE Float operator()(Float x) {
+      auto s = sinpi(x); auto c = cospi(x);
+      return atan2(s,c);
+   }
+};
+
+struct SCAstdf {
    using Float=float;
-   HD_INLINE float operator()(float x) {
+   HD_INLINE Float operator()(Float x) {
       auto s = sinpif(x); auto c = cospif(x);
       return atan2f(s,c);
    }
@@ -44,10 +52,18 @@ struct SCAi14 {
 
 struct SCAi9 {
   HD_INLINE int16_t operator()(int16_t x) {
-    auto [s,c] = trig16::sincos9(x);
+    auto [s,c] = trig16::sincos9<true>(x);
     return trig16::atan216(s,c);
   }
 };
+
+struct SCAipl {
+  HD_INLINE int16_t operator()(int16_t x) {
+    auto [s,c] = trig16::sincos9<false>(x);
+    return trig16::atan216(s,c);
+  }
+};
+
 
 #include<random>
     std::random_device rd;  // a seed source for the random number engine
@@ -75,11 +91,13 @@ struct U {
 
 int main() {
 
-  doClock<G<float>,SCAstd,float>("float std");
+  doClock<G<double>,SCAstdd,float>("double std");
+  doClock<G<float>,SCAstdf,float>("float std");
   doClock<G<float>,SCAd15,float>("float");
   doClock<G<float>,SCAd9,float>("float 16");
   doClock<GI,SCAi14,int16_t>("int16_t 14");
   doClock<GI,SCAi9,int16_t>("int16_t 9");
+  doClock<GI,SCAipl,int16_t>("int16_t pl");
 
   doClock<G<float>,U<float>,float>("Uf");
 
