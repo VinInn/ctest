@@ -45,6 +45,18 @@ struct pade {
 
 #include "Horner.h"
 
+namespace tanh13_c {
+
+  HOST_DEVICE_CONSTANT float c[7] = [0.000309579616863, -0.00320180713352, 0.0154428367622, -0.0496817972675, 0.131868828999, -0.33313677765, 0.999995528846]
+}
+struct tanh13 {
+   using Float=float;
+   HD_INLINE float operator()(float x) {
+     auto z = x*x;
+     return x*horner<6>(z,tanh13_c::c);
+   }
+};
+
 
 namespace sech9_c {
   HOST_DEVICE_CONSTANT float c[10] = {0.00484524607845, -0.0414213996033, 0.141985913707, -0.223653720345, 0.0820334481706, 0.178636110405, 
