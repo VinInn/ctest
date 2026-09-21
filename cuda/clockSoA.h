@@ -12,13 +12,13 @@ template<typename F>
 __host__ __device__ constexpr void init(F & f) {}
 
 
-template<typename F, typename T, typename U=T>
-__global__ void clockit(T outV,  U const inV, int64_t * tt, int64_t * tg, int n,  int maxIter) {
+template<typename F, typename T, typename U, int pack>
+__global__ void clockit(T outV,  U const inV, int64_t * tt, int64_t * tg, int n, int maxIter) {
      __shared__  long long ostart, lstart, lend;
      __shared__  unsigned long long  gstart, gend;
 
      int tid = blockDim.x * blockIdx.x + threadIdx.x;
-     if (tid>=n) return;
+     if (tid>=n/pack) return;
      __shared__ F f;
 
      if (threadIdx.x==0) {
@@ -35,9 +35,10 @@ __global__ void clockit(T outV,  U const inV, int64_t * tt, int64_t * tg, int n,
     auto s = clock64();
     atomicMin(&lstart,s);
 
-    for (auto j=threadIdx.x; j<n; j+=blockDim.x)  {
+    for (auto j=pack*threadIdx.x; j<n; j+=pack*blockDim.x)  {
        for (int kk=0; kk<maxIter; ++kk) {
-           f(outV,inV, j, kk);
+          for (int i=0; i<pack; ++i) 
+           f(outV,inV, j+i, kk);
        }
     }
 
@@ -72,13 +73,13 @@ __global__ void clockit(T outV,  U const inV, int64_t * tt, int64_t * tg, int n,
 #endif
 
 #include<string>
-template<typename G, typename F, typename T, typename U=T>
-void doClockSoA(std::string const & fname="", int n=0 ) {
+template<typename G, typename F, typename T, typename U=T, int pack=1>
+void doClockSoA(std::string const & fname="", int n=0) {
   constexpr int nB = NB;
   constexpr int nT = NT;
   constexpr int maxIter = MX;
 
-  std::cout << "nb,nt "  << nB << ' ' << nT << std::endl;
+  std::cout << "n, nb,nt, pack "  << n << ' ' << nB << ',' << nT << ' ' << pack << std::endl;
 
   if (n<=0) n = nB*nT;
   U a;  // input
@@ -94,7 +95,7 @@ void doClockSoA(std::string const & fname="", int n=0 ) {
 
   for (int i=0; i<n; ++i) tt[i]=0;
   for (int i=0; i<nB; ++i) tg[i]=0;
-  clockit<F,T,U><<<nB,nT,0,0>>>(b, a, tt,tg,n, maxIter);
+  clockit<F,T,U, pack><<<nB,nT,0,0>>>(b, a, tt,tg,n, maxIter);
   cudaDeviceSynchronize();
 
 //   std::cout << fname << "(" <<a[nT-1] <<") = "<< b[nT-1] << std::endl;

@@ -19,9 +19,9 @@ struct Q {
        y.y[j] =  (y.y[j]*T(1.e-12))+(x.y[j]+x.y[j]*x.x[j]); 
        y.z[j] =  (y.z[j]*T(1.e-12))+(x.z[j]+x.x[j]*x.y[j]);
      } else  {
-       y.x[j] =  (y.x[j]>>15)+(x.x[j]+x.y[j]*x.z[j]);
-       y.y[j] =  (y.y[j]>>15)+(x.y[j]+x.y[j]*x.x[j]);
-       y.z[j] =  (y.z[j]>>15)+(x.z[j]+x.x[j]*x.y[j]);
+       y.x[j] =  (y.x[j]>>15)+int(float(x.x[j])+float(x.y[j])*float(x.z[j]));
+       y.y[j] =  (y.y[j]>>15)+int(float(x.y[j])+float(x.y[j])*float(x.x[j]));
+       y.z[j] =  (y.z[j]>>15)+int(float(x.z[j])+float(x.x[j])*float(x.y[j]));
      }
    }
 };
@@ -47,8 +47,16 @@ struct G {
 
 int main() {
 
-   doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>>("",1000000);
-   doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>>("",1000000);
-   doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>>("",1000000);
+   int n = 100000;
+   doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>>("",n);
+   doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>>("",n);
+   doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>>("",n);
+   doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>,2>("",n);
+   doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>,2>("",n);
+   doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>,2>("",n);
+   doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>,4>("",n);
+   doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>,4>("",n);
+   doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>,4>("",n);
+
    return 0;
 }
