@@ -47,7 +47,7 @@ struct G {
 
 int main() {
 
-   int n = 100000;
+   int n = 64*1024;
    doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>>("",n);
    doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>>("",n);
    doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>>("",n);
