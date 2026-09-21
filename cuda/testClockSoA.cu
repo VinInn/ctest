@@ -14,10 +14,15 @@ struct SoA {
 template<typename T>
 struct Q {
    constexpr void operator()(SoA<T>  y, SoA<T> const x, int j, int k) { 
-     if constexpr (std::is_floating_point<T>::value) 
+     if constexpr (std::is_floating_point<T>::value)  {
        y.x[j] =  (y.x[j]*T(1.e-12))+(x.x[j]+x.y[j]*x.z[j]);
-     else 
+       y.y[j] =  (y.y[j]*T(1.e-12))+(x.y[j]+x.y[j]*x.x[j]); 
+       y.z[j] =  (y.z[j]*T(1.e-12))+(x.z[j]+x.x[j]*x.y[j]);
+     } else  {
        y.x[j] =  (y.x[j]>>15)+(x.x[j]+x.y[j]*x.z[j]);
+       y.y[j] =  (y.y[j]>>15)+(x.y[j]+x.y[j]*x.x[j]);
+       y.z[j] =  (y.z[j]>>15)+(x.z[j]+x.x[j]*x.y[j]);
+     }
    }
 };
 
@@ -42,8 +47,8 @@ struct G {
 
 int main() {
 
-   doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>>("",100000);
-   doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>>("",100000);
-   doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>>("",100000);
+   doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>>("",1000000);
+   doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>>("",1000000);
+   doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>>("",1000000);
    return 0;
 }
