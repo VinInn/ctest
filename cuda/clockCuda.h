@@ -18,6 +18,7 @@ __global__ void clockit(T * outV,  U const * inV, int64_t * tt, int64_t * tg, in
      __shared__  unsigned long long  gstart, gend;
 
      int tid = blockDim.x * blockIdx.x + threadIdx.x;
+     if (tid>=n) return;
      __shared__ F f;
      auto m1 = inV[tid];
      /*volatile*/ T m2=0;
@@ -30,26 +31,30 @@ __global__ void clockit(T * outV,  U const * inV, int64_t * tt, int64_t * tg, in
      }
      __syncthreads();
 
-    if (tid<n) {
-      unsigned long long ss;
-      asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(ss));
-      atomicMin(&gstart,ss);
-      auto s = clock64();
-      atomicMin(&lstart,s);
+    unsigned long long ss;
+    asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(ss));
+    atomicMin(&gstart,ss);
+    auto s = clock64();
+    atomicMin(&lstart,s);
+
+    // for (auto j=threadIdx.x; j<n; j+=blockDim.x) {
        for (int kk=0; kk<maxIter; ++kk) {
          if constexpr (std::is_floating_point<T>::value) {
            m2 = f(m1+U(m2*T(.1e-12)));
-         } else {
+         } else if constexpr (std::is_integral<T>::value) {
            m2 = f(m1+U(m2>>15));
+         } else {  // AOS
+           m2 = f(m1+m2);
          }
        }
-       // Record end time 
-      auto e = clock64();
-      tt[tid] = e - s;
-      atomicMax(&lend,e);
-      asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(ss));
-      atomicMax(&gend,ss);
-    }
+    // }
+
+    // Record end time 
+    auto e = clock64();
+    tt[tid] = e - s;
+    atomicMax(&lend,e);
+    asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(ss));
+    atomicMax(&gend,ss);
     __syncthreads();
 
     if (threadIdx.x==0) {
