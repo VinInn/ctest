@@ -17,13 +17,19 @@ template<typename T>
 struct Q {
    constexpr void operator()(SoA<T>  y, SoA<T> const x, int const * ind, int j, int k, int n) { 
      if constexpr (std::is_floating_point<T>::value)  {
-       y.x[j] =  (y.x[j]*T(1.e-12))+(x.x[j]+x.y[j]*x.z[j]);
-       y.y[j] =  (y.y[j]*T(1.e-12))+(x.y[j]+x.y[j]*x.x[j]); 
-       y.z[j] =  (y.z[j]*T(1.e-12))+(x.z[j]+x.x[j]*x.y[j]);
+      auto v = (y.x[j]*T(1.e-12))+x.x[j];
+      auto w = (y.y[j]*T(1.e-12))+x.y[j];
+      auto u = (y.z[j]*T(1.e-12))+x.z[j];
+       y.x[j] =  v+w*u;
+       y.y[j] =  w+v*u; 
+       y.z[j] =  u+v*w;
      } else  {
-       y.x[j] =  (y.x[j]>>15)+int(float(x.x[j])+float(x.y[j])*float(x.z[j]));
-       y.y[j] =  (y.y[j]>>15)+int(float(x.y[j])+float(x.y[j])*float(x.x[j]));
-       y.z[j] =  (y.z[j]>>15)+int(float(x.z[j])+float(x.x[j])*float(x.y[j]));
+       auto v = float((y.x[j]>>15)+x.x[j]);
+       auto w = float((y.y[j]>>15)+x.y[j]);
+       auto u = float((y.z[j]>>15)+x.z[j]);
+       y.x[j] =  v+w*u;
+       y.y[j] =  w+v*u;
+       y.z[j] =  u+v*w;
      }
    }
 };
@@ -36,13 +42,19 @@ struct R {
      int j = ind[i];
      // assert(j>=0); assert(j<n);
      if constexpr (std::is_floating_point<T>::value)  {
-       y.x[i] =  (y.x[i]*T(1.e-12))+(x.x[j]+x.y[j]*x.z[j]);
-       y.y[i] =  (y.y[i]*T(1.e-12))+(x.y[j]+x.y[j]*x.x[j]);
-       y.z[i] =  (y.z[i]*T(1.e-12))+(x.z[j]+x.x[j]*x.y[j]);
+      auto v = (y.x[i]*T(1.e-12))+x.x[j];
+      auto w = (y.y[i]*T(1.e-12))+x.y[j];
+      auto u = (y.z[i]*T(1.e-12))+x.z[j];
+       y.x[i] =  v+w*u;
+       y.y[i] =  w+v*u;
+       y.z[i] =  u+v*w;
      } else  {
-       y.x[i] =  (y.x[i]>>15)+int(float(x.x[j])+float(x.y[j])*float(x.z[j]));
-       y.y[i] =  (y.y[i]>>15)+int(float(x.y[j])+float(x.y[j])*float(x.x[j]));
-       y.z[i] =  (y.z[i]>>15)+int(float(x.z[j])+float(x.x[j])*float(x.y[j]));
+       auto v = float((y.x[i]>>15)+x.x[j]);
+       auto w = float((y.y[i]>>15)+x.y[j]);
+       auto u = float((y.z[i]>>15)+x.z[j]);
+       y.x[i] =  v+w*u;
+       y.y[i] =  w+v*u;
+       y.z[i] =  u+v*w;
      }
    }
 };
