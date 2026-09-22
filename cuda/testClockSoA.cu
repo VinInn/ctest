@@ -29,11 +29,19 @@ struct Q {
 
 
 // 1D combi
-template<typename T>
+template<typename T, bool L>
 struct W {
    constexpr void operator()(SoA<T>  y, SoA<T> const x, int j, int k, int n) {
-     int a = max(j-16,0);
-     int b = min(j+16,n);
+     int a; 
+     int b;
+     if constexpr (L) {
+       a = max(j-16,0);
+       b = min(j+16,n);
+     } else {
+       int s = n/2;
+       a = (j<s) ? max(s+j-16,0) : max(j-s-16,0);
+       b = (j<s) ? min(s+j+16,n) : min(j-s+16,n);
+     }
      for (int  i =a; i<b; ++i) {
      if constexpr (std::is_floating_point<T>::value)  {
        y.x[j] =  (y.x[j]*T(1.e-12))+(x.x[j]+x.y[i]*x.z[j]);
@@ -83,15 +91,12 @@ int main() {
    doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>,4>("",n);
 
 
-   doClockSoA<G<double>,W<double>,SoA<double>,SoA<double>>("",n);
-   doClockSoA<G<float>,W<float>,SoA<float>,SoA<float>>("",n);
-   doClockSoA<G<int16_t>,W<int16_t>,SoA<int16_t>,SoA<int16_t>>("",n);
-   doClockSoA<G<double>,W<double>,SoA<double>,SoA<double>,2>("",n);
-   doClockSoA<G<float>,W<float>,SoA<float>,SoA<float>,2>("",n);
-   doClockSoA<G<int16_t>,W<int16_t>,SoA<int16_t>,SoA<int16_t>,2>("",n);
-   doClockSoA<G<double>,W<double>,SoA<double>,SoA<double>,4>("",n);
-   doClockSoA<G<float>,W<float>,SoA<float>,SoA<float>,4>("",n);
-   doClockSoA<G<int16_t>,W<int16_t>,SoA<int16_t>,SoA<int16_t>,4>("",n);
+   doClockSoA<G<double>,W<double,true>,SoA<double>,SoA<double>>("",n);
+   doClockSoA<G<float>,W<float,true>,SoA<float>,SoA<float>>("",n);
+   doClockSoA<G<int16_t>,W<int16_t,true>,SoA<int16_t>,SoA<int16_t>>("",n);
+   doClockSoA<G<double>,W<double,false>,SoA<double>,SoA<double>>("",n);
+   doClockSoA<G<float>,W<float,false>,SoA<float>,SoA<float>>("",n);
+   doClockSoA<G<int16_t>,W<int16_t,false>,SoA<int16_t>,SoA<int16_t>>("",n);
 
    return 0;
 }
