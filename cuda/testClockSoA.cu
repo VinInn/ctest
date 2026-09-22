@@ -1,6 +1,7 @@
 // nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=10000
+// ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','
 #include "clockSoA.h"
-
+#include <cassert>
 
 template<typename T>
 struct SoA {
@@ -14,7 +15,7 @@ struct SoA {
 // 1D 
 template<typename T>
 struct Q {
-   constexpr void operator()(SoA<T>  y, SoA<T> const x, int j, int k, int n) { 
+   constexpr void operator()(SoA<T>  y, SoA<T> const x, int const * ind, int j, int k, int n) { 
      if constexpr (std::is_floating_point<T>::value)  {
        y.x[j] =  (y.x[j]*T(1.e-12))+(x.x[j]+x.y[j]*x.z[j]);
        y.y[j] =  (y.y[j]*T(1.e-12))+(x.y[j]+x.y[j]*x.x[j]); 
@@ -28,10 +29,29 @@ struct Q {
 };
 
 
+
+template<typename T>
+struct R {
+   constexpr void operator()(SoA<T>  y, SoA<T> const x, int const * ind, int i, int k, int n) {
+     int j = ind[i];
+     // assert(j>=0); assert(j<n);
+     if constexpr (std::is_floating_point<T>::value)  {
+       y.x[i] =  (y.x[i]*T(1.e-12))+(x.x[j]+x.y[j]*x.z[j]);
+       y.y[i] =  (y.y[i]*T(1.e-12))+(x.y[j]+x.y[j]*x.x[j]);
+       y.z[i] =  (y.z[i]*T(1.e-12))+(x.z[j]+x.x[j]*x.y[j]);
+     } else  {
+       y.x[i] =  (y.x[i]>>15)+int(float(x.x[j])+float(x.y[j])*float(x.z[j]));
+       y.y[i] =  (y.y[i]>>15)+int(float(x.y[j])+float(x.y[j])*float(x.x[j]));
+       y.z[i] =  (y.z[i]>>15)+int(float(x.z[j])+float(x.x[j])*float(x.y[j]));
+     }
+   }
+};
+
+
 // 1D combi
 template<typename T, bool L>
 struct W {
-   constexpr void operator()(SoA<T>  y, SoA<T> const x, int j, int k, int n) {
+   constexpr void operator()(SoA<T>  y, SoA<T> const x, int const * ind, int j, int k, int n) {
      int a; 
      int b;
      if constexpr (L) {
@@ -57,21 +77,32 @@ struct W {
 };
 
 
-
+#include<random>
 template<typename T>
 struct G {
-  void operator()(SoA<T> & x, SoA<T> & y, int n) { 
+  int * operator()(SoA<T> & x, SoA<T> & y, int n) { 
     cudaMalloc(&a, 3*n * sizeof(T)); 
     cudaMalloc(&b, 3*n * sizeof(T));
+    cudaMalloc(&ind, n * sizeof(int));
     x.x = a; x.y = a+n; x.z = x.y + n;
     y.x = b; y.y = b+n; y.z = y.y + n;
+
+    int l[n];
+    std::random_device rd;  // a seed source for the random number engine
+    std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+    std::uniform_int_distribution<> rint(0,n);
+    for (int i=0; i<n;++i) l[i]=rint(gen);
+    cudaMemcpy(ind, l, sizeof(x),cudaMemcpyHostToDevice);
+    return ind;
   }
   ~G() {
     cudaFree(a);
     cudaFree(b);
+    cudaFree(ind);
   }
   T * a;
   T * b;
+  int * ind;
 };
 
 
@@ -80,15 +111,24 @@ struct G {
 int main() {
 
    int n = 256*1024;
-   doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>>("",n);
-   doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>>("",n);
-   doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>>("",n);
-   doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>,2>("",n);
-   doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>,2>("",n);
-   doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>,2>("",n);
-   doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>,4>("",n);
-   doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>,4>("",n);
-   doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>,4>("",n);
+   doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>>("d l",n);
+   doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>>("f l",n);
+   doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>>("i l",n);
+   doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>,2>("dl ",n);
+   doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>,2>("f l",n);
+   doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>,2>("i l",n);
+   doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>,4>("d l",n);
+   doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>,4>("f l",n);
+   doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>,4>("i l",n);
+
+
+   doClockSoA<G<double>,R<double>,SoA<double>,SoA<double>>("d r",n);
+   doClockSoA<G<float>,R<float>,SoA<float>,SoA<float>>("f r",n);
+   doClockSoA<G<int16_t>,R<int16_t>,SoA<int16_t>,SoA<int16_t>>("i r",n);
+   doClockSoA<G<double>,R<double>,SoA<double>,SoA<double>,2>("d r",n);
+   doClockSoA<G<float>,R<float>,SoA<float>,SoA<float>,2>("f t",n);
+   doClockSoA<G<int16_t>,R<int16_t>,SoA<int16_t>,SoA<int16_t>,2>("i r",n);
+
 
 
    doClockSoA<G<double>,W<double,true>,SoA<double>,SoA<double>>("",n);

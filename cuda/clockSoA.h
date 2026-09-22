@@ -12,7 +12,7 @@ template<typename F>
 __host__ __device__ constexpr void init(F & f) {}
 
 template<typename F, typename T, typename U, int pack>
-__global__ void clockit(T outV,  U const inV, int64_t * tt, int64_t * tg, int n, int maxIter) {
+__global__ void clockit(T outV,  U const inV, int const * ind, int64_t * tt, int64_t * tg, int n, int maxIter) {
      __shared__  long long ostart, lstart, lend;
      __shared__  unsigned long long  gstart, gend;
 
@@ -37,7 +37,7 @@ __global__ void clockit(T outV,  U const inV, int64_t * tt, int64_t * tg, int n,
     for (auto j=pack*tid; j<n; j+=pack*(gridDim.x * blockDim.x))  {
        for (int kk=0; kk<maxIter; ++kk) {
           for (int i=0; i<pack; ++i)
-           f(outV,inV, j+i, kk, n);
+           f(outV,inV, ind, j+i, kk, n);
        }
     }
 
@@ -79,7 +79,7 @@ void doClockSoA(std::string const & fname="", int n=0) {
   constexpr int maxIter = MX;
   if (n<=0) n = nB*nT;
 
-  std::cout << "n, nb,nt, pack "  << n << ' ' << nB << ',' << nT << ' ' << pack << std::endl;
+  std::cout << fname << " n, nb,nt, pack "  << n << ' ' << nB << ',' << nT << ' ' << pack << std::endl;
 
   U a;  // input
   T b;  // output
@@ -90,11 +90,11 @@ void doClockSoA(std::string const & fname="", int n=0) {
   cudaMallocManaged(&tg, 3*nB*sizeof(int64_t));
 
   G g;
-  g(a,b,n);
+  int * ind = g(a,b, n);
 
   for (int i=0; i<n; ++i) tt[i]=0;
   for (int i=0; i<nB; ++i) tg[i]=0;
-  clockit<F,T,U, pack><<<nB,nT,0,0>>>(b, a, tt,tg,n, maxIter);
+  clockit<F,T,U, pack><<<nB,nT,0,0>>>(b, a, ind, tt,tg,n, maxIter);
   cudaDeviceSynchronize();
 
 //   std::cout << fname << "(" <<a[nT-1] <<") = "<< b[nT-1] << std::endl;
