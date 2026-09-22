@@ -11,9 +11,10 @@ struct SoA {
 
 };
 
+// 1D 
 template<typename T>
 struct Q {
-   constexpr void operator()(SoA<T>  y, SoA<T> const x, int j, int k) { 
+   constexpr void operator()(SoA<T>  y, SoA<T> const x, int j, int k, int n) { 
      if constexpr (std::is_floating_point<T>::value)  {
        y.x[j] =  (y.x[j]*T(1.e-12))+(x.x[j]+x.y[j]*x.z[j]);
        y.y[j] =  (y.y[j]*T(1.e-12))+(x.y[j]+x.y[j]*x.x[j]); 
@@ -25,6 +26,29 @@ struct Q {
      }
    }
 };
+
+
+// 1D combi
+template<typename T>
+struct W {
+   constexpr void operator()(SoA<T>  y, SoA<T> const x, int j, int k, int n) {
+     int a = max(j-16,0);
+     int b = min(j+16,n);
+     for (int  i =a; i<b; ++i) {
+     if constexpr (std::is_floating_point<T>::value)  {
+       y.x[j] =  (y.x[j]*T(1.e-12))+(x.x[j]+x.y[i]*x.z[j]);
+       y.y[j] =  (y.y[j]*T(1.e-12))+(x.y[j]+x.y[j]*x.x[i]);
+       y.z[j] =  (y.z[j]*T(1.e-12))+(x.z[i]+x.x[j]*x.y[j]);
+     } else  {
+       y.x[j] =  (y.x[j]>>15)+int(float(x.x[j])+float(x.y[i])*float(x.z[j]));
+       y.y[j] =  (y.y[j]>>15)+int(float(x.y[j])+float(x.y[j])*float(x.x[i]));
+       y.z[j] =  (y.z[j]>>15)+int(float(x.z[i])+float(x.x[j])*float(x.y[j]));
+     }
+     }
+   }
+};
+
+
 
 template<typename T>
 struct G {
@@ -47,7 +71,7 @@ struct G {
 
 int main() {
 
-   int n = 64*1024;
+   int n = 256*1024;
    doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>>("",n);
    doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>>("",n);
    doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>>("",n);
@@ -57,6 +81,17 @@ int main() {
    doClockSoA<G<double>,Q<double>,SoA<double>,SoA<double>,4>("",n);
    doClockSoA<G<float>,Q<float>,SoA<float>,SoA<float>,4>("",n);
    doClockSoA<G<int16_t>,Q<int16_t>,SoA<int16_t>,SoA<int16_t>,4>("",n);
+
+
+   doClockSoA<G<double>,W<double>,SoA<double>,SoA<double>>("",n);
+   doClockSoA<G<float>,W<float>,SoA<float>,SoA<float>>("",n);
+   doClockSoA<G<int16_t>,W<int16_t>,SoA<int16_t>,SoA<int16_t>>("",n);
+   doClockSoA<G<double>,W<double>,SoA<double>,SoA<double>,2>("",n);
+   doClockSoA<G<float>,W<float>,SoA<float>,SoA<float>,2>("",n);
+   doClockSoA<G<int16_t>,W<int16_t>,SoA<int16_t>,SoA<int16_t>,2>("",n);
+   doClockSoA<G<double>,W<double>,SoA<double>,SoA<double>,4>("",n);
+   doClockSoA<G<float>,W<float>,SoA<float>,SoA<float>,4>("",n);
+   doClockSoA<G<int16_t>,W<int16_t>,SoA<int16_t>,SoA<int16_t>,4>("",n);
 
    return 0;
 }

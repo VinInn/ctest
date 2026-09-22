@@ -11,14 +11,13 @@
 template<typename F>
 __host__ __device__ constexpr void init(F & f) {}
 
-
 template<typename F, typename T, typename U, int pack>
 __global__ void clockit(T outV,  U const inV, int64_t * tt, int64_t * tg, int n, int maxIter) {
      __shared__  long long ostart, lstart, lend;
      __shared__  unsigned long long  gstart, gend;
 
      int tid = blockDim.x * blockIdx.x + threadIdx.x;
-     if (tid>=n/pack) return;
+     if (pack*tid>=n) return;
      __shared__ F f;
 
      if (threadIdx.x==0) {
@@ -35,14 +34,14 @@ __global__ void clockit(T outV,  U const inV, int64_t * tt, int64_t * tg, int n,
     auto s = clock64();
     atomicMin(&lstart,s);
 
-    for (auto j=pack*threadIdx.x; j<n; j+=pack*blockDim.x)  {
+    for (auto j=pack*tid; j<n; j+=pack*(gridDim.x * blockDim.x))  {
        for (int kk=0; kk<maxIter; ++kk) {
-          for (int i=0; i<pack; ++i) 
-           f(outV,inV, j+i, kk);
+          for (int i=0; i<pack; ++i)
+           f(outV,inV, j+i, kk, n);
        }
     }
 
-    // Record end time 
+    // Record end time
     auto e = clock64();
     tt[tid] = e - s;
     atomicMax(&lend,e);
@@ -78,10 +77,10 @@ void doClockSoA(std::string const & fname="", int n=0) {
   constexpr int nB = NB;
   constexpr int nT = NT;
   constexpr int maxIter = MX;
+  if (n<=0) n = nB*nT;
 
   std::cout << "n, nb,nt, pack "  << n << ' ' << nB << ',' << nT << ' ' << pack << std::endl;
 
-  if (n<=0) n = nB*nT;
   U a;  // input
   T b;  // output
   int64_t * tt;
