@@ -2,6 +2,7 @@
 // ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','
 #include "clockSoA.h"
 #include <cassert>
+#include <cmath>
 
 template<typename T>
 struct SoA {
@@ -21,7 +22,7 @@ struct Q {
       auto w = (y.y[j]*T(1.e-12))+x.y[j];
       auto u = (y.z[j]*T(1.e-12))+x.z[j];
        y.x[j] =  v+w*u;
-       y.y[j] =  w+v*u; 
+       y.y[j] =  w+v*u;
        y.z[j] =  u+v*w;
      } else  {
        auto v = float((y.x[j]>>15)+x.x[j]);
@@ -100,11 +101,21 @@ struct G {
     y.x = b; y.y = b+n; y.z = y.y + n;
 
     int l[n];
+    T q[3*n];
     std::random_device rd;  // a seed source for the random number engine
     std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
     std::uniform_int_distribution<> rint(0,n);
+    std::uniform_real_distribution<float> rf(-1.0,1.0);
+    std::uniform_int_distribution<> rint16(-32768,-32768);
     for (int i=0; i<n;++i) l[i]=rint(gen);
-    cudaMemcpy(ind, l, sizeof(x),cudaMemcpyHostToDevice);
+    for (int i=0; i<3*n;++i) {
+      if constexpr (std::is_floating_point<T>::value)
+        q[i] = rf(gen);
+      else
+        q[i] = rint16(gen);
+    }
+    cudaMemcpy(ind, l, n*sizeof(int),cudaMemcpyHostToDevice);
+    cudaMemcpy(a, q, 3*n*sizeof(T),cudaMemcpyHostToDevice);
     return ind;
   }
   ~G() {
