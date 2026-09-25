@@ -11,7 +11,8 @@ int main() {
 
   std::cout << H4f::RowsAtCompileTime << ' ' << H4f::ColsAtCompileTime  << std::endl;
 
-  using MH4f = Eigen::Map<H4f,0,Eigen::InnerStride<1024>>; // Eigen::Stride<4*1024,1024> >;
+  using MappedStorage = Eigen::Map<Eigen::Matrix<float, 5, 2>, 0, Eigen::Stride<5 * 1024, 1024>>;
+  using MH4f = Eigen::HermitianMatrix<float, 4, 4, Eigen::Upper, Eigen::AutoAlign, MappedStorage>;
   using M4f = Eigen::Map<Eigen::Matrix4f,0,Eigen::Stride<4*1024,1024> >;
 
 
@@ -66,9 +67,9 @@ int main() {
 
 {
   std::cout << "map H" << std::endl;
-  float data[16*1024];
+  float data[10*1024];
 
-   MH4f h(data); memset(data,0,16*1024*sizeof(float));
+   MH4f h(data); memset(data,0,10*1024*sizeof(float));
 
    h << 1,12,13,14,
                     12,2,23,24,
@@ -76,7 +77,7 @@ int main() {
                     14,24,34,4;
 
    std::cout << h << std::endl;
-   for (int i=0; i<16*1024; i+=1024) std::cout << data[i] <<' ' ;
+   for (int i=0; i<10*1024; i+=1024) std::cout << data[i] <<' ' ;
    std::cout << std::endl;
 
 }
