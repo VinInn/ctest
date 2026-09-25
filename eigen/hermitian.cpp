@@ -6,8 +6,8 @@
 
 int main() {
 
-  using H4f = Eigen::HermitianMatrix<float,4>;
-  using H2f = Eigen::HermitianMatrix<float,2>;
+  using H4f = Eigen::HermitianMatrix<float,4,4>;
+  using H2f = Eigen::HermitianMatrix<float,2,2>;
 
   using MH4f = Eigen::Map<H4f,0,Eigen::Stride<4*1024,1024> >;
 
@@ -34,11 +34,13 @@ int main() {
   std::cout << a << std::endl;
 
   H2f b; b << 1,12,12,2;
-
-  // H2f c = j*b*j.transpose();  
-  //H4f c; c << VcsF;
-  
   std::cout << b << std::endl;
+
+  H2f c = j*b*j.transpose();  
+  std::cout << c << std::endl;
+
+  H4f d; d << VcsF;
+  std::cout << d << std::endl;
 
   /*
   float data[16*1024];
@@ -54,24 +56,25 @@ int main() {
 
    */
 
-/*
+
     Eigen::Matrix2f tmp = VcsF.block(0, 0, n, n);
     H2f Vcs_00 = tmp;
     Eigen::Matrix2f Vcs_01 = VcsF.block(0, n, n, n);
     H2f Vcs_11 = VcsF.block(n, n, n, n);
     Eigen::Matrix2f Vcs_10 = Vcs_01.transpose();
- 
+
+   std::cout << "blocks" << std::endl; 
 
    std::cout << Vcs_00 << std::endl;
    std::cout << Vcs_01 << std::endl;
-   std::cout << Vcs_11 << std::endl;
    std::cout << Vcs_10 << std::endl;
+   std::cout << Vcs_11 << std::endl;
 
    std::cout << std::endl;
    
-  */ 
+  
 
-/*  
+
 
    H2f C[3][3];
    std::cout << std::endl;
@@ -86,27 +89,28 @@ int main() {
    C[1][0] = j*C[0][0]*j.transpose();
    std::cout << C[1][0] << std::endl;
 
-*/
 
-/*
-   C[1][1] = (Vcs_[0][0].array()*Vcs_[0][0].array()).matrix();
+   std::cout << "array\n" << Vcs_00.array() << std::endl;
+
+   C[1][1] = (Vcs_00.array()*Vcs_00.array()).matrix();
    std::cout << C[1][1] << std::endl;
 
    std::cout << std::endl;
 
 
-  Eigen::Matrix<float,1,1> c;
-  c = v*C[0][0]*v.transpose();
-  std::cout << c << std::endl;
+  /*
+  Eigen::Matrix<float,1,1> cc;
+  cc = v*C[0][0]*v.transpose();
+  std::cout << cc << std::endl;
 
 
-  c = w.transpose()*C[0][0].selfadjointView<Eigen::Upper>()*w;
-  std::cout << c << std::endl;
-
+  cc = v.transpose()*C[0][0].selfadjointView<Eigen::Upper>()*v;
+  std::cout << cc << std::endl;
+  */
 
   Eigen::Matrix<float,2,4> q = VcsF.block(0, 0, 2, 4);
 
-  H2 qq = q*q.transpose();
+  H2f qq = q*q.transpose();
   std::cout << qq<< std::endl;
 
 
@@ -117,6 +121,7 @@ int main() {
   Eigen::Matrix<float,2,2> qqqq;
   qqqq.triangularView<Eigen::Upper>() = q*q.transpose();
   std::cout << qqqq<< std::endl;
-  */
+  
+
    return 0;
 }
