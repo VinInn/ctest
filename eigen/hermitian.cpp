@@ -9,7 +9,11 @@ int main() {
   using H4f = Eigen::HermitianMatrix<float,4,4>;
   using H2f = Eigen::HermitianMatrix<float,2,2>;
 
-  using MH4f = Eigen::Map<H4f,0,Eigen::Stride<4*1024,1024> >;
+  std::cout << H4f::RowsAtCompileTime << ' ' << H4f::ColsAtCompileTime  << std::endl;
+
+  using MH4f = Eigen::Map<H4f,0,Eigen::InnerStride<1024>>; // Eigen::Stride<4*1024,1024> >;
+  using M4f = Eigen::Map<Eigen::Matrix4f,0,Eigen::Stride<4*1024,1024> >;
+
 
   int n=2;
   H4f Vcs;
@@ -42,19 +46,40 @@ int main() {
   H4f d; d << VcsF;
   std::cout << d << std::endl;
 
-  /*
+{
+  std::cout << "map M" << std::endl;  
   float data[16*1024];
 
-   MH4f h(data);
+   M4f h(data); memset(data,0,16*1024*sizeof(float));
 
-   h(data) << 1,12,13,14,
+   h << 1,12,13,14,
                     12,2,23,24,
                     13,23,3,34,
                     14,24,34,4;
 
    std::cout << h << std::endl;
+   for (int i=0; i<16*1024; i+=1024) std::cout << data[i] <<' ' ;
+   std::cout << std::endl;
 
-   */
+}
+   
+
+{
+  std::cout << "map H" << std::endl;
+  float data[16*1024];
+
+   MH4f h(data); memset(data,0,16*1024*sizeof(float));
+
+   h << 1,12,13,14,
+                    12,2,23,24,
+                    13,23,3,34,
+                    14,24,34,4;
+
+   std::cout << h << std::endl;
+   for (int i=0; i<16*1024; i+=1024) std::cout << data[i] <<' ' ;
+   std::cout << std::endl;
+
+}
 
 
     Eigen::Matrix2f tmp = VcsF.block(0, 0, n, n);
@@ -89,10 +114,11 @@ int main() {
    C[1][0] = j*C[0][0]*j.transpose();
    std::cout << C[1][0] << std::endl;
 
+   std::cout << "array M\n" << tmp.array() << std::endl;
 
-   std::cout << "array\n" << Vcs_00.array() << std::endl;
+   std::cout << "array H\n" << Vcs_00.array() << std::endl;
 
-   C[1][1] = (Vcs_00.array()*Vcs_00.array()).matrix();
+   C[1][1] = (Vcs_00.array()*Vcs_00.array()); // .matrix();
    std::cout << C[1][1] << std::endl;
 
    std::cout << std::endl;
