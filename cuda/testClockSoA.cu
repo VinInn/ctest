@@ -23,9 +23,25 @@
 template<typename T>
 struct SoA {
    using Type = T;
-   T * x;
-   T * y;
-   T * z;
+   T * __restrict__ x;
+   T * __restrict__ y;
+   T * __restrict__ z;
+
+#ifdef CONSTM
+  __device__ __forceinline__
+   T xc(int i) const { return __ldg(x+i);}
+  __device__ __forceinline__
+   T yc(int i) const { return __ldg(y+i);}
+   __device__ __forceinline__
+   T zc(int i) const { return __ldg(z+i);}
+#else
+  __device__ __forceinline__
+   T xc(int i) const { return *(x+i);}
+  __device__ __forceinline__
+   T yc(int i) const { return *(y+i);}
+   __device__ __forceinline__
+   T zc(int i) const { return *(z+i);}
+#endif
 
 };
 
@@ -53,16 +69,16 @@ struct Q {
    constexpr void operator()(SoA<T>  y, SoA<T> const x, int const * ind, int j, int k, int n) { 
      F f;
      if constexpr (std::is_floating_point<T>::value)  {
-      auto v = (y.x[j]*T(1.e-12))+x.x[j];
-      auto w = (y.y[j]*T(1.e-12))+x.y[j];
-      auto u = (y.z[j]*T(1.e-12))+x.z[j];
+      auto v = (y.x[j]*T(1.e-12))+x.xc(j);
+      auto w = (y.y[j]*T(1.e-12))+x.yc(j);
+      auto u = (y.z[j]*T(1.e-12))+x.zc(j);
        y.x[j] =  f(v+w*u);
        y.y[j] =  f(w+v*u);
        y.z[j] =  f(u+v*w);
      } else  {
-       auto v = float((y.x[j]>>15)+x.x[j]);
-       auto w = float((y.y[j]>>15)+x.y[j]);
-       auto u = float((y.z[j]>>15)+x.z[j]);
+       auto v = float((y.x[j]>>15)+x.xc(j));
+       auto w = float((y.y[j]>>15)+x.yc(j));
+       auto u = float((y.z[j]>>15)+x.zc(j));
        y.x[j] =  f(v+w*u);
        y.y[j] =  f(w+v*u);
        y.z[j] =  f(u+v*w);
@@ -79,16 +95,16 @@ struct R {
      int j = ind[i];
      // assert(j>=0); assert(j<n);
      if constexpr (std::is_floating_point<T>::value)  {
-      auto v = (y.x[i]*T(1.e-12))+x.x[j];
-      auto w = (y.y[i]*T(1.e-12))+x.y[j];
-      auto u = (y.z[i]*T(1.e-12))+x.z[j];
+      auto v = (y.x[i]*T(1.e-12))+x.xc(j);
+      auto w = (y.y[i]*T(1.e-12))+x.yc(j);
+      auto u = (y.z[i]*T(1.e-12))+x.zc(j);
        y.x[i] =  f(v+w*u);
        y.y[i] =  f(w+v*u);
        y.z[i] =  f(u+v*w);
      } else  {
-       auto v = float((y.x[i]>>15)+x.x[j]);
-       auto w = float((y.y[i]>>15)+x.y[j]);
-       auto u = float((y.z[i]>>15)+x.z[j]);
+       auto v = float((y.x[i]>>15)+x.xc(j));
+       auto w = float((y.y[i]>>15)+x.yc(j));
+       auto u = float((y.z[i]>>15)+x.zc(j));
        y.x[i] =  f(v+w*u);
        y.y[i] =  f(w+v*u);
        y.z[i] =  f(u+v*w);
@@ -113,13 +129,13 @@ struct W {
      }
      for (int  i =a; i<b; ++i) {
      if constexpr (std::is_floating_point<T>::value)  {
-       y.x[j] =  (y.x[j]*T(1.e-12))+(x.x[j]+x.y[i]*x.z[j]);
-       y.y[j] =  (y.y[j]*T(1.e-12))+(x.y[j]+x.y[j]*x.x[i]);
-       y.z[j] =  (y.z[j]*T(1.e-12))+(x.z[i]+x.x[j]*x.y[j]);
+       y.x[j] =  (y.x[j]*T(1.e-12))+(x.xc(j)+x.yc(i)*x.zc(j));
+       y.y[j] =  (y.y[j]*T(1.e-12))+(x.yc(j)+x.yc(j)*x.xc(i));
+       y.z[j] =  (y.z[j]*T(1.e-12))+(x.zc(i)+x.xc(j)*x.yc(j));
      } else  {
-       y.x[j] =  (y.x[j]>>15)+int(float(x.x[j])+float(x.y[i])*float(x.z[j]));
-       y.y[j] =  (y.y[j]>>15)+int(float(x.y[j])+float(x.y[j])*float(x.x[i]));
-       y.z[j] =  (y.z[j]>>15)+int(float(x.z[i])+float(x.x[j])*float(x.y[j]));
+       y.x[j] =  (y.x[j]>>15)+int(float(x.xc(j))+float(x.yc(i))*float(x.zc(j)));
+       y.y[j] =  (y.y[j]>>15)+int(float(x.yc(j))+float(x.yc(j))*float(x.xc(i)));
+       y.z[j] =  (y.z[j]>>15)+int(float(x.zc(i))+float(x.xc(j))*float(x.yc(j)));
      }
      }
    }
