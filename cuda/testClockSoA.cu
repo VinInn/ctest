@@ -1,5 +1,5 @@
 // nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=10000
-// ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','
+// ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
 #include "clockSoA.h"
 #include <cassert>
 #include <cmath>
