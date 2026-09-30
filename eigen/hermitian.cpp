@@ -11,8 +11,9 @@ int main() {
 
   std::cout << H4f::RowsAtCompileTime << ' ' << H4f::ColsAtCompileTime  << std::endl;
 
-  using MappedStorage = Eigen::Map<Eigen::Matrix<float, 5, 2>, 0, Eigen::Stride<5 * 1024, 1024>>;
-  using MH4f = Eigen::HermitianMatrix<float, 4, 4, Eigen::Upper, Eigen::AutoAlign, MappedStorage>;
+  // using MappedStorage = Eigen::Map<Eigen::Matrix<float, 5, 2>, 0, Eigen::Stride<5 * 1024, 1024>>;
+  using MH4f = Eigen::Map<Eigen::HermitianMatrix<float, 4, 4>, 0, Eigen::Stride<1024, 1024>>;
+  // using MH4f = Eigen::HermitianMatrix<float, 4, 4, Eigen::Upper, Eigen::AutoAlign, MappedStorage>;
   using M4f = Eigen::Map<Eigen::Matrix4f,0,Eigen::Stride<4*1024,1024> >;
 
 
