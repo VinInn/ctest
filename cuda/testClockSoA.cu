@@ -72,13 +72,13 @@ constexpr uint32_t shift15(uint32_t x) {
 constexpr std::tuple<float,float>  unpack(uint32_t x) {
     uint16_t uj = x&0xFFFF;
     uint16_t ui = (x&0xFFFF0000)>>16;
-    return {std::bit_cast<int16_t>(ui),std::bit_cast<int16_t>(uj)};
+    return {float(std::bit_cast<int16_t>(ui)),float(std::bit_cast<int16_t>(uj))};
 }
 constexpr uint32_t pack(float a1, float a2) {
-  int16_t i = a1; int16_t j = a2;  // should be round
+  int16_t i = roundf(a1); int16_t j = roundf(a2);
   uint32_t ui = std::bit_cast<uint16_t>(i);
   uint32_t uj = std::bit_cast<uint16_t>(j);
-  return (ui<<16) & uj;
+  return (ui<<16) | uj;
 }
 
 
@@ -106,18 +106,25 @@ struct Q {
         y.z[j] =  f(u+v*w);
        }
      } else if constexpr (std::is_same<uint32_t, typename std::remove_cv<T>::type>::value) {
-       auto iv = y.x[j]; iv = __vadd2(shift15(iv),x.xc(j));
-       auto iw = y.y[j]; iw = __vadd2(shift15(iw),x.yc(j));
-       auto iu = y.z[j]; iu = __vadd2(shift15(iu),x.zc(j));
-       auto [v1,v2] = unpack(iv);
-       auto [w1,w2] = unpack(iw);
-       auto [u1,u2] = unpack(iu);
+       auto s =  k>> 16;
+       auto iv = x.xc(j);
+       auto iw = x.yc(j);
+       auto iu = x.zc(j);
+       iv  =  __vadd2(shift15(y.x[j]),iv);
+       iw =  __vadd2(shift15(y.y[j]),iw);
+       iu =  __vadd2(shift15(y.z[j]),iu);
+       
+       auto [v1,v2] = unpack(iv+s);
+       auto [w1,w2] = unpack(iw+s);
+       auto [u1,u2] = unpack(iu+s);
        iv = pack(f(v1+w1*u1),f(v2+w2*u2));
        iw = pack(f(w1+v1*u1),f(w2+v2*u2));
        iu = pack(f(u1+v1*w1),f(u2+v2*w2));
+       
        y.x[j] =  iv;
        y.y[j] =  iw;
-       y.z[j] =  iu;
+       y.z[j] =  iu; 
+
      } else {  // int16
        auto v = float((y.x[j]>>15)+x.xc(j));
        auto w = float((y.y[j]>>15)+x.yc(j));
