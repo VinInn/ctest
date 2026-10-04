@@ -3,6 +3,7 @@
 #include "clockSoA.h"
 #include <cassert>
 #include <cmath>
+#include <cuda_fp16.h>
 
 #ifndef HOST_DEVICE_CONSTANT
 #ifdef __CUDA_ARCH__
@@ -67,14 +68,25 @@ struct U {
 template<typename T, typename F>
 struct Q {
    constexpr void operator()(SoA<T>  y, SoA<T> const x, int const * ind, int j, int k, int n) { 
-     F f;
-     if constexpr (std::is_floating_point<T>::value)  {
-      auto v = (y.x[j]*T(1.e-12))+x.xc(j);
-      auto w = (y.y[j]*T(1.e-12))+x.yc(j);
-      auto u = (y.z[j]*T(1.e-12))+x.zc(j);
-       y.x[j] =  f(v+w*u);
-       y.y[j] =  f(w+v*u);
-       y.z[j] =  f(u+v*w);
+     F f;   
+     if constexpr (std::is_floating_point<T>::value 
+                   || std::is_same<half, typename std::remove_cv<T>::type>::value
+                   || std::is_same<half2, typename std::remove_cv<T>::type>::value)  {
+       if constexpr (std::is_same<half2, typename std::remove_cv<T>::type>::value) {
+        auto v = (y.x[j]*T(1.e-12,1.e-12))+x.xc(j);
+        auto w = (y.y[j]*T(1.e-12,1.e-12))+x.yc(j);
+        auto u = (y.z[j]*T(1.e-12,1.e-12))+x.zc(j);
+        y.x[j] =  f(v+w*u);
+        y.y[j] =  f(w+v*u);
+        y.z[j] =  f(u+v*w);
+       }else {
+        auto v = (y.x[j]*T(1.e-12))+x.xc(j);
+        auto w = (y.y[j]*T(1.e-12))+x.yc(j);
+        auto u = (y.z[j]*T(1.e-12))+x.zc(j);
+        y.x[j] =  f(v+w*u);
+        y.y[j] =  f(w+v*u);
+        y.z[j] =  f(u+v*w);
+       }
      } else  {
        auto v = float((y.x[j]>>15)+x.xc(j));
        auto w = float((y.y[j]>>15)+x.yc(j));
@@ -88,13 +100,17 @@ struct Q {
 
 
 
+
+
 template<typename T, typename F>
 struct R {
    constexpr void operator()(SoA<T>  y, SoA<T> const x, int const * ind, int i, int k, int n) {
      F f;
      int j = ind[i];
      // assert(j>=0); assert(j<n);
-     if constexpr (std::is_floating_point<T>::value)  {
+    if constexpr (std::is_floating_point<T>::value
+                   || std::is_same<half, typename std::remove_cv<T>::type>::value
+                   || std::is_same<half2, typename std::remove_cv<T>::type>::value)  {
       auto v = (y.x[i]*T(1.e-12))+x.xc(j);
       auto w = (y.y[i]*T(1.e-12))+x.yc(j);
       auto u = (y.z[i]*T(1.e-12))+x.zc(j);
@@ -165,8 +181,10 @@ struct G {
     for (int i=0; i<n;++i) l[i]=rint(gen);
 #endif
     for (int i=0; i<3*n;++i) {
-      if constexpr (std::is_floating_point<T>::value)
+      if constexpr (std::is_floating_point<T>::value || std::is_same<half, typename std::remove_cv<T>::type>::value)
         q[i] = rf(gen);
+      else if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value)
+         q[i] = half2{rf(gen), rf(gen)};
       else
         q[i] = rint16(gen);
     }
@@ -193,19 +211,20 @@ int main() {
    doClockSoA<G<double>,Q<double,U<double>>,SoA<double>,SoA<double>>("d l",n);
    doClockSoA<G<float>,Q<float,U<float>>,SoA<float>,SoA<float>>("f l",n);
    doClockSoA<G<int16_t>,Q<int16_t,U<float>>,SoA<int16_t>,SoA<int16_t>>("i l",n);
-   doClockSoA<G<double>,Q<double,U<double>>,SoA<double>,SoA<double>,2>("dl ",n);
+   doClockSoA<G<double>,Q<double,U<double>>,SoA<double>,SoA<double>,2>("d l ",n);
    doClockSoA<G<float>,Q<float,U<float>>,SoA<float>,SoA<float>,2>("f l",n);
    doClockSoA<G<int16_t>,Q<int16_t,U<float>>,SoA<int16_t>,SoA<int16_t>,2>("i l",n);
-   doClockSoA<G<double>,Q<double,U<double>>,SoA<double>,SoA<double>,4>("d l",n);
-   doClockSoA<G<float>,Q<float,U<float>>,SoA<float>,SoA<float>,4>("f l",n);
-   doClockSoA<G<int16_t>,Q<int16_t,U<float>>,SoA<int16_t>,SoA<int16_t>,4>("i l",n);
+
+   doClockSoA<G<half>,Q<half,U<half>>,SoA<half>,SoA<half>,1>("h l",n);
+   doClockSoA<G<half>,Q<half,U<half>>,SoA<half>,SoA<half>,2>("h l",n);
+   doClockSoA<G<half2>,Q<half2,U<half2>>,SoA<half2>,SoA<half2>,1>("h2 l",n/2);
 
 
    doClockSoA<G<double>,R<double,U<double>>,SoA<double>,SoA<double>>("d r",n);
    doClockSoA<G<float>,R<float,U<float>>,SoA<float>,SoA<float>>("f r",n);
    doClockSoA<G<int16_t>,R<int16_t,U<float>>,SoA<int16_t>,SoA<int16_t>>("i r",n);
    doClockSoA<G<double>,R<double,U<double>>,SoA<double>,SoA<double>,2>("d r",n);
-   doClockSoA<G<float>,R<float,U<float>>,SoA<float>,SoA<float>,2>("f t",n);
+   doClockSoA<G<float>,R<float,U<float>>,SoA<float>,SoA<float>,2>("f r",n);
    doClockSoA<G<int16_t>,R<int16_t,U<float>>,SoA<int16_t>,SoA<int16_t>,2>("i r",n);
 
 

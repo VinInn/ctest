@@ -6,7 +6,7 @@
 
 int main() {
 
-  using float16_t = __fp16;
+  using float16_t = __half;
 
 std::cout << "float16\t"
               << float(std::numeric_limits<float16_t>::lowest()) << '\t'
