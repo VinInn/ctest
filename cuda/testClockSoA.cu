@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <cuda_fp16.h>
+#include <bit>
 
 #ifndef HOST_DEVICE_CONSTANT
 #ifdef __CUDA_ARCH__
@@ -64,6 +65,23 @@ struct U {
    HD_INLINE T operator()(T x) { return x;}
 };
 
+
+constexpr uint32_t shift15(uint32_t x) {
+    return (x>>15)&(0x00010001);
+}
+constexpr std::tuple<float,float>  unpack(uint32_t x) {
+    uint16_t uj = x&0xFFFF;
+    uint16_t ui = (x&0xFFFF0000)>>16;
+    return {std::bit_cast<int16_t>(ui),std::bit_cast<int16_t>(uj)};
+}
+constexpr uint32_t pack(float a1, float a2) {
+  int16_t i = a1; int16_t j = a2;  // should be round
+  uint32_t ui = std::bit_cast<uint16_t>(i);
+  uint32_t uj = std::bit_cast<uint16_t>(j);
+  return (ui<<16) & uj;
+}
+
+
 // 1D 
 template<typename T, typename F>
 struct Q {
@@ -87,13 +105,27 @@ struct Q {
         y.y[j] =  f(w+v*u);
         y.z[j] =  f(u+v*w);
        }
-     } else  {
+     } else if constexpr (std::is_same<uint32_t, typename std::remove_cv<T>::type>::value) {
+       auto iv = y.x[j]; iv = __vadd2(shift15(iv),x.xc(j));
+       auto iw = y.y[j]; iw = __vadd2(shift15(iw),x.yc(j));
+       auto iu = y.z[j]; iu = __vadd2(shift15(iu),x.zc(j));
+       auto [v1,v2] = unpack(iv);
+       auto [w1,w2] = unpack(iw);
+       auto [u1,u2] = unpack(iu);
+       iv = pack(f(v1+w1*u1),f(v2+w2*u2));
+       iw = pack(f(w1+v1*u1),f(w2+v2*u2));
+       iu = pack(f(u1+v1*w1),f(u2+v2*w2));
+       y.x[j] =  iv;
+       y.y[j] =  iw;
+       y.z[j] =  iu;
+     } else {  // int16
        auto v = float((y.x[j]>>15)+x.xc(j));
        auto w = float((y.y[j]>>15)+x.yc(j));
        auto u = float((y.z[j]>>15)+x.zc(j));
        y.x[j] =  f(v+w*u);
        y.y[j] =  f(w+v*u);
        y.z[j] =  f(u+v*w);
+
      }
    }
 };
@@ -218,6 +250,7 @@ int main() {
    doClockSoA<G<half>,Q<half,U<half>>,SoA<half>,SoA<half>,1>("h l",n);
    doClockSoA<G<half>,Q<half,U<half>>,SoA<half>,SoA<half>,2>("h l",n);
    doClockSoA<G<half2>,Q<half2,U<half2>>,SoA<half2>,SoA<half2>,1>("h2 l",n/2);
+   doClockSoA<G<uint32_t>,Q<uint32_t,U<float>>,SoA<uint32_t>,SoA<uint32_t>,1>("i2 l",n/2);
 
 
    doClockSoA<G<double>,R<double,U<double>>,SoA<double>,SoA<double>>("d r",n);
