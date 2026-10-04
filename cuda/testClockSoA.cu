@@ -91,12 +91,12 @@ struct Q {
                    || std::is_same<half, typename std::remove_cv<T>::type>::value
                    || std::is_same<half2, typename std::remove_cv<T>::type>::value)  {
        if constexpr (std::is_same<half2, typename std::remove_cv<T>::type>::value) {
-        auto v = (y.x[j]*T(1.e-12,1.e-12))+x.xc(j);
-        auto w = (y.y[j]*T(1.e-12,1.e-12))+x.yc(j);
-        auto u = (y.z[j]*T(1.e-12,1.e-12))+x.zc(j);
-        y.x[j] =  f(v+w*u);
-        y.y[j] =  f(w+v*u);
-        y.z[j] =  f(u+v*w);
+        auto v = __hfma2(y.x[j],T(1.e-12,1.e-12),x.xc(j));
+        auto w = __hfma2(y.y[j],T(1.e-12,1.e-12),x.yc(j));
+        auto u = __hfma2(y.z[j],T(1.e-12,1.e-12),x.zc(j));
+        y.x[j] =  f(__hfma2(w,u,v));
+        y.y[j] =  f(__hfma2(v,u,w));
+        y.z[j] =  f(__hfma2(v,w,u));
        }else {
         auto v = (y.x[j]*T(1.e-12))+x.xc(j);
         auto w = (y.y[j]*T(1.e-12))+x.yc(j);
