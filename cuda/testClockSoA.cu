@@ -51,11 +51,21 @@ struct SoA {
 template<typename T>
 struct poly {
    using Float=T;
-   HD_INLINE T operator()(T x) {
-     x = std::abs(x);
+   __device__ __forceinline__  T operator()(T x) {
+    if constexpr (std::is_same<half2, typename std::remove_cv<T>::type>::value) {
+      x = __habs2(x);
+     return
+     __float2half2_rn(0.999999986449f) + x*(__float2half2_rn(2.06961523705e-6f) + x*( __float2half2_rn(-0.500073072319f) + x*( __float2half2_rn(0.00106750423055f) + x*( __float2half2_rn(0.200707822535f) + x*( __float2half2_rn(0.0295750777896f) + x*( __float2half2_rn(-0.150307883454f) + x*( __float2half2_rn(0.0821370891714f) + x*__float2half2_rn(-0.0150543655971f)
+      )))))));
+    } else {
+     if constexpr (std::is_same<half, typename std::remove_cv<T>::type>::value)
+       x = __habs(x);
+     else 
+       x = std::abs(x);
      return
      T(0.999999986449) + x*(T(2.06961523705e-6) + x*( T(-0.500073072319) + x*( T(0.00106750423055) + x*( T(0.200707822535) + x*( T(0.0295750777896) + x*( T(-0.150307883454) + x*( T(0.0821370891714) + x*T(-0.0150543655971)
       )))))));
+     }
    }
 };
 
@@ -247,49 +257,62 @@ struct G {
 int main() {
 
    int n = 256*1024;
+   // 0-3  lin1
    doClockSoA<G<double>,Q<double,U<double>>,SoA<double>,SoA<double>>("d l",n);
    doClockSoA<G<float>,Q<float,U<float>>,SoA<float>,SoA<float>>("f l",n);
    doClockSoA<G<int16_t>,Q<int16_t,U<float>>,SoA<int16_t>,SoA<int16_t>>("i l",n);
+   doClockSoA<G<half>,Q<half,U<half>>,SoA<half>,SoA<half>,1>("h l",n);
+
+   // 4-9 lin2
    doClockSoA<G<double>,Q<double,U<double>>,SoA<double>,SoA<double>,2>("d l ",n);
    doClockSoA<G<float>,Q<float,U<float>>,SoA<float>,SoA<float>,2>("f l",n);
    doClockSoA<G<int16_t>,Q<int16_t,U<float>>,SoA<int16_t>,SoA<int16_t>,2>("i l",n);
-
-   doClockSoA<G<half>,Q<half,U<half>>,SoA<half>,SoA<half>,1>("h l",n);
    doClockSoA<G<half>,Q<half,U<half>>,SoA<half>,SoA<half>,2>("h l",n);
    doClockSoA<G<half2>,Q<half2,U<half2>>,SoA<half2>,SoA<half2>,1>("h2 l",n/2);
    doClockSoA<G<uint32_t>,Q<uint32_t,U<float>>,SoA<uint32_t>,SoA<uint32_t>,1>("i2 l",n/2);
 
-
+   // 10-13 ran 1
    doClockSoA<G<double>,R<double,U<double>>,SoA<double>,SoA<double>>("d r",n);
    doClockSoA<G<float>,R<float,U<float>>,SoA<float>,SoA<float>>("f r",n);
    doClockSoA<G<int16_t>,R<int16_t,U<float>>,SoA<int16_t>,SoA<int16_t>>("i r",n);
+   doClockSoA<G<half>,R<half,U<half>>,SoA<half>,SoA<half>,1>("h r",n);
+
+   // 14-17
    doClockSoA<G<double>,R<double,U<double>>,SoA<double>,SoA<double>,2>("d r",n);
    doClockSoA<G<float>,R<float,U<float>>,SoA<float>,SoA<float>,2>("f r",n);
    doClockSoA<G<int16_t>,R<int16_t,U<float>>,SoA<int16_t>,SoA<int16_t>,2>("i r",n);
+   doClockSoA<G<half>,R<half,U<half>>,SoA<half>,SoA<half>,2>("h r",n);
 
-
+   // 18-21 p l 1 
    doClockSoA<G<double>,Q<double,poly<double>>,SoA<double>,SoA<double>>("d pl",n);
    doClockSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>>("f pl",n);
    doClockSoA<G<int16_t>,Q<int16_t,poly<float>>,SoA<int16_t>,SoA<int16_t>>("i pl",n);
+   doClockSoA<G<half>,Q<half,poly<half>>,SoA<half>,SoA<half>,1>("h pl",n);
+   // 22-26 p l 2 
    doClockSoA<G<double>,Q<double,poly<double>>,SoA<double>,SoA<double>,2>("d pl ",n);
    doClockSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,2>("f pl",n);
    doClockSoA<G<int16_t>,Q<int16_t,poly<float>>,SoA<int16_t>,SoA<int16_t>,2>("i pl",n);
+   doClockSoA<G<half2>,Q<half2,poly<half2>>,SoA<half2>,SoA<half2>,1>("h2 pl",n/2);
+   doClockSoA<G<uint32_t>,Q<uint32_t,poly<float>>,SoA<uint32_t>,SoA<uint32_t>,1>("i2 pl",n/2);
 
-
+    // 27--- p r
    doClockSoA<G<double>,R<double,poly<double>>,SoA<double>,SoA<double>>("d pr",n);
    doClockSoA<G<float>,R<float,poly<float>>,SoA<float>,SoA<float>>("f pr",n);
    doClockSoA<G<int16_t>,R<int16_t,poly<float>>,SoA<int16_t>,SoA<int16_t>>("i pr",n);
+   doClockSoA<G<half>,R<half,poly<half>>,SoA<half>,SoA<half>,1>("h pr",n);
    doClockSoA<G<double>,R<double,poly<double>>,SoA<double>,SoA<double>,2>("d pr",n);
    doClockSoA<G<float>,R<float,poly<float>>,SoA<float>,SoA<float>,2>("f t",n);
    doClockSoA<G<int16_t>,R<int16_t,poly<float>>,SoA<int16_t>,SoA<int16_t>,2>("i pr",n);
+   doClockSoA<G<half>,R<half,poly<half>>,SoA<half>,SoA<half>,2>("h pr",n);
 
-
+/*
    doClockSoA<G<double>,W<double,true>,SoA<double>,SoA<double>>("",n);
    doClockSoA<G<float>,W<float,true>,SoA<float>,SoA<float>>("",n);
    doClockSoA<G<int16_t>,W<int16_t,true>,SoA<int16_t>,SoA<int16_t>>("",n);
    doClockSoA<G<double>,W<double,false>,SoA<double>,SoA<double>>("",n);
    doClockSoA<G<float>,W<float,false>,SoA<float>,SoA<float>>("",n);
    doClockSoA<G<int16_t>,W<int16_t,false>,SoA<int16_t>,SoA<int16_t>>("",n);
+*/
 
    return 0;
 }
