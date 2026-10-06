@@ -30,4 +30,4 @@ metrics+="dram__bytes.sum,\
 lts__t_bytes.sum,\
 l1tex__t_bytes.sum"
 
-/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics $metrics --csv  ./a.out
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics $metrics --csv --clock-control none  ./a.out
