@@ -13,12 +13,13 @@ __host__ __device__ constexpr void init(F & f) {}
 
 template<typename F, typename T, typename U, int pack>
 __global__ void clockit(T outV,  U const inV, int const * ind, int64_t * tt, int64_t * tg, int n, int maxIter) {
-     __shared__  long long ostart, lstart, lend;
-     __shared__  unsigned long long  gstart, gend;
-
-     int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
      if (pack*tid>=n) return;
      __shared__ F f;
+
+#ifndef NCU
+     __shared__  long long ostart, lstart, lend;
+     __shared__  unsigned long long  gstart, gend;
 
      if (threadIdx.x==0) {
       init(f);
@@ -33,14 +34,14 @@ __global__ void clockit(T outV,  U const inV, int const * ind, int64_t * tt, int
     atomicMin(&gstart,ss);
     auto s = clock64();
     atomicMin(&lstart,s);
-
+#endif
     for (auto j=pack*tid; j<n; j+=pack*(gridDim.x * blockDim.x))  {
        for (int kk=0; kk<maxIter; ++kk) {
           for (int i=0; i<pack; ++i)
            f(outV,inV, ind, j+i, kk, n);
        }
     }
-
+#ifndef NCU
     // Record end time
     auto e = clock64();
     tt[tid] = e - s;
@@ -55,6 +56,7 @@ __global__ void clockit(T outV,  U const inV, int const * ind, int64_t * tt, int
       tg[blockIdx.x+2*gridDim.x] =  gend - gstart;
 
     }
+#endif
 }
 
 #include<iostream>
@@ -98,7 +100,7 @@ void doClockSoA(std::string const & fname="", int n=0) {
   cudaDeviceSynchronize();
 
 //   std::cout << fname << "(" <<a[nT-1] <<") = "<< b[nT-1] << std::endl;
-
+#ifndef NCU
 #ifdef THTIME
   for (int i=0; i<n; ++i) std::cout << tt[i] <<  ' ';
   std::cout << '\n' << std::endl;
@@ -107,7 +109,7 @@ void doClockSoA(std::string const & fname="", int n=0) {
   for (int i=0; i<nB; ++i) 
      std::cout << '(' << tg[i] << ' ' << tg[i+nB] <<  ' ' << tg[i+nB+nB] << ") ";
   std::cout << '\n' << std::endl;
-
+#endif
   cudaFree(tt);
   cudaFree(tg);
 }

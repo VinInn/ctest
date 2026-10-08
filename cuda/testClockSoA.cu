@@ -101,16 +101,16 @@ struct Q {
                    || std::is_same<half, typename std::remove_cv<T>::type>::value
                    || std::is_same<half2, typename std::remove_cv<T>::type>::value)  {
        if constexpr (std::is_same<half2, typename std::remove_cv<T>::type>::value) {
-        auto v = __hfma2(y.x[j],T(1.e-12,1.e-12),x.xc(j));
-        auto w = __hfma2(y.y[j],T(1.e-12,1.e-12),x.yc(j));
-        auto u = __hfma2(y.z[j],T(1.e-12,1.e-12),x.zc(j));
+        auto v = __hfma2(y.x[j],T(1.e-9,1.e-9),x.xc(j));
+        auto w = __hfma2(y.y[j],T(1.e-9,1.e-9),x.yc(j));
+        auto u = __hfma2(y.z[j],T(1.e-9,1.e-9),x.zc(j));
         y.x[j] =  f(__hfma2(w,u,v));
         y.y[j] =  f(__hfma2(v,u,w));
         y.z[j] =  f(__hfma2(v,w,u));
        }else {
-        auto v = (y.x[j]*T(1.e-12))+x.xc(j);
-        auto w = (y.y[j]*T(1.e-12))+x.yc(j);
-        auto u = (y.z[j]*T(1.e-12))+x.zc(j);
+        auto v = (y.x[j]*T(1.e-9))+x.xc(j);
+        auto w = (y.y[j]*T(1.e-9))+x.yc(j);
+        auto u = (y.z[j]*T(1.e-9))+x.zc(j);
         y.x[j] =  f(v+w*u);
         y.y[j] =  f(w+v*u);
         y.z[j] =  f(u+v*w);
@@ -256,7 +256,8 @@ struct G {
 
 int main() {
 
-   int n = 256*1024;
+   int n = 240*1024;
+
    // 0-3  lin1
    doClockSoA<G<double>,Q<double,U<double>>,SoA<double>,SoA<double>>("d l",n);
    doClockSoA<G<float>,Q<float,U<float>>,SoA<float>,SoA<float>>("f l",n);
@@ -288,6 +289,7 @@ int main() {
    doClockSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>>("f pl",n);
    doClockSoA<G<int16_t>,Q<int16_t,poly<float>>,SoA<int16_t>,SoA<int16_t>>("i pl",n);
    doClockSoA<G<half>,Q<half,poly<half>>,SoA<half>,SoA<half>,1>("h pl",n);
+
    // 22-26 p l 2 
    doClockSoA<G<double>,Q<double,poly<double>>,SoA<double>,SoA<double>,2>("d pl ",n);
    doClockSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,2>("f pl",n);
@@ -304,6 +306,7 @@ int main() {
    doClockSoA<G<float>,R<float,poly<float>>,SoA<float>,SoA<float>,2>("f t",n);
    doClockSoA<G<int16_t>,R<int16_t,poly<float>>,SoA<int16_t>,SoA<int16_t>,2>("i pr",n);
    doClockSoA<G<half>,R<half,poly<half>>,SoA<half>,SoA<half>,2>("h pr",n);
+
 
 /*
    doClockSoA<G<double>,W<double,true>,SoA<double>,SoA<double>>("",n);

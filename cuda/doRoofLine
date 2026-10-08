@@ -1,43 +1,47 @@
 echo 'times =np.array([\n['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=1
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=1
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=2
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=2
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=4
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=4
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=8
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=8
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=16
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=16
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=32
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=32
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=64
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=64
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=128
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=128
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=1024
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=256
+./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=1024
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
 echo        '])'
 echo 'times = times.transpose()'
 
 echo 'ctimes =np.array([\n['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=1 -DCONSTM
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=1 -DCONSTM
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=2 -DCONSTM
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=2 -DCONSTM
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=4 -DCONSTM
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=4 -DCONSTM
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=8 -DCONSTM
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=8 -DCONSTM
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=16 -DCONSTM
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=16 -DCONSTM
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=32 -DCONSTM
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=32 -DCONSTM
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=64 -DCONSTM
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=64 -DCONSTM
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=128 -DCONSTM
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=128 -DCONSTM
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=4 -DMX=1024 -DCONSTM
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=256 -DCONSTM
+./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DMX=1024 -DCONSTM
 ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
 echo        '])'
 echo 'ctimes = ctimes.transpose()'

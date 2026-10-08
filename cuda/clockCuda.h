@@ -14,6 +14,7 @@ __host__ __device__ constexpr void init(F & f) {}
 
 template<typename F, typename T, typename U=T>
 __global__ void clockit(T * outV,  U const * inV, int64_t * tt, int64_t * tg, int n,  int maxIter) {
+#ifndef NCU
      __shared__  long long ostart, lstart, lend;
      __shared__  unsigned long long  gstart, gend;
 
@@ -36,7 +37,7 @@ __global__ void clockit(T * outV,  U const * inV, int64_t * tt, int64_t * tg, in
     atomicMin(&gstart,ss);
     auto s = clock64();
     atomicMin(&lstart,s);
-
+#endif
     // for (auto j=threadIdx.x; j<n; j+=blockDim.x) {
        for (int kk=0; kk<maxIter; ++kk) {
          if constexpr (std::is_floating_point<T>::value) {
@@ -48,7 +49,7 @@ __global__ void clockit(T * outV,  U const * inV, int64_t * tt, int64_t * tg, in
          }
        }
     // }
-
+#ifndef NCU
     // Record end time 
     auto e = clock64();
     tt[tid] = e - s;
@@ -63,7 +64,7 @@ __global__ void clockit(T * outV,  U const * inV, int64_t * tt, int64_t * tg, in
       tg[blockIdx.x+2*gridDim.x] =  gend - gstart;
 
     }
-
+#endif
     outV[tid]=m2;
 }
 
@@ -110,6 +111,7 @@ void doClock(std::string const & fname="") {
   clockit<F,T,U><<<nB,nT,0,0>>>(b, a, tt,tg,n, maxIter);
   cudaDeviceSynchronize();
 
+#ifndef NCU
   std::cout << fname << "(" <<a[nT-1] <<") = "<< b[nT-1] << std::endl;
 
 #ifdef THTIME
@@ -120,6 +122,7 @@ void doClock(std::string const & fname="") {
   for (int i=0; i<nB; ++i) 
      std::cout << '(' << tg[i] << ' ' << tg[i+nB] <<  ' ' << tg[i+nB+nB] << ") ";
   std::cout << '\n' << std::endl;
+#endif
 
   cudaFree(a);
   cudaFree(b);
