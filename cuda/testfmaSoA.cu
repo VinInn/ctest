@@ -1,5 +1,6 @@
 //
 // /opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__sass_thread_inst_executed_op_dfma_pred_on.sum,sm__sass_thread_inst_executed_op_ffma_pred_on.sum,,sm__sass_thread_inst_executed_op_hfma_pred_on.sum ./a.out
+// https://godbolt.org/z/675bee119
 
 #include <cuda_fp16.h>
 
