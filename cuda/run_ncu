@@ -25,6 +25,14 @@ sm__sass_thread_inst_executed_op_hmul_pred_on.sum,"
 # Tensor Core
 metrics+="sm__inst_executed_pipe_tensor.sum,"
 
+# all
+metrics+="sm__sass_thread_inst_executed_pred_on.sum,,\
+sm__sass_thread_inst_executed_op_fp16_pred_on.sum,,\
+sm__sass_thread_inst_executed_op_fp32_pred_on.sum,,\
+sm__sass_thread_inst_executed_op_fp64_pred_on.sum,,\
+sm__sass_thread_inst_executed_op_integer_pred_on.sum,,"
+
+
 # DRAM, L2 and L1
 metrics+="dram__bytes.sum,\
 lts__t_bytes.sum,\
