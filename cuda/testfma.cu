@@ -18,6 +18,15 @@ __global__ void dofma( T * __restrict__ out, T * const __restrict__  x, T * cons
      }
 }
 
+template<typename T>
+__global__ void doOtherOp(T * __restrict__ out, T * const __restrict__  x, T * const __restrict__ y, T * const __restrict__  z, int n) {
+     int tid = blockDim.x * blockIdx.x + threadIdx.x;
+     if (tid>=n) return;
+     for (auto j=tid; j<n; j+=(gridDim.x * blockDim.x))  {
+       out[j] = sqrtf(x[j]) + __frcp_rn(y[j]) + x[j]/z[j] + rsqrtf(out[j]);
+     }
+}
+
 int main() {
  
  double * d;
@@ -36,6 +45,7 @@ int main() {
  dofma<float><<<40,64,0,0>>>(f,f+n,f+2*n,f+3*n,n);
  dofma<half><<<40,64,0,0>>>(h,h+n,h+2*n,h+3*n,n);
  dofma<half2><<<40,64,0,0>>>(h2,h2+n/2,h2+2*n/2,h2+3*n/2,n/2);
+ doOtherOp<float><<<40,64,0,0>>>(f,f+n,f+2*n,f+3*n,n);
 
  cudaDeviceSynchronize();
 
