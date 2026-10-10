@@ -106,9 +106,14 @@ void doClockSoA(std::string const & fname="", int n=0) {
   std::cout << '\n' << std::endl;
 #endif
   std::cout << "gtime ";
-  for (int i=0; i<nB; ++i) 
+  double av=0; int64_t mx=0;
+  for (int i=0; i<nB; ++i) { av+=tg[i+nB]; mx = std::max(mx,tg[i+nB]);
      std::cout << '(' << tg[i] << ' ' << tg[i+nB] <<  ' ' << tg[i+nB+nB] << ") ";
-  std::cout << '\n' << std::endl;
+  }
+  std::cout << std::endl;
+  std::cout << "average " << av/nB << std::endl;
+  std::cout << "max " << mx << std::endl;
+  std::cout << std::endl;
 #endif
   cudaFree(tt);
   cudaFree(tg);

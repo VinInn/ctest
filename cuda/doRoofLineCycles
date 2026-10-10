@@ -1,0 +1,48 @@
+echo 'times =np.array([\n['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=1
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=2
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=4
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=8
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=16
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=32
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=64
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=128
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=256
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=1024
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+echo        '])'
+echo 'times = times.transpose()'
+
+echo 'ctimes =np.array([\n['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=1 -DCONSTM
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=2 -DCONSTM
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=4 -DCONSTM
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=8 -DCONSTM
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=16 -DCONSTM
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=32 -DCONSTM
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=64 -DCONSTM
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=128 -DCONSTM
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=256 -DCONSTM
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testClockSoA.cu -DNT=512 -DNB=40 -DNCU -DMX=1024 -DCONSTM
+/opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg --clock-control none --csv ./a.out | grep cycle | tr '"' ' ' | sed 's/.*,//' | tr '\n' ','; echo ']\n,['
+echo        '])'
+echo 'ctimes = ctimes.transpose()'
+
