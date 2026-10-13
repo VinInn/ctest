@@ -1,4 +1,5 @@
 // nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 benchSoA.cu -DNT=512 -DNB=4 -DMX=10000
+//  /opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg,sm__sass_thread_inst_executed_op_fp32_pred_on.sum,sm__sass_thread_inst_executed_op_integer_pred_on.sum,sm__sass_thread_inst_executed_pred_on.sum,dram__bytes.sum ./a.out
 // ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
 #include "benchSoA.h"
 #include <cassert>
@@ -98,11 +99,24 @@ constexpr half2 assign(double x) { return half2(x,x);}
 
 
 // 1D 
-template<typename T, typename F>
+template<typename T, typename F, int D=0>
 struct Q {
-   constexpr void operator()(SoA<T>  y, SoA<T> const x, int const * ind, int j, int k, int n) { 
+   constexpr void operator()(SoA<T>  y, SoA<T> const x, int const * __restrict__ ind, int j, int k, int n) { 
      F f;
      const /*expr*/ T c = assign<T>(1.e-12);
+
+     if(D==1) {
+      if (0==j%2) return;
+     }
+     if (D==2 && 0==j%2) {
+        auto v = (y.y[j]*c)+x.xc(j);
+        auto w = (y.z[j]*c)+x.yc(j);
+        auto u = (y.x[j]*c)+x.zc(j);
+        y.x[j] =  f(v+w*u);
+        y.y[j] =  f(w+v*u);
+        y.z[j] =  f(u+v*w);
+        return;
+     }
      if constexpr (std::is_floating_point<T>::value 
                    || std::is_same<half, typename std::remove_cv<T>::type>::value
                    || std::is_same<half2, typename std::remove_cv<T>::type>::value)  {
@@ -255,6 +269,21 @@ int main() {
 
    int n = 240*1024;
 
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,64,1, 128>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,128,1, 128>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,256,1, 128>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>,1>,SoA<float>,SoA<float>,256,1, 128>("f pl div1",n);
+   doBenchSoA<G<float>,Q<float,poly<float>,2>,SoA<float>,SoA<float>,256,1, 128>("f pl div2",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,1, 128>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,2, 128>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,4, 128>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,10, 128>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,20, 128>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,40, 128>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>,1>,SoA<float>,SoA<float>,512,40, 128>("f pl div1",n);
+   doBenchSoA<G<float>,Q<float,poly<float>,2>,SoA<float>,SoA<float>,512,40, 128>("f pl div2",n);
+/*
+
    // 0-3  lin1
    doBenchSoA<G<double>,Q<double,U<double>>,SoA<double>,SoA<double>>("d l",n);
    doBenchSoA<G<float>,Q<float,U<float>>,SoA<float>,SoA<float>>("f l",n);
@@ -305,6 +334,7 @@ int main() {
    doBenchSoA<G<int16_t>,R<int16_t,poly<float>>,SoA<int16_t>,SoA<int16_t>>("i pr",n);
    doBenchSoA<G<half>,R<half,poly<half>>,SoA<half>,SoA<half>>("h pr",n);
 
+*/
 
 /*
    doBenchSoA<G<double>,W<double,true>,SoA<double>,SoA<double>>("",n);

@@ -39,11 +39,11 @@ __global__ void benchit(T outV,  U const inV, int const * __restrict__ ind, int 
 #endif
 
 #include<string>
-template<typename G, typename F, typename T, typename U=T>
+template<typename G, typename F, typename T, typename U=T, int IB=NB, int IT=NT, int IX=MX>
 void doBenchSoA(std::string const & fname="", int n=0) {
-  constexpr int nB = NB;
-  constexpr int nT = NT;
-  constexpr int maxIter = MX;
+  constexpr int nB = IB;
+  constexpr int nT = IT;
+  constexpr int maxIter = IX;
   if (n<=0) n = nB*nT;
 
   std::cout << fname << " n, nb,nt, mx "  << n << ' ' << nB << ',' << nT << ' ' << maxIter << std::endl;
