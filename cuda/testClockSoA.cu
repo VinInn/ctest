@@ -223,7 +223,7 @@ struct G {
     std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
     std::uniform_int_distribution<> rint(0,n);
     std::uniform_real_distribution<float> rf(-1.0,1.0);
-    std::uniform_int_distribution<> rint16(-32768,-32768);
+    std::uniform_int_distribution<> rint16(-32768,32768);
 #ifdef NRAND
     for (int i=0; i<n;++i) l[i]=i;
 #else
