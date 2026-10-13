@@ -24,10 +24,10 @@ uint32_t dist2( uint16_t dx, uint16_t dy )
    auto mn = std::min(dx,dy);
 
 // coefficients equivalent to ( 123/128 * max ) and ( 51/128 * min )
-   return ((( mx << 8 ) + ( mx << 3 ) - ( mx << 4 ) - ( mx << 1 ) +
-            ( mn << 7 ) - ( mn << 5 ) + ( mn << 3 ) - ( mn << 1 ) ) >> 8 );
+//   return ((( mx << 8 ) + ( mx << 3 ) - ( mx << 4 ) - ( mx << 1 ) +
+//            ( mn << 7 ) - ( mn << 5 ) + ( mn << 3 ) - ( mn << 1 ) ) >> 8 );
 
-   return ((( mx << 6 ) + ( mx << 6 ) - ( mx << 3 ) - ( mx ) +
+   return ((( mx << 7 ) - ( mx << 2 ) - ( mx ) +
             ( mn << 6 ) - ( mn << 4 ) + ( mn << 2 ) - ( mn ) + 64) >> 7 );
 
 } 
