@@ -25,7 +25,7 @@ uint32_t dist2( uint16_t dx, uint16_t dy )
 
 // coefficients equivalent to ( 123/128 * max ) and ( 51/128 * min )
    return ((( mx << 8 ) + ( mx << 3 ) - ( mx << 4 ) - ( mx << 1 ) +
-            ( mn << 7 ) - ( mn << 5 ) + ( mn << 3 ) - ( mn << 1 )) >> 8 );
+            ( mn << 7 ) - ( mn << 5 ) + ( mn << 3 ) - ( mn << 1 ) + 64) >> 8 );
 } 
 
 
@@ -38,7 +38,7 @@ int main() {
 
     std::random_device rd;  // a seed source for the random number engine
     std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> rint16(0,8*1024); //  65536);
+    std::uniform_int_distribution<> rint16(0,64*1024); //  65536);
 
     int n=256*1024*1024;
     int32_t mx1=0, mx2=0;
