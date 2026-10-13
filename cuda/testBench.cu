@@ -112,9 +112,9 @@ struct Q {
         auto v = (y.y[j]*c)+x.xc(j);
         auto w = (y.z[j]*c)+x.yc(j);
         auto u = (y.x[j]*c)+x.zc(j);
-        y.x[j] =  f(v+w*u);
-        y.y[j] =  f(w+v*u);
-        y.z[j] =  f(u+v*w);
+        y.x[j] =  sinf(v+w*u);
+        y.y[j] =  cosf(w+v*u);
+        y.z[j] =  tanf(u+v*w);
         return;
      }
      if constexpr (std::is_floating_point<T>::value 
