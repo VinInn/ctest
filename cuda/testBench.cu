@@ -1,10 +1,11 @@
-// nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 benchSoA.cu -DNT=512 -DNB=4 -DMX=10000
+//  nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 testBench.cu -DNT=512 -DNB=4 -DMX=10000
 //  /opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg,sm__sass_thread_inst_executed_op_fp32_pred_on.sum,sm__sass_thread_inst_executed_op_integer_pred_on.sum,sm__sass_thread_inst_executed_pred_on.sum,dram__bytes.sum ./a.out
 // ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
 #include "benchSoA.h"
 #include <cassert>
 #include <cmath>
 #include <cuda_fp16.h>
+#include <crt/device_fp128_functions.h>
 #include <bit>
 
 #ifndef HOST_DEVICE_CONSTANT
@@ -22,6 +23,18 @@
 #endif
 
 
+template<typename T>
+ __device__ __forceinline__
+T ncm(T const * __restrict__ x) {
+#ifdef CONSTM
+     if constexpr (std::is_same<__float128, typename std::remove_cv<T>::type>::value)
+       return *x;
+     else
+       return __ldg(x);
+#else
+     return *x;
+#endif
+}
 
 template<typename T>
 struct SoA {
@@ -30,21 +43,12 @@ struct SoA {
    T * __restrict__ y;
    T * __restrict__ z;
 
-#ifdef CONSTM
   __device__ __forceinline__
-   T xc(int i) const { return __ldg(x+i);}
+   T xc(int i) const { return ncm(x+i);}
   __device__ __forceinline__
-   T yc(int i) const { return __ldg(y+i);}
+   T yc(int i) const { return ncm(y+i);}
    __device__ __forceinline__
-   T zc(int i) const { return __ldg(z+i);}
-#else
-  __device__ __forceinline__
-   T xc(int i) const { return *(x+i);}
-  __device__ __forceinline__
-   T yc(int i) const { return *(y+i);}
-   __device__ __forceinline__
-   T zc(int i) const { return *(z+i);}
-#endif
+   T zc(int i) const { return ncm(z+i);}
 
 };
 
@@ -59,14 +63,18 @@ struct poly {
      __float2half2_rn(0.999999986449f) + x*(__float2half2_rn(2.06961523705e-6f) + x*( __float2half2_rn(-0.500073072319f) + x*( __float2half2_rn(0.00106750423055f) + x*( __float2half2_rn(0.200707822535f) + x*( __float2half2_rn(0.0295750777896f) + x*( __float2half2_rn(-0.150307883454f) + x*( __float2half2_rn(0.0821370891714f) + x*__float2half2_rn(-0.0150543655971f)
       )))))));
     } else {
+
      if constexpr (std::is_same<half, typename std::remove_cv<T>::type>::value)
        x = __habs(x);
+     else if constexpr (std::is_same<__float128, typename std::remove_cv<T>::type>::value)
+       x = __nv_fp128_fabs(x);
      else 
        x = std::abs(x);
+
      return
      T(0.999999986449) + x*(T(2.06961523705e-6) + x*( T(-0.500073072319) + x*( T(0.00106750423055) + x*( T(0.200707822535) + x*( T(0.0295750777896) + x*( T(-0.150307883454) + x*( T(0.0821370891714) + x*T(-0.0150543655971)
       )))))));
-     }
+    }
    }
 };
 
@@ -108,18 +116,20 @@ struct Q {
      if(D==1) {
       if (0==j%2) return;
      }
-     if (D==2 && 0==j%2) {
+     if (D==3 || (D==2 && 0==j%2)) {
         auto v = (y.y[j]*c)+x.xc(j);
         auto w = (y.z[j]*c)+x.yc(j);
         auto u = (y.x[j]*c)+x.zc(j);
-        y.x[j] =  sinf(v+w*u);
-        y.y[j] =  cosf(w+v*u);
-        y.z[j] =  tanf(u+v*w);
+        y.x[j] =  /*sin*/f(v+w*u);
+        y.y[j] =  /*cos*/f(w+v*u);
+        y.z[j] =  /*tan*/f(u+v*w);
         return;
      }
      if constexpr (std::is_floating_point<T>::value 
+                   || std::is_same<__float128, typename std::remove_cv<T>::type>::value
                    || std::is_same<half, typename std::remove_cv<T>::type>::value
-                   || std::is_same<half2, typename std::remove_cv<T>::type>::value)  {
+                   || std::is_same<half2, typename std::remove_cv<T>::type>::value
+                   || std::is_same<float2, typename std::remove_cv<T>::type>::value)  {
         auto v = (y.x[j]*c)+x.xc(j);
         auto w = (y.y[j]*c)+x.yc(j);
         auto u = (y.z[j]*c)+x.zc(j);
@@ -229,7 +239,7 @@ struct G {
     y.x = b; y.y = b+n; y.z = y.y + n;
 
     int l[n];
-    T q[3*n];
+    T * q = new T[3*n];
     std::random_device rd;  // a seed source for the random number engine
     std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
     std::uniform_int_distribution<> rint(0,n);
@@ -241,15 +251,18 @@ struct G {
     for (int i=0; i<n;++i) l[i]=rint(gen);
 #endif
     for (int i=0; i<3*n;++i) {
-      if constexpr (std::is_floating_point<T>::value || std::is_same<half, typename std::remove_cv<T>::type>::value)
+      if constexpr (std::is_floating_point<T>::value || std::is_same<half, typename std::remove_cv<T>::type>::value || std::is_same<__float128, typename std::remove_cv<T>::type>::value)
         q[i] = rf(gen);
       else if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value)
          q[i] = half2{rf(gen), rf(gen)};
+      else if constexpr(std::is_same<float2, typename std::remove_cv<T>::type>::value)
+         q[i] = float2{rf(gen), rf(gen)};
       else
         q[i] = rint16(gen);
     }
     cudaMemcpy(ind, l, n*sizeof(int),cudaMemcpyHostToDevice);
     cudaMemcpy(a, q, 3*n*sizeof(T),cudaMemcpyHostToDevice);
+    delete [] q;
     return ind;
   }
   ~G() {
@@ -268,20 +281,27 @@ struct G {
 int main() {
 
    int n = 240*1024;
+//   constexpr int mi = 256;
 
-   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,64,1, 128>("f pl",n);
-   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,128,1, 128>("f pl",n);
-   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,256,1, 128>("f pl",n);
-   doBenchSoA<G<float>,Q<float,poly<float>,1>,SoA<float>,SoA<float>,256,1, 128>("f pl div1",n);
-   doBenchSoA<G<float>,Q<float,poly<float>,2>,SoA<float>,SoA<float>,256,1, 128>("f pl div2",n);
-   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,1, 128>("f pl",n);
-   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,2, 128>("f pl",n);
-   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,4, 128>("f pl",n);
-   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,10, 128>("f pl",n);
-   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,20, 128>("f pl",n);
-   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,40, 128>("f pl",n);
-   doBenchSoA<G<float>,Q<float,poly<float>,1>,SoA<float>,SoA<float>,512,40, 128>("f pl div1",n);
-   doBenchSoA<G<float>,Q<float,poly<float>,2>,SoA<float>,SoA<float>,512,40, 128>("f pl div2",n);
+
+/*
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,64,1, mi>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,128,1, mi>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,256,1, mi>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>,1>,SoA<float>,SoA<float>,256,1, mi>("f pl div1",n);
+   doBenchSoA<G<float>,Q<float,poly<float>,2>,SoA<float>,SoA<float>,256,1, mi>("f pl div2",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,1, mi>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,2, mi>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,4, mi>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,10, mi>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,20, mi>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,512,40, mi>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>,64,40, mi>("f pl",n);
+   doBenchSoA<G<float>,Q<float,poly<float>,1>,SoA<float>,SoA<float>,512,40, mi>("f pl div1",n);
+   doBenchSoA<G<float>,Q<float,poly<float>,2>,SoA<float>,SoA<float>,512,40, mi>("f pl div2",n);
+   doBenchSoA<G<float>,Q<float,poly<float>,3>,SoA<float>,SoA<float>,512,40, mi>("f pl div3",n);
+*/
+
 /*
 
    // 0-3  lin1
@@ -310,11 +330,19 @@ int main() {
    doBenchSoA<G<int16_t>,R<int16_t,U<float>>,SoA<int16_t>,SoA<int16_t>>("i r",n);
    doBenchSoA<G<half>,R<half,U<half>>,SoA<half>,SoA<half>>("h r",n);
 
-   // 18-21 p l 1 
+*/
+   // 18-21 p l 1
+   doBenchSoA<G<__float128>,Q<__float128,poly<__float128>>,SoA<__float128>,SoA<__float128>>("q pl",n); 
    doBenchSoA<G<double>,Q<double,poly<double>>,SoA<double>,SoA<double>>("d pl",n);
    doBenchSoA<G<float>,Q<float,poly<float>>,SoA<float>,SoA<float>>("f pl",n);
    doBenchSoA<G<int16_t>,Q<int16_t,poly<float>>,SoA<int16_t>,SoA<int16_t>>("i pl",n);
    doBenchSoA<G<half>,Q<half,poly<half>>,SoA<half>,SoA<half>>("h pl",n);
+//   doBenchSoA<G<float2>,Q<float2,poly<float2>>,SoA<float2>,SoA<float2>>("h2 pl",n/2);
+   doBenchSoA<G<half2>,Q<half2,poly<half2>>,SoA<half2>,SoA<half2>>("h2 pl",n/2);
+   doBenchSoA<G<uint32_t>,Q<uint32_t,poly<float>>,SoA<uint32_t>,SoA<uint32_t>>("i2 pl",n/2);
+
+
+/*
 
    // 22-27 p l 2 
    doBenchSoA<G<double>,Q<double,poly<double>>,SoA<double>,SoA<double>>("d pl ",n);

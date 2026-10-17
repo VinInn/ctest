@@ -51,18 +51,21 @@ void launch(T* v, int n) {
 }
 
 int main() {
- 
+
+ __float128 * q; 
  double * d;
  float * f;
  half  * h;
 
  int n = 240*1024;
 
+ cudaMallocManaged(&q, 6*n*sizeof(__float128));
  cudaMallocManaged(&d, 6*n*sizeof(double));
  cudaMallocManaged(&f, 6*n*sizeof(float));
  cudaMallocManaged(&h, 6*n*sizeof(half));
  half2 * h2 = (half2*)(h);
 
+ launch(q,n);
  launch(d,n);
  launch(f,n);
  launch(h,n);
