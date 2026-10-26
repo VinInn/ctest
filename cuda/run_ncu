@@ -36,6 +36,9 @@ sm__sass_thread_inst_executed_op_integer_pred_on.sum,,"
 # DRAM, L2 and L1
 metrics+="dram__bytes.sum,\
 lts__t_bytes.sum,\
-l1tex__t_bytes.sum"
+l1tex__t_bytes.sum,"
+
+# stall
+metrics+="dsmsp__warps_active.sum,smsp__warps_eligible.sum"
 
 /opt/nvidia/nsight-compute/2025.4.1/ncu --metrics $metrics --csv --clock-control base  ./a.out

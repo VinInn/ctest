@@ -330,10 +330,15 @@ void kernelFillHitsAndHitsCov(Rfit::Vector6dd * gen_par,  Rfit::FF * __restrict_
   fillHitsAndHitsCov(gen_par[0], hits,hits_ge);
 }
 
+
+#ifndef INR
+#define INR 5000.
+#endif
+
 template<int N>
 void testFit() {
 
-  // for timing    purposes we fit   16K tracks
+  // for timing    purposes we fit   64K tracks
   constexpr uint32_t Ntracks = 16*1024;
 
   constexpr Rfit::Float B = 0.0113921;
@@ -348,7 +353,7 @@ void testFit() {
   gen_par(1) = 0.1;   // y
   gen_par(2) = -1.;   // z
   gen_par(3) = 45.;   // phi
-  gen_par(4) = 5000.;   // R (p_t)
+  gen_par(4) = INR;   // R (p_t)
   gen_par(5) = 0.5;    // eta
 
   std::cout << gen_par << std::endl;
@@ -429,7 +434,7 @@ assert(kk<Ntracks);
 #define NB 1
 #endif
 #ifndef NT
-#define NT 128
+#define NT 256
 #endif
 
   int ntr = NT;
