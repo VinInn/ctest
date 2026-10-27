@@ -1,0 +1,10 @@
+#!/bin/bash
+ source compile75 "testFits.cu -DFLOAT=float -DNCU"
+./run_ncu; rm ./a.out
+ source compile75 "testFits.cu -DFLOAT=double -DNCU"
+./run_ncu; rm ./a.out
+ source compile75 "testFits.cu -DTWOF -DFLOAT=float -DNCU" 
+./run_ncu; rm ./a.out 
+ source compile75 "testFits.cu -DTWOF -DFLOAT=double -DNCU"
+./run_ncu; rm ./a.out
+
