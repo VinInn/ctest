@@ -61,11 +61,11 @@ void kernelPrintSizes(Rfit::FF * __restrict__ phits,
 template<int N>
 __global__
 void kernelFastFit(Rfit::FF * __restrict__ phits, Rfit::FF * __restrict__ presults, int nt, int64_t * tg) {
-
+#ifndef NCU
   __shared__ uint64_t gstart;
   if (threadIdx.x==0) gstart = clock64();
   __syncthreads();
-
+#endif
   int first = blockIdx.x*blockDim.x + threadIdx.x;
 
   for (int i=first; i<nt; i+=gridDim.x * blockDim.x) {
@@ -80,7 +80,9 @@ void kernelFastFit(Rfit::FF * __restrict__ phits, Rfit::FF * __restrict__ presul
 #endif
 
   }
+#ifndef NCU
   if (threadIdx.x==0) tg[blockIdx.x] = clock64() -gstart;
+#endif
 }
 
 #ifdef USE_BL
@@ -96,12 +98,13 @@ void kernelBrokenLineFit(Rfit::FF * __restrict__ phits,
                           int nt,
                          int64_t * tg
 			 ) {
-
+#ifndef NCU
   __shared__ uint64_t gstart;
   if (threadIdx.x==0) gstart = clock64();
   __syncthreads();
 
   int first = blockIdx.x*blockDim.x + threadIdx.x;
+#endif
 
   for (int i=first; i<nt; i+=gridDim.x * blockDim.x) {
 
@@ -125,10 +128,11 @@ void kernelBrokenLineFit(Rfit::FF * __restrict__ phits,
   circle_fit_results.par(2)=B/fabs(circle_fit_results.par(2));
   circle_fit_results.cov=Jacob*circle_fit_results.cov*Jacob.transpose();
   }
-  
+
+#ifndef NCU
 __syncthreads();
   if (threadIdx.x==0) tg[blockIdx.x] = clock64() -gstart;
-
+#endif
 
 #ifdef TEST_DEBUG
 if (0==i) {
