@@ -96,7 +96,7 @@ struct G {
     T * q = new T[3*n];
     std::random_device rd;  // a seed source for the random number engine
     std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> rint(0,n);
+//    std::uniform_int_distribution<> rint(0,n);
     std::uniform_real_distribution<float> rf(-1.0,1.0);
     std::uniform_int_distribution<> rint16(-32768,32768);
 
@@ -110,6 +110,8 @@ struct G {
          q[i] = half2{rf(gen), rf(gen)};
       else if constexpr(std::is_same<float2, typename std::remove_cv<T>::type>::value)
          q[i] = float2{rf(gen), rf(gen)};
+      else if constexpr(std::is_same<uint32_t, typename std::remove_cv<T>::type>::value)
+        q[i] = rint16(gen) | (rint16(gen)<<16);
       else
         q[i] = rint16(gen);
     }
@@ -186,6 +188,7 @@ int main() {
    int n = 24*1024*NB;
 
    doBench<G<float>,SoA<float>,SoA<float>>("f n2",n);
+   doBench<G<uint32_t>,SoA<uint32_t>,SoA<uint32_t>>("f n2",n/2);
 
    return 0;
 }
