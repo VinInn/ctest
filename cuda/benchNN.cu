@@ -5,7 +5,7 @@
 #include <cassert>
 #include <cmath>
 #include <cuda_fp16.h>
-#include <crt/device_fp128_functions.h>
+// #include <crt/device_fp128_functions.h>
 #include <bit>
 
 #ifndef HOST_DEVICE_CONSTANT
@@ -113,7 +113,7 @@ struct G {
       else
         q[i] = rint16(gen);
     }
-    cudaMemcpy(ind, l, n*sizeof(int),cudaMemcpyHostToDevice);
+    cudaMemcpy(ind, l, nb*sizeof(int),cudaMemcpyHostToDevice);
     cudaMemcpy(a, q, 3*n*sizeof(T),cudaMemcpyHostToDevice);
     delete [] q;
     return ind;
@@ -130,21 +130,38 @@ struct G {
 
 
 // blocks are independent events...
-template<typename F, typename T, typename U>
+template<typename T, typename U>
 __global__ void benchit(T outV,  U const inV, int const * __restrict__ ind) {
-    int start = ind[blockIdx] + threadIdx.x;
-    int end = ind[blockIdx+1];
+    int start = ind[blockIdx.x] + threadIdx.x;
+    int end = ind[blockIdx.x+1];
 
-     __shared__ F f;
+     __shared__ int c;
 
     for (auto j=start; j<end; j+=blockDim.x)  {
+        c++;
     }
+    outV.x[start]=c; 
 }
 
 
+
+
+#ifndef NB
+#define NB 1
+#endif
+
+#ifndef NT
+#define NT 128
+#endif
+
+#ifndef MX
+#define MX 5000
+#endif
+
+
 #include<string>
-template<typename G, typename F, typename T, typename U=T, int IB=NB, int IT=NT, int IX=MX>
-void doBenchSoA(std::string const & fname="", int n=0) {
+template<typename G, typename T, typename U=T, int IB=NB, int IT=NT, int IX=MX>
+void doBench(std::string const & fname, int n) {
   constexpr int nB = IB;
   constexpr int nT = IT;
   constexpr int maxIter = IX;
@@ -156,17 +173,19 @@ void doBenchSoA(std::string const & fname="", int n=0) {
   T b;  // output
 
   G g;
-  int * ind = g(a,b, n);
+  int * ind = g(a,b, n, nB);
 
-  benchit<F,T,U><<<nB,nT,0,0>>>(b, a, ind, n, maxIter);
+  benchit<T,U><<<nB,nT,0,0>>>(b, a, ind);
   cudaDeviceSynchronize();
+}
 
-//
 
 
 int main() {
 
-   int n = 240*1024;
+   int n = 24*1024*NB;
+
+   doBench<G<float>,SoA<float>,SoA<float>>("f n2",n);
 
    return 0;
 }
