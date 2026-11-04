@@ -25,7 +25,7 @@
 
 template<typename T>
 __global__
-void verify(T const * __restrict__ xi, int const * __restrict__ ind, int n) {
+void verify(T const * __restrict__ xi, uint16_t const * __restrict__ ind, int n) {
    int tid = blockDim.x * blockIdx.x + threadIdx.x;
 
    for (auto i=tid; i<n; i+=gridDim.x * blockDim.x)  {
@@ -37,13 +37,16 @@ void verify(T const * __restrict__ xi, int const * __restrict__ ind, int n) {
 
 template<typename T>
 __global__
-void btN2(T const * __restrict__ xi, int * __restrict__ ind,  int n) {
+void bfN2(T const * __restrict__ xi, uint16_t * __restrict__ ind,  int n) {
    int tid = blockDim.x * blockIdx.x + threadIdx.x;
    
    for (auto i=tid; i<n; i+=gridDim.x * blockDim.x)  {
+    auto x = xi[i];
+    auto k = ind[i];
     for (auto j=i; j<n; j++) {
-      if (xi[j]>xi[i]) ind[i] = j;
+      if (xi[j]>x) k = j;
     }
+    ind[i] = k;
    }
 
 }
@@ -52,7 +55,7 @@ void btN2(T const * __restrict__ xi, int * __restrict__ ind,  int n) {
 
 template<typename T>
 __global__
-void oneShift(T * __restrict__ xi, int * __restrict__ ind, int n) {
+void oneShift(T * __restrict__ xi, uint16_t * __restrict__ ind, int n) {
    int tid = blockDim.x * blockIdx.x + threadIdx.x;
    T x = xi[tid];
    int k = ind[tid];
@@ -69,7 +72,7 @@ void oneShift(T * __restrict__ xi, int * __restrict__ ind, int n) {
 
 template<typename T>
 __global__ 
-void doShift(T * __restrict__ xi, int * __restrict__ ind, int n) {
+void doShift(T * __restrict__ xi, uint16_t * __restrict__ ind, int n) {
    int tid = blockDim.x * blockIdx.x + threadIdx.x;
    // int laneId = threadIdx.x & 0x1f;
    int nw = (n+31)/32;
@@ -79,7 +82,7 @@ void doShift(T * __restrict__ xi, int * __restrict__ ind, int n) {
        int j = tid+32*w;
        if (j>=ntot) j-=ntot;
        T x = xi[j];
-       int k = ind[j];
+       auto k = ind[j];
        for (int t=0; t<32; ++t) {
           auto x0 = __shfl_sync(0xffffffff,x,t);
           auto i0 = __shfl_sync(0xffffffff,k,t);
@@ -96,9 +99,9 @@ struct G {
   void operator()(int n) {
     cudaMalloc(&a, n * sizeof(T));
     cudaMalloc(&b, n * sizeof(T));
-    cudaMalloc(&ind, n * sizeof(int));
+    cudaMalloc(&ind, n * sizeof(uint16_t));
 
-    int * l = new int[n];
+    uint16_t * l = new uint16_t[n];
     T * q = new T[n];
 
    for (int i=0; i<n;++i) {
@@ -106,7 +109,7 @@ struct G {
      q[i] = i;
    } 
 
-    cudaMemcpy(ind, l, n*sizeof(int),cudaMemcpyHostToDevice);
+    cudaMemcpy(ind, l, n*sizeof(uint16_t),cudaMemcpyHostToDevice);
     cudaMemcpy(a, q, n*sizeof(T),cudaMemcpyHostToDevice);
     delete [] l;
     delete [] q;
@@ -120,7 +123,7 @@ struct G {
 
   T * a;
   T * b;
-  int * ind;
+  uint16_t * ind;
 
 };
 
@@ -131,8 +134,10 @@ void doTest(int n) {
     std::cout << "brute force n^2 " << n << std::endl;
     G<T> g;
     g(n);
-    btN2<T><<<NB,NT,0,0>>>(g.a,g.ind,n);
+    bfN2<T><<<NB,NT,0,0>>>(g.a,g.ind,n);
+#ifdef VERIFY
     verify<T><<<128,4,0,0>>>(g.a,g.ind,n);
+#endif
     cudaDeviceSynchronize();
   }
   {
@@ -140,7 +145,9 @@ void doTest(int n) {
     G<T> g;
     g(n);
     doShift<T><<<NB,NT,0,0>>>(g.a,g.ind,n);
+#ifdef VERIFY
     verify<T><<<128,4,0,0>>>(g.a,g.ind,n);
+#endif
     cudaDeviceSynchronize();
   }
 }
@@ -148,10 +155,12 @@ void doTest(int n) {
 int main() {
 
 
+  doTest<uint16_t,1,64>(64);
+  doTest<uint16_t,1,128>(128);
   doTest<float,1,64>(64);
   doTest<float,1,128>(128);
-  doTest<float,1,64>(1024);
-  doTest<float,4,128>(1024);
+//  doTest<float,1,64>(1024);
+//  doTest<float,4,128>(1024);
 
   return 0;
 }
