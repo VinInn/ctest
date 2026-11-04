@@ -78,6 +78,8 @@ void doShift(T * __restrict__ xi, uint16_t * __restrict__ ind, int n) {
    int nw = (n+31)/32;
    int ntot = nw*32;
    for (auto i=tid; i<n; i+=gridDim.x * blockDim.x)  {
+     auto y = xi[i];
+     auto m = ind[i];
      for (int w=0; w<nw; ++w) { 
        int j = tid+32*w;
        if (j>=ntot) j-=ntot;
@@ -86,9 +88,10 @@ void doShift(T * __restrict__ xi, uint16_t * __restrict__ ind, int n) {
        for (int t=0; t<32; ++t) {
           auto x0 = __shfl_sync(0xffffffff,x,t);
           auto i0 = __shfl_sync(0xffffffff,k,t);
-          if (x0>xi[i]) ind[i] = i0;
+          if (x0>y) m = i0;
        } // lanes
      } // warps
+     ind[i] = m;
    } // "blocks"
 }
 
