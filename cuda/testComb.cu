@@ -72,7 +72,7 @@ void oneShift(T * __restrict__ xi, uint16_t * __restrict__ ind, int n) {
 
 template<typename T>
 __global__ 
-void doShift(T * __restrict__ xi, uint16_t * __restrict__ ind, int n) {
+void doShift(T const * __restrict__ xi, uint16_t * __restrict__ ind, int n) {
    int tid = blockDim.x * blockIdx.x + threadIdx.x;
    // int laneId = threadIdx.x & 0x1f;
    int nw = (n+31)/32;
