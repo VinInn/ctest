@@ -149,8 +149,9 @@ int main() {
 
 
   doTest<float,1,64>(64);
-  // doTest<float,1,64>(1024);
-
+  doTest<float,1,128>(128);
+  doTest<float,1,64>(1024);
+  doTest<float,4,128>(1024);
 
   return 0;
 }
