@@ -1,3 +1,5 @@
+//nvcc -gencode arch=compute_120,code=sm_120 -O3 --expt-relaxed-constexpr -std=c++23 testComb.cu
+///opt/nvidia/nsight-compute/2026.3.1/ncu --metrics sm__cycles_elapsed ./a.out
 #include <cassert>
 #include <cstdint>
 #include <cmath>
@@ -43,14 +45,44 @@ void bfN2(T const * __restrict__ xi, uint16_t * __restrict__ ind,  int n) {
    for (auto i=tid; i<n; i+=gridDim.x * blockDim.x)  {
     auto x = xi[i];
     auto k = ind[i];
-    for (auto j=i; j<n; j++) {
-      if (xi[j]>x) k = j;
+    for (auto j=0; j<n; j++) {
+      if (xi[j]>x) { k = j; x=xi[j];}
     }
     ind[i] = k;
    }
-
 }
 
+__global__
+void bfN2h2(half2 const * __restrict__ xi, uint32_t * __restrict__ ind,  int n) {
+   int tid = blockDim.x * blockIdx.x + threadIdx.x;
+   /*
+   if (tid==0) {
+    half const * h = (half const *)xi;
+    uint16_t * j = (uint16_t *)ind;
+    printf("--- %.5f %.5f %d %d %d %d\n",float(h[14]),float(h[15]),j[14],j[15],ind[7]&0xffff,ind[7]>>16);
+   }
+   */
+   n = n/2;
+   for (auto i=tid; i<n; i+=gridDim.x * blockDim.x)  {
+    auto x = xi[i];
+    auto k = ind[i];
+    for (uint32_t j=0; j<n; j++) {
+      auto y = xi[j];
+      uint32_t j1 = ((j*2)<<16) | ((j*2)+1);
+      auto m1 = __hgt2_mask(y,x);
+      x = __hmax2(x,y);
+      k = m1&j1 | (~m1)&k;
+      // x = &(half2*)(&(m1&std::bit_cast<uint32_t>(y) | (~m1)&std::bit_cast<uint32_t>(x)));
+      uint32_t j2 = ((j*2+1)<<16) | (j*2);
+      y = __lowhigh2highlow(y);
+      auto m2 = __hgt2_mask(y,x);
+      k = m2&j2 | (~m2)&k;
+      x = __hmax2(x,y);
+      // x = &(half2*)(&(m2&std::bit_cast<uint32_t>(y) | (~m2)&std::bit_cast<uint32_t>(x)));
+    }
+    ind[i] = k;
+   }
+}
 
 
 template<typename T>
@@ -137,9 +169,13 @@ void doTest(int n) {
     std::cout << "brute force n^2 " << n << std::endl;
     G<T> g;
     g(n);
-    bfN2<T><<<NB,NT,0,0>>>(g.a,g.ind,n);
+    if constexpr(std::is_same<half, typename std::remove_cv<T>::type>::value) {
+      bfN2h2<<<NB,NT,0,0>>>((half2 const*)g.a,(uint32_t*)g.ind,n);
+    } else {
+      bfN2<T><<<NB,NT,0,0>>>(g.a,g.ind,n);
+    }
 #ifdef VERIFY
-    verify<T><<<128,4,0,0>>>(g.a,g.ind,n);
+    verify<T><<<4,128,0,0>>>(g.a,g.ind,n);
 #endif
     cudaDeviceSynchronize();
   }
@@ -149,7 +185,7 @@ void doTest(int n) {
     g(n);
     doShift<T><<<NB,NT,0,0>>>(g.a,g.ind,n);
 #ifdef VERIFY
-    verify<T><<<128,4,0,0>>>(g.a,g.ind,n);
+    verify<T><<<4,128,0,0>>>(g.a,g.ind,n);
 #endif
     cudaDeviceSynchronize();
   }
@@ -159,9 +195,13 @@ int main() {
 
 
   doTest<uint16_t,1,64>(64);
-  doTest<uint16_t,1,128>(128);
+  doTest<half,1,64>(64);
   doTest<float,1,64>(64);
+
+  doTest<uint16_t,1,128>(128);
+  doTest<half,1,128>(128);
   doTest<float,1,128>(128);
+
 //  doTest<float,1,64>(1024);
 //  doTest<float,4,128>(1024);
 
