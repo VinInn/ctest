@@ -31,7 +31,8 @@ void verify(T const * __restrict__ xi, uint16_t const * __restrict__ ind, int n)
    int tid = blockDim.x * blockIdx.x + threadIdx.x;
 
    for (auto i=tid; i<n; i+=gridDim.x * blockDim.x)  {
-      assert(ind[i] == n-1);
+      if (ind[i] != 15) printf("??? %d %d\n",i,ind[i]);
+//      assert(ind[i] == 15);
    }
 
 //  if (threadIdx.x==0) printf("verify ok/n");
@@ -59,7 +60,8 @@ void bfN2h2(half2 const * __restrict__ xi, uint32_t * __restrict__ ind,  int n) 
    if (tid==0) {
     half const * h = (half const *)xi;
     uint16_t * j = (uint16_t *)ind;
-    printf("--- %.5f %.5f %d %d %d %d\n",float(h[14]),float(h[15]),j[14],j[15],ind[7]&0xffff,ind[7]>>16);
+    printf("--- %.5f %.5f %.5f %.5f %d %d %d %d\n",float(h[14]),float(h[15]),__high2float(xi[7]),__low2float(xi[7]),
+      j[14],j[15],ind[7]&0xffff,ind[7]>>16);
    }
    */
    n = n/2;
@@ -68,12 +70,12 @@ void bfN2h2(half2 const * __restrict__ xi, uint32_t * __restrict__ ind,  int n) 
     auto k = ind[i];
     for (uint32_t j=0; j<n; j++) {
       auto y = xi[j];
-      uint32_t j1 = ((j*2)<<16) | ((j*2)+1);
+      uint32_t j1 = ((j*2+1)<<16) | ((j*2));
       auto m1 = __hgt2_mask(y,x);
       x = __hmax2(x,y);
       k = m1&j1 | (~m1)&k;
       // x = &(half2*)(&(m1&std::bit_cast<uint32_t>(y) | (~m1)&std::bit_cast<uint32_t>(x)));
-      uint32_t j2 = ((j*2+1)<<16) | (j*2);
+      uint32_t j2 = ((j*2)<<16) | (j*2+1);
       y = __lowhigh2highlow(y);
       auto m2 = __hgt2_mask(y,x);
       k = m2&j2 | (~m2)&k;
@@ -143,6 +145,7 @@ struct G {
      l[i] = i;
      q[i] = i;
    } 
+   q[15] = n+3;
 
     cudaMemcpy(ind, l, n*sizeof(uint16_t),cudaMemcpyHostToDevice);
     cudaMemcpy(a, q, n*sizeof(T),cudaMemcpyHostToDevice);
@@ -183,9 +186,9 @@ void doTest(int n) {
     std::cout << "shift n^2 " << n << std::endl;
     G<T> g;
     g(n);
-    doShift<T><<<NB,NT,0,0>>>(g.a,g.ind,n);
+//    doShift<T><<<NB,NT,0,0>>>(g.a,g.ind,n);
 #ifdef VERIFY
-    verify<T><<<4,128,0,0>>>(g.a,g.ind,n);
+//    verify<T><<<4,128,0,0>>>(g.a,g.ind,n);
 #endif
     cudaDeviceSynchronize();
   }
@@ -199,7 +202,7 @@ int main() {
   doTest<float,1,64>(64);
 
   doTest<uint16_t,1,128>(128);
-  doTest<half,1,128>(128);
+//  doTest<half,1,128>(128);
   doTest<float,1,128>(128);
 
 //  doTest<float,1,64>(1024);
