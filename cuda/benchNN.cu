@@ -166,6 +166,9 @@ void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
          k = m&j2 | (~m)&k;
        }else {
         if (inV.zc(j)>z && d2<cut2) { k = j; z=inV.zc(j);}
+//        bool doit = inV.zc(j)>z && d2<cut2;
+//        k = doit ? j :k; 
+//        z = doit ? inV.zc(j) : z;
        }
      }
      outV.x[i] = k;
