@@ -1,4 +1,4 @@
-//  nvcc -gencode arch=compute_75,code=sm_75 -O3 --expt-relaxed-constexpr -std=c++23 benchNN.cu -DNT=512 -DNB=4 -DMX=10000
+//  nvcc -gencode arch=compute_120,code=sm_120 -O3 --expt-relaxed-constexpr -std=c++23 benchNN.cu -DNT=512 -DNB=4 -DMX=10000
 //  /opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg,sm__sass_thread_inst_executed_op_fp32_pred_on.sum,sm__sass_thread_inst_executed_op_integer_pred_on.sum,sm__sass_thread_inst_executed_pred_on.sum,dram__bytes.sum ./a.out
 // ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
 #include "benchSoA.h"
@@ -83,11 +83,11 @@ constexpr half2 assign(double x) { return half2(x,x);}
 
 
 #include<random>
-template<typename T>
+template<typename T, typename U>
 struct G {
-  int * operator()(SoA<T> & x, SoA<T> & y, int n, int nb) { 
+  int * operator()(SoA<T> & x, SoA<U> & y, int n, int nb) { 
     cudaMalloc(&a, 3*n * sizeof(T)); 
-    cudaMalloc(&b, 3*n * sizeof(T));
+    cudaMalloc(&b, 3*n * sizeof(U));
     cudaMalloc(&ind, n * sizeof(int));
     x.x = a; x.y = a+n; x.z = x.y + n;
     y.x = b; y.y = b+n; y.z = y.y + n;
@@ -126,14 +126,14 @@ struct G {
     cudaFree(ind);
   }
   T * a;
-  T * b;
+  U * b;
   int * ind;
 };
 
 
 // blocks are independent events...
 template<typename T, typename U>
-__global__ void benchit(T outV,  U const inV, int const * __restrict__ ind) {
+__global__ void benchit(T inV,  U const outV, int const * __restrict__ ind) {
     int start = ind[blockIdx.x] + threadIdx.x;
     int end = ind[blockIdx.x+1];
 
@@ -162,7 +162,7 @@ __global__ void benchit(T outV,  U const inV, int const * __restrict__ ind) {
 
 
 #include<string>
-template<typename G, typename T, typename U=T, int IB=NB, int IT=NT, int IX=MX>
+template<typename G, typename T, typename U, int IB=NB, int IT=NT, int IX=MX>
 void doBench(std::string const & fname, int n) {
   constexpr int nB = IB;
   constexpr int nT = IT;
@@ -171,13 +171,13 @@ void doBench(std::string const & fname, int n) {
 
   std::cout << fname << " n, nb,nt, mx "  << n << ' ' << nB << ',' << nT << ' ' << maxIter << std::endl;
 
-  U a;  // input
-  T b;  // output
+  T a;  // input
+  U b;  // output
 
   G g;
   int * ind = g(a,b, n, nB);
 
-  benchit<T,U><<<nB,nT,0,0>>>(b, a, ind);
+  benchit<T,U><<<nB,nT,0,0>>>(a, b, ind);
   cudaDeviceSynchronize();
 }
 
@@ -185,10 +185,10 @@ void doBench(std::string const & fname, int n) {
 
 int main() {
 
-   int n = 24*1024*NB;
+   int n = 1024*NB;
 
-   doBench<G<float>,SoA<float>,SoA<float>>("f n2",n);
-   doBench<G<uint32_t>,SoA<uint32_t>,SoA<uint32_t>>("f n2",n/2);
+   doBench<G<float,uint32_t>,SoA<float>,SoA<uint32_t>>("f n2",n);
+   doBench<G<half2,uint32_t>,SoA<half2>,SoA<uint32_t>>("h n2",n/2);
 
    return 0;
 }

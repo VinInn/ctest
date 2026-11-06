@@ -200,15 +200,15 @@ int main() {
   doTest<uint16_t,1,64>(64);
   doTest<half,1,64>(64);
   doTest<float,1,64>(64);
-
+*/
   doTest<uint16_t,1,128>(128);
   doTest<half,1,128>(128);
   doTest<float,1,128>(128);
-*/
 
-  doTest<uint16_t,1,128>(1024);
-  doTest<half,1,128>(1024);
-  doTest<float,1,128>(1024);
+
+//  doTest<uint16_t,1,128>(1024);
+//  doTest<half,1,128>(1024);
+ // doTest<float,1,128>(1024);
 
   return 0;
 }
