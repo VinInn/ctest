@@ -192,7 +192,7 @@ __global__ void benchit(T inV,  U const outV, int const * __restrict__ ind) {
 #endif
 
 #ifndef MX
-#define MX 5000
+#define MX 1024
 #endif
 
 
@@ -220,7 +220,7 @@ void doBench(std::string const & fname, int n) {
 
 int main() {
 
-   int n = 1024*NB;
+   int n = MX*NB;
 
    doBench<G<float,uint32_t>,SoA<float>,SoA<uint32_t>>("f n2",n);
    doBench<G<half2,uint32_t>,SoA<half2>,SoA<uint32_t>>("h n2",n/2);
