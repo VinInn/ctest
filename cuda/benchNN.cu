@@ -132,24 +132,54 @@ struct G {
 
 
 // blocks are independent events...
+ template<typename T,typename U>
+__device__
+void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
+    const auto cut2 = assign<typename T::Type>(0.016);
+    int start = ind[blockIdx.x];
+    int end = ind[blockIdx.x+1];
+    int tid = start + threadIdx.x;
+    for (auto i=tid; i<end; i+=blockDim.x)  {
+      auto x = inV.xc(i);
+      auto y = inV.yc(i);
+      auto z = inV.zc(i);
+      typename U::Type k = i;
+      if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value) {
+        k |= i<<16;
+      }
+      for (uint32_t j=start; j<end; j++) {
+        auto d2 = (x-inV.xc(j))*(x-inV.xc(j)) + (y-inV.yc(j))*(y-inV.yc(j));
+        if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value) {
+         auto j2 = j | j<<16;
+         y = inV.zc(j);
+         auto m = __hgt2_mask(y,z) & __hgt2_mask(cut2,d2);
+         z = __hmax2(__hgt2(cut2,d2)*y,z);
+         k = m&j2 | (~m)&k;
+         y = __lowhigh2highlow(y);
+         m = __hgt2_mask(y,z) & __hgt2_mask(cut2,d2);
+         z = __hmax2(__hgt2(cut2,d2)*y,z);
+         k = m&j2 | (~m)&k;
+       }else {
+        if (inV.zc(j)>z && d2<cut2) { k = j; z=inV.zc(j);}
+       }
+     }
+     outV.x[i] = k;
+   }
+}
+
+// blocks are independent events...
 template<typename T, typename U>
 __global__ void benchit(T inV,  U const outV, int const * __restrict__ ind) {
-    int start = ind[blockIdx.x] + threadIdx.x;
-    int end = ind[blockIdx.x+1];
 
-     __shared__ int c;
+   bfN2(inV,outV,ind);
 
-    for (auto j=start; j<end; j+=blockDim.x)  {
-        c++;
-    }
-    outV.x[start]=c; 
 }
 
 
 
 
 #ifndef NB
-#define NB 1
+#define NB 40
 #endif
 
 #ifndef NT
