@@ -1,10 +1,13 @@
 //  nvcc -gencode arch=compute_120,code=sm_120 -O3 --expt-relaxed-constexpr -std=c++23 benchNN.cu -DNT=512 -DNB=4 -DMX=10000
 //  /opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg,sm__sass_thread_inst_executed_op_fp32_pred_on.sum,sm__sass_thread_inst_executed_op_integer_pred_on.sum,sm__sass_thread_inst_executed_pred_on.sum,dram__bytes.sum ./a.out
 // ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
-#include "benchSoA.h"
+// #include "benchSoA.h"
 #include <cassert>
+#include <cstdint>
 #include <cmath>
+#include <tuple>
 #include <cuda_fp16.h>
+#include <iostream>
 // #include <crt/device_fp128_functions.h>
 #include <bit>
 
@@ -102,7 +105,7 @@ struct G {
 
     l[0]=0;
     for (int i=1; i<nb+1;++i) l[i] = l[i-1] + n/nb;  // maybe random in future....
-
+    std::cout << l[0] <<',' << l[1] << ' ' << l[nb]<<std::endl;
     for (int i=0; i<3*n;++i) {
       if constexpr (std::is_floating_point<T>::value || std::is_same<half, typename std::remove_cv<T>::type>::value || std::is_same<__float128, typename std::remove_cv<T>::type>::value)
         q[i] = rf(gen);
@@ -115,7 +118,7 @@ struct G {
       else
         q[i] = rint16(gen);
     }
-    cudaMemcpy(ind, l, nb*sizeof(int),cudaMemcpyHostToDevice);
+    cudaMemcpy(ind, l, (nb+1)*sizeof(int),cudaMemcpyHostToDevice);
     cudaMemcpy(a, q, 3*n*sizeof(T),cudaMemcpyHostToDevice);
     delete [] q;
     return ind;
@@ -138,6 +141,7 @@ void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
     const auto cut2 = assign<typename T::Type>(0.016);
     int start = ind[blockIdx.x];
     int end = ind[blockIdx.x+1];
+    // if (start==end) printf("empty block %d\n",blockIdx.x);
     int tid = start + threadIdx.x;
     for (auto i=tid; i<end; i+=blockDim.x)  {
       auto x = inV.xc(i);
@@ -145,12 +149,12 @@ void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
       auto z = inV.zc(i);
       typename U::Type k = i;
       if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value) {
-        k |= i<<16;
+        k = (i*2+1)<<16 | i*2;
       }
       for (uint32_t j=start; j<end; j++) {
         auto d2 = (x-inV.xc(j))*(x-inV.xc(j)) + (y-inV.yc(j))*(y-inV.yc(j));
         if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value) {
-         auto j2 = j | j<<16;
+         auto j2 = j*j | (j*j+1)<<16;
          y = inV.zc(j);
          auto m = __hgt2_mask(y,z) & __hgt2_mask(cut2,d2);
          z = __hmax2(__hgt2(cut2,d2)*y,z);
@@ -158,6 +162,7 @@ void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
          y = __lowhigh2highlow(y);
          m = __hgt2_mask(y,z) & __hgt2_mask(cut2,d2);
          z = __hmax2(__hgt2(cut2,d2)*y,z);
+         j2 = j*j+1 | (j*j)<<16;
          k = m&j2 | (~m)&k;
        }else {
         if (inV.zc(j)>z && d2<cut2) { k = j; z=inV.zc(j);}
