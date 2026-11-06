@@ -122,7 +122,7 @@ void doShift(T const * __restrict__ xi, uint16_t * __restrict__ ind, int n) {
        for (int t=0; t<32; ++t) {
           auto x0 = __shfl_sync(0xffffffff,x,t);
           auto i0 = __shfl_sync(0xffffffff,k,t);
-          if (x0>y) m = i0;
+          if (x0>y) { m = i0; y=x0;}
        } // lanes
      } // warps
      ind[i] = m;
@@ -186,9 +186,9 @@ void doTest(int n) {
     std::cout << "shift n^2 " << n << std::endl;
     G<T> g;
     g(n);
-//    doShift<T><<<NB,NT,0,0>>>(g.a,g.ind,n);
+    doShift<T><<<NB,NT,0,0>>>(g.a,g.ind,n);
 #ifdef VERIFY
-//    verify<T><<<4,128,0,0>>>(g.a,g.ind,n);
+    verify<T><<<4,128,0,0>>>(g.a,g.ind,n);
 #endif
     cudaDeviceSynchronize();
   }
@@ -196,17 +196,19 @@ void doTest(int n) {
 
 int main() {
 
-
+/*
   doTest<uint16_t,1,64>(64);
   doTest<half,1,64>(64);
   doTest<float,1,64>(64);
 
   doTest<uint16_t,1,128>(128);
-//  doTest<half,1,128>(128);
+  doTest<half,1,128>(128);
   doTest<float,1,128>(128);
+*/
 
-//  doTest<float,1,64>(1024);
-//  doTest<float,4,128>(1024);
+  doTest<uint16_t,1,128>(1024);
+  doTest<half,1,128>(1024);
+  doTest<float,1,128>(1024);
 
   return 0;
 }
