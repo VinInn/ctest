@@ -157,11 +157,11 @@ void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
          auto j2 = j*j | (j*j+1)<<16;
          y = inV.zc(j);
          auto m = __hgt2_mask(y,z) & __hgt2_mask(cut2,d2);
-         z = __hmax2(__hgt2(cut2,d2)*y,z);
+         z = __hmax2_nan(__hgt2(cut2,d2)*y,z);
          k = m&j2 | (~m)&k;
          y = __lowhigh2highlow(y);
          m = __hgt2_mask(y,z) & __hgt2_mask(cut2,d2);
-         z = __hmax2(__hgt2(cut2,d2)*y,z);
+         z = __hmax2_nan(__hgt2(cut2,d2)*y,z);
          j2 = j*j+1 | (j*j)<<16;
          k = m&j2 | (~m)&k;
        }else {

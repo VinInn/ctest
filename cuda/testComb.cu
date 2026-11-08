@@ -72,15 +72,15 @@ void bfN2h2(half2 const * __restrict__ xi, uint32_t * __restrict__ ind,  int n) 
       auto y = xi[j];
       uint32_t j1 = ((j*2+1)<<16) | ((j*2));
       auto m1 = __hgt2_mask(y,x);
-      x = __hmax2(x,y);
       k = m1&j1 | (~m1)&k;
-      // x = &(half2*)(&(m1&std::bit_cast<uint32_t>(y) | (~m1)&std::bit_cast<uint32_t>(x)));
+      x = __hmax2(x,y);
+      // x = std::bit_cast<__half2_raw>(m1&std::bit_cast<uint32_t>(__half2_raw(y)) | (~m1)&std::bit_cast<uint32_t>(__half2_raw(x)) );
       uint32_t j2 = ((j*2)<<16) | (j*2+1);
       y = __lowhigh2highlow(y);
       auto m2 = __hgt2_mask(y,x);
       k = m2&j2 | (~m2)&k;
       x = __hmax2(x,y);
-      // x = &(half2*)(&(m2&std::bit_cast<uint32_t>(y) | (~m2)&std::bit_cast<uint32_t>(x)));
+      // x = std::bit_cast<__half2_raw>(m2&std::bit_cast<uint32_t>(__half2_raw(y)) | (~m2)&std::bit_cast<uint32_t>(__half2_raw(x)) );
     }
     ind[i] = k;
    }
@@ -201,14 +201,14 @@ int main() {
   doTest<half,1,64>(64);
   doTest<float,1,64>(64);
 */
-  doTest<uint16_t,1,128>(128);
-  doTest<half,1,128>(128);
-  doTest<float,1,128>(128);
+//  doTest<uint16_t,1,128>(128);
+//  doTest<half,1,128>(128);
+//  doTest<float,1,128>(128);
 
 
-//  doTest<uint16_t,1,128>(1024);
-//  doTest<half,1,128>(1024);
- // doTest<float,1,128>(1024);
+  doTest<uint16_t,1,128>(1024);
+  doTest<half,1,128>(1024);
+  doTest<float,1,128>(1024);
 
   return 0;
 }
