@@ -18,7 +18,7 @@ template <typename T, int N>
 __device__ void __forceinline__ prefixScanN(T* c, uint32_t i) {
   static_assert(N<=32);
   auto x = c[i];
-  auto laneId = threadIdx.x & 0x1f;
+  auto laneId = threadIdx.x;
 #pragma unroll
   for (int offset = 1; offset < N; offset <<= 1) {
     auto y = __shfl_up_sync(0xffffffff, x, offset);
