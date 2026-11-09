@@ -53,6 +53,9 @@ int main() {
 
   testPrefixScanN<uint16_t,4><<<1,64>>>();
   testPrefixScanN<uint16_t,8><<<1,64>>>();
+  testPrefixScanN<uint16_t,9><<<1,64>>>();
   testPrefixScanN<uint16_t,12><<<1,64>>>();
   testPrefixScanN<uint16_t,16><<<1,64>>>();
+  testPrefixScanN<uint16_t,17><<<1,64>>>();
+  testPrefixScanN<uint16_t,32><<<1,64>>>();
 }
