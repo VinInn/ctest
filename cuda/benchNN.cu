@@ -86,7 +86,7 @@ constexpr half2 assign(double x) { return half2(x,x);}
 
 
 #include<random>
-template<typename T, typename U>
+template<typename T, typename U, bool TJ>
 struct G {
   int * operator()(SoA<T> & x, SoA<U> & y, int n, int nb) { 
     cudaMalloc(&a, 3*n * sizeof(T)); 
@@ -100,23 +100,38 @@ struct G {
     std::random_device rd;  // a seed source for the random number engine
     std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
 //    std::uniform_int_distribution<> rint(0,n);
-    std::uniform_real_distribution<float> rf(-1.0,1.0);
+    std::uniform_real_distribution<float> rf(-M_PI,M_PI);
     std::uniform_int_distribution<> rint16(-32768,32768);
+    float scale = TJ ? 0.25  : 1.;
+    float xc1 = TJ ? std::clamp(rf(gen),float(-M_PI+0.4),float(M_PI-0.4)) : 0.;
+    float yc1 = TJ ? std::clamp(rf(gen),float(-M_PI+0.4),float(M_PI-0.4)) : 0.;
+    float xc2 = TJ ? std::clamp(rf(gen),float(-M_PI+0.4),float(M_PI-0.4)) : 0.;
+    float yc2 = TJ ? std::clamp(rf(gen),float(-M_PI+0.4),float(M_PI-0.4)) : 0.;
+
+    auto xr = [&](){return scale*rf(gen) + (rint16(gen)>0 ? xc1 : xc2);};
+    auto yr = [&](){return scale*rf(gen) + (rint16(gen)>0 ? yc1 : yc2);};
+    auto zr = [&](){return fabsf(rf(gen));};
 
     l[0]=0;
     for (int i=1; i<nb+1;++i) l[i] = l[i-1] + n/nb;  // maybe random in future....
     std::cout << l[0] <<',' << l[1] << ' ' << l[nb]<<std::endl;
-    for (int i=0; i<3*n;++i) {
-      if constexpr (std::is_floating_point<T>::value || std::is_same<half, typename std::remove_cv<T>::type>::value || std::is_same<__float128, typename std::remove_cv<T>::type>::value)
-        q[i] = rf(gen);
+    for (int i=0; i<n;++i) {
+      if constexpr (std::is_floating_point<T>::value)
+        q[i] = xr();
       else if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value)
-         q[i] = half2{rf(gen), rf(gen)};
-      else if constexpr(std::is_same<float2, typename std::remove_cv<T>::type>::value)
-         q[i] = float2{rf(gen), rf(gen)};
-      else if constexpr(std::is_same<uint32_t, typename std::remove_cv<T>::type>::value)
-        q[i] = rint16(gen) | (rint16(gen)<<16);
-      else
-        q[i] = rint16(gen);
+         q[i] = half2{xr(), xr()};
+    }
+    for (int i=n; i<2*n;++i) {
+      if constexpr (std::is_floating_point<T>::value)
+        q[i] = yr();
+      else if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value)
+         q[i] = half2{yr(), yr()};
+    }
+    for (int i=2*n; i<3*n;++i) {
+      if constexpr (std::is_floating_point<T>::value)
+        q[i] = zr();
+      else if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value)
+         q[i] = half2{zr(), zr()};
     }
     cudaMemcpy(ind, l, (nb+1)*sizeof(int),cudaMemcpyHostToDevice);
     cudaMemcpy(a, q, 3*n*sizeof(T),cudaMemcpyHostToDevice);
@@ -225,8 +240,10 @@ int main() {
 
    int n = MX*NB;
 
-   doBench<G<float,uint32_t>,SoA<float>,SoA<uint32_t>>("f n2",n);
-   doBench<G<half2,uint32_t>,SoA<half2>,SoA<uint32_t>>("h n2",n/2);
+   doBench<G<float,uint32_t,false>,SoA<float>,SoA<uint32_t>>("puf n2",n);
+   doBench<G<half2,uint32_t,false>,SoA<half2>,SoA<uint32_t>>("puh n2",n/2);
+   doBench<G<float,uint32_t,true>,SoA<float>,SoA<uint32_t>>("2jf n2",n);
+   doBench<G<half2,uint32_t,true>,SoA<half2>,SoA<uint32_t>>("2jh n2",n/2);
 
    return 0;
 }
