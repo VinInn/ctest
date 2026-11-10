@@ -15,31 +15,59 @@ public:
 };
 
 template <typename T, int N>
-__device__ void __forceinline__ prefixScanN(T* c, uint32_t i) {
-  static_assert(N<=32);
-  auto x = c[i];
-  auto laneId = threadIdx.x;
+__device__ void __forceinline__ prefixScanN(T* uc, uint32_t i) {
+  if constexpr (std::is_same<uint16_t, typename std::remove_cv<T>::type>::value) {
+//    static_assert(N<=64);
+    auto mask = __ballot_sync(0xffffffff, i < (N+1)/2);
+    if (i>=(N+1)/2) return;
+    uint32_t * c = (uint32_t *)(uc);  // make sure allign is ok 
+    uint32_t x = c[i];
+    auto laneId = threadIdx.x;
+// first shift by hand
+    auto x3 = x>>16;
+    x = __vadd2(x,x<<16);
+    auto y = __shfl_up_sync(mask, x3, 1);
+    if (laneId >= 1) x= __vadd2(x,y);
+
 #pragma unroll
-  for (int offset = 1; offset < N; offset <<= 1) {
-    auto y = __shfl_up_sync(0xffffffff, x, offset);
-    if (laneId >= offset)
-      x += y;
+    for (int offset = 1; offset < (N+1)/2; offset <<= 1) {
+      auto y = __shfl_up_sync(mask, x, offset);
+      if (laneId >= offset)
+        x= __vadd2(x,y);
+    }
+    c[i] = x;
+  }else {
+//    static_assert(N<=32);
+    auto mask = __ballot_sync(0xffffffff, i < N);
+    if (i>=N) return;
+    auto x = uc[i];
+    auto laneId = threadIdx.x;
+#pragma unroll
+    for (int offset = 1; offset < N; offset <<= 1) {
+      auto y = __shfl_up_sync(mask, x, offset);
+      if (laneId >= offset)
+        x += y;
+    }
+    uc[i] = x;
   }
-  c[i] = x;
 }
+
 
 
 template <typename T, int N>
 __global__ void testPrefixScanN() {
-  __shared__ T c[N];
+  __shared__ T c[2*((N+1)/2)];
   auto i = threadIdx.x;
-  c[i] = 1;
+  if (i<N) c[i] = 1;
+  if (i==0) printf("testing %d %d %d\n",N,i, c[i]);
   __syncthreads();
 
   prefixScanN<T,N>(c, i);
+  if (i==N-1) printf("scanned %d %d %d %d\n",N,N-1, c[N-1], c[0]);
   __syncthreads();
-
-  assert(1 == c[0]);
+  
+  if (i==0 && 1 != c[0]) printf(format_traits<T>::failed_msg, N, 0, blockDim.x, c[0],c[0]);
+  if (i==0) assert(1 == c[0]);
   if (i != 0 && i<N) {
     if (c[i] != c[i - 1] + 1)
       printf(format_traits<T>::failed_msg, N, i, blockDim.x, c[i], c[i - 1]);
@@ -51,6 +79,8 @@ __global__ void testPrefixScanN() {
 
 int main() {
 
+
+
   testPrefixScanN<uint16_t,4><<<1,64>>>();
   testPrefixScanN<uint16_t,8><<<1,64>>>();
   testPrefixScanN<uint16_t,9><<<1,64>>>();
@@ -58,4 +88,16 @@ int main() {
   testPrefixScanN<uint16_t,16><<<1,64>>>();
   testPrefixScanN<uint16_t,17><<<1,64>>>();
   testPrefixScanN<uint16_t,32><<<1,64>>>();
+  testPrefixScanN<uint16_t,45><<<1,64>>>();
+  testPrefixScanN<uint16_t,64><<<1,64>>>();
+
+  testPrefixScanN<uint32_t,4><<<1,64>>>();
+  testPrefixScanN<uint32_t,8><<<1,64>>>();
+  testPrefixScanN<uint32_t,9><<<1,64>>>();
+  testPrefixScanN<uint32_t,12><<<1,64>>>();
+  testPrefixScanN<uint32_t,16><<<1,64>>>();
+  testPrefixScanN<uint32_t,17><<<1,64>>>();
+  testPrefixScanN<uint32_t,32><<<1,64>>>();
+  cudaDeviceSynchronize();
+
 }
