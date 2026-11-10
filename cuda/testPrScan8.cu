@@ -17,7 +17,7 @@ public:
 template <typename T, int N>
 __device__ void __forceinline__ prefixScanN(T* uc, uint32_t i) {
   if constexpr (std::is_same<uint16_t, typename std::remove_cv<T>::type>::value) {
-//    static_assert(N<=64);
+    static_assert(N<=64);
     auto mask = __ballot_sync(0xffffffff, i < (N+1)/2);
     if (i>=(N+1)/2) return;
     uint32_t * c = (uint32_t *)(uc);  // make sure allign is ok 
@@ -28,7 +28,6 @@ __device__ void __forceinline__ prefixScanN(T* uc, uint32_t i) {
     x = __vadd2(x,x<<16);
     auto y = __shfl_up_sync(mask, x3, 1);
     if (laneId >= 1) x= __vadd2(x,y);
-
 #pragma unroll
     for (int offset = 1; offset < (N+1)/2; offset <<= 1) {
       auto y = __shfl_up_sync(mask, x, offset);
@@ -37,7 +36,7 @@ __device__ void __forceinline__ prefixScanN(T* uc, uint32_t i) {
     }
     c[i] = x;
   }else {
-//    static_assert(N<=32);
+    static_assert(N<=32);
     auto mask = __ballot_sync(0xffffffff, i < N);
     if (i>=N) return;
     auto x = uc[i];
