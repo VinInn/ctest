@@ -2,6 +2,9 @@
 //  /opt/nvidia/nsight-compute/2025.2.1/ncu --metrics sm__cycles_elapsed.avg,sm__sass_thread_inst_executed_op_fp32_pred_on.sum,sm__sass_thread_inst_executed_op_integer_pred_on.sum,sm__sass_thread_inst_executed_pred_on.sum,dram__bytes.sum ./a.out
 // ./a.out | grep gtime | cut -d' ' -f6 | tr '\n' ','; echo ']\n,['
 // #include "benchSoA.h"
+
+#include "prefixScanN.h"
+
 #include <cassert>
 #include <cstdint>
 #include <cmath>
@@ -88,6 +91,7 @@ constexpr half2 assign(double x) { return half2(x,x);}
 #include<random>
 template<typename T, typename U, bool TJ>
 struct G {
+  static const bool TW = TJ;
   int * operator()(SoA<T> & x, SoA<U> & y, int n, int nb) { 
     cudaMalloc(&a, 3*n * sizeof(T)); 
     cudaMalloc(&b, 3*n * sizeof(U));
@@ -102,33 +106,44 @@ struct G {
 //    std::uniform_int_distribution<> rint(0,n);
     std::uniform_real_distribution<float> rf(-M_PI,M_PI);
     std::uniform_int_distribution<> rint16(-32768,32768);
-    float scale = TJ ? 0.25  : 1.;
-    float xc1 = TJ ? std::clamp(rf(gen),float(-M_PI+0.4),float(M_PI-0.4)) : 0.;
-    float yc1 = TJ ? std::clamp(rf(gen),float(-M_PI+0.4),float(M_PI-0.4)) : 0.;
-    float xc2 = TJ ? std::clamp(rf(gen),float(-M_PI+0.4),float(M_PI-0.4)) : 0.;
-    float yc2 = TJ ? std::clamp(rf(gen),float(-M_PI+0.4),float(M_PI-0.4)) : 0.;
+    float scale = TJ ? 0.125  : 1.;
+    float xc1 = 0;
+    float yc1 = 0.;
+    float xc2 = 0.;
+    float yc2 = 0.;
+
+    auto cj = [&]() { return TJ ? std::clamp(rf(gen),float(-M_PI+0.4),float(M_PI-0.4)) : 0.; };
 
     auto xr = [&](){return scale*rf(gen) + (rint16(gen)>0 ? xc1 : xc2);};
     auto yr = [&](){return scale*rf(gen) + (rint16(gen)>0 ? yc1 : yc2);};
     auto zr = [&](){return fabsf(rf(gen));};
 
     l[0]=0;
+    auto nt = n/nb;
     for (int i=1; i<nb+1;++i) l[i] = l[i-1] + n/nb;  // maybe random in future....
     std::cout << l[0] <<',' << l[1] << ' ' << l[nb]<<std::endl;
     for (int i=0; i<n;++i) {
-      if constexpr (std::is_floating_point<T>::value)
+      if (0==(i%nt)) {
+         xc1= cj();
+         xc2= cj();
+      }
+      if constexpr (std::is_floating_point<T>::value || std::is_same<half, typename std::remove_cv<T>::type>::value)
         q[i] = xr();
       else if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value)
          q[i] = half2{xr(), xr()};
     }
     for (int i=n; i<2*n;++i) {
-      if constexpr (std::is_floating_point<T>::value)
+         if (0==(i%nt)) {
+         yc1= cj();
+         yc2= cj();
+      }
+      if constexpr (std::is_floating_point<T>::value || std::is_same<half, typename std::remove_cv<T>::type>::value)
         q[i] = yr();
       else if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value)
          q[i] = half2{yr(), yr()};
     }
     for (int i=2*n; i<3*n;++i) {
-      if constexpr (std::is_floating_point<T>::value)
+      if constexpr (std::is_floating_point<T>::value || std::is_same<half, typename std::remove_cv<T>::type>::value)
         q[i] = zr();
       else if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value)
          q[i] = half2{zr(), zr()};
@@ -147,6 +162,169 @@ struct G {
   U * b;
   int * ind;
 };
+
+template<typename T>
+__device__ __host__
+uint32_t toInd(T x) { return x;}
+template<>
+__device__
+uint32_t toInd<half2>(half2 x) { return (toInd(__high2half(x)) <<16) | toInd(__low2half(x));;}
+
+
+// blocks are independent events...
+ template<typename T,typename U>
+__device__
+void tile1D(T inV,  U const outV, int const * __restrict__ ind) {
+    using F = typename T::Type;
+    const auto cut2 = assign<F>(0.016);
+    // constexpr uint32_t one = (1<<16) | 1;
+    const auto eight = assign<F>(8);
+    const auto nine = assign<F>(9);
+    const auto invD = assign<F>(1./0.4);
+    const auto f16 = assign<F>(16.);
+    const auto f0 = assign<F>(0.);
+
+    int start = ind[blockIdx.x];
+    int end = ind[blockIdx.x+1];
+    // if (start==end) printf("empty block %d\n",blockIdx.x);
+    int tid = start + threadIdx.x;
+
+    __shared__ int32_t tiles[16+3];   // guards and total
+    if(threadIdx.x<19) tiles[threadIdx.x]=0;
+    __syncthreads();
+
+    assert(end-start<=1024);
+    __shared__ uint32_t ws[5*1024];  // later dynamic
+//    uint16_t * sws  =  (uint16_t*)ws; 
+    F * x = (F*)(ws+1024);
+    F * y = (F*)(ws+2*1024);
+    F * z = (F*)(ws+3*1024);
+    uint32_t * it = (uint32_t *)(ws+4*1024);
+
+    // count
+    for (auto i=tid; i<end; i+=blockDim.x)  {
+      auto l = i-start;
+      auto x = inV.xc(i);
+      x = x*invD + nine;  // clamp?
+      assert(x>=F(0));
+      assert(x<F(17));
+      atomicAdd(tiles+toInd(x),1);
+      ws[l] = toInd(x);
+      assert(ws[l]>0);
+      assert(ws[l]<17);
+    }
+    __syncthreads();
+    prefixScanN<int32_t,18>(tiles+1);
+    __syncthreads();
+   if(threadIdx.x==0) {
+     assert(tiles[0]==0);
+     assert(tiles[16]==tiles[17]); // guard
+     assert(tiles[16]==tiles[18]); // tot
+   }
+   auto ntot = tiles[18];
+   assert(ntot == end-start);
+    // fill
+    for (auto i=tid; i<end; i+=blockDim.x)  {
+      auto l = i-start;
+      auto k = atomicSub(tiles+ws[l],1);
+      // if(k>=ntot) printf ("??? %d, %d %d %d\n",l,k,ws[l],ntot);
+      assert(k>0);
+      assert(k<=ntot);
+      --k;
+      x[k] = inV.xc(i);
+      y[k] = inV.yc(i);
+      z[k] = inV.zc(i);
+      it[k] = ws[l];
+    }
+    __syncthreads();
+    if(threadIdx.x==0) assert(tiles[1]==0);
+    if(threadIdx.x<17) assert(tiles[threadIdx.x+1]>=tiles[threadIdx.x]);
+    assert(ntot == tiles[18]);
+    for (auto i=threadIdx.x; i<ntot; i+=blockDim.x)  {
+      typename U::Type k = i;
+      auto zb = z[i];
+      for (uint32_t j=tiles[it[i]-1]; j<tiles[it[i]+3]; j++) {
+       auto d2 = (x[j]-x[i])*(x[j]-x[i]) + (y[j]-y[i])*(y[j]-y[i]);
+       if (z[j]>zb && d2<cut2) { k = j; zb=z[j];}
+      }
+      outV.x[start+i] = k;
+    }
+}
+
+/*
+// blocks are independent events...
+ template<typename T,typename U>
+__device__
+void tile1Dh2(T inV,  U const outV, int const * __restrict__ ind) {
+    using F = typename T::Type;
+    const auto cut2 = assign<F>(0.016);
+    // constexpr uint32_t one = (1<<16) | 1;
+    const auto eight = assign<F>(8);
+    const auto nine = assign<F>(9);
+    const auto invD = assign<F>(1./0.4);
+    const auto f16 = assign<F>(16.);
+    const auto f0 = assign<F>(0.);
+
+    int start = ind[blockIdx.x];
+    int end = ind[blockIdx.x+1];
+    // if (start==end) printf("empty block %d\n",blockIdx.x);
+    int tid = start + threadIdx.x;
+
+    __shared__ uint32_t tiles[16+3];   // guards and total
+    if(threadIdx.x<19) tiles[threadIdx.x]=0;
+    __syncthreads();
+
+    __shared__ uint32_t ws[5*1024];  // later dynamic
+    uint16_t * sws  =  (uint16_t*)ws;
+    float * fws = (float*)ws;
+    half * hws  =  (half*)ws;
+    half2 * h2ws  =  (half2*)ws;
+
+    F * x = (F*)(ws+1024);
+    F * y = (F*)(ws+2*1024);
+    F * z = (F*)(ws+3*1024);
+    uint32_t * it = (uint32_t *)(ws+4*1024);
+
+    for (auto i=tid; i<end; i+=blockDim.x)  {
+      auto l = i-start;
+      auto x = inV.xc(i);
+      x = x*invD + nine;  // clamp?
+      if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value) {
+        atomicAdd(tiles+int(__high2half(x)),1);
+        atomicAdd(tiles+int(__low2half(x)),1);
+        ws[l] = toInd(x);
+      } else {
+        assert(x>=f0);
+        assert(x<f16);
+        atomicAdd(tiles+toInd(x),1);
+        ws[l] = toInd(x);
+     }
+    }
+    __syncthreads();
+    prefixScanN<uint32_t,18>(tiles+1);
+    __syncthreads();
+    for (auto i=tid; i<end; i+=blockDim.x)  {
+      auto l = i-start;
+      auto k = atomicSub(tiles+ws[l],1);
+      x[k] = inV.xc(i);
+      y[k] = inV.yc(i);
+      z[k] = inV.zc(i);
+      it[k] = ws[l];
+    }
+    __syncthreads();
+
+    for (auto i=tid; i<end; i+=blockDim.x)  {
+      typename U::Type k = i;
+      if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value) {
+        k = (i*2+1)<<16 | i*2;
+      }
+      for (uint32_t j=start; j<end; j++) {
+      }
+    }
+}
+*/
+
+
 
 
 // blocks are independent events...
@@ -191,14 +369,20 @@ void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
 }
 
 // blocks are independent events...
-template<typename T, typename U>
-__global__ void benchit(T inV,  U const outV, int const * __restrict__ ind) {
+template<typename T, typename U, bool>
+__global__ void benchit0(T inV,  U const outV, int const * __restrict__ ind) {
 
    bfN2(inV,outV,ind);
-
+//   tile1D(inV,outV,ind);
 }
 
 
+template<typename T, typename U, bool>
+__global__ void benchit1(T inV,  U const outV, int const * __restrict__ ind) {
+
+//   bfN2(inV,outV,ind);
+   tile1D(inV,outV,ind);
+}
 
 
 #ifndef NB
@@ -230,20 +414,25 @@ void doBench(std::string const & fname, int n) {
   G g;
   int * ind = g(a,b, n, nB);
 
-  benchit<T,U><<<nB,nT,0,0>>>(a, b, ind);
+  benchit0<T,U,G::TW><<<nB,nT,0,0>>>(a, b, ind);
+  benchit1<T,U,G::TW><<<nB,nT,0,0>>>(a, b, ind);
   cudaDeviceSynchronize();
 }
 
 
-
+#include<iostream>
 int main() {
+
+   std::cout << toInd(-0.45f) << ' ' << toInd(0.45f)  << std::endl;
+
 
    int n = MX*NB;
 
    doBench<G<float,uint32_t,false>,SoA<float>,SoA<uint32_t>>("puf n2",n);
-   doBench<G<half2,uint32_t,false>,SoA<half2>,SoA<uint32_t>>("puh n2",n/2);
+   doBench<G<half,uint32_t,false>,SoA<half>,SoA<uint32_t>>("puh n2",n);
+//   doBench<G<half2,uint32_t,false>,SoA<half2>,SoA<uint32_t>>("puh2 n2",n/2);
    doBench<G<float,uint32_t,true>,SoA<float>,SoA<uint32_t>>("2jf n2",n);
-   doBench<G<half2,uint32_t,true>,SoA<half2>,SoA<uint32_t>>("2jh n2",n/2);
-
+   doBench<G<half,uint32_t,true>,SoA<half>,SoA<uint32_t>>("2jh n2",n);
+//   doBench<G<half2,uint32_t,true>,SoA<half2>,SoA<uint32_t>>("2jh2 n2",n/2);
    return 0;
 }

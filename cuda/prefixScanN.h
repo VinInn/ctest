@@ -20,7 +20,8 @@ __device__ void __forceinline__ prefixScanN(T* uc) {
     for (int offset = 1; offset < (N+1)/2; offset <<= 1) {
       auto y = __shfl_up_sync(mask, x, offset);
       if (i >= offset)
-        x= __vadd2(x,y);
+//        x= __vadd2(x,y);
+       x+=y;
     }
     c[i] = x;
   }else {
