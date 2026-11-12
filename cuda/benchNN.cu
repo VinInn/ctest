@@ -331,24 +331,40 @@ void tile1Dh2(T inV,  U const outV, int const * __restrict__ ind) {
  template<typename T,typename U>
 __device__
 void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
-    const auto cut2 = assign<typename T::Type>(0.016);
+    using F = typename T::Type;
+    const auto cut2 = assign<F>(0.016);
     int start = ind[blockIdx.x];
     int end = ind[blockIdx.x+1];
+    int ntot = end-start;
+#ifdef INSHARED
+    __shared__ F ws[3*1024];
+    T lV; lV.x = ws; lV.y = ws+1024; lV.z=ws+2*1024;
+    for (auto i=threadIdx.x; i<ntot; i+=blockDim.x)  {    
+       auto j=  start+i;
+       ws[i] = inV.xc(j);
+       ws[i+1024] = inV.yc(j);
+       ws[i+2*1024] = inV.zc(j);
+    }
+#else
+   T lV; lV.x = inV.x+start; lV.y = inV.y+start; lV.z=inV.z+start;
+#endif
+    __syncthreads();
     // if (start==end) printf("empty block %d\n",blockIdx.x);
-    int tid = start + threadIdx.x;
-    for (auto i=tid; i<end; i+=blockDim.x)  {
-      auto x = inV.xc(i);
-      auto y = inV.yc(i);
-      auto z = inV.zc(i);
+    // int tid = start + threadIdx.x;
+    for (auto i=threadIdx.x; i<ntot; i+=blockDim.x)  {
+    // for (auto i=tid; i<end; i+=blockDim.x)  {
+      auto x = lV.xc(i);
+      auto y = lV.yc(i);
+      auto z = lV.zc(i);
       typename U::Type k = i;
       if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value) {
         k = (i*2+1)<<16 | i*2;
       }
-      for (uint32_t j=start; j<end; j++) {
-        auto d2 = (x-inV.xc(j))*(x-inV.xc(j)) + (y-inV.yc(j))*(y-inV.yc(j));
+      for (uint32_t j=0; j<ntot; j++) {
+        auto d2 = (x-lV.xc(j))*(x-lV.xc(j)) + (y-lV.yc(j))*(y-lV.yc(j));
         if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value) {
          auto j2 = j*j | (j*j+1)<<16;
-         y = inV.zc(j);
+         y = lV.zc(j);
          auto m = __hgt2_mask(y,z) & __hgt2_mask(cut2,d2);
          z = __hmax2_nan(__hgt2(cut2,d2)*y,z);
          k = m&j2 | (~m)&k;
@@ -358,13 +374,13 @@ void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
          j2 = j*j+1 | (j*j)<<16;
          k = m&j2 | (~m)&k;
        }else {
-        if (inV.zc(j)>z && d2<cut2) { k = j; z=inV.zc(j);}
+        if (lV.zc(j)>z && d2<cut2) { k = j; z=lV.zc(j);}
 //        bool doit = inV.zc(j)>z && d2<cut2;
 //        k = doit ? j :k; 
 //        z = doit ? inV.zc(j) : z;
        }
      }
-     outV.x[i] = k;
+     outV.x[start+i] = k;
    }
 }
 
@@ -415,7 +431,7 @@ void doBench(std::string const & fname, int n) {
   int * ind = g(a,b, n, nB);
 
   benchit0<T,U,G::TW><<<nB,nT,0,0>>>(a, b, ind);
-  benchit1<T,U,G::TW><<<nB,nT,0,0>>>(a, b, ind);
+//  benchit1<T,U,G::TW><<<nB,nT,0,0>>>(a, b, ind);
   cudaDeviceSynchronize();
 }
 
@@ -430,9 +446,9 @@ int main() {
 
    doBench<G<float,uint32_t,false>,SoA<float>,SoA<uint32_t>>("puf n2",n);
    doBench<G<half,uint32_t,false>,SoA<half>,SoA<uint32_t>>("puh n2",n);
-//   doBench<G<half2,uint32_t,false>,SoA<half2>,SoA<uint32_t>>("puh2 n2",n/2);
+   doBench<G<half2,uint32_t,false>,SoA<half2>,SoA<uint32_t>>("puh2 n2",n/2);
    doBench<G<float,uint32_t,true>,SoA<float>,SoA<uint32_t>>("2jf n2",n);
    doBench<G<half,uint32_t,true>,SoA<half>,SoA<uint32_t>>("2jh n2",n);
-//   doBench<G<half2,uint32_t,true>,SoA<half2>,SoA<uint32_t>>("2jh2 n2",n/2);
+   doBench<G<half2,uint32_t,true>,SoA<half2>,SoA<uint32_t>>("2jh2 n2",n/2);
    return 0;
 }
