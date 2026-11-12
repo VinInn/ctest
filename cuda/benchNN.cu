@@ -194,12 +194,13 @@ void tile1D(T inV,  U const outV, int const * __restrict__ ind) {
     __syncthreads();
 
     assert(end-start<=1024);
-    __shared__ uint32_t ws[5*1024];  // later dynamic
+    __shared__ uint32_t ws[6*1024];  // later dynamic
 //    uint16_t * sws  =  (uint16_t*)ws; 
     F * x = (F*)(ws+1024);
     F * y = (F*)(ws+2*1024);
     F * z = (F*)(ws+3*1024);
     uint32_t * it = (uint32_t *)(ws+4*1024);
+    uint32_t * oi = (uint32_t *)(ws+5*1024);
 
     // count
     for (auto i=tid; i<end; i+=blockDim.x)  {
@@ -235,11 +236,43 @@ void tile1D(T inV,  U const outV, int const * __restrict__ ind) {
       y[k] = inV.yc(i);
       z[k] = inV.zc(i);
       it[k] = ws[l];
+      oi[k] = i;
     }
     __syncthreads();
     if(threadIdx.x==0) assert(tiles[1]==0);
     if(threadIdx.x<17) assert(tiles[threadIdx.x+1]>=tiles[threadIdx.x]);
     assert(ntot == tiles[18]);
+    if constexpr(std::is_same<half, typename std::remove_cv<T>::type>::value) {
+    half2 * x2 = (half2 *)x;
+    half2 * y2 = (half2 *)y;
+    half2 * z2 = (half2 *)z;
+    for (auto i=threadIdx.x; i<ntot/2; i+=blockDim.x)  {
+      typename U::Type k = i | (i+1)<<16;
+      auto z = z2[i];
+      for (uint32_t j=tiles[it[i]-1]; j<tiles[it[i]+3]; j+=2) {
+       auto j2 = j/2;
+       auto xl = x2[j2];
+       auto yl = y2[j2];
+       auto zl = z2[j2];
+       auto d2 = (xl-x[i])*(xl-x[i]) + (yl-y[i])*(yl-y[i]);
+       auto jj = j2*2 | (j2*2+1)<<16;
+       auto m = __hgt2_mask(zl,z) & __hgt2_mask(cut2,d2);
+       z = __hmax2_nan(__hgt2(cut2,d2)*zl,z);
+       k = m&jj | (~m)&k;
+       xl = __lowhigh2highlow(xl);
+       xl = __lowhigh2highlow(yl);
+       zl = __lowhigh2highlow(zl);
+       d2 = (xl-x[i])*(xl-x[i]) + (yl-y[i])*(yl-y[i]);
+       jj = j2*2+1 | (j2*2)<<16;
+       m = __hgt2_mask(zl,z) & __hgt2_mask(cut2,d2);
+       z = __hmax2_nan(__hgt2(cut2,d2)*zl,z);
+       k = m&jj | (~m)&k;
+
+      }
+      outV.x[start+2*i] = oi[k&0xffff];
+      outV.x[start+2*i+1] = oi[k>>16];
+    }
+    }else {
     for (auto i=threadIdx.x; i<ntot; i+=blockDim.x)  {
       typename U::Type k = i;
       auto zb = z[i];
@@ -247,7 +280,8 @@ void tile1D(T inV,  U const outV, int const * __restrict__ ind) {
        auto d2 = (x[j]-x[i])*(x[j]-x[i]) + (y[j]-y[i])*(y[j]-y[i]);
        if (z[j]>zb && d2<cut2) { k = j; zb=z[j];}
       }
-      outV.x[start+i] = k;
+      outV.x[start+i] = oi[k];
+    }
     }
 }
 
@@ -330,7 +364,7 @@ void tile1Dh2(T inV,  U const outV, int const * __restrict__ ind) {
 // blocks are independent events...
  template<typename T,typename U>
 __device__
-void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
+void bfN2(T const inV,  U outV, int const * __restrict__ ind) {
     using F = typename T::Type;
     const auto cut2 = assign<F>(0.016);
     int start = ind[blockIdx.x];
@@ -346,7 +380,7 @@ void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
        ws[i+2*1024] = inV.zc(j);
     }
 #else
-   T lV; lV.x = inV.x+start; lV.y = inV.y+start; lV.z=inV.z+start;
+    T lV; lV.x = inV.x+start; lV.y = inV.y+start; lV.z=inV.z+start;
 #endif
     __syncthreads();
     // if (start==end) printf("empty block %d\n",blockIdx.x);
@@ -363,7 +397,7 @@ void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
       for (uint32_t j=0; j<ntot; j++) {
         auto d2 = (x-lV.xc(j))*(x-lV.xc(j)) + (y-lV.yc(j))*(y-lV.yc(j));
         if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value) {
-         auto j2 = j*j | (j*j+1)<<16;
+         auto j2 = j*2 | (j*2+1)<<16;
          y = lV.zc(j);
          auto m = __hgt2_mask(y,z) & __hgt2_mask(cut2,d2);
          z = __hmax2_nan(__hgt2(cut2,d2)*y,z);
@@ -371,7 +405,7 @@ void bfN2(T inV,  U const outV, int const * __restrict__ ind) {
          y = __lowhigh2highlow(y);
          m = __hgt2_mask(y,z) & __hgt2_mask(cut2,d2);
          z = __hmax2_nan(__hgt2(cut2,d2)*y,z);
-         j2 = j*j+1 | (j*j)<<16;
+         j2 = j*2+1 | (j*2)<<16;
          k = m&j2 | (~m)&k;
        }else {
         if (lV.zc(j)>z && d2<cut2) { k = j; z=lV.zc(j);}
@@ -395,14 +429,13 @@ __global__ void benchit0(T inV,  U const outV, int const * __restrict__ ind) {
 
 template<typename T, typename U, bool>
 __global__ void benchit1(T inV,  U const outV, int const * __restrict__ ind) {
-
 //   bfN2(inV,outV,ind);
    tile1D(inV,outV,ind);
 }
 
 
 #ifndef NB
-#define NB 40
+#define NB 188
 #endif
 
 #ifndef NT
@@ -431,13 +464,17 @@ void doBench(std::string const & fname, int n) {
   int * ind = g(a,b, n, nB);
 
   benchit0<T,U,G::TW><<<nB,nT,0,0>>>(a, b, ind);
-//  benchit1<T,U,G::TW><<<nB,nT,0,0>>>(a, b, ind);
+  cudaDeviceSynchronize();
+  if constexpr(std::is_same<half2, typename std::remove_cv<typename T::Type>::type>::value) return;
+  benchit1<T,U,G::TW><<<nB,nT,0,0>>>(a, b, ind);
   cudaDeviceSynchronize();
 }
 
 
 #include<iostream>
 int main() {
+
+//   cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
 
    std::cout << toInd(-0.45f) << ' ' << toInd(0.45f)  << std::endl;
 
