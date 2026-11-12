@@ -395,19 +395,25 @@ void bfN2(T const inV,  U outV, int const * __restrict__ ind) {
         k = (i*2+1)<<16 | i*2;
       }
       for (uint32_t j=0; j<ntot; j++) {
-        auto d2 = (x-lV.xc(j))*(x-lV.xc(j)) + (y-lV.yc(j))*(y-lV.yc(j));
         if constexpr(std::is_same<half2, typename std::remove_cv<T>::type>::value) {
          auto j2 = j*2 | (j*2+1)<<16;
-         y = lV.zc(j);
-         auto m = __hgt2_mask(y,z) & __hgt2_mask(cut2,d2);
-         z = __hmax2_nan(__hgt2(cut2,d2)*y,z);
+         auto xl = lV.xc(j);
+         auto yl = lV.yc(j);
+         auto zl = lV.zc(j);
+         auto d2 = (xl-x)*(xl-x) + (yl-y)*(yl-y);
+         auto m = __hgt2_mask(zl,z) & __hgt2_mask(cut2,d2);
+         z = __hmax2_nan(__hgt2(cut2,d2)*zl,z);
          k = m&j2 | (~m)&k;
-         y = __lowhigh2highlow(y);
-         m = __hgt2_mask(y,z) & __hgt2_mask(cut2,d2);
-         z = __hmax2_nan(__hgt2(cut2,d2)*y,z);
+         xl = __lowhigh2highlow(xl);
+         yl = __lowhigh2highlow(yl);
+         zl = __lowhigh2highlow(zl);
+         d2 = (xl-x)*(xl-x) + (yl-y)*(yl-y);
+         m = __hgt2_mask(zl,z) & __hgt2_mask(cut2,d2);
+         z = __hmax2_nan(__hgt2(cut2,d2)*zl,z);
          j2 = j*2+1 | (j*2)<<16;
          k = m&j2 | (~m)&k;
        }else {
+        auto d2 = (x-lV.xc(j))*(x-lV.xc(j)) + (y-lV.yc(j))*(y-lV.yc(j));
         if (lV.zc(j)>z && d2<cut2) { k = j; z=lV.zc(j);}
 //        bool doit = inV.zc(j)>z && d2<cut2;
 //        k = doit ? j :k; 
