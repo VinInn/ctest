@@ -276,7 +276,7 @@ void tile1D(T inV,  U const outV, int const * __restrict__ ind) {
     for (auto i=threadIdx.x; i<ntot; i+=blockDim.x)  {
       typename U::Type k = i;
       auto zb = z[i];
-      for (uint32_t j=tiles[it[i]-1]; j<tiles[it[i]+3]; j++) {
+      for (uint32_t j=tiles[it[i]-1]; j<tiles[it[i]+2]; j++) {
        auto d2 = (x[j]-x[i])*(x[j]-x[i]) + (y[j]-y[i])*(y[j]-y[i]);
        if (z[j]>zb && d2<cut2) { k = j; zb=z[j];}
       }
