@@ -249,7 +249,7 @@ void tile1D(T inV,  U const outV, int const * __restrict__ ind) {
     for (auto i=threadIdx.x; i<ntot/2; i+=blockDim.x)  {
       typename U::Type k = i | (i+1)<<16;
       auto z = z2[i];
-      for (uint32_t j=tiles[it[i]-1]; j<tiles[it[i]+3]; j+=2) {
+      for (uint32_t j=tiles[it[i]-1]; j<min(ntot,tiles[it[i]+2]+1); j+=2) {
        auto j2 = j/2;
        auto xl = x2[j2];
        auto yl = y2[j2];
