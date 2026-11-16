@@ -89,9 +89,9 @@ constexpr half2 assign(double x) { return half2(x,x);}
 
 
 #include<fstream>
-template<typename T, typename U, bool TJ>
+template<typename T, typename U, int TJ>
 struct R {
-  static const bool TW = TJ;
+  static const int TW = 10+TJ;
   int * operator()(SoA<T> & x, SoA<U> & y, int, int) {
 
   std::string dir{"/data/innocent/scout/"};
@@ -178,9 +178,9 @@ struct R {
 };
 
 #include<random>
-template<typename T, typename U, bool TJ>
+template<typename T, typename U, int TJ>
 struct G {
-  static const bool TW = TJ;
+  static const int TW = TJ;
   int * operator()(SoA<T> & x, SoA<U> & y, int n, int nb) { 
     cudaMalloc(&a, 3*n * sizeof(T)); 
     cudaMalloc(&b, 3*n * sizeof(U));
@@ -442,7 +442,7 @@ void bfN2(T const inV,  U outV, int const * __restrict__ ind) {
 }
 
 // blocks are independent events...
-template<typename T, typename U, bool>
+template<typename T, typename U, int>
 __global__ void benchit0(T inV,  U const outV, int const * __restrict__ ind) {
 
    bfN2(inV,outV,ind);
@@ -450,7 +450,7 @@ __global__ void benchit0(T inV,  U const outV, int const * __restrict__ ind) {
 }
 
 
-template<typename T, typename U, bool>
+template<typename T, typename U, int>
 __global__ void benchit1(T inV,  U const outV, int const * __restrict__ ind) {
 //   bfN2(inV,outV,ind);
    tile1D(inV,outV,ind);
@@ -504,15 +504,15 @@ int main() {
 
    int n = MX*NB;
 
-   doBench<G<float,uint32_t,false>,SoA<float>,SoA<uint32_t>>("puf n2",n);
-   doBench<G<half,uint32_t,false>,SoA<half>,SoA<uint32_t>>("puh n2",n);
-   doBench<G<half2,uint32_t,false>,SoA<half2>,SoA<uint32_t>>("puh2 n2",n/2);
+   doBench<G<float,uint32_t,0>,SoA<float>,SoA<uint32_t>>("puf n2",n);
+   doBench<G<half,uint32_t,0>,SoA<half>,SoA<uint32_t>>("puh n2",n);
+   doBench<G<half2,uint32_t,0>,SoA<half2>,SoA<uint32_t>>("puh2 n2",n/2);
 
-   doBench<G<float,uint32_t,true>,SoA<float>,SoA<uint32_t>>("2jf n2",n);
-   doBench<G<half,uint32_t,true>,SoA<half>,SoA<uint32_t>>("2jh n2",n);
-   doBench<G<half2,uint32_t,true>,SoA<half2>,SoA<uint32_t>>("2jh2 n2",n/2);
+   doBench<G<float,uint32_t,1>,SoA<float>,SoA<uint32_t>>("2jf n2",n);
+   doBench<G<half,uint32_t,1>,SoA<half>,SoA<uint32_t>>("2jh n2",n);
+   doBench<G<half2,uint32_t,1>,SoA<half2>,SoA<uint32_t>>("2jh2 n2",n/2);
 
-   doBench<R<float,uint32_t,true>,SoA<float>,SoA<uint32_t>>("2jf n2",n);
+   doBench<R<float,uint32_t,0>,SoA<float>,SoA<uint32_t>>("2jf n2",n);
 //   doBench<R<half,uint32_t,true>,SoA<half>,SoA<uint32_t>>("2jh n2",n);
 //   doBench<R<half2,uint32_t,true>,SoA<half2>,SoA<uint32_t>>("2jh2 n2",n/2);
 
