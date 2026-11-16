@@ -88,6 +88,95 @@ constexpr half2 assign(double x) { return half2(x,x);}
 
 
 
+#include<fstream>
+template<typename T, typename U, bool TJ>
+struct R {
+  static const bool TW = TJ;
+  int * operator()(SoA<T> & x, SoA<U> & y, int, int) {
+
+  std::string dir{"/data/innocent/scout/"};
+  std::string files[3]= {"dumpC.out","dumpQ.out","dumpT.out"};
+
+  // count
+  int ntot = 0;
+  int ne=0;
+  char dummy[16*1024];
+  for ( auto file : files ) {
+    file = dir+file;
+    std::ifstream in(file);
+    if (!in.is_open())
+        std::cout << "failed to open " << file << std::endl;
+    int n;
+    while(!in.eof()) {
+      ne++;
+      in >> n;
+      // std::cout << file << ' ' << n << std::endl;
+      in.getline(dummy,16*1024); // bah
+      assert(n>0);
+      auto np = 32*((n-1)/32+1);  // pad to 32
+      ntot +=np;
+      for (int l=0; l<n; ++l)  { in.getline(dummy,16*1024); } // if (l==0) std::cout << dummy << std::endl; }
+      // std::cout << dummy << std::endl;
+    }
+    std::cout << file << ' ' <<  ne << ' ' << ntot<< std::endl;
+  }
+  cudaMalloc(&a, 3*ntot * sizeof(T));
+  cudaMalloc(&b, 3*ntot * sizeof(U));
+  cudaMalloc(&ind, (ne+1) * sizeof(int));
+  x.x = a; x.y = a+ntot; x.z = x.y + ntot;
+  y.x = b; y.y = b+ntot; y.z = y.y + ntot;
+  // read data
+  T * q = new T[3*ntot];
+  memset(q,0,sizeof(T)*3*ntot);
+  int * l = new int[ne+1];
+
+  ne=0;
+  l[0]=0;
+  int ntot2=0;
+  for ( auto file : files ) {
+    file = dir+file;
+    std::ifstream in(file);
+    if (!in.is_open())
+        std::cout << "failed to open " << file << std::endl;
+    int n;
+    while(!in.eof()) {
+      ne++;
+      in >> n;
+      // std::cout << file << ' ' << n << std::endl;
+      in.getline(dummy,16*1024); // bah
+      // std::cout << dummy << std::endl;
+      assert(n>0);
+      auto np = 32*((n-1)/32+1);  // pad to 32
+      assert(np>=n);
+      for (int k=0; k<n; ++k)  {
+        in >> q[ntot2+2*ntot],q[ntot2+ntot],q[ntot2]; ntot2++;  // pt,eta,phi == z,y,x
+        in.getline(dummy,16*1024);
+      }
+      ntot2+= np-n;
+      l[ne] = ntot2;
+      assert(ntot>=ntot2);
+    }
+    std::cout << file << ' ' <<  ne << ' ' << ntot2 << std::endl;
+  }
+  assert(ntot==ntot2);
+  cudaMemcpy(ind, l, (ne+1)*sizeof(int),cudaMemcpyHostToDevice);
+  cudaMemcpy(a, q, 3*ntot*sizeof(T),cudaMemcpyHostToDevice);
+  delete [] q;
+  delete[] l;
+  nev = ne;
+  return ind;
+  }
+ ~R() {
+    cudaFree(a);
+    cudaFree(b);
+    cudaFree(ind);
+  }
+  T * a;
+  U * b;
+  int * ind;
+  int nev;
+};
+
 #include<random>
 template<typename T, typename U, bool TJ>
 struct G {
@@ -95,7 +184,7 @@ struct G {
   int * operator()(SoA<T> & x, SoA<U> & y, int n, int nb) { 
     cudaMalloc(&a, 3*n * sizeof(T)); 
     cudaMalloc(&b, 3*n * sizeof(U));
-    cudaMalloc(&ind, n * sizeof(int));
+    cudaMalloc(&ind, (nb+1) * sizeof(int));
     x.x = a; x.y = a+n; x.z = x.y + n;
     y.x = b; y.y = b+n; y.z = y.y + n;
 
@@ -151,6 +240,7 @@ struct G {
     cudaMemcpy(ind, l, (nb+1)*sizeof(int),cudaMemcpyHostToDevice);
     cudaMemcpy(a, q, 3*n*sizeof(T),cudaMemcpyHostToDevice);
     delete [] q;
+    nev=n;
     return ind;
   }
   ~G() {
@@ -161,6 +251,7 @@ struct G {
   T * a;
   U * b;
   int * ind;
+  int nev;
 };
 
 template<typename T>
@@ -182,6 +273,7 @@ void tile1D(T inV,  U const outV, int const * __restrict__ ind) {
     const auto nine = assign<F>(9);
     const auto invD = assign<F>(1./0.4);
     const auto f16 = assign<F>(16.);
+    const auto f17 = assign<F>(17.);
     const auto f0 = assign<F>(0.);
 
     int start = ind[blockIdx.x];
@@ -207,12 +299,12 @@ void tile1D(T inV,  U const outV, int const * __restrict__ ind) {
       auto l = i-start;
       auto x = inV.xc(i);
       x = x*invD + nine;  // clamp?
-      assert(x>=F(0));
-      assert(x<F(17));
+      assert(x>=f0);
+      assert(x<f17);
       atomicAdd(tiles+toInd(x),1);
       ws[l] = toInd(x);
-      assert(ws[l]>0);
-      assert(ws[l]<17);
+      assert(ws[l]>toInd(f0));
+      assert(ws[l]<toInd(f17));
     }
     __syncthreads();
     prefixScanN<int32_t,18>(tiles+1);
@@ -415,8 +507,16 @@ int main() {
    doBench<G<float,uint32_t,false>,SoA<float>,SoA<uint32_t>>("puf n2",n);
    doBench<G<half,uint32_t,false>,SoA<half>,SoA<uint32_t>>("puh n2",n);
    doBench<G<half2,uint32_t,false>,SoA<half2>,SoA<uint32_t>>("puh2 n2",n/2);
+
    doBench<G<float,uint32_t,true>,SoA<float>,SoA<uint32_t>>("2jf n2",n);
    doBench<G<half,uint32_t,true>,SoA<half>,SoA<uint32_t>>("2jh n2",n);
    doBench<G<half2,uint32_t,true>,SoA<half2>,SoA<uint32_t>>("2jh2 n2",n/2);
+
+   doBench<R<float,uint32_t,true>,SoA<float>,SoA<uint32_t>>("2jf n2",n);
+//   doBench<R<half,uint32_t,true>,SoA<half>,SoA<uint32_t>>("2jh n2",n);
+//   doBench<R<half2,uint32_t,true>,SoA<half2>,SoA<uint32_t>>("2jh2 n2",n/2);
+
+
+
    return 0;
 }
