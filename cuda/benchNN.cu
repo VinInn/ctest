@@ -149,8 +149,10 @@ struct R {
       auto np = 32*((n-1)/32+1);  // pad to 32
       assert(np>=n);
       for (int k=0; k<n; ++k)  {
-        in >> q[ntot2+2*ntot],q[ntot2+ntot],q[ntot2]; ntot2++;  // pt,eta,phi == z,y,x
+        float x,y,z;
+        in >> z >> y >> x;
         in.getline(dummy,16*1024);
+        q[ntot2+2*ntot] = z; q[ntot2+ntot] = y; q[ntot2] =x; ntot2++;  // pt,eta,phi == z,y,x
       }
       ntot2+= np-n;
       l[ne] = ntot2;
@@ -357,7 +359,8 @@ void tile1D(T inV,  U const outV, int const * __restrict__ ind) {
        auto xl = x2[j2];
        auto yl = y2[j2];
        auto zl = z2[j2];
-       auto d2 = (xl-x[i])*(xl-x[i]) + (yl-y[i])*(yl-y[i]);
+       auto dx = dphi(xl,x[i]);
+       auto d2 = dx*dx + (yl-y[i])*(yl-y[i]);
        auto jj = j2*2 | (j2*2+1)<<16;
        auto m = __hgt2_mask(zl,z) & __hgt2_mask(cut2,d2);
        z = __hmax2_nan(__hgt2(cut2,d2)*zl,z);
@@ -365,7 +368,8 @@ void tile1D(T inV,  U const outV, int const * __restrict__ ind) {
        xl = __lowhigh2highlow(xl);
        xl = __lowhigh2highlow(yl);
        zl = __lowhigh2highlow(zl);
-       d2 = (xl-x[i])*(xl-x[i]) + (yl-y[i])*(yl-y[i]);
+       dx = dphi(xl,x[i]);
+       d2 = dx*dx + (yl-y[i])*(yl-y[i]);
        jj = j2*2+1 | (j2*2)<<16;
        m = __hgt2_mask(zl,z) & __hgt2_mask(cut2,d2);
        z = __hmax2_nan(__hgt2(cut2,d2)*zl,z);
@@ -380,7 +384,8 @@ void tile1D(T inV,  U const outV, int const * __restrict__ ind) {
       typename U::Type k = i;
       auto zb = z[i];
       for (uint32_t j=tiles[it[i]-1]; j<tiles[it[i]+2]; j++) {
-       auto d2 = (x[j]-x[i])*(x[j]-x[i]) + (y[j]-y[i])*(y[j]-y[i]);
+       auto dx = dphi(x[j],x[i]);
+       auto d2 = dx*dx + (y[j]-y[i])*(y[j]-y[i]);
        if (z[j]>zb && d2<cut2) { k = j; zb=z[j];}
       }
       outV.x[start+i] = oi[k];
@@ -428,20 +433,23 @@ void bfN2(T const inV,  U outV, int const * __restrict__ ind) {
          auto xl = lV.xc(j);
          auto yl = lV.yc(j);
          auto zl = lV.zc(j);
-         auto d2 = (xl-x)*(xl-x) + (yl-y)*(yl-y);
+         auto dx = dphi(xl,x);
+         auto d2 = dx*dx + (yl-y)*(yl-y);
          auto m = __hgt2_mask(zl,z) & __hgt2_mask(cut2,d2);
          z = __hmax2_nan(__hgt2(cut2,d2)*zl,z);
          k = m&j2 | (~m)&k;
          xl = __lowhigh2highlow(xl);
          yl = __lowhigh2highlow(yl);
          zl = __lowhigh2highlow(zl);
-         d2 = (xl-x)*(xl-x) + (yl-y)*(yl-y);
+         dx = dphi(xl,x);
+         d2 = dx*dx + (yl-y)*(yl-y);
          m = __hgt2_mask(zl,z) & __hgt2_mask(cut2,d2);
          z = __hmax2_nan(__hgt2(cut2,d2)*zl,z);
          j2 = j*2+1 | (j*2)<<16;
          k = m&j2 | (~m)&k;
        }else {
-        auto d2 = (x-lV.xc(j))*(x-lV.xc(j)) + (y-lV.yc(j))*(y-lV.yc(j));
+        auto dx = dphi(x,lV.xc(j));
+        auto d2 = dx*dx + (y-lV.yc(j))*(y-lV.yc(j));
         if (lV.zc(j)>z && d2<cut2) { k = j; z=lV.zc(j);}
 //        bool doit = inV.zc(j)>z && d2<cut2;
 //        k = doit ? j :k; 
@@ -526,8 +534,8 @@ int main() {
    doBench<G<half2,uint32_t,1>,SoA<half2>,SoA<uint32_t>>("2jh2 n2",n/2);
 
    doBench<R<float,uint32_t,0>,SoA<float>,SoA<uint32_t>>("2jf n2",n);
-//   doBench<R<half,uint32_t,true>,SoA<half>,SoA<uint32_t>>("2jh n2",n);
-//   doBench<R<half2,uint32_t,true>,SoA<half2>,SoA<uint32_t>>("2jh2 n2",n/2);
+   doBench<R<half,uint32_t,0>,SoA<half>,SoA<uint32_t>>("2jh n2",n);
+//   doBench<R<half2,uint32_t,0>,SoA<half2>,SoA<uint32_t>>("2jh2 n2",n/2);
 
 
 
