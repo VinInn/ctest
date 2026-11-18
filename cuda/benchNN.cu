@@ -261,6 +261,17 @@ template<>
 __device__
 uint32_t toInd<half2>(half2 x) { return (toInd(__high2half(x)) <<16) | toInd(__low2half(x));;}
 
+template<typename T>
+__device__ __host__
+T dphi(T x, T y) { auto d = std::abs(x-y); return std::min(d, T(2*M_PI)-d);}
+template<>
+__device__  __host__
+half dphi(half x, half y) { auto d = __habs(x-y); return __hmin(d, half(2*M_PI)-d);}
+template<>
+__device__
+half2 dphi(half2 x, half2 y) { auto d = __habs2(x-y); return __hmin2_nan(d, half2(2*M_PI,2*M_PI)-d);}
+
+
 
 // blocks are independent events...
  template<typename T,typename U>
@@ -500,6 +511,8 @@ int main() {
 //   cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
 
    std::cout << toInd(-0.45f) << ' ' << toInd(0.45f)  << std::endl;
+
+   std::cout << dphi(-3.0f,3.0f) << ' ' << dphi(1.5f,1.7f) << std::endl;
 
 
    int n = MX*NB;
