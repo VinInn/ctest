@@ -97,6 +97,7 @@ struct R {
   std::string dir{"/data/innocent/scout/"};
   std::string files[3]= {"dumpC.out","dumpQ.out","dumpT.out"};
 
+  int pad = 8;
   // count
   int ntot = 0;
   int ne=0;
@@ -113,7 +114,7 @@ struct R {
       // std::cout << file << ' ' << n << std::endl;
       in.getline(dummy,16*1024); // bah
       assert(n>0);
-      auto np = 32*((n-1)/32+1);  // pad to 32
+      auto np = pad*((n-1)/pad+1);  // pad to 32
       ntot +=np;
       for (int l=0; l<n; ++l)  { in.getline(dummy,16*1024); } // if (l==0) std::cout << dummy << std::endl; }
       // std::cout << dummy << std::endl;
@@ -146,7 +147,7 @@ struct R {
       in.getline(dummy,16*1024); // bah
       // std::cout << dummy << std::endl;
       assert(n>0);
-      auto np = 32*((n-1)/32+1);  // pad to 32
+      auto np = pad*((n-1)/pad+1);  // pad to 32
       assert(np>=n);
       for (int k=0; k<n; ++k)  {
         float x,y,z;
@@ -160,6 +161,8 @@ struct R {
     }
     std::cout << file << ' ' <<  ne << ' ' << ntot2 << std::endl;
   }
+  for (int i=0; i<ne+1; ++i) std::cout << l[i] << ',';
+  std::cout << std::endl;
   assert(ntot==ntot2);
   cudaMemcpy(ind, l, (ne+1)*sizeof(int),cudaMemcpyHostToDevice);
   cudaMemcpy(a, q, 3*ntot*sizeof(T),cudaMemcpyHostToDevice);
@@ -403,6 +406,7 @@ void bfN2(T const inV,  U outV, int const * __restrict__ ind) {
     int start = ind[blockIdx.x];
     int end = ind[blockIdx.x+1];
     int ntot = end-start;
+    // if (threadIdx.x==0 && ntot > 128) printf("??? %d %d\n",blockIdx.x,ntot);
 #ifdef INSHARED
     __shared__ F ws[3*1024];
     T lV; lV.x = ws; lV.y = ws+1024; lV.z=ws+2*1024;
